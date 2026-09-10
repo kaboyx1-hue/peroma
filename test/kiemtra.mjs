@@ -144,7 +144,7 @@ const s14=await E(async()=>{
   kq.moKhoa=p.temMoKhoa===true && !!document.querySelector('[data-tem="tenVN"][data-i="'+i+'"]') && !!document.querySelector('.temstat.mokhoa');
   p.hstem.congDung='SỬA TAY S14'; dongBoTCCSKhoaLucNap(); kq.napLaiKhongDe=p.hstem.congDung==='SỬA TAY S14';
   kq.dongBo=sachCauHinh(sp)[i].temMoKhoa===true;
-  kq.xuatXuVanKhoa=!document.querySelector('[data-tem="xuatXu"][data-i="'+i+'"]');
+  kq.xuatXuSuaDuoc=!!document.querySelector('[data-tem="xuatXu"][data-i="'+i+'"]');
   document.querySelector('[data-temkhoalai="'+i+'"]').click(); await new Promise(r=>setTimeout(r,150)); $('dlgO').click(); await new Promise(r=>setTimeout(r,200));
   kq.khoaLai=p.temMoKhoa===false && p.hstem.congDung===TCCS_DATA['32'].congDung && !document.querySelector('[data-tem="tenVN"][data-i="'+i+'"]');
   const g=JSON.parse(goc); p.maSP=g.maSP; p.hstem=g.hstem; p.temMoKhoa=g.temMoKhoa; mo.clear(); luuNgay(); chuyenTab('tq');
@@ -153,7 +153,7 @@ ok('S14: mặt hàng khoá TCCS mặc định vẫn chỉ đọc, có nút "Mở
 ok('S14: mở khoá phải qua hộp xác nhận, mở xong gõ được + có dải báo "Đang sửa tay"', s14.hoiXacNhan&&s14.moKhoa);
 ok('S14: đã mở khoá thì tự-áp-TCCS lúc mở app KHÔNG ghi đè phần sửa tay', s14.napLaiKhongDe);
 ok('S14: cờ mở khoá được đồng bộ (sachCauHinh) — máy/bản khác không tự khoá lại', s14.dongBo);
-ok('S14: Xuất xứ vẫn khoá như mọi mặt hàng (quy tắc pháp lý 25/08 giữ nguyên)', s14.xuatXuVanKhoa);
+ok('S18: đã mở khoá thì ô Xuất xứ cũng sửa được (khách yêu cầu 10/09/2026, bỏ khoá 25/08)', s14.xuatXuSuaDuoc);
 ok('S14: "Khoá lại theo TCCS" → thay lại đúng TCCS, chỉ đọc trở lại', s14.khoaLai);
 /* S14b: Code.gs cũ (chưa triển khai lại) không có temMoKhoa → bản cấu hình kéo từ server thiếu hẳn trường này.
    Kéo về KHÔNG được làm mất cờ đang có trên máy; còn server gửi rõ temMoKhoa:false thì phải áp dụng. */
@@ -212,6 +212,40 @@ ok('S17: khổ đã dễ đọc → nút In thường in thẳng, không hỏi',
 ok('S17: bấm Huỷ trên bảng → không in', s16.huyKhongIn);
 ok('S16: tem ngắn ở khổ 3×2 → không hỏi gì, chữ tự to lên (≥ 6 pt)', s16.temNganKhongHoi&&s16.temNganCo>=6, 'co='+s16.temNganCo);
 ok('S16: CSS in bỏ lề trong của trang app (tờ tem không bị đẩy sang trang 2)', s16.cssBoLe);
+/* S18 (10/09/2026) — phần cố định của tem (tiêu đề, khối công ty, cảnh báo, tên phụ, xuất xứ) nay sửa được */
+const s18=await E(async()=>{ window.__tatTuDongKhoTem=true;
+  const cho=ms=>new Promise(z=>setTimeout(z,ms)), goc=JSON.stringify(sp.map(x=>x.hstem));
+  const i=sp.findIndex(x=>x.ten==='Cát Zaka pro'), p=sp[i], r={id:'S18',sp:p.ten,ngaysx:'2026-09-10',lot:'4201070926',huong:'H',quyCach:'1 kg'};
+  p.hstem={tenVN:'A',thanhPhan:'B',congDung:'C',doAm:'< 10%',hdsd:'D',baoQuan:'E',xuatXu:'F',soTCCS:'01:2026/KH',hsdNam:'10'};
+  const txt=h=>{const d=document.createElement('div');d.innerHTML=h;document.body.appendChild(d);const t=d.innerText.replace(/\s+/g,' ');d.remove();return t};
+  const kq={};
+  kq.macDinhGiongCu=/NHÃN SẢN PHẨM/.test(txt(temHTML(r,p)))&&/KHÁNH HOÀNG/.test(txt(temHTML(r,p)))&&/Mã số thuế: 0318698788/.test(txt(temHTML(r,p)))&&/Đọc kỹ hướng dẫn/.test(txt(temHTML(r,p)));
+  p.hstem.ctyTen='CÔNG TY THỬ S18'; p.hstem.ctyDiaChi='Địa chỉ: 1 Đường A\nMST: 999'; p.hstem.canhBao=''; p.hstem.tenEN='Test EN'; p.hstem.soTCCS='TCVN 1234:2020';
+  const t=txt(temHTML(r,p));
+  kq.inTheoSua=/CÔNG TY THỬ S18/.test(t)&&/Địa chỉ: 1 Đường A/.test(t)&&/MST: 999/.test(t)&&!/KHÁNH HOÀNG/.test(t)&&/Test EN/.test(t);
+  kq.xoaTrangBoDong=!/Đọc kỹ hướng dẫn/.test(t);
+  kq.tieuChuanKhac=/TCVN 1234:2020/.test(t)&&!/TCCS TCVN/.test(t);
+  p.hstem.soTCCS='01:2026/KH'; kq.tieuChuanCu=/TCCS 01:2026\/KH/.test(txt(temHTML(r,p)));
+  mo.clear(); mo.add(i); chuyenTab('ct');
+  kq.coOSua=['tenEN','xuatXu','ctyTen','ctyDiaChi','canhBao','tieuDe'].every(k=>!!document.querySelector('[data-tem="'+k+'"][data-i="'+i+'"]'));
+  document.querySelector('[data-xx="1"][data-i="'+i+'"]').click(); await cho(80);
+  kq.cauXuatXu=sp[i].hstem.xuatXu==='Sản xuất tại Việt Nam từ nguyên liệu nhập khẩu';
+  document.querySelector('[data-temctyall="'+i+'"]').click(); await cho(150); $('dlgO').click(); await cho(150);
+  kq.apMoi=sp.every(x=>x.hstem&&x.hstem.ctyTen==='CÔNG TY THỬ S18'&&x.hstem.canhBao==='');
+  const k32=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'); sp[k32].maSP='32'; sp[k32].temMoKhoa=false; dongBoTCCSKhoaLucNap();
+  kq.khoaTCCSGiuCty=sp[k32].hstem.ctyTen==='CÔNG TY THỬ S18'&&sp[k32].hstem.tenVN===TCCS_DATA['32'].tenVN;
+  kq.dongBoNguyenKhoi=sachCauHinh(sp)[i].hstem.ctyTen==='CÔNG TY THỬ S18';
+  const g=JSON.parse(goc); sp.forEach((x,k)=>x.hstem=g[k]); mo.clear(); luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
+  return kq;});
+ok('S18: chưa sửa gì → tem in đúng tiêu đề, khối công ty, cảnh báo như cũ', s18.macDinhGiongCu, JSON.stringify(s18));
+ok('S18: sửa tên công ty / địa chỉ (nhiều dòng) / tên phụ → tem in theo nội dung đã sửa', s18.inTheoSua);
+ok('S18: xoá trắng dòng cảnh báo → tem bỏ hẳn dòng đó', s18.xoaTrangBoDong);
+ok('S18: tiêu chuẩn khác (TCVN …) in nguyên văn; số hiệu thường vẫn tự thêm "TCCS "', s18.tieuChuanKhac&&s18.tieuChuanCu);
+ok('S18: hồ sơ tem có ô sửa cho tên phụ, xuất xứ, tiêu đề, công ty, địa chỉ, cảnh báo', s18.coOSua);
+ok('S18: bấm câu chọn nhanh → điền đúng xuất xứ', s18.cauXuatXu);
+ok('S18: "Áp phần chung cho mọi mặt hàng" → mọi mặt hàng nhận đúng khối công ty/cảnh báo', s18.apMoi);
+ok('S18: mặt hàng khoá TCCS tự áp lại TCCS nhưng GIỮ phần chung cuối tem', s18.khoaTCCSGiuCty);
+ok('S18: phần chung nằm trong hồ sơ tem → đồng bộ nguyên khối (không cần sửa Code.gs)', s18.dongBoNguyenKhoi);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
@@ -825,7 +859,7 @@ const aeXX=await E(()=>{
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return {i:sp.indexOf(c), html:$('rows').innerHTML};
 });
-ok('ô Xuất xứ không còn là input/textarea sửa được nữa (đã khoá)', !/data-tem="xuatXu"/.test(aeXX.html));
+ok('S18: ô Xuất xứ là ô sửa được, có câu chọn nhanh', /data-tem="xuatXu"/.test(aeXX.html)&&/data-xx="1"/.test(aeXX.html));
 ok('ô Xuất xứ rỗng thì hiện mặc định "Sản xuất tại Việt Nam"', /Sản xuất tại Việt Nam/.test(aeXX.html));
 const aeXXCty=await E(()=>{const c=sp.find(x=>x.ten.includes('ZAKA')||x.ten.includes('Little Mars')); return c?c.hstem&&c.hstem.xuatXu:'—'});
 ok('mặt hàng có xuất xứ câu dài hơn (nguyên liệu nhập khẩu) vẫn giữ nguyên nội dung riêng, không bị đồng nhất', aeXXCty==='—'||/nhập khẩu|Sản xuất tại Việt Nam/.test(aeXXCty), aeXXCty);
@@ -1521,7 +1555,8 @@ ok('#allKg không còn type=number', kieuO.find(x=>x.id==='allKg').type==='text'
    thật (veTT) phải giữ nguyên tiếng Việt "Cho phép", không đổi ngôn ngữ ở đó. */
 ok('Nút CHỌN trạng thái (veTT) vẫn giữ tiếng Việt "Cho phép"', (await E(()=>TT.ok.n))==='Cho phép');
 ok('Badge tóm tắt đầu thẻ dùng "APPROVED" (ngắn, chỉ ở mục tiêu đề)', (await E(()=>TT_BADGE_NGAN.ok))==='APPROVED');
-ok('TEM_O không còn ô tenEN', (await E(()=>TEM_O.some(x=>x[0]==='tenEN')))===false);
+// S18 (10/09/2026): mở lại ô tên phụ — 27/08 bỏ ô nhưng dữ liệu cũ/TCCS vẫn tự in dòng này mà KHÔNG có cách sửa hay xoá (khách: 'khoá cứng nhiều chi tiết'). Nay là ô KHÔNG bắt buộc, xoá trắng thì tem bỏ dòng.
+ok('S18: ô tên phụ (tenEN) có lại để sửa/xoá, nhưng KHÔNG bắt buộc', (await E(()=>{const o=TEM_O.find(x=>x[0]==='tenEN');return !!o&&!o[3]})));
 
 /* AS4: mở 1 mặt hàng để kiểm giao diện chi tiết */
 const iAS=await E(()=>{const x=sp.find(p=>p.ten==='Cát Zaka liti thường');const ix=sp.indexOf(x);
