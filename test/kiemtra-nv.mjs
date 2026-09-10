@@ -401,7 +401,7 @@ ok('26/08/2026 PATCH V1 mục F2: nhãn "kg đầu vào" đổi thành "Đầu v
 const xOLot=await E(()=>{tab='lo';traLot='';ve();return [...document.querySelectorAll('#oLot option')].map(o=>o.textContent).join('|')});
 ok('dropdown chọn lô có kèm tên hương', /Hương Chanh/.test(xOLot), xOLot);
 const xKv=await E(()=>{traLot='1101070826';ve();return $('view').innerHTML});
-ok('thẻ Tra lô tô màu ưu tiên Hương/Quy cách/Số bao', /color:var\(--cy\)/.test(xKv)&&/color:var\(--am\)/.test(xKv)&&/color:#A78BFA/.test(xKv), 'có đủ 3 màu ưu tiên');
+ok('thẻ Tra lô tô màu ưu tiên Hương/Quy cách/Số bao', /color:var\(--cy\)/.test(xKv)&&/color:var\(--am\)/.test(xKv)&&/color:var\(--pur\)/.test(xKv), 'có đủ 3 màu ưu tiên');
 // 27/08/2026 (phản hồi lần 3): khách chốt "Tiến độ sử dụng lô nguyên liệu đầu vào" vô nghĩa vì
 // đã có "Hàm lượng nguyên liệu" khai chi tiết hơn — gỡ bỏ hẳn khỏi tab Pha mẻ (giống bên Admin).
 const xTD=await Ea(v=>{nlTong=v.tong; nlNgayKhai=v.ngay; tab='me'; moSP=-1; ve();

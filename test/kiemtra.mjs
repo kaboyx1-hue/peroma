@@ -652,7 +652,7 @@ const aeLot=await E(()=>{tab='bc';traLot='';ve();
 ok('dropdown Tra cứu số lot có kèm tên hương', /Chanh tươi/.test(aeLot), aeLot);
 const aeKv=await E(()=>{traLot=nk.find(r=>r.huong==='Chanh tươi')?.lot||''; ve(); return $('viewBC').innerHTML});
 ok('thẻ chi tiết lô ở Tra lô tô màu ưu tiên Hương/Quy cách/Số bao (đồng bộ đúng 3 màu với bản Nhân viên)',
-  /color:var\(--cyan\)/.test(aeKv)&&/color:var\(--amber\)/.test(aeKv)&&/color:#A78BFA/.test(aeKv), 'có đủ 3 màu ưu tiên');
+  /color:var\(--cyan\)/.test(aeKv)&&/color:var\(--amber\)/.test(aeKv)&&/color:var\(--pur\)/.test(aeKv), 'có đủ 3 màu ưu tiên');
 
 console.log('\n── AF. NGỪNG SẢN XUẤT — LÝ DO + TRẢ NGUYÊN LIỆU DƯ VỀ TỒN KHO (25/08/2026-H) ──');
 /* Khách chốt: "ngừng sản xuất" KHÁC "huỷ lô" — không xoá dữ liệu, bắt buộc lý do, và số
@@ -937,8 +937,9 @@ ok('mặt hàng KHÔNG có hương thì KHÔNG tự thêm ", hương liệu"',
 ok('26/08/2026-N2: bỏ dòng tính toán trùng lặp "X kg × Y mg/100kg" khỏi màn Công thức', !/class="calc"/.test(await E(()=>document.querySelector('#rows').innerHTML)));
 ok('26/08/2026-N2: VẪN giữ nguyên ô "Mẻ chuẩn (kg)" và "Định lượng hương (mg)" (an toàn dữ liệu — không gộp vào ô đầu dòng)',
   (await E(()=>!!document.querySelector('[data-f="kg"]')))&&(await E(()=>!!document.querySelector('[data-f="ml"]'))));
-const aj2MauNut=await E(()=>{const b=document.querySelector('[data-addh]');return b?getComputedStyle(b).color:''});
-ok('26/08/2026-N2: nút "+ Thêm hương vào danh mục" đổi màu vàng (var(--amber) = rgb(255,176,32))', aj2MauNut==='rgb(255, 176, 32)', aj2MauNut);
+// S9 (10/09/2026): giao diện theo Zaka nên màu nhấn không còn là vàng cố định — kiểm nút dùng ĐÚNG màu nhấn var(--amber) của giao diện đang bật
+const aj2MauNut=await E(()=>{const b=document.querySelector('[data-addh]');if(!b)return '';const m=document.createElement('i');m.style.color='var(--amber)';document.body.appendChild(m);const c=getComputedStyle(m).color;m.remove();return getComputedStyle(b).color+'|'+c});
+ok('26/08/2026-N2: nút "+ Thêm hương vào danh mục" tô màu nhấn var(--amber)', (()=>{const [x,y]=aj2MauNut.split('|');return !!x&&x===y})(), aj2MauNut);
 
 await E(()=>{tab='ma';moTra.delete('ctl');ve()}); await p.waitForTimeout(150);
 const aj2CtlToTruoc=await E(()=>document.querySelector('#viewMA').innerHTML.length);

@@ -27,7 +27,7 @@
    GỠ BỎ KHẨN CẤP: đổi TU_HUY thành true rồi đẩy lên. Mọi máy sẽ tự xoá bản lưu và
    tự huỷ đăng ký ở lần mở kế tiếp có mạng, quay về hành vi như chưa từng có file này. */
 
-const PHIEN_BAN = 'peroma-2026-09-10-s8';
+const PHIEN_BAN = 'peroma-2026-09-10-s9';
 const TU_HUY = false;
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -76,7 +76,7 @@ self.addEventListener('fetch', (e) => {
       const daLuu = await caches.match(req, { ignoreSearch: true });
       if (daLuu) return daLuu;
       return new Response(
-        '<meta charset="utf-8"><body style="background:#0B0F14;color:#E8EEF5;font-family:sans-serif;padding:24px">' +
+        '<meta charset="utf-8"><body style="background:#0F1713;color:#E4EFE8;font-family:sans-serif;padding:24px">' +
         '<h3>Chưa mở được Peroma khi mất mạng</h3>' +
         '<p>Máy này chưa từng mở app khi có mạng nên chưa có bản lưu.<br>' +
         'Kết nối mạng, mở app một lần, sau đó mất mạng vẫn dùng được.</p></body>',

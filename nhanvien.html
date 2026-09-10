@@ -6,24 +6,58 @@
 <!-- 10/09/2026: cho phép 'Thêm vào màn hình chính' mở toàn màn hình như app, thanh trạng thái
      cùng màu nền tối. Nằm ngay trong HTML — không tạo thêm file manifest (giữ đúng phạm vi
      ngoại lệ khách đã duyệt: chỉ thêm 1 file sw.js). -->
-<meta name="theme-color" content="#0B0F14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Peroma">
-<meta name="theme-color" content="#0B0F14">
+<meta name="theme-color" content="#1F5B44">
+<!-- 10/09/2026 (S9/R7): gắn lớp "sang" lên <html> TRƯỚC khi vẽ trang để máy đã chọn giao diện
+     sáng không bị chớp màn tối lúc mở app. Chỉ đọc 1 khoá hiển thị riêng của máy này. -->
+<script>try{if(localStorage.getItem('peroma:sangtoi')==='sang')document.documentElement.classList.add('sang')}catch(e){}</script>
 <title>Peroma — Nhân viên</title>
 <style>
+/* ══ GIAO DIỆN ĐỒNG BỘ VỚI ZAKA — 10/09/2026 (bản S9 / R7) ══
+   Khách yêu cầu Peroma "na ná" Zaka cho dễ dùng khi chuyển qua lại giữa 2 app. Lấy bảng màu,
+   hình khối (bo góc 14/20, nút chuyển màu, thanh tiêu đề màu thương hiệu, tab gạch chân 3px) và
+   nút đổi sáng/tối của Zaka. CHỈ đổi cách hiển thị: không đổi id/class/cấu trúc HTML, không đổi
+   logic. Tên biến màu cũ của Peroma (--amber, --cyan, --panel…) giữ nguyên và trỏ sang bảng mới,
+   nên hàng trăm chỗ đang dùng không phải sửa.
+   Ý nghĩa màu: --amber (cũ vàng) = màu nhấn chính -> xanh rêu / nâu mùn cưa; --cyan (cũ ngọc) =
+   thông tin, số lô, lựa chọn đang dùng -> xanh dương; trạng thái "đúng/khớp" -> xanh lá (--ok);
+   cảnh báo "lệch/tạm/chưa lưu" -> vàng (--warnTx); lỗi -> đỏ gạch (--badTx). */
 :root{
-  --bg:#0B0F14; --panel:#121821; --row:#151C26; --row2:#121822;
-  --line:#232E3C; --line2:#2E3B4B;
-  /* 10/09/2026: --txt3 cũ (#64748B) chỉ đạt tương phản 4.04 trên nền #0B0F14, dưới ngưỡng
-     dễ đọc 4.5. Nâng lên #78879C = 5.26 cho hợp xưởng sản xuất (ánh sáng kém, mắt người lớn
-     tuổi), vẫn mờ hơn --txt2 nên giữ nguyên thứ bậc chữ chính / phụ. */
-  --txt:#E8EEF5; --txt2:#9AAABB; --txt3:#78879C;
-  --am:#FFB020; --red:#F0564B; --redd:#3A1714; --cy:#2DD4BF; --cyd:#0E2A2B;
+  /* Bảng "Xanh rêu" — lấy NGUYÊN từ Zaka (quanly.html, bản duyệt 2026-09-08) */
+  --bg:#0F1713; --bg2:#141F19; --card:#182420; --c2:#1F2F28; --line:#2C4239; --tx:#E4EFE8; --tx2:#93AC9E;
+  --acc:#5FC896; --acc2:#7FAEDD; --brand:#1F5B44; --brandTx:#EAF8EF;
+  --ok:#57D49B; --warn:#E7B75C; --bad:#E68B72; --pur:#A6A6EA; --info:#6FA9DE;
+  --okBg:#16301F; --badBg:#2E1E19; --warnBg:#2E2618; --purBg:#1F2140; --infoBg:#152C3C;
+  --shadow:0 10px 28px -14px rgba(0,0,0,.55); --btnGlow:0 6px 18px -8px rgba(95,200,150,.4);
+  /* Bổ sung riêng Peroma — Zaka không cần vì ít chữ phụ/khung màu hơn. Mọi màu chữ đã đo
+     tương phản >= 4.5 trên mọi nền nó nằm lên (thẻ, dòng xen kẽ, ô nhập, nền cảnh báo). */
+  --tx3:#88A294; --line2:#3A5449; --rowAlt:#15211C; --rowOn:#213329;
+  --accTx:#5FC896; --warnTx:#E7B75C; --badTx:#E68B72; --badTx2:#F2C2B4; --infoTx:#6FA9DE;
+  --okLine:#2B5A3C; --warnLine:#5A4A26; --badLine:#5A3328; --infoLine:#28506B;
+  --btnA:#5FC896; --btnB:#7FAEDD; --onAcc:#0B1A12;
+  /* Tên biến cũ của Peroma -> trỏ sang bảng mới */
+  --panel:var(--card); --row:var(--card); --row2:var(--rowAlt);
+  --txt:var(--tx); --txt2:var(--tx2); --txt3:var(--tx3);
+  --am:var(--accTx); --red:var(--badTx); --redd:var(--badBg); --cy:var(--infoTx); --cyd:var(--infoBg);
   --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono","DejaVu Sans Mono",Menlo,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+:root.sang{
+  /* Bảng "Mùn cưa" của Zaka. Riêng các màu CHỮ (tx2, ok, pur, info…) được đậm thêm một bậc so
+     với Zaka: bảng gốc có vài màu chỉ đạt 3–4.3 trên nền kem — Peroma có nhiều chữ phụ nhỏ và
+     dùng trong xưởng, nên giữ đúng ngưỡng 4.5 như đã chốt ngày 10/09/2026. */
+  --bg:#F8F4EA; --bg2:#F2EBD9; --card:#FFFDF8; --c2:#F3EAD6; --line:#E7DAB9; --tx:#4A3B28; --tx2:#6B5B40;
+  --acc:#BE8A55; --acc2:#C98098; --brand:#9C6636; --brandTx:#FFF8EC;
+  --ok:#397045; --warn:#C2790F; --bad:#BC5A3C; --pur:#7A5298; --info:#34668F;
+  --okBg:#E5F0E2; --badBg:#F6E2DA; --warnBg:#F7EAD0; --purBg:#EEE4F3; --infoBg:#E3EDF5;
+  --shadow:0 10px 26px -16px rgba(120,90,40,.20); --btnGlow:0 6px 16px -8px rgba(190,138,85,.38);
+  --tx3:#756548; --line2:#D6C39A; --rowAlt:#FAF5EA; --rowOn:#F3EAD6;
+  --accTx:#8A5A2B; --warnTx:#8A5608; --badTx:#A6472B; --badTx2:#8A3A22; --infoTx:#34668F;
+  --okLine:#B9D6B5; --warnLine:#E6CF9E; --badLine:#E8BFB0; --infoLine:#BBD2E6;
+  --btnA:#9C6636; --btnB:#A85F78; --onAcc:#FFFFFF;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg)}
@@ -50,22 +84,22 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:1;min-width:0;font:inherit;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   background:transparent;color:var(--txt3);border:none;border-bottom:2px solid transparent;padding:13px 6px;cursor:pointer}
-.tab.on{color:var(--am);border-bottom-color:var(--am);background:#171207}
+.tab.on{color:var(--am);border-bottom-color:var(--am);background:var(--warnBg)}
 .hom{padding:9px 14px;background:var(--cyd);color:var(--cy);font-size:13px;font-weight:700;border-bottom:1px solid var(--line)}
-.hom.nhac{background:var(--redd);color:#FFC9C4}
+.hom.nhac{background:var(--redd);color:var(--badTx2)}
 .pg{padding:0 0 40px}
 .sec{font-size:10.5px;font-weight:800;letter-spacing:.11em;color:var(--txt3);text-transform:uppercase;
   padding:16px 14px 7px}
 .r{display:flex;align-items:center;gap:12px;padding:15px 14px;border-bottom:1px solid var(--line);
   background:var(--row);cursor:pointer}
 .r:nth-child(even){background:var(--row2)}
-.r:active{background:#1B2534}
+.r:active{background:var(--c2)}
 .r .n{flex:1;min-width:0}
 .r .n b{display:block;font-size:16px;font-weight:700}
 .r .n span{display:block;font-size:12px;color:var(--txt3);margin-top:2px}
 .r .go{color:var(--txt3);font-size:20px;flex:none}
 .bdg{font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:4px;text-transform:uppercase;flex:none}
-.bdg.tam{background:#3A2A08;color:var(--am)}
+.bdg.tam{background:var(--warnBg);color:var(--warnTx)}
 .bdg.dinh{background:var(--redd);color:var(--red)}
 .card{margin:14px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px}
 .fld{margin-bottom:13px}
@@ -76,40 +110,40 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 .fld input.mn{font-family:var(--mono);font-weight:700;font-size:21px;text-align:right}
 .fld input:focus,.fld select:focus{outline:none;border-color:var(--am)}
 .fld input.xau{border-color:var(--red)}
-.big{background:var(--cyd);border:1px solid #1D4B4D;border-radius:10px;padding:14px;margin-bottom:13px;text-align:center}
+.big{background:var(--cyd);border:1px solid var(--infoLine);border-radius:10px;padding:14px;margin-bottom:13px;text-align:center}
 .big .l{font-size:10.5px;font-weight:800;letter-spacing:.11em;color:var(--cy);text-transform:uppercase}
 .big .v{font-family:var(--mono);font-size:38px;font-weight:800;color:var(--cy);line-height:1.15;margin-top:5px}
 .big .s{font-size:12.5px;color:var(--txt2);margin-top:4px}
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chips button{font:inherit;font-size:14px;font-weight:600;background:var(--row);color:var(--txt2);
   border:1px solid var(--line2);border-radius:9px;padding:11px 14px;cursor:pointer}
-.chips button.on{background:var(--am);border-color:var(--am);color:#171003;font-weight:800}
+.chips button.on{background:var(--am);border-color:var(--am);color:var(--onAcc);font-weight:800}
 .pb{display:flex;gap:7px;align-items:center;margin-top:8px}
 .pb select{flex:1;min-width:0;font:inherit;font-size:15px;background:var(--bg);color:var(--txt);
   border:1px solid var(--line2);border-radius:9px;padding:11px 8px}
 .pb input{width:92px;flex:none;font-family:var(--mono);font-size:17px;font-weight:700;text-align:right;
   background:var(--bg);color:var(--txt);border:1px solid var(--line2);border-radius:9px;padding:11px 8px}
 .pb .x{flex:none;font-size:17px;font-weight:800;color:var(--red);background:var(--redd);
-  border:1px solid #5A2620;border-radius:9px;padding:10px 13px;cursor:pointer;line-height:1}
+  border:1px solid var(--badLine);border-radius:9px;padding:10px 13px;cursor:pointer;line-height:1}
 .pbi{font-size:12.5px;color:var(--txt2);margin:5px 0 0 3px;line-height:1.5}
 .pbi b{font-family:var(--mono);color:var(--cy)}
-.pbi .du{color:var(--am)}
+.pbi .du{color:var(--warnTx)}
 .pbi .no{color:var(--red)}
 .add{width:100%;margin-top:9px;font:inherit;font-size:14px;font-weight:700;padding:12px;
   background:var(--row);color:var(--am);border:1px dashed var(--line2);border-radius:9px;cursor:pointer}
 .tong{margin-top:11px;padding-top:11px;border-top:1px solid var(--line2);display:flex;
   justify-content:space-between;gap:9px;font-size:13.5px;flex-wrap:wrap}
 .tong b{font-family:var(--mono);font-size:15px}
-.tong.khop b{color:var(--cy)} .tong.lech b{color:var(--am)}
-.canh{background:var(--redd);border:1px solid #5A2620;border-radius:9px;padding:11px 12px;
-  font-size:13px;line-height:1.55;color:#FFC9C4;margin-bottom:13px}
+.tong.khop b{color:var(--ok)} .tong.lech b{color:var(--warnTx)}
+.canh{background:var(--redd);border:1px solid var(--badLine);border-radius:9px;padding:11px 12px;
+  font-size:13px;line-height:1.55;color:var(--badTx2);margin-bottom:13px}
 .canh b{color:var(--red)}
-.note{background:#171207;border:1px solid #3A2A08;border-radius:9px;padding:11px 12px;
-  font-size:13px;line-height:1.55;color:var(--am);margin-bottom:13px}
+.note{background:var(--warnBg);border:1px solid var(--warnLine);border-radius:9px;padding:11px 12px;
+  font-size:13px;line-height:1.55;color:var(--warnTx);margin-bottom:13px}
 .pair{display:flex;gap:9px;margin-top:14px}
 .pair button{flex:1;font:inherit;font-size:15px;font-weight:800;padding:15px;border-radius:10px;cursor:pointer}
 .huy{background:var(--row);color:var(--txt2);border:1px solid var(--line2)}
-.oke{background:var(--am);color:#171003;border:none}
+.oke{background:var(--am);color:var(--onAcc);border:none}
 .oke:disabled{opacity:.4;cursor:not-allowed}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
 .kv:last-child{border-bottom:none}
@@ -123,10 +157,10 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 .xn .row b{flex:1}
 .xn .lo{font-family:var(--mono);font-size:21px;color:var(--cy);font-weight:800}
 .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
-  background:#E8EEF5;color:#0B0F14;font-size:14px;font-weight:700;padding:12px 20px;border-radius:10px;
+  background:var(--tx);color:var(--card);font-size:14px;font-weight:700;padding:12px 20px;border-radius:10px;
   opacity:0;transition:.22s;z-index:60;max-width:88vw;text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;
+.mask{position:fixed;inset:0;background:rgba(12,18,15,.6);display:none;align-items:center;
   justify-content:center;z-index:70;padding:18px}
 .mask.on{display:flex}
 .dlg{background:var(--panel);border:1px solid var(--line2);border-radius:13px;padding:19px;max-width:460px;width:100%}
@@ -158,14 +192,46 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
   #temIn .to-nho table,#temIn .to-nho .kh{font-size:5.3pt} #temIn .to-nho .cb{font-size:4.6pt}
 }
 @media(min-width:700px){ .chips button{font-size:15px} .r{padding:17px 16px} }
+
+/* ══ LỚP HÌNH KHỐI KIỂU ZAKA (S9/R7) — đặt cuối để đè lên kiểu cũ, chỉ đổi hiển thị ══ */
+/* nền chuyển màu đặt trên <html> để phủ kín cả màn hình (đặt trên body thì dừng ở cuối nội dung) */
+html{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;min-height:100%}
+body{background:transparent}
+.stick{background:var(--card);box-shadow:var(--shadow)}
+.bar{background:var(--brand);color:var(--brandTx)}
+.bar h1 i{color:var(--brandTx)}
+.tabs{background:var(--card);border-top:0}
+.tab{font-weight:600;letter-spacing:0;text-transform:none;color:var(--tx2);border-bottom:3px solid transparent}
+.tab.on{color:var(--accTx);border-bottom-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent);font-weight:700}
+.dlg{background:var(--card);border-color:var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.toast{border-radius:14px;box-shadow:var(--shadow)}
+.bdg{border-radius:8px}
+/* nút đổi sáng/tối — cùng biểu tượng như Zaka (☀ khi đang tối, 🌙 khi đang sáng) */
+#btnSangToi{font-size:15px;line-height:1;padding:7px 10px;flex:none}
+/* 5 tab trên máy 375px: chữ thường 13px, cho phép xuống 2 dòng ("Chốt thực tế") thay vì bị cắt */
+.tab{font-size:13px;padding:12px 3px;white-space:normal;line-height:1.25}
+.who{background:rgba(255,255,255,.1);color:var(--brandTx);border-color:rgba(255,255,255,.3);border-radius:12px}
+/* thêm nút sáng/tối làm thanh tiêu đề chật trên máy 375px, đẩy nút tên người dùng ra ngoài màn hình:
+   cho tiêu đề co lại (dòng phiên bản đã có sẵn dấu …) để các nút bên phải luôn hiện đủ */
+.bar h1{min-width:0}
+.bar #btnSangToi{padding:7px 9px}
+.oke,.chips button.on{background:linear-gradient(135deg,var(--btnA) 0%,var(--btnB) 100%);color:var(--onAcc);
+  border-color:transparent;box-shadow:var(--btnGlow)}
+.oke:disabled{box-shadow:none}
+.card{border-radius:20px;box-shadow:var(--shadow)}
+.fld input,.fld select{border-radius:14px}
+.pb select,.pb input,.chips button,.pb .x{border-radius:12px}
+.big{border-radius:18px}
+.add,.pair button,.canh,.note{border-radius:14px}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R6</i></h1>
-      <span id="dbDen" style="font-size:12px;color:var(--sub,#8a8a99);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R7</i></h1>
+      <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
+      <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
     </div>
     <div class="tabs">
@@ -186,6 +252,25 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
   <div class="pair"><button class="huy" id="dlgC">Hủy</button><button class="oke" id="dlgO">Xác nhận</button></div>
 </div></div>
 <script>
+/* ── GIAO DIỆN SÁNG / TỐI — 10/09/2026 (S9/R7), cùng khuôn với Zaka (doiSangToi/napSangToi) ──
+   Chỉ là tuỳ chọn hiển thị của TỪNG MÁY, lưu riêng khoá 'peroma:sangtoi'. KHÔNG nằm trong cấu
+   hình đồng bộ hay file sao lưu (không đụng H1), máy nào chọn riêng máy đó. */
+const SANGTOI_KEY='peroma:sangtoi';
+function veNutSangToi(){
+  const sang=document.documentElement.classList.contains('sang');
+  const b=document.getElementById('btnSangToi');
+  if(b){b.textContent=sang?'\u{1F319}':'\u2600';b.title=sang?'Đổi sang giao diện tối':'Đổi sang giao diện sáng';b.setAttribute('aria-label',b.title);}
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',sang?'#9C6636':'#1F5B44'));
+}
+function doiSangToi(){
+  const sang=!document.documentElement.classList.contains('sang');
+  document.documentElement.classList.toggle('sang',sang);
+  try{localStorage.setItem(SANGTOI_KEY,sang?'sang':'toi')}catch(e){}
+  veNutSangToi();
+}
+document.getElementById('btnSangToi').addEventListener('click',doiSangToi);
+veNutSangToi();
+
 /* ═══════════ PEROMA — BẢN NHÂN VIÊN ═══════════
    Chỉ xem định mức + ghi mẻ + in tem + tra lô. KHÔNG sửa công thức, mã, danh mục.
    Cấu hình nạp từ file .json do bản admin xuất ra.                              */
@@ -462,7 +547,7 @@ addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')
 let dlgRes=null;
 function hoi(t,m,o={}){return new Promise(r=>{dlgRes=r;$('dlgT').textContent=t;$('dlgM').innerHTML=m;
   $('dlgO').textContent=o.nutOK||'Xác nhận';$('dlgC').textContent=o.nutHuy||'Hủy';
-  $('dlgO').style.background=o.nguyHiem?'#F0564B':'';$('dlgO').style.color=o.nguyHiem?'#fff':'';
+  $('dlgO').style.background=o.nguyHiem?'var(--bad)':'';$('dlgO').style.color=o.nguyHiem?'var(--onAcc)':'';$('dlgO').style.boxShadow=o.nguyHiem?'none':'';
   $('mask').classList.add('on')})}
 function dongDlg(v){$('mask').classList.remove('on');if(dlgRes){const r=dlgRes;dlgRes=null;r(v)}}
 function bao(m){const t=$('toast');t.textContent=m;t.classList.add('show');
@@ -556,7 +641,7 @@ function veBaoCao(){
     ${r.lot?`<div class="kv"><span>Số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
     ${kh>0?`<div class="kv"><span>Kế hoạch</span><b>${fmt(kh)} kg</b></div>`:''}
     <div class="kv"><span>Thực tế</span><b style="color:${coLech?'var(--am)':'var(--cy)'}">${fmt(tt)} kg</b></div>
-    ${coLech?`<div class="kv"><span>Chênh lệch</span><b style="color:${Math.abs(pct)>NGUONG_VARIANCE_PCT?'#F0564B':'var(--am)'}">${variKgStr(v)} (${variPctStr(pct)})</b></div>`:''}
+    ${coLech?`<div class="kv"><span>Chênh lệch</span><b style="color:${Math.abs(pct)>NGUONG_VARIANCE_PCT?'var(--red)':'var(--warnTx)'}">${variKgStr(v)} (${variPctStr(pct)})</b></div>`:''}
     ${r.lyDo?`<div class="kv"><span>Lý do</span><b style="color:var(--am)">${esc(r.lyDo)}</b></div>`:''}
     <div class="kv"><span>Người báo cáo</span><b>${esc(r.nv)}</b></div>
     <div class="kv"><span>Lúc</span><b>${esc(String(r.ts||'').replace('T',' ').slice(0,19))}</b></div>
@@ -655,9 +740,9 @@ function veMe(){
     <button class="add" data-inphieu="1">${p.xacNhanCT?'In phiếu công thức':'Phiếu xác nhận công thức'}</button>`;
   if(p.daInPhieu){
     o+= p.xacNhanCT
-      ? `<div class="note" style="margin-top:9px;color:var(--cy);background:var(--cyd);border-color:#1D4B4D">Đã xác nhận công thức đúng.</div>`
+      ? `<div class="note" style="margin-top:9px;color:var(--ok);background:var(--okBg);border-color:var(--okLine)">Đã xác nhận công thức đúng.</div>`
       : `<div class="canh" style="margin-top:9px">Đã in phiếu — bấm xác nhận bên dưới trước khi ghi mẻ.</div>
-         <button class="add" data-xnct="1" style="color:var(--cy);border-color:#1D4B4D">Xác nhận công thức đã in là đúng</button>`;
+         <button class="add" data-xnct="1" style="color:var(--cy);border-color:var(--infoLine)">Xác nhận công thức đã in là đúng</button>`;
   }
   o+=`</div>`;
 
@@ -717,7 +802,7 @@ function veLo(){
     <div class="kv"><span>Hương</span><b style="color:var(--cy)">${esc(r.huong)}</b></div>
     <div class="kv"><span>Quy cách</span><b style="color:var(--am)">${esc(r.quyCach)}</b></div>
     <div class="kv"><span>Đầu vào</span><b>${fmt(num(r.sl))} kg</b></div>
-    ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:#A78BFA">${esc(r.soBao)} ${donVi(r.quyCach)}${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
+    ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:var(--pur)">${esc(r.soBao)} ${donVi(r.quyCach)}${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
     <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cy)">${fmt(num(r.mlDung))} g</b></div>
     <div class="kv"><span>Người pha</span><b>${esc(r.nv)}</b></div>
     ${r.pkb?`<div class="kv"><span>Phun khử bụi</span><b>Có${r.pkbPhut?' · '+esc(r.pkbPhut)+' phút':''}${r.pkbChat?' · '+esc(r.pkbChat):''}</b></div>`:''}
