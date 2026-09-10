@@ -1,5 +1,7 @@
 # PEROMA — Phần mềm sản xuất Khánh Hoàng
 
+[![Kiểm tra & đăng web](https://github.com/kaboyx1-hue/peroma/actions/workflows/kiemtra.yml/badge.svg)](https://github.com/kaboyx1-hue/peroma/actions/workflows/kiemtra.yml)
+
 Pha hương liệu, ghi mẻ, cấp số lô, in tem, tra lô, báo cáo sản lượng.
 
 ## Mở app
@@ -59,8 +61,10 @@ Ngoài ra, ngày 10/09/2026 đã xảy ra sự cố: bộ test tự động (v�
 | `admin.html` | App quản lý — công thức, danh mục, báo cáo, sao lưu |
 | `nhanvien.html` | App nhân viên — pha mẻ, in tem, tra lô, chốt thực tế |
 | `sw.js` | Cho app mở được khi mất mạng (xem mục dưới) |
-| `Code.gs` | Apps Script đặt trong Google Sheet, làm máy chủ đồng bộ |
-| `test/` | Bộ kiểm thử tự động (Playwright) |
+| `Code.gs` | Apps Script đặt trong Google Sheet, làm máy chủ đồng bộ — **không chứa mật khẩu** (từ S23) |
+| `cong-cu/trienkhai.mjs` | Đẩy `Code.gs` lên Apps Script bằng một lệnh (`npm run trienkhai`) — xem [HUONG-DAN-TRIEN-KHAI.md](HUONG-DAN-TRIEN-KHAI.md) |
+| `test/` | Bộ kiểm thử tự động (Playwright + Node) |
+| `.github/workflows/kiemtra.yml` | Mỗi lần đẩy: chạy toàn bộ kiểm thử, **đạt hết mới đăng lên web** |
 
 ## Dùng khi mất mạng
 
@@ -74,18 +78,28 @@ Gỡ khẩn cấp: trong `sw.js` đổi `TU_HUY = true` rồi đẩy lên — m�
 
 ## Máy chủ đồng bộ
 
-`Code.gs` dán vào Apps Script của Google Sheet, rồi **Triển khai → Ứng dụng web → Bất kỳ ai**.
-Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với mật khẩu nhập trong app.
+`Code.gs` chạy trong Apps Script của Google Sheet (**Triển khai → Ứng dụng web → Bất kỳ ai**).
 
-Đổi mật khẩu: sửa `MATKHAU` → **Triển khai → Quản lý bản triển khai → sửa → Phiên bản mới** → nhập lại mật khẩu mới trong app trên từng máy.
+- **Mật khẩu không nằm trong `Code.gs`** (từ S23): đặt ở Apps Script → *Cài đặt dự án* → *Thuộc tính tập lệnh* → `MATKHAU`. Nhờ vậy `Code.gs` trong kho này là bản duy nhất, đẩy lên Apps Script y hệt. Đổi mật khẩu: sửa thuộc tính đó (có hiệu lực ngay) rồi nhập lại mật khẩu mới trong app trên từng máy.
+- **Triển khai bằng một lệnh**: `npm run trienkhai` — kiểm tra, đẩy mã, cập nhật đúng bản triển khai đang dùng (link `/exec` giữ nguyên), gọi thử xác nhận. Cài lần đầu: [HUONG-DAN-TRIEN-KHAI.md](HUONG-DAN-TRIEN-KHAI.md). Vẫn dán tay được như trước nếu muốn.
+- **Cấu hình lớn không lo tràn ô**: Google giới hạn 50.000 ký tự/ô; cấu hình vượt 40.000 ký tự tự cắt thành nhiều mảnh ở trang `CAUHINH_MANH` (ghi luân phiên, đọc lại so khớp rồi mới đổi — đứt giữa chừng vẫn giữ bản cũ nguyên vẹn). Còn nhỏ thì ghi y như cũ vào ô B1. Đo ngày 10/09/2026: 13.171 ký tự (26%).
 
 ## Kiểm thử
 
-Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
+| Bộ | Kiểm gì | Số phép (10/09/2026, S23/R16) |
+|---|---|---|
+| `kiemtra.mjs` | Admin | 471 |
+| `kiemtra-nv.mjs` | Nhân viên | 195 |
+| `kiemtra-vongtron.mjs` | Vòng tròn Admin → Nhân viên → Admin | 19 |
+| `kiemtra-offline.mjs` | Chế độ mất mạng (`sw.js`) | 21 |
+| `kiemtra-chixem.mjs` | Admin trên điện thoại (chỉ xem) | 17 |
+| `kiemtra-codegs.mjs` | Máy chủ `Code.gs` trên Google Sheet **giả lập** (đúng giới hạn 50.000 ký tự/ô) | 27 |
+| `kiemtra-trienkhai.mjs` | Công cụ triển khai, với clasp giả + web app giả | 16 |
+| `kiemtra-truockhi-gui.mjs` | 3 file khớp nhau (hành động, trường đồng bộ, không lộ mật khẩu/link) | — |
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S22/R15): **457 + 194 + 19 + 21 + 17 = 708 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Tổng **766 phép kiểm, 0 hỏng**. Chạy tự động trên GitHub mỗi lần đẩy lên `main` (xem huy hiệu ở đầu trang); **chỉ khi đạt hết mới đăng lên web**, lỗi thì web giữ nguyên bản đang chạy.
 
-> **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
+Chạy trên máy: `npm run test:maychu`, `npm run test:trienkhai`; bộ trình duyệt cần dựng thư mục thử như `cong-cu/ci-chuanbi.sh` và chạy `node server.mjs` (cổng 8777). Biến `PEROMA_CHROME` chọn trình duyệt, `CI=1` dùng Chromium kèm Playwright.
 
 Test luôn mở bản mã **chưa cấu hình kết nối**, nên không bao giờ chạm được vào Google Sheet thật — đây chính là bài học từ sự cố 10/09/2026.
 

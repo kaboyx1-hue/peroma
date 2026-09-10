@@ -8,9 +8,13 @@
     "server": "node server.mjs",
     "test": "cd test && node kiemtra.mjs",
     "test:nv": "cd test && node kiemtra-nv.mjs",
-    "test:vongtron": "cd test && node kiemtra-vongtron.mjs"
+    "test:vongtron": "cd test && node kiemtra-vongtron.mjs",
+    "trienkhai": "node cong-cu/trienkhai.mjs",
+    "test:maychu": "node test/kiemtra-codegs.mjs",
+    "test:trienkhai": "node test/kiemtra-trienkhai.mjs"
   },
   "devDependencies": {
+    "@google/clasp": "^3.4.1",
     "playwright": "^1.48.0"
   }
 }

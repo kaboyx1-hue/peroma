@@ -3,7 +3,7 @@
    Mỗi lần sửa code thì chạy lại. Đỏ là hỏng, không giao.        */
 import {chromium} from 'playwright';
 import fs from 'fs';
-const CHROME='C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME=process.env.PEROMA_CHROME||(process.env.CI?undefined:'C:/Program Files/Google/Chrome/Application/chrome.exe'); // S23: CI dùng Chromium của Playwright
 const FILE='http://127.0.0.1:8777/huong/bang-tra-huong-lieu.html';
 let dat=0,hong=0; const loi=[];
 const ok=(t,c,ghi='')=>{c?dat++:(hong++,loi.push(t));console.log(`${c?'✓':'✗ HỎNG'}  ${t}${ghi?'  → '+ghi:''}`)};
@@ -77,7 +77,7 @@ const ctKq=await E(()=>{
   $('q').value=''; document.querySelector('[data-ctloc="all"]').click();
   r.traLai=document.querySelectorAll('#rows .r').length===sp.length;
   mo.clear(); mo.add(0); ve();
-  r.neo=document.querySelectorAll('.r.open [data-ctnav]').length===4 && document.querySelectorAll('.r.open .ctsec').length===4;
+  r.neo=document.querySelectorAll('.r.open [data-ctnav]').length===5 && document.querySelectorAll('.r.open .ctsec').length===5; // S23: thêm nhóm Giá thành
   r.khongDoiDuLieu=JSON.stringify(sp)===goc;
   mo.clear(); chuyenTab('tq');
   return r;
@@ -85,7 +85,7 @@ const ctKq=await E(()=>{
 ok('CT: số đếm trên thanh lọc khớp dữ liệu', ctKq.tatCa && ctKq.chuaHuong, JSON.stringify(ctKq));
 ok('CT: lọc "Chưa có hương" chỉ hiện đúng các mặt hàng chưa có hương', ctKq.locDung && ctKq.nutOn);
 ok('CT: lọc + ô tìm dùng chung được, bỏ lọc thì hiện đủ lại', ctKq.timKetHop && ctKq.traLai);
-ok('CT: trang hồ sơ có 4 nhóm + 4 ô neo nhảy tới nhóm', ctKq.neo);
+ok('CT: trang hồ sơ có 5 nhóm (S23 thêm Giá thành) + 5 ô neo nhảy tới nhóm', ctKq.neo);
 ok('CT: lọc/mở hồ sơ KHÔNG đổi dữ liệu mặt hàng', ctKq.khongDoiDuLieu);
 /* S12 (10/09/2026) — khai nguyên liệu tại chỗ, đường dẫn bổ sung, nút thu gọn hồ sơ tem */
 const s12Goc=await E(()=>JSON.stringify({sp,nlDM}));
@@ -435,6 +435,77 @@ ok('S22: Huỷ → không đổi màu đã lưu; mở lại bảng thấy đúng
 ok('S22: màu quá nhạt → cảnh báo khó đọc; "Về đen hết" trả lại mặc định', s22.canhBao&&s22.veDen);
 ok('S22: chỉ nhận mã màu #rrggbb (chặn chèn CSS lạ)', s22.chan);
 ok('S22: màu in lưu xuống máy (như khổ cột × hàng)', s22.luuMay);
+/* S23 (10/09/2026) — khung "Giá thành" trong từng mặt hàng, bố cục theo file đầu (Định mức mùn cưa thơm).
+   Dùng đúng ví dụ của file đầu: hương 1 kg cho 800 kg (0,625 g/gói 500 g, 510.000 đ/kg) · mùn cưa 5.000 đ/kg · túi 45.000 đ/kg, 68 cái/kg. */
+const s23=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const goc={sp:JSON.stringify(sp),kho:JSON.stringify(kho),nlDM:JSON.stringify(nlDM),nl:JSON.stringify(nguonNguyenLieu),h:JSON.stringify(nguonHuong),hd:JSON.stringify(huongDangDung),qc:JSON.stringify(baoBiQC)};
+  const i=sp.findIndex(x=>x.ten==='Mùn cưa thơm'), s=sp[i];
+  s.huongs=['Hương Hoa hồng']; kho.push('Hương Hoa hồng'); s.kg=800; s.ml=1000; s.congThucNL=[{ten:'Mùn cưa',kg:800}]; nlDM.push('Mùn cưa');
+  nguonNguyenLieu['Mùn cưa']=[{ncc:'A',gia:5000000,soKg:1000}]; nguonHuong['Hương Hoa hồng']=[{ncc:'V',gia:510000,soKg:1}]; huongDangDung['Hương Hoa hồng']='V';
+  baoBiQC['500 g']=[{id:'bb-pe-3040',sl:1}];
+  mo.clear(); mo.add(i); chuyenTab('ct'); await cho(40);
+  const sec=()=>document.querySelector('.ctsec[data-sec="gt"][data-si="'+i+'"]'), txt=()=>sec().innerText;
+  kq.coKhung=!!sec()&&!!document.querySelector('.ctnv[data-ctnav="gt"][data-ci="'+i+'"]');
+  kq.the=sec().querySelectorAll('.gt-the').length===3&&/0,625 g/.test(txt())&&/318,75 đ/.test(txt())&&/661,76 đ/.test(txt());
+  kq.tong=/3\.481 đ/.test(txt())&&/1\.600/.test(txt())&&/5\.568\.824/.test(txt())&&/6\.961/.test(txt());
+  kq.tiLe=/1 : 800/.test(txt())&&/0,125%/.test(txt());
+  const o=sec().querySelector('[data-gtthu$="|||h|||Hương Hoa hồng"]'); o.value='450000'; o.dispatchEvent(new Event('input',{bubbles:true})); await cho(30);
+  kq.thu=/281,25 đ/.test(txt())&&/3\.443 đ/.test(txt())&&/tính thử/.test(txt())&&/giá thật: 510\.000 đ\/kg/.test(txt());
+  kq.giuO=!!document.activeElement&&document.activeElement.dataset.gtthu===o.dataset.gtthu;
+  kq.khongLuu=nguonHuong['Hương Hoa hồng'][0].gia===510000;
+  ve(); await cho(30); kq.giuSauVe=/3\.443 đ/.test(txt());
+  sec().querySelector('[data-gtve]').click(); await cho(30);
+  kq.veThat=/3\.481 đ/.test(txt())&&!/tính thử/.test(sec().querySelector('.gt-bang tfoot').innerText);
+  kq.khopGV=Math.round(giaVonBao(s,'500 g','Hương Hoa hồng').tong)===3481;
+  delete nguonNguyenLieu['Mùn cưa']; ve(); await cho(30);
+  kq.thieu=/chưa đủ giá/.test(txt())&&!!sec().querySelector('.gt-o.trong [data-gtthu$="|||nl|||Mùn cưa"]')&&!!sec().querySelector('[data-gtdi="nl"]');
+  const o2=sec().querySelector('[data-gtthu$="|||nl|||Mùn cưa"]'); o2.value='5.000'; o2.dispatchEvent(new Event('input',{bubbles:true})); await cho(30);
+  kq.thuOTrong=/3\.481 đ/.test(txt())&&!nguonNguyenLieu['Mùn cưa'];
+  sec().querySelector('[data-gtve]').click(); await cho(30);
+  sec().querySelector('[data-gtdi="nl"]').click(); await cho(60); kq.denDM=tab==='ma';
+  mo.clear(); mo.add(0); chuyenTab('ct'); await cho(30);
+  const q2=sp[0].dauRa[1]; document.querySelector('.ctsec[data-sec="gt"][data-si="0"] [data-gtq="0|||'+q2+'"]').click(); await cho(30);
+  kq.doiQC=document.querySelector('.ctsec[data-sec="gt"][data-si="0"] .gt-to b').textContent===q2;
+  sp=napSP(JSON.parse(goc.sp)); kho=JSON.parse(goc.kho); nlDM=JSON.parse(goc.nlDM); nguonNguyenLieu=JSON.parse(goc.nl); nguonHuong=JSON.parse(goc.h); huongDangDung=JSON.parse(goc.hd); baoBiQC=JSON.parse(goc.qc);
+  for(const k in gtTT)delete gtTT[k]; mo.clear(); await luuNgay(); chuyenTab('tq');
+  return kq;});
+ok('S23: mỗi mặt hàng có nhóm "Giá thành" (và ô điều hướng tới nó)', s23.coKhung, JSON.stringify(s23));
+ok('S23: thẻ từng thành phần như file đầu — hương 0,625 g = 318,75 đ · túi 661,76 đ', s23.the);
+ok('S23: tổng giá vốn/gói 3.481 đ · 1.600 gói/mẻ · 5.568.824 đ/mẻ · 6.961 đ/kg', s23.tong);
+ok('S23: hiện tỉ lệ pha 1 : 800 (0,125% hương)', s23.tiLe);
+ok('S23: gõ giá khác để TÍNH THỬ → cập nhật ngay, ghi rõ "tính thử" + giá thật', s23.thu&&s23.giuO);
+ok('S23: giá tính thử KHÔNG lưu vào dữ liệu; vẽ lại vẫn giữ trong phiên; "Về giá thật" trả lại', s23.khongLuu&&s23.giuSauVe&&s23.veThat);
+ok('S23: số khớp tab Giá vốn', s23.khopGV);
+ok('S23: thiếu giá → ô trống để gõ thử + nút "nhập giá thật" dẫn tới Danh mục', s23.thieu&&s23.thuOTrong&&s23.denDM);
+ok('S23: chọn quy cách khác ngay trong khung', s23.doiQC);
+/* S23 — chuyển động giao diện: tắt khi chạy test (navigator.webdriver) và khi máy bật "giảm chuyển động";
+   bật lại tay để kiểm: chỉ chạy khi ĐỔI tab / mở thẻ / mở hộp thoại, số Tổng quan đếm lên rồi trả đúng chữ gốc */
+const hv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, h=document.documentElement;
+  kq.tatKhiTest=h.classList.contains('hv-tat')&&getComputedStyle(document.body).transitionDuration==='0s';
+  h.classList.remove('hv-tat');
+  chuyenTab('gv'); await cho(20);
+  kq.vaoTab=$('viewGV').classList.contains('vao')&&getComputedStyle($('viewGV')).animationName==='hvLen';
+  await cho(950); kq.goBo=!$('viewGV').classList.contains('vao');
+  ve(); kq.veLaiKhongChay=!$('viewGV').classList.contains('vao');
+  chuyenTab('ct'); await cho(20); document.querySelector('.rmain[data-t="0"]').click(); await cho(20);
+  const r0=document.querySelector('.rmain[data-t="0"]').parentElement;
+  kq.moThe=r0.classList.contains('vuamo')&&getComputedStyle(r0.querySelector('.det')).animationName==='hvXuong';
+  document.querySelector('.rmain[data-t="0"]').click(); await cho(20);
+  const pr=hoi('Thử','x'); await cho(20); kq.hop=getComputedStyle(document.querySelector('.mask.show .dlg')).animationName==='hvPop'; $('dlgC').click(); await pr;
+  nk.push({id:'HV-1',sp:sp[0].ten,huong:'H',quyCach:'1 kg',sl:1200,soBao:1200,kgBao:1,ngaysx:ngayTruoc(0),lot:'4101070926',nv:'T'});
+  chuyenTab('tq'); await cho(130);
+  const d=document.querySelector('#viewTQ [data-dem-gon]'); const cuoi=tqGon(+d.dataset.dem);
+  kq.dangDem=d.textContent!==cuoi; await cho(800); kq.demXong=d.textContent===cuoi;
+  nk.splice(nk.findIndex(z=>z.id==='HV-1'),1); h.classList.add('hv-tat'); chuyenTab('tq');
+  return kq;});
+await p.emulateMedia({reducedMotion:'reduce'});
+const hvGiam=await E(()=>{const h=document.documentElement;h.classList.remove('hv-tat');chuyenTab('gv');const a=getComputedStyle($('viewGV')).animationName;h.classList.add('hv-tat');chuyenTab('tq');return a});
+await p.emulateMedia({reducedMotion:'no-preference'});
+ok('S23 chuyển động: tắt hẳn khi chạy bộ kiểm tra tự động', hv.tatKhiTest, JSON.stringify(hv));
+ok('S23 chuyển động: đổi tab → nội dung trồi lên; vẽ lại cùng tab KHÔNG chạy lại', hv.vaoTab&&hv.goBo&&hv.veLaiKhongChay);
+ok('S23 chuyển động: mở thẻ mặt hàng trượt xuống; hộp thoại bật ra', hv.moThe&&hv.hop);
+ok('S23 chuyển động: số Tổng quan đếm lên rồi trả đúng số gốc', hv.dangDem&&hv.demXong);
+ok('S23 chuyển động: máy bật "giảm chuyển động" → không có chuyển động', hvGiam==='none', hvGiam);
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);

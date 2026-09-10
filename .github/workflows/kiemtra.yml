@@ -1,0 +1,90 @@
+# PEROMA — KIỂM TRA TỰ ĐỘNG + ĐĂNG WEB (S23, 10/09/2026)
+# Mỗi lần đẩy lên nhánh main: chạy TOÀN BỘ bộ kiểm tra (máy chủ Code.gs, công cụ triển khai, 3 file khớp nhau,
+# Admin, chế độ chỉ xem, Nhân viên, vòng tròn Admin↔Nhân viên, mất mạng). CHỈ KHI TẤT CẢ ĐẠT mới đăng lên
+# GitHub Pages — lỗi thì web vẫn giữ bản đang chạy, không đưa bản hỏng tới xưởng.
+# Test không dùng mạng ra ngoài tới Google: không có link Apps Script, không có mật khẩu.
+name: Kiểm tra & đăng web
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kiemtra-dangweb-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  kiemtra:
+    name: Kiểm tra tự động
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "1"
+      TZ: Asia/Ho_Chi_Minh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Cài thư viện
+        run: npm ci
+      - name: Cài trình duyệt Chromium (kèm phông chữ)
+        run: npx playwright install --with-deps chromium
+      - name: Máy chủ Code.gs · công cụ triển khai · 3 file khớp nhau
+        run: |
+          node test/kiemtra-codegs.mjs
+          node test/kiemtra-trienkhai.mjs
+          node test/kiemtra-truockhi-gui.mjs admin.html nhanvien.html Code.gs
+      - name: Dựng thư mục thử + chạy máy chủ thử
+        run: |
+          bash cong-cu/ci-chuanbi.sh
+          node server.mjs > server.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8777/huong/bang-tra-huong-lieu.html > /dev/null && break; sleep 1; done
+      - name: Admin
+        working-directory: peroma
+        run: node huong/kiemtra.mjs
+      - name: Admin — chế độ chỉ xem trên điện thoại
+        working-directory: peroma
+        run: node huong/kiemtra-chixem.mjs
+      - name: Nhân viên
+        working-directory: peroma
+        run: node nv/kiemtra-nv.mjs
+      - name: Vòng tròn Admin ↔ Nhân viên
+        working-directory: peroma
+        run: node nv/kiemtra-vongtron.mjs
+      - name: Chế độ mất mạng
+        working-directory: peroma
+        run: PEROMA_GOC="$PWD" node nv/kiemtra-offline.mjs
+      - name: Nhật ký máy chủ thử (khi lỗi)
+        if: failure()
+        run: tail -n 80 server.log || true
+
+  dangweb:
+    name: Đăng lên GitHub Pages
+    needs: kiemtra
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Dựng trang (giống hệt cách GitHub Pages dựng trước đây)
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - uses: actions/upload-pages-artifact@v3
+      - id: deployment
+        uses: actions/deploy-pages@v4

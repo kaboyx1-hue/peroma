@@ -7,7 +7,9 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME = process.env.PEROMA_CHROME||(process.env.CI?undefined:'C:/Program Files/Google/Chrome/Application/chrome.exe'); // S23
+const GOC_FILE = (process.env.PEROMA_GOC || 'C:/Users/ADMIN/Downloads/peroma-work/peroma').replace(/\\/g, '/'); // S23: thư mục chứa huong/ và nv/
+import { pathToFileURL } from 'url';
 const GOC = 'http://127.0.0.1:8777';
 let dat = 0, hong = 0;
 const ok = (t, c, g = '') => { c ? dat++ : hong++; console.log(`${c ? '✓' : '✗ HỎNG'}  ${t}${g ? '  → ' + g : ''}`); };
@@ -70,11 +72,11 @@ for (const [ten, duong] of [['NHÂN VIÊN', '/nv/peroma-nhanvien.html'], ['ADMIN
 
   // ① Có mạng lại: phải lấy BẢN MỚI, không kẹt bản lưu cũ
   await ctx.setOffline(false);
-  const fileThat = fs.readFileSync(`C:/Users/ADMIN/Downloads/peroma-work/peroma${duong}`, 'utf8');
+  const fileThat = fs.readFileSync(`${GOC_FILE}${duong}`, 'utf8');
   /* Dấu vết PHẢI nằm trong <body>. Bản đầu của test nối comment vào CUỐI file (sau </html>):
      theo chuẩn HTML, comment ở đó thuộc Document chứ không thuộc <html>, nên đọc DOM không thấy
      → test báo "kẹt bản cũ" dù sw.js trả đúng bản mới (đã tách bước kiểm chứng 10/09/2026). */
-  fs.writeFileSync(`C:/Users/ADMIN/Downloads/peroma-work/peroma${duong}`,
+  fs.writeFileSync(`${GOC_FILE}${duong}`,
     fileThat.replace('</body>', '<i id="kiemtra-offline-ban-moi"></i></body>'));
   try {
     await p.waitForTimeout(1500);   // chờ mạng thật sự bật lại sau setOffline(false)
@@ -82,7 +84,7 @@ for (const [ten, duong] of [['NHÂN VIÊN', '/nv/peroma-nhanvien.html'], ['ADMIN
     const coBanMoi = await p.evaluate(() => !!document.getElementById('kiemtra-offline-ban-moi'));
     ok('CÓ MẠNG LẠI: nhận ngay bản mới, không kẹt bản cũ', coBanMoi);
   } finally {
-    fs.writeFileSync(`C:/Users/ADMIN/Downloads/peroma-work/peroma${duong}`, fileThat); // trả file về nguyên trạng
+    fs.writeFileSync(`${GOC_FILE}${duong}`, fileThat); // trả file về nguyên trạng
   }
 
   await p.evaluate(() => localStorage.removeItem('__kiemtra_offline')).catch(() => {});
@@ -99,7 +101,7 @@ console.log('\n── MỞ TỪ FILE (gửi qua Zalo) ──');
   const loi = [];
   p.on('pageerror', e => loi.push('PAGEERROR ' + e.message));
   p.on('console', m => { if (m.type() === 'error') loi.push(m.text()); });
-  await p.goto('file:///C:/Users/ADMIN/Downloads/peroma-work/peroma/nv/peroma-nhanvien.html');
+  await p.goto(pathToFileURL(GOC_FILE + '/nv/peroma-nhanvien.html').href);
   await p.waitForTimeout(1500);
   const r = await p.evaluate(async () => ({
     dangKy: !!(await navigator.serviceWorker?.getRegistration?.().catch(() => null)),

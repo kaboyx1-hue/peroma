@@ -2,7 +2,7 @@
    Chạy: node kiemtra-chixem.mjs   (cần server.mjs chạy ở cổng 8777) */
 import { chromium } from 'playwright';
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME = process.env.PEROMA_CHROME||(process.env.CI?undefined:'C:/Program Files/Google/Chrome/Application/chrome.exe'); // S23
 const URL = 'http://127.0.0.1:8777/huong/bang-tra-huong-lieu.html';
 let dat = 0, hong = 0;
 const ok = (t, c, g = '') => { c ? dat++ : hong++; console.log(`${c ? '✓' : '✗ HỎNG'}  ${t}${g ? '  → ' + g : ''}`); };

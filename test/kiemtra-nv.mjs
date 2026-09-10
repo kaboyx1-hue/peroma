@@ -1,7 +1,7 @@
 /* BỘ KIỂM TRA — Peroma bản nhân viên.  Chạy: node kiemtra-nv.mjs */
 import {chromium} from 'playwright';
 import fs from 'fs';
-const CHROME='C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME=process.env.PEROMA_CHROME||(process.env.CI?undefined:'C:/Program Files/Google/Chrome/Application/chrome.exe'); // S23: CI dùng Chromium của Playwright
 let dat=0,hong=0;const loi=[];
 const ok=(t,c,g='')=>{c?dat++:(hong++,loi.push(t));console.log(`${c?'✓':'✗ HỎNG'}  ${t}${g?'  → '+g:''}`)};
 
@@ -815,6 +815,15 @@ ok('R15: Huỷ → không đổi màu đã lưu; mở lại bảng thấy đúng
 ok('R15: màu quá nhạt → cảnh báo khó đọc; "Về đen hết" trả lại mặc định', s22.canhBao&&s22.veDen);
 ok('R15: chỉ nhận mã màu #rrggbb (chặn chèn CSS lạ)', s22.chan);
 ok('R15: màu in lưu xuống máy (như khổ cột × hàng)', s22.luuMay);
+/* R16 — chuyển động giao diện (bản nhân viên): tắt khi test, bật lại tay để kiểm */
+const hvNv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, h=document.documentElement;
+  kq.tatKhiTest=h.classList.contains('hv-tat');
+  h.classList.remove('hv-tat'); const tCu=tab;
+  tab=tab==='lo'?'bc':'lo'; ve(); await cho(20); kq.vaoTab=$('view').classList.contains('vao')&&getComputedStyle($('view')).animationName==='hvLen';
+  await cho(950); ve(); kq.veLaiKhongChay=!$('view').classList.contains('vao');
+  h.classList.add('hv-tat'); tab=tCu; ve();
+  return kq;});
+ok('R16 chuyển động: tắt khi chạy test; đổi tab → nội dung trồi lên, vẽ lại cùng tab không chạy lại', hvNv.tatKhiTest&&hvNv.vaoTab&&hvNv.veLaiKhongChay, JSON.stringify(hvNv));
 await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
 
 console.log('\n────────────────────────────');

@@ -30,8 +30,12 @@ const admin=doc(ADMIN), nv=doc(NV), gs=doc(GS);
    Lý do lịch sử vẫn giữ nguyên: đã từng mất nhiều vòng gửi lại vì Code.gs còn mật khẩu mẫu;
    nay thêm một loại tai nạn nữa cần chặn (10/09/2026: test chạy trên máy có mạng ghi đè
    Sheet thật, chỉ vì mã nguồn nhúng sẵn địa chỉ + mật khẩu). */
+/* S23 (10/09/2026): mật khẩu máy chủ chuyển sang Script Properties — Code.gs là bản DUY NHẤT, đẩy lên
+   GitHub công khai và Apps Script y hệt nhau. Nên bắt buộc: KHÔNG còn dòng const MATKHAU = '…' nào,
+   và phải đọc mật khẩu từ PropertiesService (thiếu thì mọi máy báo "Sai mật khẩu"). */
 const matkhauGs=(gs.match(/const\s+MATKHAU\s*=\s*'([^']*)'/)||[])[1];
-ok('Code.gs không còn để mật khẩu mẫu cũ', matkhauGs!=='peroma-2026-doi-di', matkhauGs);
+ok('Code.gs KHÔNG viết cứng mật khẩu (đặt ở Script Properties)', matkhauGs===undefined, 'còn dòng MATKHAU = "'+matkhauGs+'"');
+ok('Code.gs đọc mật khẩu từ Script Properties', /PropertiesService\.getScriptProperties\(\)/.test(gs)&&/function dungMatKhau\(/.test(gs));
 
 const tokenAdmin=(admin.match(/const\s+LEGACY_SHARED_TOKEN\s*=\s*'([^']+)'/)||[])[1];
 const tokenNv=(nv.match(/const\s+LEGACY_SHARED_TOKEN\s*=\s*'([^']+)'/)||[])[1];
@@ -57,7 +61,7 @@ ok('Nhân viên có chỗ nhập kết nối (ô knUrl/knMk)', /id="knUrl"/.test
 const chePhepMatch=gs.match(/HANH_DONG_CHO_PHEP\s*=\s*\[([^\]]*)\]/);
 const chePhep=chePhepMatch?[...chePhepMatch[1].matchAll(/'([a-zA-Z]+)'/g)].map(m=>m[1]):[];
 function layActionGoi(html){
-  const post=[...html.matchAll(/a:\s*'([a-zA-Z]+)'/g)].map(m=>m[1]);
+  const post=[...html.matchAll(/(?<![\w$])a:\s*'([a-zA-Z]+)'/g)].map(m=>m[1]); // S23: chỉ khoá 'a' đứng riêng (trước đây bắt nhầm ma:'viewMA')
   const get=[...html.matchAll(/&a=([a-zA-Z]+)['"]/g)].map(m=>m[1]);
   return [...new Set([...post,...get])];
 }

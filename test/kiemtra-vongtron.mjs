@@ -1,6 +1,6 @@
 /* KIỂM TRA VÒNG TRÒN: admin xuất → nhân viên nạp → ghi mẻ → xuất → admin nhận */
 import {chromium} from 'playwright'; import fs from 'fs';
-const CH='C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CH=process.env.PEROMA_CHROME||(process.env.CI?undefined:'C:/Program Files/Google/Chrome/Application/chrome.exe'); // S23
 let dat=0,hong=0; const ok=(t,c,g='')=>{c?dat++:hong++;console.log(`${c?'✓':'✗ HỎNG'}  ${t}${g?'  → '+g:''}`)};
 
 /* 10/09/2026 — cùng lý do như kiemtra-nv.mjs: số lô có phần MMYY lấy từ ngày sản xuất.

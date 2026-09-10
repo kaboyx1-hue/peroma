@@ -1,22 +1,27 @@
 /*  PEROMA — MÁY CHỦ TRÊN GOOGLE SHEET
- *  Dán toàn bộ file này vào Apps Script của bảng tính.
- *  ĐỔI MẬT KHẨU ở dòng dưới trước khi triển khai.
+ *  Triển khai: `npm run trienkhai` trong thư mục kho (xem cong-cu/trienkhai.mjs và HUONG-DAN-TRIEN-KHAI.md),
+ *  hoặc dán tay toàn bộ file này vào Apps Script rồi Triển khai → Quản lý bản triển khai → Phiên bản mới.
+ *
+ *  MẬT KHẨU KHÔNG NẰM TRONG FILE NÀY (từ bản S23, 10/09/2026). Đặt MỘT LẦN trong Apps Script:
+ *  Cài đặt dự án (biểu tượng bánh răng) → Thuộc tính tập lệnh → Thêm thuộc tính
+ *      Thuộc tính: MATKHAU      Giá trị: <đúng mật khẩu đang nhập trong 2 app>
+ *  Đổi mật khẩu sau này cũng chỉ sửa ở đó — có hiệu lực ngay, không cần triển khai lại.
  */
-
-const MATKHAU = 'DAT-MAT-KHAU-CUA-BAN-VAO-DAY';   // ← BẮT BUỘC ĐỔI TRƯỚC KHI TRIỂN KHAI
-// 10/09/2026: bản nằm trong kho GitHub công khai này CỐ Ý chỉ để chuỗi mẫu. Mật khẩu thật
-// chỉ tồn tại trong Apps Script riêng của bạn — nơi không ai ngoài bạn đọc được.
-// (Kho zaka từng để lộ link Apps Script vì file chặn đặt sai tên "gitignore" — tránh lặp lại.)
-//
-// Lưu ý (P0.3, kiểm toán 26/08/2026): chuỗi này phải khớp với mật khẩu nhập trong app.
-// Từ bản S7/R5 (10/09/2026), 2 file HTML KHÔNG còn viết cứng mật khẩu nữa — mỗi máy tự nhập
-// một lần (Admin: tab Sao lưu · Nhân viên: tab Dữ liệu). Đây là khoá dùng chung đơn giản,
-// không phải xác thực từng người dùng — ai có link + chuỗi này đều gọi được API.
-// Đủ dùng cho quy mô hiện tại (link không công khai), nhưng KHÔNG phải bảo mật mạnh:
-// không có rate limit, không có nhật ký truy cập, không phân quyền theo máy/người.
-// Muốn chặt hơn cần: đổi mật khẩu định kỳ, giới hạn action theo IP/thời gian,
-// hoặc chuyển sang OAuth — việc này nằm ngoài phạm vi bản vá P0 (chỉ sửa lỗi chặn
-// phát hành), cần một đợt riêng nếu anh muốn nâng cấp.
+/* S23 — vì sao chuyển: trước đây mật khẩu viết cứng trong file, nên phải giữ HAI bản Code.gs (bản
+   GitHub công khai để chuỗi mẫu, bản thật có mật khẩu) — dễ đẩy nhầm bản thật lên mạng, và mỗi lần
+   sửa phải vá tay cả hai. Nay file này là bản DUY NHẤT, đẩy lên GitHub và Apps Script y hệt nhau.
+   Giá trị mật khẩu KHÔNG đổi, chỉ đổi chỗ cất — 2 app vẫn gửi đúng chuỗi đang nhập.
+   Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
+   ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
+const TEN_THUOC_TINH_MK = 'MATKHAU';
+const PHIEN_BAN_MAYCHU = '2026-09-10-S23';
+const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
+function matKhauMayChu(){
+  try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
+  catch(e){ return '' }
+}
+function dungMatKhau(mk){ const that = matKhauMayChu(); return !!that && typeof mk === 'string' && mk === that }
+function loiMatKhau(){ return matKhauMayChu() ? 'Sai mật khẩu' : LOI_CHUA_CAI_MK }
 
 const S_CAUHINH = 'CAUHINH';
 const S_NHATKY  = 'NHATKY';
@@ -61,7 +66,10 @@ function doGet(e){
         .addMetaTag('viewport','width=device-width, initial-scale=1')
         .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
     }
-    if(p.mk !== MATKHAU) return ra({loi:'Sai mật khẩu'});
+    // S23: hỏi phiên bản — KHÔNG cần mật khẩu; chỉ trả số phiên bản + "đã cài mật khẩu chưa", không lộ dữ liệu.
+    // Công cụ triển khai dùng để xác nhận bản mới đã chạy và mật khẩu đã đặt.
+    if(p.a === 'phienban') return ra({ok:1, ten:'Peroma', phienBan: PHIEN_BAN_MAYCHU, coMatKhau: !!matKhauMayChu()});
+    if(!dungMatKhau(p.mk)) return ra({loi: loiMatKhau()});
     if(p.a && HANH_DONG_CHO_PHEP.indexOf(p.a) === -1) return ra({loi:'Hành động không được phép'});
     // 27/08/2026-R3: khách yêu cầu "Admin toàn quyền" — máy nhân viên KHÔNG có nút xoá riêng,
     // mà tự nhận lệnh xoá từ Admin qua đúng kênh đồng bộ cấu hình đã có sẵn (mỗi 20 giây máy
@@ -81,7 +89,7 @@ function doPost(e){
   try{
     khoa.waitLock(20000);
     const d = JSON.parse(e.postData.contents);
-    if(d.mk !== MATKHAU) return ra({loi:'Sai mật khẩu'});
+    if(!dungMatKhau(d.mk)) return ra({loi: loiMatKhau()});
     if(d.a && HANH_DONG_CHO_PHEP.indexOf(d.a) === -1) return ra({loi:'Hành động không được phép'});
     if(d.a === 'luuCauHinh'){ ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
@@ -159,20 +167,57 @@ function sachCauHinhServer(c, cu){
   };
 }
 
-/* ── Cấu hình: nằm gọn trong MỘT ô, vì nó lồng nhiều tầng ── */
+/* ── Cấu hình ──
+   Trước S23: cả cấu hình là MỘT chuỗi JSON trong ô B1. Google Sheets giới hạn 50.000 ký tự mỗi ô — đo
+   ngày 10/09/2026: 13.171 ký tự (26%) với 12 mặt hàng, trong khi lịch sử công thức và lịch sử giá chỉ tăng.
+   Chạm trần thì lệnh ghi lỗi → nhân viên không nhận được công thức mới.
+   Từ S23: còn vừa MỘT ô (≤ O_TOI_DA ký tự) thì ghi y như cũ vào B1 — bản Code.gs cũ vẫn đọc được nên
+   lùi bản vẫn an toàn. Lớn hơn thì cắt thành nhiều mảnh ở trang CAUHINH_MANH, còn B1 chỉ giữ dấu
+   "MANH:<cột>:<số mảnh>:<độ dài>". Ghi LUÂN PHIÊN 2 cột A/B: ghi đủ mảnh vào cột đang KHÔNG dùng, đọc lại
+   so khớp, rồi mới đổi dấu ở B1 — lỡ đứt giữa chừng thì B1 vẫn trỏ bộ mảnh cũ còn nguyên, không bao giờ
+   đọc phải bộ mảnh dở dang. Mỗi mảnh có tiền tố "M" và ô định dạng văn bản, để Sheets không hiểu nhầm
+   mảnh bắt đầu bằng "=" / "+" / "-" thành công thức hay số. B2 (mốc cập nhật), B4 (mốc xoá mô phỏng) giữ nguyên. */
+const S_CAUHINH_MANH = 'CAUHINH_MANH';
+const O_TOI_DA = 40000;   // chừa xa trần 50.000 ký tự/ô của Google
+function docManh(cot, n){
+  return lay(S_CAUHINH_MANH).getRange(1, cot, n, 1).getValues().map(function(r){ return String(r[0]).slice(1) }).join('');
+}
 function docCauHinh(){
   const sh = lay(S_CAUHINH);
-  const v = sh.getRange('B1').getValue();
+  const v = String(sh.getRange('B1').getValue() || '');
   if(!v) return null;
-  try{ return JSON.parse(v) }catch(e){ return null }
+  let s = v;
+  const m = /^MANH:([AB]):(\d+):(\d+)$/.exec(v);
+  if(m){
+    s = docManh(m[1] === 'A' ? 1 : 2, +m[2]);
+    if(s.length !== +m[3]) return null;   // bộ mảnh không khớp độ dài đã ghi → coi như hỏng, không dùng bừa
+  }
+  try{ return JSON.parse(s) }catch(e){ return null }
 }
 function tsCauHinh(){ return String(lay(S_CAUHINH).getRange('B2').getValue() || '') }
 function ghiCauHinh(c){
   const sh = lay(S_CAUHINH);
   sh.getRange('A1').setValue('CẤU HÌNH');
   sh.getRange('A2').setValue('CẬP NHẬT LÚC');
-  sh.getRange('A3').setValue('(Đừng sửa tay ô B1 — phần mềm quản lý ghi vào đây)');
-  sh.getRange('B1').setValue(JSON.stringify(c));
+  sh.getRange('A3').setValue('(Đừng sửa tay ô B1 và trang CAUHINH_MANH — phần mềm quản lý ghi vào đây)');
+  const s = JSON.stringify(c);
+  if(s.length <= O_TOI_DA){
+    sh.getRange('B1').setValue(s);
+  }else{
+    const cu = /^MANH:([AB]):/.exec(String(sh.getRange('B1').getValue() || ''));
+    const chu = (cu && cu[1] === 'A') ? 'B' : 'A', cot = chu === 'A' ? 1 : 2;
+    const manh = [];
+    for(let i = 0; i < s.length; i += O_TOI_DA) manh.push(['M' + s.slice(i, i + O_TOI_DA)]);
+    const shM = lay(S_CAUHINH_MANH);
+    const cuoi = shM.getLastRow();
+    if(cuoi > 0) shM.getRange(1, cot, cuoi, 1).clearContent();
+    const vung = shM.getRange(1, cot, manh.length, 1);
+    vung.setNumberFormat('@');
+    vung.setValues(manh);
+    SpreadsheetApp.flush();
+    if(docManh(cot, manh.length) !== s) throw new Error('Ghi cấu hình nhiều mảnh không khớp khi đọc lại — giữ nguyên bản cũ');
+    sh.getRange('B1').setValue('MANH:' + chu + ':' + manh.length + ':' + s.length);
+  }
   sh.getRange('B2').setValue(new Date().toISOString());
 }
 

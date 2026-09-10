@@ -30,3 +30,11 @@ ketqua-*.txt
 node_modules/
 .DS_Store
 Thumbs.db
+
+# ── Triển khai Apps Script bằng clasp (S23) ──
+# apps-script/ là bản sao dự án Apps Script kéo về máy — có thể còn mật khẩu viết cứng
+# của bản cũ. .clasp.json + trienkhai.local.json (mã dự án, mã bản triển khai = một phần
+# link /exec) đã bị chặn bởi dòng *.json ở trên. Đăng nhập Google của clasp nằm ở thư mục
+# người dùng (~/.clasprc.json), không nằm trong kho.
+apps-script/
+.clasprc.json
