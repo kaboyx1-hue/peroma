@@ -863,13 +863,65 @@ html,body{background:var(--bg);min-height:100%}
 .dt-luu{display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:700;color:var(--tx)}
 @media(max-width:700px){.dt-sua-luoi{grid-template-columns:1fr}}
 .dt-sua-ten{margin:0 14px 10px;padding:9px 12px;border-radius:10px;background:var(--infoBg);color:var(--infoTx);font-size:12.5px;line-height:1.5}
+/* ══ S21: bao bì (Danh mục/Công thức) + tab Giá vốn ══ */
+.bbbang{display:flex;flex-direction:column;gap:8px;margin:0 12px}
+.bbrow{display:grid;grid-template-columns:minmax(150px,1.3fr) repeat(3,minmax(84px,.6fr)) minmax(170px,1.4fr) auto;gap:10px;align-items:end;
+  padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.bbrow label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;margin:0}
+.bbrow input{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line2);border-radius:10px;background:var(--c2);color:var(--tx);min-width:0}
+.bbrow .bb-ten{font-weight:700;align-self:center}
+.bb-kq{font-size:12.5px;line-height:1.45;color:var(--tx2);align-self:center}
+.bb-kq b{color:var(--tx)}
+.bb-kq small{display:block;margin-top:3px;font-size:11px;color:var(--tx3)}
+.bbls{display:inline}.bbls summary{display:inline;cursor:pointer;text-decoration:underline}
+.bbls div{font-family:var(--mono);font-size:11px;padding-left:8px}
+.bbrow .xo{font:inherit;font-size:16px;font-weight:800;line-height:1;color:var(--red);background:var(--red-dim);border:0;border-radius:9px;width:32px;height:32px;cursor:pointer;align-self:center}
+.bbqc{display:flex;flex-direction:column;gap:6px;margin:0 12px 6px}
+.ctsec .bbqc{margin:0}
+.bbqc-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--c2)}
+.bbqc-r>b{min-width:64px;font-size:13px}
+.bbds{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.bbchip{display:inline-flex;align-items:center;gap:5px;padding:4px 6px 4px 10px;border-radius:999px;background:var(--accSoft);color:var(--accTx);font-size:12.5px;font-weight:600}
+.bbchip.xem{padding:4px 10px;background:var(--card);color:var(--tx);border:1px solid var(--line2)}
+.bbchip input{width:34px;font:inherit;font-size:12.5px;text-align:center;padding:2px 4px;border:1px solid var(--line2);border-radius:7px;background:var(--card);color:var(--tx)}
+.bbchip button{border:0;background:none;color:inherit;font-size:15px;font-weight:800;cursor:pointer;padding:0 4px;line-height:1}
+.bbds select{font:inherit;font-size:12.5px;padding:5px 8px;border:1px dashed var(--line2);border-radius:999px;background:var(--card);color:var(--tx2);max-width:220px}
+.bbtrong{font-size:12px;color:var(--badTx);font-weight:600}
+.bbtag{font-size:11px;font-weight:700;color:var(--tx3);padding:2px 8px;border-radius:999px;background:var(--card);border:1px solid var(--line)}
+.bbtag.rieng{color:var(--infoTx);background:var(--infoBg);border-color:transparent}
+@media (max-width:760px){.bbrow{grid-template-columns:1fr 1fr 1fr}.bbrow .bb-ten{grid-column:1/-1}.bb-kq{grid-column:1/3}}
+.gvcuon{overflow-x:auto;margin:0 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.gvcuon .tb{min-width:560px}
+.gvcuon .tb th,.gvcuon .tb td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.gvtong tr.on td{background:var(--rowOn)}
+.gvthieu,.gvthieu b{color:var(--accTx)}
+td.gvthieu i,.gvtong td i{font-style:normal;color:var(--badTx);margin-left:2px}
+.gvrong{color:var(--tx3)}
+.gvchon{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin:0 12px 10px}
+.gvchon label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0}
+.gvchon select{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line2);border-radius:10px;background:var(--card);color:var(--tx);min-width:200px}
+.gvme{font-size:12.5px;color:var(--tx2);padding-bottom:9px}
+.gvthe{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:12px;margin:0 12px}
+.gvbang td:first-child{min-width:150px}
+.gvvat{display:block;font-size:11px;color:var(--accTx);margin-top:2px}
+.gvq{border:1px solid var(--line);border-radius:16px;background:var(--card);padding:14px 14px 10px;box-shadow:var(--shadowSm);min-width:0}
+.gvq h4{margin:0 0 8px;font-size:15px}.gvq h4 small{font-weight:500;color:var(--tx3);font-size:12px;margin-left:6px}
+.gvq .canh{margin:6px 0}
+.gvbang{font-size:13px}
+.gvbang th,.gvbang td{padding:6px 4px;border-bottom:1px solid var(--line)}
+.gvbang tr.gvnhom td{font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx3);padding-top:10px;border-bottom:0}
+.gvbang tfoot td{font-weight:700;border-bottom:0;padding-top:8px}
+.gvbang tfoot tr:first-child td{border-top:2px solid var(--line2);font-size:14.5px}
+.gvbang tfoot tr:first-child td.n{color:var(--accTx)}
+.gvdi{font-size:12px;color:var(--accTx)}
+@media (max-width:760px){.gvthe{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S20</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S21</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -878,6 +930,7 @@ html,body{background:var(--bg);min-height:100%}
       <button class="tab" data-tab="ct"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/></svg><span>Công thức</span></button>
       <button class="tab" data-tab="ma"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg><span>Danh mục</span></button>
       <button class="tab" data-tab="bc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M7 17v-6M12 17V5M17 17v-9"/></svg><span>Báo cáo</span></button>
+      <button class="tab" data-tab="gv"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Giá vốn</span></button>
       <button class="tab" data-tab="sl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6"/></svg><span>Sao lưu</span></button>
     </div>
     <div class="apply" id="applyBox">
@@ -906,6 +959,7 @@ html,body{background:var(--bg);min-height:100%}
 
   <div id="viewMA" class="pg" style="display:none"></div>
   <div id="viewBC" class="pg" style="display:none"></div>
+  <div id="viewGV" class="pg" style="display:none"></div>
   <div id="viewSL" class="pg" style="display:none"></div>
 </div>
 
@@ -1060,7 +1114,9 @@ function sachCauHinh(mang){
     nguonHuongKhoa:!!p.nguonHuongKhoa,
     /* S14: chủ mở khoá hồ sơ tem của mặt hàng khoá-theo-TCCS để sửa tay — cấu hình tĩnh, phải đồng bộ,
        nếu không máy Admin khác / bản mở lại sẽ tự khoá và ghi đè mất phần đã sửa. */
-    temMoKhoa:!!p.temMoKhoa
+    temMoKhoa:!!p.temMoKhoa,
+    // 10/09/2026 — bản S21: bao bì riêng của mặt hàng (khác mặc định theo quy cách). Cấu hình tĩnh, không vi phạm H1.
+    baoBiRieng:(p.baoBiRieng&&typeof p.baoBiRieng==='object'&&!Array.isArray(p.baoBiRieng))?p.baoBiRieng:{}
   }));
 }
 async function dbDayCauHinh(){
@@ -1072,7 +1128,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC}})});
     if(j&&j.ts)dongBoCauHinhTs=j.ts;
     dbVeTT('ok');
   }catch(e){ dbVeTT('loi', e.message); }
@@ -1093,7 +1149,7 @@ function apDungCauHinhTuServer(c){
        Code.gs (khi chủ chưa kịp triển khai lại Apps Script) → bản trên server thiếu hẳn trường đó.
        Thay nguyên sp bằng bản server sẽ xoá mất giá trị đang có trên máy. Nên: trường nào bản server
        KHÔNG CÓ KHOÁ (kiểm trên dữ liệu thô c.sp, không phải sau napSP) thì giữ giá trị trên máy. */
-    const giuLai=['temMoKhoa'], cu={};
+    const giuLai=['temMoKhoa','baoBiRieng'], cu={};
     sp.forEach(x=>{if(x&&x.ten)cu[x.ten]=x});
     const tho=c.sp;
     sp=napSP(c.sp);
@@ -1118,6 +1174,9 @@ function apDungCauHinhTuServer(c){
   if(c.nguonNguyenLieu&&typeof c.nguonNguyenLieu==='object')nguonNguyenLieu=c.nguonNguyenLieu;
   if(c.nlDangDung&&typeof c.nlDangDung==='object')nlDangDung=c.nlDangDung;
   if(c.tonKhoNguyenLieu&&typeof c.tonKhoNguyenLieu==='object')tonKhoNguyenLieu=c.tonKhoNguyenLieu;
+  // S21: Code.gs chưa triển khai bản mới thì server không có 2 trường này → giữ nguyên bản trên máy
+  if(Array.isArray(c.baoBi))baoBi=c.baoBi;
+  if(c.baoBiQC&&typeof c.baoBiQC==='object'&&!Array.isArray(c.baoBiQC))baoBiQC=c.baoBiQC;
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -1180,6 +1239,9 @@ async function dbKeoCauHinhNeuMoiHon(){
    Hàm chỉ ghi vào bản ghi r và vào nguonHuong; KHÔNG đẩy vào nk[] (việc đó do nơi gọi làm). */
 function ghiNhanMeLanDau(r){
   delete r.daGui;   // cờ "đã gửi" chỉ có nghĩa bên máy nhân viên
+  /* S21: chi phí bao bì chụp MỘT LẦN, đặt TRƯỚC dòng return bên dưới — mẻ "Không mùi" bên NV gửi giá hương = 0
+     (khác null) nên sẽ return sớm; bao bì vẫn phải được chụp. Có rồi (kể cả null) thì không tính lại. */
+  if(r.chiPhiBaoBiLucSX===undefined){const t=tinhBaoBiMe(r);r.baoBiLucSX=t.ds;r.chiPhiBaoBiLucSX=t.chiPhi}
   if(r.giaHuongTheoGLucSX!==undefined&&r.giaHuongTheoGLucSX!==null)return;
   const pMh=sp.find(x=>x.ten===r.sp);
   const nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
@@ -1697,7 +1759,7 @@ function doiTen(loai,cu,moi){
     nk.forEach(r=>{if(r.huong===cu)r.huong=moi; if(Array.isArray(r.huongList))thay(r.huongList)});
   }
   else if(loai==='q'){
-    thay(dr); doiKhoa(maQC); doiKhoa(kgQC);
+    thay(dr); doiKhoa(maQC); doiKhoa(kgQC); doiKhoa(baoBiQC); sp.forEach(x=>{if(x.baoBiRieng)doiKhoa(x.baoBiRieng)}); // S21: bao bì theo quy cách
     sp.forEach(x=>{
       thay(x.dauRa=x.dauRa||[]); if(x.qc===cu)x.qc=moi;
       (x.pb||[]).forEach(d=>{if(d.qc===cu)d.qc=moi});
@@ -1775,6 +1837,7 @@ let ngayNhacInTem=3; // ghi mẻ quá N ngày mà chưa in tem lần nào thì n
    không tự trừ theo sản xuất. nguonNguyenLieu[nlTen] = [{ncc,gia,soKg,ngay}] (không có
    daDungKg — không tự trừ). */
 let nguonNguyenLieu={}, nlDangDung={}, tonKhoNguyenLieu={};
+let baoBi=[], baoBiQC={};   // S21: bao bì (xem khối BAO BÌ & GIÁ VỐN)
 /* 25/08/2026 — tiến độ nguyên liệu đầu vào: admin khai báo tổng kg của 1 lô nguyên liệu thô
    chung (VD lô cát/đậu nành 27000kg), app cộng dồn kg đã sản xuất (mọi mặt hàng, mọi mẻ, từ
    mốc khai báo) để biết đã dùng bao nhiêu / còn lại bao nhiêu — giúp canh đặt hàng tiếp. */
@@ -1904,10 +1967,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -2776,7 +2839,8 @@ function veCT(){
           <section class="ctsec rong" data-sec="sx" data-si="${i}">${dau('sx','Sản xuất & đóng gói','Trạng thái cho phép sản xuất, quy cách, phun khử bụi, ghi chú khi pha',ttChip)}
             <div class="ctsx">
               <div><div class="fld"><label>Trạng thái sản xuất</label>${veTT(p,i)}</div>
-                <div class="fld"><label>Quy cách đóng gói</label>${veDR(p,i)}</div></div>
+                <div class="fld"><label>Quy cách đóng gói</label>${veDR(p,i)}</div>
+                <div class="fld"><label>Bao bì mỗi bao thành phẩm</label>${veBaoBiSP(p,i)}</div></div>
               <div><div class="pkbox${p.pkb?' on':''}">
                   <label class="chk"><input type="checkbox" data-f="pkb" data-i="${i}" ${p.pkb?'checked':''} ><span>Phun khử bụi</span></label>
                   ${p.pkb?vePKB(p,i):''}
@@ -2879,7 +2943,7 @@ function veNguonHuong(){
      NCC/giá/tồn kho/cảnh báo cho nó — loại khỏi danh sách render ở đây trước khi tính toán. */
   const khoNguon=kho.filter(h=>!isUnscented(h));
   const sap=khoNguon.filter(h=>{const tk=tonKhoHuong[h];if(tk&&!(num(tk.con)>0))return true;const d=uocConLai(h);return d!==null&&d<=nguongCanhBaoNgay});
-  let o=`<div class="sec">Nguồn hương liệu — nhà cung cấp &amp; giá</div>`;
+  let o=`<div class="sec" id="secNguonHuong">Nguồn hương liệu — nhà cung cấp &amp; giá</div>`;
   if(duLieuCu)o+=`<div class="canh">Dữ liệu này được tạo TRƯỚC bản cập nhật đơn vị hương liệu — đơn vị đúng theo nghiệp vụ là <b>GRAM (g)</b>, không phải mg như nhãn cũ. Số liệu đã lưu KHÔNG bị tự động đổi (app không tự nhân/chia gì cả) — vui lòng kiểm tra lại <b>Định lượng hương</b> của từng mặt hàng và <b>tồn kho hương liệu</b> cho đúng ý nghĩa gram trước khi dùng tiếp.</div>`;
   if(sap.length)o+=`<div class="canh"><b>${sap.length}</b> hương sắp hết trong kho (ước còn dưới ${nguongCanhBaoNgay} ngày): <b>${sap.map(esc).join(' · ')}</b>.</div>`;
   o+=`<div class="log" style="margin:0 12px 6px">Mỗi hương khai được nhiều nhà cung cấp, mỗi lần khai/đổi giá đều lưu lại (không mất lịch sử cũ). Chọn "Hương hiện tại đang dùng" đúng với thực tế đang mua để đối chiếu cho dễ. Ngưỡng cảnh báo sắp hết: <input id="nguongCB" type="number" min="1" style="width:52px;font:inherit;font-family:var(--mono);background:var(--bg);color:var(--txt);border:1px solid var(--line-2);border-radius:6px;padding:3px 5px" value="${nguongCanhBaoNgay}"> ngày.</div>
@@ -2895,7 +2959,7 @@ function veNguonHuong(){
    loại). Dùng chung khối UI/hàm với hương liệu (veKhoiNguon('nl',...)). */
 function veNguyenLieuNguon(){
   if(!nlDM.length)return '';
-  let o=`<div class="sec">Nguồn nguyên liệu — nhà cung cấp &amp; giá</div>`;
+  let o=`<div class="sec" id="secNguonNL">Nguồn nguyên liệu — nhà cung cấp &amp; giá</div>`;
   const het=nlDM.filter(v=>{const tk=tonKhoNguyenLieu[v];return tk&&!(num(tk.con)>0)});
   if(het.length)o+=`<div class="canh"><b>${het.length}</b> nguyên liệu đã hết tồn kho trong hệ thống: <b>${het.map(esc).join(' · ')}</b>.</div>`;
   o+=`<div class="log" style="margin:0 12px 10px">Mỗi nguyên liệu khai được nhiều nhà cung cấp, mỗi lần khai/đổi giá đều lưu lại (không mất lịch sử cũ). Tồn kho cập nhật tay — hệ thống chưa tự trừ theo sản xuất cho nguyên liệu (khác hương liệu).</div>`;
@@ -3079,6 +3143,235 @@ function thieuNguonMatHang(p){
   });
 }
 function duDieuKienXacNhanNguon(p){ return thieuNguonMatHang(p).length===0; }
+
+/* ═══ BAO BÌ & GIÁ VỐN — 10/09/2026 (bản S21) ═══
+   Khách cung cấp giá túi (mua theo kg, N cái/kg, giá đã gồm VAT) và nói bao bì "quan trọng không kém hương
+   liệu". Quyết định của khách: gán túi THEO QUY CÁCH (mặc định cho mọi mặt hàng), mặt hàng nào khác thì chỉnh
+   riêng; mỗi quy cách được nhiều loại bao bì; chỉ tính TÚI ĐẦY (= soBao của mẻ); giá hương/nguyên liệu nhập
+   trong app là CHƯA VAT → túi quy về chưa VAT theo thuế suất khai ở Danh mục.
+   DỮ LIỆU (cấu hình tĩnh — đồng bộ lên Sheet, KHÔNG phải trạng thái ghi mẻ dở, không vi phạm H1):
+   - baoBi   = [{id, ten, lichSu:[{ngay, giaKg (đ/kg, gồm VAT), caiKg (cái/kg), vat (% hoặc null), ncc}]}]
+               tham chiếu bằng id (đổi tên túi không cần doiTen); giá hiện hành = dòng lichSu cuối.
+   - baoBiQC = {'<quy cách>':[{id, sl}]}  — mặc định cho mọi mặt hàng (khoá theo TÊN quy cách → doiTen 'q').
+   - p.baoBiRieng = {'<quy cách>':[{id, sl}]} — mặt hàng dùng bao bì khác mặc định.
+   MỖI MẺ (chỉ trên máy Admin nhận mẻ, như giá hương): r.baoBiLucSX (chi tiết) + r.chiPhiBaoBiLucSX (đ, hoặc null
+   khi thiếu giá/gán) — chụp MỘT LẦN trong ghiNhanMeLanDau, không tính lại khi đổi giá sau này. */
+const BAOBI_GOC=()=>{const n=homNay();return [
+  {id:'bb-pa-1525',ten:'Túi PA 15x25',lichSu:[{ngay:n,giaKg:68000,caiKg:140,vat:null,ncc:''}]},
+  {id:'bb-pa-1828',ten:'Túi PA 18x28',lichSu:[{ngay:n,giaKg:68000,caiKg:102,vat:null,ncc:''}]},
+  {id:'bb-pa-2232',ten:'Túi PA 22x32',lichSu:[{ngay:n,giaKg:68000,caiKg:72,vat:null,ncc:''}]},
+  {id:'bb-pa-3040',ten:'Túi PA 30x40',lichSu:[{ngay:n,giaKg:68000,caiKg:40,vat:null,ncc:''}]},
+  {id:'bb-pe-3040',ten:'Túi PE 30x40 (túi mùn)',lichSu:[{ngay:n,giaKg:45000,caiKg:68,vat:null,ncc:''}]},
+  {id:'bb-pe-2030',ten:'Túi PE 20x30 (túi gỗ)',lichSu:[{ngay:n,giaKg:45000,caiKg:104,vat:null,ncc:''}]}]};
+/* Số tiền gõ kiểu Việt: "68k", "68.000", "68,000", "68000 đ" → 68000. (num() cũ đọc "68.000" thành 68.) */
+function docTien(v){
+  let s=String(v==null?'':v).toLowerCase().replace(/đ|vnd|\s/g,'');
+  if(!s)return 0;
+  const k=/k$/.test(s); s=s.replace(/k$/,'');
+  if(k){const n=parseFloat(s.replace(',','.'));return isFinite(n)?Math.round(n*1000):0}
+  if(/^\d{1,3}([.,]\d{3})+$/.test(s))s=s.replace(/[.,]/g,''); else s=s.replace(',','.');
+  const n=parseFloat(s);return isFinite(n)?n:0;
+}
+const fmtSo=x=>{if(!isFinite(x))return '—';const r=Math.round(x*1000)/1000;return r.toLocaleString('vi-VN',{maximumFractionDigits:r<1?3:(r<100?2:0)})};
+const giaBBHienTai=b=>b&&Array.isArray(b.lichSu)&&b.lichSu.length?b.lichSu[b.lichSu.length-1]:null;
+/* Giá 1 cái, quy về CHƯA VAT nếu đã khai thuế suất. {gia, gomVAT, daQuy} hoặc null khi chưa đủ giá */
+function giaCaiBB(b){
+  const e=giaBBHienTai(b); if(!e)return null;
+  const gk=num(e.giaKg), ck=num(e.caiKg); if(!(gk>0&&ck>0))return null;
+  const gom=gk/ck, co=e.vat!==null&&e.vat!==undefined&&e.vat!==''&&isFinite(+e.vat);
+  return {gia:co?gom/(1+(+e.vat)/100):gom, gomVAT:gom, daQuy:co};
+}
+function baoBiCho(p,q){
+  const r=p&&p.baoBiRieng&&Array.isArray(p.baoBiRieng[q])?p.baoBiRieng[q]:null;
+  return (r||(Array.isArray(baoBiQC[q])?baoBiQC[q]:[])).filter(d=>d&&baoBi.some(b=>b.id===d.id));
+}
+const laRiengBB=(p,q)=>!!(p&&p.baoBiRieng&&Array.isArray(p.baoBiRieng[q]));
+/* Chi phí bao bì của 1 bản ghi mẻ theo gán + giá HIỆN TẠI. soBao = túi đầy của mẻ (khách chốt: không tính túi lẻ). */
+function tinhBaoBiMe(r){
+  const p=sp.find(x=>x.ten===r.sp), ds=baoBiCho(p,r.quyCach), so=num(r.soBao);
+  if(!ds.length||!(so>0))return {ds:null,chiPhi:null};
+  let tong=0,du=true;
+  const ct=ds.map(d=>{const b=baoBi.find(x=>x.id===d.id), g=giaCaiBB(b), sl=Math.max(1,num(d.sl)||1), soCai=so*sl;
+    if(!g)du=false; else tong+=g.gia*soCai;
+    return {id:d.id,ten:b?b.ten:'?',sl,soCai,giaCai:g?Math.round(g.gia*100)/100:null,daQuyVAT:g?g.daQuy:false}});
+  return {ds:ct,chiPhi:du?Math.round(tong):null};
+}
+/* Chi phí bao bì dùng để hiển thị: ảnh chụp lúc nhận mẻ nếu có, không thì ước tính theo giá hiện tại */
+function chiPhiBaoBiRecord(r){
+  if(r.chiPhiBaoBiLucSX!==undefined&&r.chiPhiBaoBiLucSX!==null)return {v:num(r.chiPhiBaoBiLucSX),snap:true};
+  const t=tinhBaoBiMe(r); return t.chiPhi===null?null:{v:t.chiPhi,snap:false};
+}
+/* Giá nguyên liệu hiện tại (đ/kg) — cùng cách giaHuongHienTai: dòng cuối của NCC đang dùng */
+function giaNLHienTai(ten){
+  const ncc=nlDangDung&&nlDangDung[ten]; const ds=(nguonNguyenLieu[ten]||[]).filter(e=>num(e.soKg)>0&&(!ncc||e.ncc===ncc));
+  if(!ds.length)return 0; const e=ds[ds.length-1]; return num(e.gia)/num(e.soKg);
+}
+
+/* ── Danh mục: bảng bao bì + gán theo quy cách ── */
+function veBBList(ctx,list,chiXem){
+  const ds=(list||[]).map((d,j)=>{const b=baoBi.find(x=>x.id===d.id);if(!b)return '';
+    return chiXem?`<span class="bbchip xem">${esc(b.ten)}${num(d.sl)>1?' × '+num(d.sl):''}</span>`
+      :`<span class="bbchip">${esc(b.ten)} × <input data-bbsl="${esc(ctx)}|||${j}" inputmode="numeric" value="${Math.max(1,num(d.sl)||1)}" aria-label="Số cái mỗi bao"><button type="button" data-bbbo="${esc(ctx)}|||${j}" title="Bỏ bao bì này" aria-label="Bỏ">×</button></span>`}).join('');
+  if(chiXem)return ds||'<span class="bbtrong">chưa gán</span>';
+  return ds+(baoBi.length?`<select data-bbthem="${esc(ctx)}" aria-label="Thêm bao bì"><option value="">+ Thêm bao bì…</option>${baoBi.map(b=>`<option value="${esc(b.id)}">${esc(b.ten)}</option>`).join('')}</select>`:'');
+}
+function veBaoBi(){
+  let o=`<div class="sec" id="secBaoBi">Bao bì — ${baoBi.length} loại</div>
+   <div class="log" style="margin:0 12px 8px">Giá mua theo kg và số cái mỗi kg như nhà cung cấp báo — app tự ra giá 1 cái. Giá hương/nguyên liệu trong app là <b>chưa VAT</b> nên giá túi được quy về chưa VAT theo thuế suất khai ở cột VAT (chưa khai thì tạm tính theo giá gồm VAT, có đánh dấu ⚠). Đổi giá thì app lưu lịch sử, mẻ đã ghi giữ nguyên giá lúc sản xuất.</div>`;
+  o+=`<div class="bbbang">`+baoBi.map(b=>{const e=giaBBHienTai(b)||{}, g=giaCaiBB(b);
+    return `<div class="bbrow">
+      <input class="bb-ten" data-bbten="${esc(b.id)}" value="${esc(b.ten)}" aria-label="Tên bao bì">
+      <label>Giá/kg (gồm VAT)<input data-bbf="giaKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.giaKg?num(e.giaKg).toLocaleString('vi-VN'):''}" placeholder="VD 68k"></label>
+      <label>Cái/kg<input data-bbf="caiKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.caiKg||''}"></label>
+      <label>VAT %<input data-bbf="vat" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.vat!==null&&e.vat!==undefined?e.vat:''}" placeholder="chưa khai"></label>
+      <div class="bb-kq">${g?`${fmt(g.gomVAT)} đ/cái gồm VAT → <b>${g.daQuy?fmt(g.gia)+' đ/cái chưa VAT':'⚠ chưa khai VAT'}</b>`:'<span class="bbtrong">chưa đủ giá</span>'}${e.ngay?`<small>cập nhật ${esc(e.ngay)}${(b.lichSu||[]).length>1?` · <details class="bbls"><summary>lịch sử ${b.lichSu.length}</summary>${b.lichSu.slice().reverse().map(x=>`<div>${esc(x.ngay||'')}: ${fmt(num(x.giaKg))} đ/kg · ${x.caiKg} cái/kg${x.vat!==null&&x.vat!==undefined&&x.vat!==''?' · VAT '+x.vat+'%':''}</div>`).join('')}</details>`:''}</small>`:''}</div>
+      <button type="button" class="xo" data-bbxoa="${esc(b.id)}" title="Xoá loại bao bì" aria-label="Xoá">×</button></div>`}).join('')+`</div>`;
+  o+=`<button class="addbtn" data-bbthemmoi="1">+ Thêm loại bao bì</button>`;
+  o+=`<div class="sec">Bao bì theo quy cách — mặc định cho mọi mặt hàng</div>
+   <div class="log" style="margin:0 12px 8px">Mỗi bao/túi thành phẩm của quy cách đó dùng những bao bì nào, mấy cái. Mặt hàng nào dùng khác thì chỉnh riêng ở tab Công thức → Sản xuất &amp; đóng gói.</div>`;
+  o+=`<div class="bbqc">`+dr.map(q=>`<div class="bbqc-r"><b>${esc(q)}</b><div class="bbds">${veBBList('qc|||'+q,baoBiQC[q])}</div></div>`).join('')+`</div>`;
+  return o;
+}
+/* ── Công thức (nhóm Sản xuất & đóng gói): bao bì từng quy cách của mặt hàng ── */
+function veBaoBiSP(p,i){
+  const ds=(p.dauRa||[]);
+  if(!ds.length)return '<div class="log">Mặt hàng chưa có quy cách đóng gói.</div>';
+  return '<div class="bbqc">'+ds.map(q=>{const rieng=laRiengBB(p,q);
+    return `<div class="bbqc-r"><b>${esc(q)}</b><div class="bbds">${rieng?veBBList('sp|||'+i+'|||'+q,p.baoBiRieng[q]):veBBList('',baoBiCho(p,q),true)}</div>
+      <span class="bbtag ${rieng?'rieng':''}">${rieng?'riêng mặt hàng này':'mặc định'}</span>
+      ${rieng?`<button type="button" class="lnk" data-bbmacdinh="${i}|||${esc(q)}">về mặc định</button>`:`<button type="button" class="lnk" data-bbrieng="${i}|||${esc(q)}">đổi riêng</button>`}</div>`}).join('')
+    +'</div><div class="log" style="margin-top:6px">Mặc định lấy ở Danh mục → Bao bì theo quy cách. <button type="button" class="lnk" data-bbdenma="1">Mở Danh mục bao bì</button></div>';
+}
+/* ── Sự kiện bao bì (dùng chung cho tab Danh mục và tab Công thức) ── */
+function danhSachBB(ctx,taoMoi){
+  const a=ctx.split('|||');
+  if(a[0]==='qc'){if(taoMoi&&!Array.isArray(baoBiQC[a[1]]))baoBiQC[a[1]]=[];return baoBiQC[a[1]]}
+  if(a[0]==='sp'){const p=sp[+a[1]];if(!p)return null;if(taoMoi){p.baoBiRieng=p.baoBiRieng||{};if(!Array.isArray(p.baoBiRieng[a[2]]))p.baoBiRieng[a[2]]=[]}return p.baoBiRieng&&p.baoBiRieng[a[2]]}
+  return null;
+}
+async function suKienBaoBi(e){
+  const t=e.target;
+  if(e.type==='change'){
+    if(t.dataset.bbthem!==undefined){if(!t.value)return true;const l=danhSachBB(t.dataset.bbthem,true);if(l&&!l.some(d=>d.id===t.value))l.push({id:t.value,sl:1});luuNgay();ve();return true}
+    if(t.dataset.bbsl!==undefined){const k=t.dataset.bbsl.lastIndexOf('|||'),l=danhSachBB(t.dataset.bbsl.slice(0,k)),j=+t.dataset.bbsl.slice(k+3);
+      if(l&&l[j]){l[j].sl=Math.max(1,Math.round(num(t.value))||1);luuNgay();ve()}return true}
+    if(t.dataset.bbten!==undefined){const b=baoBi.find(x=>x.id===t.dataset.bbten),v=String(t.value).trim();
+      if(b&&v){if(baoBi.some(x=>x!==b&&x.ten.toLowerCase()===v.toLowerCase())){bao('Đã có bao bì tên này');ve();return true}b.ten=v;luuNgay();ve()}else ve();return true}
+    if(t.dataset.bbf!==undefined){const b=baoBi.find(x=>x.id===t.dataset.bbid);if(!b)return true;
+      const f=t.dataset.bbf, raw=String(t.value).trim();
+      const v=f==='giaKg'?docTien(raw):(f==='vat'?(raw===''?null:num(raw)):num(raw));
+      if(f!=='vat'&&!(v>0)){bao(f==='giaKg'?'Giá/kg phải lớn hơn 0 (VD 68k hoặc 68.000)':'Số cái/kg phải lớn hơn 0');ve();return true}
+      if(f==='vat'&&v!==null&&!(v>=0&&v<=100)){bao('Thuế suất VAT từ 0 đến 100 %');ve();return true}
+      const cu=giaBBHienTai(b)||{giaKg:0,caiKg:0,vat:null,ncc:''}, h=homNay(), moi={...cu,[f]:v,ngay:h};
+      b.lichSu=Array.isArray(b.lichSu)?b.lichSu:[];
+      if(b.lichSu.length&&b.lichSu[b.lichSu.length-1].ngay===h)b.lichSu[b.lichSu.length-1]=moi; else b.lichSu.push(moi);
+      luuNgay();ve();return true}
+    return false;
+  }
+  const g=k=>t.closest('['+k+']');
+  let x;
+  if((x=g('data-bbbo'))){const s=x.dataset.bbbo,k=s.lastIndexOf('|||'),l=danhSachBB(s.slice(0,k));if(l){l.splice(+s.slice(k+3),1);luuNgay();ve()}return true}
+  if((x=g('data-bbrieng'))){const [i,q]=x.dataset.bbrieng.split('|||'),p=sp[+i];if(p){p.baoBiRieng=p.baoBiRieng||{};p.baoBiRieng[q]=(baoBiQC[q]||[]).map(d=>({...d}));luuNgay();ve()}return true}
+  if((x=g('data-bbmacdinh'))){const [i,q]=x.dataset.bbmacdinh.split('|||'),p=sp[+i];if(p&&p.baoBiRieng){delete p.baoBiRieng[q];luuNgay();ve()}return true}
+  if((x=g('data-bbdenma'))){chuyenTab('ma');requestAnimationFrame(()=>{const s=document.getElementById('secBaoBi');if(s)s.scrollIntoView({block:'start',behavior:'smooth'})});return true}
+  if((x=g('data-bbthemmoi'))){const ten=await hoi('Thêm loại bao bì','Tên loại bao bì, VD "Túi PA 25x35" hoặc "Bao dệt 20 kg". Giá và số cái/kg nhập ngay sau.',{nhap:true,goiY:'VD: Túi PA 25x35',nutOK:'Thêm'});
+    if(ten===null||!String(ten).trim())return true; const v=String(ten).trim();
+    if(baoBi.some(b=>b.ten.toLowerCase()===v.toLowerCase())){bao('Đã có bao bì tên này');return true}
+    baoBi.push({id:'bb-'+Date.now().toString(36),ten:v,lichSu:[]});luuNgay();ve();return true}
+  if((x=g('data-bbxoa'))){const id=x.dataset.bbxoa,b=baoBi.find(y=>y.id===id);if(!b)return true;
+    const dung=Object.values(baoBiQC).filter(l=>(l||[]).some(d=>d.id===id)).length+sp.filter(p=>p.baoBiRieng&&Object.values(p.baoBiRieng).some(l=>(l||[]).some(d=>d.id===id))).length;
+    const ok=await hoi('Xoá loại bao bì?',`<b>${esc(b.ten)}</b>${dung?` đang được gán ở <b>${dung}</b> chỗ (quy cách/mặt hàng) — xoá thì bỏ khỏi các chỗ đó.`:''} Mẻ đã ghi vẫn giữ chi phí bao bì lúc sản xuất.`,{nutOK:'Xoá',nguyHiem:true});
+    if(!ok)return true;
+    baoBi=baoBi.filter(y=>y.id!==id);
+    Object.keys(baoBiQC).forEach(q=>{baoBiQC[q]=(baoBiQC[q]||[]).filter(d=>d.id!==id)});
+    sp.forEach(p=>{if(p.baoBiRieng)Object.keys(p.baoBiRieng).forEach(q=>{p.baoBiRieng[q]=(p.baoBiRieng[q]||[]).filter(d=>d.id!==id)})});
+    luuNgay();ve();return true}
+  return false;
+}
+
+/* ═══ TAB GIÁ VỐN — 10/09/2026 (S21) ═══
+   Phạm vi khách duyệt 09/09: chọn mặt hàng → bảng thành phần (hương, nguyên liệu, bao bì) với định mức, đơn giá,
+   thành tiền → giá vốn mỗi bao theo từng quy cách + giá vốn/kg; KHÔNG tính nhân công/điện/hao hụt. Thêm bảng
+   tổng hợp mọi mặt hàng và chi phí thực của các mẻ đã ghi. CHỈ ĐỌC (không ghi dữ liệu). Thiếu giá thì ghi rõ
+   "chưa có giá" kèm đường dẫn tới chỗ nhập — không hiện 0 đ như thật. Hương cộng THÊM trên nguyên liệu (quy tắc
+   27/08: nguyên liệu cộng đủ mẻ chuẩn, hương đổ thêm), không trừ vào khối lượng nguyên liệu. */
+let gvSP=0, gvHuong='';
+function giaVonBao(p,q,h){
+  const kgBao=kgCua(q), dong=[], thieu=[];
+  if(!(kgBao>0))return {kgBao:0,dong,tong:0,thieu:['quy cách "'+q+'" chưa có số kg mỗi bao'],dKg:0};
+  const kgChuan=num(p.kg);
+  // hương (g/bao, đ/g)
+  if(!h){dong.push({nhom:'Hương',ten:'Chưa chọn hương',dm:'—',dg:null,tt:null,di:'cth'});thieu.push('hương');}
+  else if(isUnscented(h))dong.push({nhom:'Hương',ten:h,dm:'—',dg:null,tt:0,khong:true});
+  else{const g=kgChuan>0?kgBao*num(p.ml)/kgChuan:0, dg=giaHuongChoMatHang(p,h)||giaHuongHienTai(h);
+    dong.push({nhom:'Hương',ten:h,dm:fmtSo(g)+' g',dg:dg>0?fmtSo(dg)+' đ/g':null,tt:dg>0?g*dg:null,di:'h'}); if(!(dg>0))thieu.push('giá hương '+h);}
+  // nguyên liệu (kg/bao, đ/kg)
+  const nl=(p.congThucNL||[]).filter(x=>x&&x.ten);
+  if(!nl.length){dong.push({nhom:'Nguyên liệu',ten:'Chưa khai nguyên liệu cấu thành',dm:'—',dg:null,tt:null,di:'ct'});thieu.push('nguyên liệu cấu thành');}
+  nl.forEach(x=>{const kg=kgChuan>0?kgBao*num(x.kg)/kgChuan:0, dg=giaNLHienTai(x.ten);
+    dong.push({nhom:'Nguyên liệu',ten:x.ten,dm:fmtSo(kg)+' kg',dg:dg>0?fmtSo(dg)+' đ/kg':null,tt:dg>0?kg*dg:null,di:'nl'}); if(!(dg>0))thieu.push('giá '+x.ten);});
+  // bao bì (cái/bao, đ/cái)
+  const bb=baoBiCho(p,q);
+  if(!bb.length){dong.push({nhom:'Bao bì',ten:'Chưa gán bao bì cho quy cách này',dm:'—',dg:null,tt:null,di:'bb'});thieu.push('bao bì '+q);}
+  bb.forEach(d=>{const b=baoBi.find(x=>x.id===d.id), g=giaCaiBB(b), sl=Math.max(1,num(d.sl)||1);
+    dong.push({nhom:'Bao bì',ten:b.ten,vatThieu:!!(g&&!g.daQuy),dm:sl+' cái',dg:g?fmtSo(g.gia)+' đ/cái':null,tt:g?sl*g.gia:null,di:'bb'}); if(!g)thieu.push('giá '+b.ten);});
+  const tong=dong.reduce((a,x)=>a+(x.tt||0),0);
+  return {kgBao,dong,tong,thieu,dKg:tong/kgBao};
+}
+function veGV(){
+  if(!sp.length){$('viewGV').innerHTML='<div class="none">Chưa có mặt hàng.</div>';return}
+  if(gvSP>=sp.length||gvSP<0)gvSP=0;
+  const p=sp[gvSP], hs=(p.huongs||[]).filter(Boolean); if(!hs.includes(gvHuong))gvHuong=hs[0]||'';
+  let o=`<div class="cthead"><div class="cth-t"><h2>Giá vốn</h2><p>Hương liệu + nguyên liệu + bao bì cho mỗi bao thành phẩm. Giá <b>chưa VAT</b> (túi quy về chưa VAT theo thuế suất ở Danh mục). Không gồm nhân công, điện, hao hụt.</p></div></div>`;
+  // bảng tổng hợp mọi mặt hàng
+  const qcDung=dr.filter(q=>sp.some(x=>(x.dauRa||[]).includes(q)));
+  o+=`<div class="sec">Bảng giá vốn nhanh — đ / bao (theo hương đầu tiên của mặt hàng)</div><div class="gvcuon"><table class="tb gvtong"><thead><tr><th>Mặt hàng</th>${qcDung.map(q=>`<th class="n">${esc(q)}</th>`).join('')}</tr></thead><tbody>`
+    +sp.map((x,i)=>{const h=(x.huongs||[])[0]||'';return `<tr${i===gvSP?' class="on"':''}><td><button type="button" class="lnk" data-gvsp="${i}">${esc(x.ten)}</button></td>${qcDung.map(q=>{
+      if(!(x.dauRa||[]).includes(q))return '<td class="n gvrong">·</td>';
+      const g=giaVonBao(x,q,h);return `<td class="n${g.thieu.length?' gvthieu':''}" title="${g.thieu.length?'Còn thiếu: '+esc(g.thieu.join(', ')):''}">${g.kgBao&&g.tong>0?fmt(Math.round(g.tong)):'—'}${g.thieu.length?'<i>*</i>':''}</td>`}).join('')}</tr>`}).join('')
+    +`</tbody></table></div><div class="log" style="margin:4px 12px 0">* = còn thiếu giá hoặc chưa gán bao bì/nguyên liệu — con số chỉ gồm phần đã có giá. Bấm tên mặt hàng để xem chi tiết.</div>`;
+  // chi tiết mặt hàng đang chọn
+  o+=`<div class="sec">Chi tiết mặt hàng</div><div class="gvchon">
+    <label>Mặt hàng<select id="gvSP">${sp.map((x,i)=>`<option value="${i}"${i===gvSP?' selected':''}>${esc(x.ten)}</option>`).join('')}</select></label>
+    <label>Hương<select id="gvHuong">${hs.length?hs.map(h=>`<option${h===gvHuong?' selected':''}>${esc(h)}</option>`).join(''):'<option value="">(chưa có hương)</option>'}</select></label>
+    <div class="gvme">Mẻ chuẩn <b>${fmt(num(p.kg))} kg</b> · định lượng hương <b>${fmt(num(p.ml))} g</b>/mẻ chuẩn</div></div>`;
+  const qs=p.dauRa||[];
+  if(!qs.length)o+='<div class="none">Mặt hàng chưa có quy cách đóng gói.</div>';
+  o+='<div class="gvthe">'+qs.map(q=>{const g=giaVonBao(p,q,gvHuong);
+    if(!g.kgBao)return `<div class="gvq"><h4>${esc(q)}</h4><div class="canh">Quy cách chưa có số kg mỗi bao — khai ở Danh mục → Quy cách.</div></div>`;
+    const nhom=['Hương','Nguyên liệu','Bao bì'];
+    const soBaoMe=Math.floor(num(p.kg)/g.kgBao);
+    return `<div class="gvq"><h4>${esc(q)} <small>1 bao = ${fmtSo(g.kgBao)} kg</small></h4>
+      <table class="tb gvbang"><thead><tr><th>Thành phần</th><th class="n">Định mức / bao</th><th class="n">Đơn giá</th><th class="n">Thành tiền</th></tr></thead><tbody>`
+      +nhom.map(n=>{const ds=g.dong.filter(x=>x.nhom===n);if(!ds.length)return '';
+        return `<tr class="gvnhom"><td colspan="4">${n}</td></tr>`+ds.map(x=>`<tr><td>${esc(x.ten)}${x.vatThieu?'<small class="gvvat">⚠ chưa khai VAT — đang tính giá gồm VAT</small>':''}</td><td class="n">${x.dm}</td><td class="n">${x.khong?'—':(x.dg||`<button type="button" class="lnk gvdi" data-gvdi="${x.di||'ma'}" data-gvi="${gvSP}">${x.dm==='—'?'bổ sung →':'chưa có giá →'}</button>`)}</td><td class="n">${x.khong?'0':(x.tt===null?'—':fmt(Math.round(x.tt)))}</td></tr>`).join('')}).join('')
+      +`</tbody><tfoot><tr><td colspan="3">Giá vốn / bao${g.thieu.length?' <span class="gvthieu">(chưa đủ)</span>':''}</td><td class="n">${fmt(Math.round(g.tong))} đ</td></tr>
+        <tr><td colspan="3">Giá vốn / kg</td><td class="n">${fmt(Math.round(g.dKg))} đ</td></tr>
+        ${soBaoMe>0?`<tr><td colspan="3">Cả mẻ chuẩn ${fmt(num(p.kg))} kg đóng ${esc(q)} = ${soBaoMe} bao</td><td class="n">${fmt(Math.round(g.tong*soBaoMe))} đ</td></tr>`:''}</tfoot></table>
+      ${g.thieu.length?`<div class="log">Còn thiếu: ${esc(g.thieu.join(' · '))}</div>`:''}</div>`}).join('')+'</div>';
+  // chi phí thực các mẻ đã ghi
+  const tu=ngayTruoc(29), ds=nk.filter(r=>!r.huy&&(r.ngaysx||'')>=tu).sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))).slice(0,60);
+  o+=`<div class="sec">Chi phí các mẻ đã ghi — 30 ngày (${ds.length} dòng)</div>`;
+  o+=ds.length?`<div class="gvcuon"><table class="tb gvme-bang"><thead><tr><th>Ngày</th><th>Lô</th><th>Mặt hàng · quy cách</th><th class="n">Số bao</th><th class="n">Hương</th><th class="n">Bao bì</th><th class="n">Nguyên liệu ~</th><th class="n">Tổng</th><th class="n">đ / kg</th></tr></thead><tbody>`
+    +ds.map(r=>{const ch=chiPhiHuongRecord(r), cb=chiPhiBaoBiRecord(r), p2=sp.find(x=>x.ten===r.sp);
+      let cnl=null; if(p2&&(p2.congThucNL||[]).length&&num(p2.kg)>0){let du=true,t=0;(p2.congThucNL||[]).forEach(x=>{const dg=giaNLHienTai(x.ten);if(!(dg>0))du=false;t+=num(r.sl)*num(x.kg)/num(p2.kg)*dg});cnl=du?t:null}
+      const km=isUnscented(r.huong), snapH=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null, tong=(ch||0)+(cb?cb.v:0)+(cnl||0);
+      const du=(km||ch>0)&&!!cb&&cnl!==null;
+      return `<tr><td>${esc(vnNgay(r.ngaysx))}</td><td>${esc(lotDep(r.lot))}</td><td>${esc(r.sp)} · ${esc(r.quyCach||'')}</td><td class="n">${r.soBao===''||r.soBao===undefined?'—':fmt(num(r.soBao))}</td>
+        <td class="n">${km?'0':ch>0?(snapH?'':'~')+fmt(Math.round(ch)):'—'}</td><td class="n">${cb?(cb.snap?'':'~')+fmt(cb.v):'—'}</td><td class="n">${cnl!==null?'~'+fmt(Math.round(cnl)):'—'}</td>
+        <td class="n${du?'':' gvthieu'}"><b>${tong>0?fmt(Math.round(tong)):'—'}</b>${tong>0&&!du?'<i>*</i>':''}</td><td class="n">${tong>0&&num(r.sl)>0?fmt(Math.round(tong/num(r.sl))):'—'}</td></tr>`}).join('')
+    +`</tbody></table></div><div class="log" style="margin:4px 12px 0">Không có dấu "~" = giá chụp lúc máy Admin nhận mẻ; "~" = ước tính theo giá hiện tại (mẻ cũ chưa có ảnh chụp, hoặc nguyên liệu — chưa chụp giá theo mẻ). "—" = chưa có giá/chưa gán; "*" = tổng còn thiếu phần đó.</div>`
+    :'<div class="none">30 ngày qua chưa có mẻ nào.</div>';
+  $('viewGV').innerHTML=o;
+}
+/* Nút "chưa có giá →" / dòng thiếu: dẫn tới đúng chỗ nhập (S12: thiếu gì thì có đường tới chỗ bổ sung) */
+function gvDen(di,i){
+  if(di==='ct'||di==='cth'){ctDenMuc(i,di==='ct'?'dm':'h');return}
+  const id={bb:'secBaoBi',h:'secNguonHuong',nl:'secNguonNL'}[di]||'';
+  chuyenTab('ma');
+  requestAnimationFrame(()=>{const s=id&&document.getElementById(id);if(s){s.scrollIntoView({block:'start',behavior:'smooth'});ctNhay(s,'flash')}});
+}
+
 function veMa(){
   const tSP=trungMaSP(),tH=trungMaH(),tQ=trungMaQ();
   const nSP=trungTen(sp.map(x=>x.ten)),nH=trungTen(kho),nQ=trungTen(dr),
@@ -3171,6 +3464,8 @@ function veMa(){
   o+=`<button class="addbtn" data-them="q">+ Thêm quy cách</button>`;
   o+=`<div style="padding:0 12px 4px">${bangTra('q','Bảng tra mã quy cách theo quy ước (11 mã)',QU_QC)}
     <div class="log">Mã 12–99 để dành cho quy cách mới. <b style="color:var(--amber)">Bảng quy ước không có mức 20 kg</b> — nếu xưởng thật sự đóng 20 kg thì phải cấp mã mới (số kế tiếp là 12) và cập nhật vào bản gốc quy ước.</div></div>`;
+
+  o+=veBaoBi();
 
   o+=`<div class="sec">Chất phun khử bụi — ${cp.length} mục</div>`;
   o+=cp.length?cp.map(c=>dong(c.ten,'cp',{dupTen:nC.has(c.ten)})).join('')
@@ -3323,6 +3618,8 @@ function veBC(){
       <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cyan)">${fmt(r.mlDung)} g / ${fmt(r.sl)} kg thành phẩm</b></div>
       ${(()=>{const cp=chiPhiHuongRecord(r);const coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null;
         return cp>0?`<div class="kv"><span>${coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu ~ giá ước tính hiện tại'}</span><b>${fmt(Math.round(cp))} đ</b></div>`:''})()}
+      ${(()=>{const cb=chiPhiBaoBiRecord(r);if(!cb)return '';const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
+        return `<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
       <div class="kv"><span>Định mức lúc SX</span><b>${fmt(r.mlChuan)} g / ${fmt(r.meChuan)} kg</b></div>
       <div class="kv"><span>Phun khử bụi</span><b>${r.pkb?('Có'+(r.pkbPhut?` · ${esc(r.pkbPhut)} phút`:'')+(r.pkbChat?` · ${esc(r.pkbChat)}`:'')):'Không'}</b></div>
       ${r.pkb&&r.pkbCT?`<div class="kv"><span>Công thức pha${r.pkbCTRieng?' (riêng)':' (chung)'}</span><b style="white-space:pre-wrap;text-align:right">${esc(r.pkbCT)}</b></div>`:''}
@@ -3605,6 +3902,7 @@ function ve(){
   $('viewMA').style.display = tab==='ma'?'':'none';
   $('viewBC').style.display = tab==='bc'?'':'none';
   $('viewSL').style.display = tab==='sl'?'':'none';
+  $('viewGV').style.display = tab==='gv'?'':'none';
   $('applyBox').style.display = tab==='ct'?'':'none';
   $('editBtn').style.display = tab==='ct'?'':'none';
   const thieu=sp.filter(p=>!(p.huongs||[]).length).length;
@@ -3619,7 +3917,7 @@ function ve(){
     : tab==='ct'
     ? `<b>${sp.length}</b> mặt hàng${chan?` · <b>${chan}</b> đình chỉ`:''}${thieu?` · <b>${thieu}</b> chưa hương`:''}${chuaLuu?` · <b>${chuaLuu}</b> chưa lưu`:''} · <b>${nk.length}</b> mẻ${sua?' · HIỆN NÚT XOÁ':''}`
     : `<b>${nk.length}</b> mẻ · <b>${fmt(tKg)}</b> kg thành phẩm`;
-  if(tab==='tq')veTQ(); else if(tab==='ct')veCT(); else if(tab==='ma')veMa(); else if(tab==='bc')veBC(); else veSL();
+  if(tab==='tq')veTQ(); else if(tab==='ct')veCT(); else if(tab==='ma')veMa(); else if(tab==='bc')veBC(); else if(tab==='gv')veGV(); else veSL();
 }
 
 /* ═══ Sự kiện ═══ */
@@ -3661,6 +3959,21 @@ $('viewMA').addEventListener('input',e=>{
     const f=Math.round(+el.value);
     if(f>0){nguongCanhBaoNgay=f;luu()}
     return}
+});
+/* S21: bao bì — dùng chung cho Danh mục và Công thức; chỉ bắt các phần tử data-bb*, không đụng listener cũ */
+['viewMA','rows'].forEach(id=>{
+  $(id).addEventListener('change',e=>{suKienBaoBi(e)});
+  $(id).addEventListener('click',e=>{if(e.target.closest('[data-bbbo],[data-bbrieng],[data-bbmacdinh],[data-bbdenma],[data-bbthemmoi],[data-bbxoa]'))suKienBaoBi(e)});
+});
+$('viewGV').addEventListener('change',e=>{
+  if(e.target.id==='gvSP'){gvSP=+e.target.value;gvHuong='';veGV()}
+  else if(e.target.id==='gvHuong'){gvHuong=e.target.value;veGV()}
+});
+$('viewGV').addEventListener('click',e=>{
+  const s=e.target.closest('[data-gvsp]');
+  if(s){gvSP=+s.dataset.gvsp;gvHuong='';veGV();const c=document.querySelector('.gvchon');if(c)c.scrollIntoView({block:'start',behavior:'smooth'});return}
+  const d=e.target.closest('[data-gvdi]');
+  if(d)gvDen(d.dataset.gvdi,+d.dataset.gvi);
 });
 $('viewMA').addEventListener('change',e=>{
   const nd=e.target.dataset.nguondung;
@@ -3840,7 +4153,7 @@ $('viewMA').addEventListener('click',async e=>{
       sp.forEach(x=>{x.huongs=(x.huongs||[]).filter(t=>t!==v);x.tam=(x.tam||[]).filter(t=>t!==v);
         if(x.huongMe===v)x.huongMe='';
         if(x.nguonHuongChon)delete x.nguonHuongChon[v]})}
-    else if(loai==='q'){dr=dr.filter(x=>x!==v);delete maQC[v];delete kgQC[v];
+    else if(loai==='q'){dr=dr.filter(x=>x!==v);delete maQC[v];delete kgQC[v];delete baoBiQC[v];sp.forEach(x=>{if(x.baoBiRieng)delete x.baoBiRieng[v]});
       sp.forEach(x=>{x.dauRa=(x.dauRa||[]).filter(t=>t!==v);if(x.qc===v)x.qc='';
         x.pb=(x.pb||[]).filter(d=>d.qc!==v)})}
     else if(loai==='cp'){cp=cp.filter(x=>x.ten!==v);sp.forEach(x=>{if(x.pkbChat===v)x.pkbChat=''});moCT.clear()}
@@ -4067,7 +4380,7 @@ $('viewSL').addEventListener('click',async e=>{
        (xem khối "Phục hồi từ bản sao"), nhưng export ở đây trước giờ chưa từng ghi ra, nên
        "Bản sao đầy đủ" thực ra KHÔNG đầy đủ — phục hồi từ file .json cũ sẽ làm MẤT sạch nguồn
        hương liệu/giá/tồn kho/danh mục nguyên liệu. Bổ sung đủ vào đây, không đổi field nào cũ. */
-    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
+    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
     const ok=taiVe(`huonglieu_backup_${isoNay()}.json`,s,'application/json');
     if(!ok){const d=$('dump');d.style.display='block';d.value=s;d.select();bao('Không tải được — hãy sao chép nội dung bên dưới')}
     else bao('Đã tạo bản sao');
@@ -4101,6 +4414,8 @@ $('viewSL').addEventListener('click',async e=>{
       nguonNguyenLieu=(d.nguonNguyenLieu&&typeof d.nguonNguyenLieu==='object')?d.nguonNguyenLieu:{};
       nlDangDung=(d.nlDangDung&&typeof d.nlDangDung==='object')?d.nlDangDung:{};
       tonKhoNguyenLieu=(d.tonKhoNguyenLieu&&typeof d.tonKhoNguyenLieu==='object')?d.tonKhoNguyenLieu:{};
+      if(Array.isArray(d.baoBi))baoBi=d.baoBi;
+      if(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))baoBiQC=d.baoBiQC;
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong; else nlTong=0;
@@ -4607,6 +4922,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       nguonNguyenLieu=(d.nguonNguyenLieu&&typeof d.nguonNguyenLieu==='object')?d.nguonNguyenLieu:{};
       nlDangDung=(d.nlDangDung&&typeof d.nlDangDung==='object')?d.nlDangDung:{};
       tonKhoNguyenLieu=(d.tonKhoNguyenLieu&&typeof d.tonKhoNguyenLieu==='object')?d.tonKhoNguyenLieu:{};
+      baoBi=Array.isArray(d.baoBi)?d.baoBi:BAOBI_GOC();
+      baoBiQC=(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))?d.baoBiQC:{};
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
@@ -4620,8 +4937,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       dataUnitVersion=2;
       sp.forEach(x=>{const t=String(x.pkbChat||'').trim();
         if(t&&!cp.some(y=>y.ten===t))cp.push({ten:t,ct:''})});
-    }else{sp=moi();kho=[...KHO_GOC];cp=[];dr=[...DR_GOC];nk=[];maHuong={};maQC={};kgQC={};nvDS=[];nlDM=[]}
-  }catch(e){sp=moi();kho=[...KHO_GOC];cp=[];dr=[...DR_GOC];nk=[];maHuong={};maQC={};kgQC={};nvDS=[];nlDM=[]}
+    }else{sp=moi();kho=[...KHO_GOC];cp=[];dr=[...DR_GOC];nk=[];maHuong={};maQC={};kgQC={};nvDS=[];nlDM=[];baoBi=BAOBI_GOC();baoBiQC={}}
+  }catch(e){sp=moi();kho=[...KHO_GOC];cp=[];dr=[...DR_GOC];nk=[];maHuong={};maQC={};kgQC={};nvDS=[];nlDM=[];baoBi=BAOBI_GOC();baoBiQC={}}
   /* PATCH V1.1 mục P1-A: khởi tạo dấu vân tay công thức cho toàn bộ sp[] ngay lúc mở app —
      dữ liệu cũ (chưa từng có recipeVersion) chỉ được GẮN MỐC ở đây, không bị tính là một lần
      đổi (xem bumpRecipeVersion: nhánh recipeFingerprint===undefined không tăng version). */

@@ -26,7 +26,7 @@ await p.goto(FILE); await p.waitForTimeout(900);
 const E=f=>p.evaluate(f), Ea=(f,a)=>p.evaluate(f,a);
 
 console.log('\n── A. KHỞI ĐỘNG ──');
-ok('5 tab hiện đủ (S10 thêm Tổng quan)', (await E(()=>document.querySelectorAll('.tab').length))===5);
+ok('6 tab hiện đủ (S10 thêm Tổng quan, S21 thêm Giá vốn)', (await E(()=>document.querySelectorAll('.tab').length))===6);
 /* S10 (10/09/2026) — trang Tổng quan: mở app vào đây, CHỈ ĐỌC, số khớp dữ liệu, bấm mẻ mở đúng lô */
 ok('TQ: mở app vào trang Tổng quan', (await E(()=>tab==='tq'&&document.getElementById('viewTQ').style.display===''&&document.getElementById('viewCT').style.display==='none'&&document.querySelector('.tab.on').dataset.tab==='tq')));
 const tqKq=await E(()=>{
@@ -276,6 +276,121 @@ const s19=await E(async()=>{ window.__tatTuDongKhoTem=true;
 ok('S20: tem in TÊN MẶT HÀNG trong Danh mục (không lấy tên theo TCCS)', s19.temTenDanhMuc, JSON.stringify(s19));
 ok('S20: ô chọn lô và thẻ lô dùng đúng tên Danh mục — không còn hiện kèm tên khác', s19.option&&s19.kv);
 ok('S20: tên theo TCCS (tenVN) không còn bắt buộc để in tem', s19.tenVNKhongBatBuoc);
+/* S21 (10/09/2026) — chi phí bao bì (khách báo giá túi PA/PE theo kg, "quan trọng không kém hương liệu") + tab Giá vốn.
+   Khách chốt: gán theo quy cách + chỉnh riêng mặt hàng · chỉ tính túi đầy · giá hương/NL chưa VAT → túi quy về chưa VAT. */
+const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); const kq={};
+  const goc={sp:JSON.stringify(sp),bb:JSON.stringify(baoBi),qc:JSON.stringify(baoBiQC),nl:JSON.stringify(nguonNguyenLieu),nld:JSON.stringify(nlDangDung),kho:JSON.stringify(kho),nk:nk.length};
+  const g=id=>baoBi.find(b=>b.id===id), P=()=>sp[0];
+  // 1) gieo sẵn đúng 6 loại túi khách báo giá
+  kq.gieo=baoBi.length===6&&giaBBHienTai(g('bb-pa-1525')).caiKg===140&&giaBBHienTai(g('bb-pa-1828')).caiKg===102&&giaBBHienTai(g('bb-pa-2232')).caiKg===72
+    &&giaBBHienTai(g('bb-pa-3040')).caiKg===40&&giaBBHienTai(g('bb-pe-3040')).caiKg===68&&giaBBHienTai(g('bb-pe-2030')).caiKg===104
+    &&['bb-pa-1525','bb-pa-1828','bb-pa-2232','bb-pa-3040'].every(i=>giaBBHienTai(g(i)).giaKg===68000)&&['bb-pe-3040','bb-pe-2030'].every(i=>giaBBHienTai(g(i)).giaKg===45000)
+    &&baoBi.every(b=>giaBBHienTai(b).vat===null);
+  // 2) giá 1 cái: chưa khai VAT → tạm gồm VAT + đánh dấu; khai 8% → quy về chưa VAT
+  const a=giaCaiBB(g('bb-pa-1525')); kq.chuaVAT=Math.abs(a.gia-68000/140)<1e-9&&!a.daQuy;
+  giaBBHienTai(g('bb-pa-1525')).vat=8; const b8=giaCaiBB(g('bb-pa-1525')); kq.coVAT=Math.abs(b8.gia-68000/140/1.08)<1e-9&&b8.daQuy&&Math.abs(b8.gomVAT-68000/140)<1e-9;
+  kq.docTien=[['68k',68000],['68.000',68000],['68,000',68000],['45000 đ',45000],['1.250.000',1250000],['68,5k',68500],['',0]].every(([x,v])=>docTien(x)===v);
+  // 3) mặc định theo quy cách + chỉnh riêng mặt hàng
+  const q=P().dauRa[0]; baoBiQC[q]=[{id:'bb-pa-1525',sl:1}];
+  kq.macDinh=baoBiCho(P(),q)[0].id==='bb-pa-1525'&&baoBiCho(sp[1],q)[0].id==='bb-pa-1525'&&!laRiengBB(P(),q);
+  P().baoBiRieng={[q]:[{id:'bb-pe-2030',sl:2}]};
+  kq.rieng=baoBiCho(P(),q)[0].id==='bb-pe-2030'&&baoBiCho(sp[1],q)[0].id==='bb-pa-1525'&&laRiengBB(P(),q);
+  // 4) chỉ tính TÚI ĐẦY: 20 bao + dư 0,6 kg → 20 bao × 2 cái = 40 cái
+  const g2=giaCaiBB(g('bb-pe-2030'));
+  const r={id:'S21-A',sp:P().ten,huong:'Không mùi',quyCach:q,sl:20.6,soBao:20,kgBao:kgCua(q),kgDu:0.6,mlDung:0,ngaysx:ngayTruoc(0),lot:'4100070926',nv:'T',giaHuongTheoGLucSX:0,chiPhiHuongLucSX:0};
+  const t=tinhBaoBiMe(r); kq.tuiDay=t.ds[0].soCai===40&&t.chiPhi===Math.round(40*g2.gia);
+  // 5) chụp lúc nhận mẻ — kể cả mẻ Không mùi (NV gửi giá hương 0 → hàm return sớm) ; đổi giá sau không tính lại
+  ghiNhanMeLanDau(r); kq.chup=r.chiPhiBaoBiLucSX===Math.round(40*g2.gia)&&Array.isArray(r.baoBiLucSX)&&r.baoBiLucSX[0].soCai===40&&r.baoBiLucSX[0].ten==='Túi PE 20x30 (túi gỗ)';
+  const truoc=r.chiPhiBaoBiLucSX; giaBBHienTai(g('bb-pe-2030')).giaKg=90000; ghiNhanMeLanDau(r);
+  kq.khongTinhLai=r.chiPhiBaoBiLucSX===truoc&&chiPhiBaoBiRecord(r).snap&&chiPhiBaoBiRecord(r).v===truoc;
+  const cu2={...r,id:'S21-B'}; delete cu2.chiPhiBaoBiLucSX; delete cu2.baoBiLucSX;
+  kq.uocTinh=chiPhiBaoBiRecord(cu2).snap===false&&chiPhiBaoBiRecord(cu2).v===Math.round(40*90000/104);
+  // chưa gán bao bì → null (không hiện 0 đ như thật), và không chặn mẻ
+  const r3={...r,id:'S21-C',quyCach:'__khongco__'}; delete r3.chiPhiBaoBiLucSX; ghiNhanMeLanDau(r3); kq.chuaGan=r3.chiPhiBaoBiLucSX===null&&chiPhiBaoBiRecord(r3)===null;
+  // 6) thẻ lô hiện chi phí bao bì
+  nk.push(r); traLot=r.lot; chuyenTab('bc'); await cho(60);
+  kq.theLo=/Chi phí bao bì lúc sản xuất/.test($('viewBC').innerText)&&$('viewBC').innerText.includes('Túi PE 20x30 (túi gỗ) × 40');
+  // 7) đổi tên quy cách → bao bì đi theo (khoá theo tên); đổi lại
+  doiTen('q',q,q+' S21'); kq.doiTen=Array.isArray(baoBiQC[q+' S21'])&&!(q in baoBiQC)&&Array.isArray(P().baoBiRieng[q+' S21'])&&!(q in P().baoBiRieng);
+  doiTen('q',q+' S21',q);
+  // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
+  kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
+  kq.goi=/nlGhiChu,baoBi,baoBiQC\}\}/.test(dbDayCauHinh.toString());
+  const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
+  const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
+  apDungCauHinhTuServer({sp:cfg});
+  kq.serverCu=JSON.stringify(baoBi)===bbT&&JSON.stringify(baoBiQC)===qcT&&P().baoBiRieng&&P().baoBiRieng[q][0].id==='bb-pe-2030';
+  apDungCauHinhTuServer({sp:JSON.parse(JSON.stringify(sachCauHinh(sp))).map((x,k)=>k===0?{...x,baoBiRieng:{}}:x),baoBi:[{id:'bb-x',ten:'Túi X',lichSu:[{ngay:'10/09/2026',giaKg:50000,caiKg:50,vat:8,ncc:''}]}],baoBiQC:{[q]:[{id:'bb-x',sl:1}]}});
+  kq.serverMoi=baoBi.length===1&&baoBi[0].id==='bb-x'&&baoBiQC[q][0].id==='bb-x'&&!laRiengBB(P(),q);
+  sp=napSP(JSON.parse(spT)); baoBi=JSON.parse(bbT); baoBiQC=JSON.parse(qcT);
+  await luuNgay(); const kho1=await store.get(); kq.luuMay=Array.isArray(kho1.baoBi)&&kho1.baoBi.length===6&&!!kho1.baoBiQC&&!!kho1.baoBiQC[q];
+  kq.saoLuu=document.documentElement.innerHTML.includes('nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1)');
+  // 9) Danh mục: sửa giá kiểu "70.000" → lưu lịch sử; gán thêm túi cho quy cách bằng ô chọn
+  chuyenTab('ma'); await cho(30);
+  kq.coKhu=!!document.getElementById('secBaoBi')&&document.querySelectorAll('.bbrow').length===6;
+  const oG=document.querySelector('[data-bbf="giaKg"][data-bbid="bb-pa-1828"]'); oG.value='70.000'; oG.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.suaGia=giaBBHienTai(g('bb-pa-1828')).giaKg===70000&&giaBBHienTai(g('bb-pa-1828')).caiKg===102;
+  const oV=document.querySelector('[data-bbf="vat"][data-bbid="bb-pa-1828"]'); oV.value='8'; oV.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.suaVAT=giaBBHienTai(g('bb-pa-1828')).vat===8&&giaCaiBB(g('bb-pa-1828')).daQuy;
+  const oSai=document.querySelector('[data-bbf="caiKg"][data-bbid="bb-pa-1828"]'); oSai.value='0'; oSai.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.chanSai=giaBBHienTai(g('bb-pa-1828')).caiKg===102;
+  const q2=dr.find(x=>x!==q); const sel=[...document.querySelectorAll('[data-bbthem]')].find(x=>x.dataset.bbthem==='qc|||'+q2);
+  sel.value='bb-pa-3040'; sel.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.ganQC=Array.isArray(baoBiQC[q2])&&baoBiQC[q2][0].id==='bb-pa-3040'&&baoBiQC[q2][0].sl===1;
+  // 10) Công thức → Sản xuất & đóng gói: đổi riêng / về mặc định
+  delete P().baoBiRieng; mo.clear(); mo.add(0); chuyenTab('ct'); await cho(30);
+  const sx=document.querySelector('.ctsec[data-sec="sx"][data-si="0"]');
+  kq.ctCo=!!sx&&/Bao bì mỗi bao thành phẩm/.test(sx.innerText)&&/mặc định/.test(sx.innerText);
+  sx.querySelector('[data-bbrieng]').click(); await cho(30);
+  kq.ctRieng=laRiengBB(P(),P().dauRa[0])&&P().baoBiRieng[P().dauRa[0]][0].id==='bb-pa-1525';
+  document.querySelector('.ctsec[data-sec="sx"][data-si="0"] [data-bbmacdinh]').click(); await cho(30);
+  kq.ctMacDinh=!laRiengBB(P(),P().dauRa[0]);
+  // 11) tab Giá vốn: hương (Không mùi = 0) + nguyên liệu + bao bì, đúng số
+  const p=P(); p.huongs=['Không mùi']; p.congThucNL=[{ten:'NL-S21',kg:num(p.kg)}];
+  nguonNguyenLieu['NL-S21']=[{ncc:'A',gia:1000000,soKg:1000}];
+  const gv=giaVonBao(p,q,'Không mùi'), kb=kgCua(q), mong=kb*1000+giaCaiBB(g('bb-pa-1525')).gia;
+  kq.gvSo=Math.abs(gv.tong-mong)<1e-6&&!gv.thieu.length&&Math.abs(gv.dKg-mong/kb)<1e-6;
+  gvSP=0; gvHuong=''; chuyenTab('gv'); await cho(40);
+  const v=$('viewGV'); kq.gvHien=v.style.display!=='none'&&v.querySelectorAll('.gvq').length===(p.dauRa||[]).length&&v.innerText.includes(fmt(Math.round(mong))+' đ')&&/Giá vốn \/ bao/.test(v.innerText);
+  kq.gvTong=v.querySelectorAll('.gvtong tbody tr').length===sp.length;
+  kq.gvKhongGhi=JSON.stringify(baoBiQC[q])===JSON.stringify([{id:'bb-pa-1525',sl:1}]);
+  // thiếu giá → có nút dẫn tới đúng chỗ nhập
+  delete nguonNguyenLieu['NL-S21']; veGV();
+  const nut=[...v.querySelectorAll('[data-gvdi="nl"]')][0]; kq.gvThieu=!!nut&&/chưa có giá/.test(nut.textContent);
+  nut.click(); await cho(60); kq.gvDen=tab==='ma';
+  // dọn
+  nk.splice(nk.findIndex(z=>z.id==='S21-A'),1);
+  sp=napSP(JSON.parse(goc.sp)); baoBi=JSON.parse(goc.bb); baoBiQC=JSON.parse(goc.qc); nguonNguyenLieu=JSON.parse(goc.nl); nlDangDung=JSON.parse(goc.nld); kho=JSON.parse(goc.kho);
+  traLot=''; gvSP=0; gvHuong=''; mo.clear(); await luuNgay(); chuyenTab('tq');
+  kq.donSach=nk.length===goc.nk;
+  return kq;});
+ok('S21: gieo sẵn đúng 6 loại túi khách báo giá (PA 68k/kg: 140·102·72·40 cái/kg; PE 45k/kg: 68·104 cái/kg)', s21.gieo, JSON.stringify(s21));
+ok('S21: giá 1 cái = giá/kg ÷ cái/kg; chưa khai VAT → tạm gồm VAT, có đánh dấu', s21.chuaVAT);
+ok('S21: khai VAT 8% → giá túi quy về CHƯA VAT (khớp giá hương/nguyên liệu nhập chưa VAT)', s21.coVAT);
+ok('S21: đọc tiền kiểu Việt: 68k · 68.000 · 68,000 · "45000 đ" · 1.250.000', s21.docTien);
+ok('S21: bao bì mặc định theo quy cách áp cho mọi mặt hàng', s21.macDinh);
+ok('S21: mặt hàng chỉnh riêng thì dùng bao bì riêng, mặt hàng khác vẫn theo mặc định', s21.rieng);
+ok('S21: chỉ tính TÚI ĐẦY (20 bao + dư 0,6 kg → 20 bao × 2 cái = 40 cái)', s21.tuiDay);
+ok('S21: chụp chi phí bao bì lúc nhận mẻ — kể cả mẻ Không mùi (hàm return sớm vì giá hương 0)', s21.chup);
+ok('S21: đổi giá túi sau đó KHÔNG làm đổi chi phí mẻ đã ghi', s21.khongTinhLai);
+ok('S21: mẻ cũ chưa có ảnh chụp → ước tính theo giá hiện tại (ghi rõ ~)', s21.uocTinh);
+ok('S21: quy cách chưa gán bao bì → để trống (không hiện 0 đ như thật)', s21.chuaGan);
+ok('S21: thẻ lô có dòng "Chi phí bao bì lúc sản xuất" kèm số cái từng loại', s21.theLo);
+ok('S21: đổi tên quy cách → bao bì mặc định và bao bì riêng đi theo tên mới', s21.doiTen);
+ok('S21: bao bì riêng của mặt hàng nằm trong whitelist đồng bộ (sachCauHinh)', s21.sach);
+ok('S21: danh mục bao bì + gán theo quy cách được gửi lên Sheet cùng cấu hình', s21.goi);
+ok('S21: Code.gs CŨ (chưa có trường bao bì) → kéo cấu hình về KHÔNG làm mất bao bì trên máy', s21.serverCu);
+ok('S21: server có bao bì → áp dụng đúng (kể cả bỏ bao bì riêng)', s21.serverMoi);
+ok('S21: bao bì được lưu xuống máy và có trong file sao lưu', s21.luuMay&&s21.saoLuu);
+ok('S21: Danh mục có khu Bao bì — sửa giá "70.000" lưu đúng 70000 đ/kg, giữ số cái/kg', s21.coKhu&&s21.suaGia);
+ok('S21: khai VAT ở Danh mục → giá túi quy về chưa VAT; nhập 0 cái/kg bị chặn', s21.suaVAT&&s21.chanSai);
+ok('S21: gán bao bì cho quy cách bằng ô chọn ở Danh mục', s21.ganQC);
+ok('S21: Công thức → Sản xuất & đóng gói có bao bì; "đổi riêng" / "về mặc định" chạy đúng', s21.ctCo&&s21.ctRieng&&s21.ctMacDinh);
+ok('S21: Giá vốn / bao = hương + nguyên liệu + bao bì (đúng số, Không mùi = 0)', s21.gvSo);
+ok('S21: tab Giá vốn hiện thẻ từng quy cách + bảng nhanh mọi mặt hàng', s21.gvHien&&s21.gvTong);
+ok('S21: tab Giá vốn chỉ đọc — không ghi đè dữ liệu', s21.gvKhongGhi);
+ok('S21: thiếu giá → nút "chưa có giá →" dẫn tới chỗ nhập ở Danh mục', s21.gvThieu&&s21.gvDen);
+ok('S21: dọn sạch dữ liệu thử', s21.donSach);
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);

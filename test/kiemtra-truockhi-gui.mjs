@@ -92,6 +92,12 @@ console.log(`ℹ️  Phiên bản đang gửi — Admin: ${verAdmin||'?'} · Nh�
   const ks=truong(khoang(gs,'function sachCauHinhServer(','sp: sp,'));
   const thieu=kc.filter(k=>!ks.includes(k));
   ok('Mọi trường mặt hàng Admin đồng bộ đều có trong Code.gs (không bị server cắt mất)', kc.length>10&&ks.length>10&&!thieu.length, thieu.length?'thiếu: '+thieu.join(', '):'không đọc được danh sách trường');
+  /* S21: cả các trường CẤP TRÊN CÙNG Admin gửi lên (luuCauHinh) cũng phải được sachCauHinhServer() giữ lại */
+  const goi=(admin.match(/a:'luuCauHinh',cauhinh:\{([^}]*)\}\}/)||[])[1]||'';
+  const kc2=goi.split(',').map(x=>(x.match(/^\s*([A-Za-z_]\w*)/)||[])[1]).filter(Boolean);
+  const vs=khoang(gs,'sp: sp,','\n  };'), ks2=['sp',...new Set([...vs.matchAll(/(?:^|[{,])\s*([A-Za-z_]\w*)\s*:/gm)].map(m=>m[1]))];
+  const thieu2=kc2.filter(k=>!ks2.includes(k));
+  ok('Mọi trường cấp trên cùng Admin gửi lên đều được Code.gs giữ lại', kc2.length>15&&ks2.length>15&&!thieu2.length, thieu2.length?'thiếu: '+thieu2.join(', '):('đọc được '+kc2.length+'/'+ks2.length+' trường'));
 }
 console.log(`\nKẾT QUẢ:  ${loi===0?'KHÔNG CÓ LỖI — an toàn để gửi':loi+' LỖI — DỪNG LẠI, sửa xong mới gửi cho khách'}`);
 process.exit(loi?1:0);

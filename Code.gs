@@ -83,7 +83,7 @@ function doPost(e){
     const d = JSON.parse(e.postData.contents);
     if(d.mk !== MATKHAU) return ra({loi:'Sai mật khẩu'});
     if(d.a && HANH_DONG_CHO_PHEP.indexOf(d.a) === -1) return ra({loi:'Hành động không được phép'});
-    if(d.a === 'luuCauHinh'){ ghiCauHinh(sachCauHinhServer(d.cauhinh)); return ra({ok:1, ts: tsCauHinh()}) }
+    if(d.a === 'luuCauHinh'){ ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'xoaDLMoPhong'){ xoaDLMoPhong(); return ra({ok:1}) }
@@ -96,7 +96,7 @@ function doPost(e){
    xacNhanCT...). Đây là invariant H1 (config sync không được mang runtime batch state) — bản
    vá P0/bản O đã chặn ở CLIENT (sachCauHinh() bên Admin); đây là lớp phòng thủ THỨ HAI ở SERVER,
    không thay đổi hành vi khi client gửi đúng như hiện tại (chỉ có tác dụng khi client SAI). */
-function sachCauHinhServer(c){
+function sachCauHinhServer(c, cu){
   c = c || {};
   const spNguon = Array.isArray(c.sp) ? c.sp : [];
   const sp = spNguon.map(function(p){
@@ -121,7 +121,9 @@ function sachCauHinhServer(c){
       // 10/09/2026 — bản S14: chủ MỞ KHOÁ hồ sơ tem của mặt hàng khoá-theo-TCCS để sửa tay. Cấu hình
       // tĩnh (không phải trạng thái ghi mẻ dở — không vi phạm H1). Thiếu dòng này thì server cắt mất
       // cờ, máy khác/bản mở lại tưởng mặt hàng còn khoá và ghi đè phần đã sửa tay bằng TCCS.
-      temMoKhoa: !!p.temMoKhoa
+      temMoKhoa: !!p.temMoKhoa,
+      // 10/09/2026 — bản S21: bao bì riêng của mặt hàng (khác mặc định theo quy cách). Cấu hình tĩnh, không vi phạm H1.
+      baoBiRieng: (p.baoBiRieng && typeof p.baoBiRieng === 'object' && !Array.isArray(p.baoBiRieng)) ? p.baoBiRieng : {}
       // CỐ Ý KHÔNG copy: sl, pb, huongMe, lot, ngaysx, nv, daInPhieu, xacNhanCT, xacNhanCTBoi,
       // xacNhanCTSnap, xacNhanCTLuc, recipeFingerprint — runtime batch state hoặc chi tiết nội
       // bộ không cần đồng bộ, giống hệt whitelist sachCauHinh() phía client (Admin).
@@ -148,7 +150,12 @@ function sachCauHinhServer(c){
     nguonNguyenLieu: (c.nguonNguyenLieu && typeof c.nguonNguyenLieu === 'object') ? c.nguonNguyenLieu : {},
     nlDangDung: (c.nlDangDung && typeof c.nlDangDung === 'object') ? c.nlDangDung : {},
     tonKhoNguyenLieu: (c.tonKhoNguyenLieu && typeof c.tonKhoNguyenLieu === 'object') ? c.tonKhoNguyenLieu : {},
-    nlTong: c.nlTong, nlNgayKhai: c.nlNgayKhai || '', nlGhiChu: c.nlGhiChu || ''
+    nlTong: c.nlTong, nlNgayKhai: c.nlNgayKhai || '', nlGhiChu: c.nlGhiChu || '',
+    // 10/09/2026 — bản S21: danh mục bao bì (giá theo kg, số cái/kg, VAT) + bao bì mặc định theo quy cách.
+    // Bản Admin cũ không gửi 2 trường này → GIỮ bản đang lưu (cu), không ghi đè thành rỗng.
+    baoBi: Array.isArray(c.baoBi) ? c.baoBi : ((cu && Array.isArray(cu.baoBi)) ? cu.baoBi : []),
+    baoBiQC: (c.baoBiQC && typeof c.baoBiQC === 'object' && !Array.isArray(c.baoBiQC)) ? c.baoBiQC
+           : ((cu && cu.baoBiQC && typeof cu.baoBiQC === 'object' && !Array.isArray(cu.baoBiQC)) ? cu.baoBiQC : {})
   };
 }
 
