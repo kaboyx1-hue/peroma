@@ -805,13 +805,17 @@ html,body{background:var(--bg);min-height:100%}
 /* S13: nút phụ "Lưu file tem để in ở máy khác" */
 .inbtn.ghe{background:transparent;color:var(--txt-2);border-style:dashed;font-weight:600;font-size:12.5px}
 .inbtn.ghe:hover{color:var(--tx);border-color:var(--acc)}
+/* S14: mở khoá hồ sơ tem khoá-theo-TCCS */
+.tccsbtn.tem-mokhoa{background:var(--card);color:var(--accTx);border:1px dashed var(--acc)}
+.temstat.mokhoa{background:var(--warnBg);color:var(--warnTx);border:1px solid var(--warnLine);line-height:1.55}
+.temstat.mokhoa .tccsbtn{display:block;width:100%;margin-top:8px;background:var(--card);color:var(--tx);border:1px solid var(--line2)}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S13</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S14</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -999,7 +1003,10 @@ function sachCauHinh(mang){
        cấu hình (không phải trạng thái ghi mẻ dở — không vi phạm H1), phải đồng bộ cùng công
        thức, nếu không thì mở lại ở máy/bản khác sẽ mất lựa chọn đã khoá. */
     nguonHuongChon:(p.nguonHuongChon&&typeof p.nguonHuongChon==='object')?p.nguonHuongChon:{},
-    nguonHuongKhoa:!!p.nguonHuongKhoa
+    nguonHuongKhoa:!!p.nguonHuongKhoa,
+    /* S14: chủ mở khoá hồ sơ tem của mặt hàng khoá-theo-TCCS để sửa tay — cấu hình tĩnh, phải đồng bộ,
+       nếu không máy Admin khác / bản mở lại sẽ tự khoá và ghi đè mất phần đã sửa. */
+    temMoKhoa:!!p.temMoKhoa
   }));
 }
 async function dbDayCauHinh(){
@@ -1376,7 +1383,9 @@ function apTCCSKhoa(i){
    không chờ admin bấm nút (vì không còn chỗ nào cho admin tự gõ để mà "giữ" nữa). */
 function dongBoTCCSKhoaLucNap(){
   sp.forEach(p=>{const ma=hai(p.maSP);
-    if(TCCS_KHOA.includes(ma)&&TCCS_DATA[ma])p.hstem={...temTrong(),...TCCS_DATA[ma]}});
+    // S14: mặt hàng chủ đã MỞ KHOÁ để sửa tay (p.temMoKhoa) thì KHÔNG ghi đè — nếu không, mỗi lần mở
+    // app là mất sạch phần đã sửa. Khoá lại (nút "Khoá lại theo TCCS") thì lại khớp TCCS như cũ.
+    if(TCCS_KHOA.includes(ma)&&TCCS_DATA[ma]&&!p.temMoKhoa)p.hstem={...temTrong(),...TCCS_DATA[ma]}});
 }
 /* 25/08/2026 — khoá "Xuất xứ": không cho gõ tay nữa (xem veTem()), chỉ đảm bảo mặt hàng nào
    đang trống ô này thì có giá trị mặc định "Sản xuất tại Việt Nam". KHÔNG đụng vào nội dung
@@ -2200,9 +2209,11 @@ function veTemBlock(p,i){
 }
 function veTem(p,i){
   const ma0=hai(p.maSP);
-  if(TCCS_KHOA.includes(ma0))return veTemKhoa(p,i,ma0);
+  if(TCCS_KHOA.includes(ma0)&&!p.temMoKhoa)return veTemKhoa(p,i,ma0);
+  const moKhoaTCCS=TCCS_KHOA.includes(ma0)&&p.temMoKhoa;
   const t=p.hstem||temMoi(), th=temThieu(p);
   let o=`<div class="tembox">`;
+  if(moKhoaTCCS)o+=`<div class="temstat mokhoa"><b>Đang sửa tay</b> — mặt hàng này vốn khoá theo TCCS ${esc((TCCS_DATA[ma0]||{}).soTCCS||'')}, đã được mở khoá. Nội dung tem giờ do người sửa chịu trách nhiệm đối chiếu với TCCS.<button type="button" class="tccsbtn" data-temkhoalai="${i}">Khoá lại theo TCCS (thay lại toàn bộ từ TCCS)</button></div>`;
   o+=th.length
     ?`<div class="temstat no">Còn <b>${th.length}</b> ô chưa điền: ${TEM_O.filter(x=>x[3]&&!String(t[x[0]]||'').trim()).map(x=>`<button type="button" class="lnk" data-temfocus="${x[0]}" data-i="${i}">${esc(x[1])}</button>`).join(' · ')}.<br>Chưa đủ thì <b>không in tem được</b>. Bấm tên ô để tới đúng ô cần điền.</div>`
     :`<div class="temstat ok">Hồ sơ tem đã đủ. In được tem cho mọi lô của mặt hàng này.</div>`;
@@ -2271,6 +2282,7 @@ function veTemKhoa(p,i,ma){
   o+=`<div class="hint"><b>Mặt hàng này đã khoá theo TCCS</b> — không còn ô nào gõ tay được nữa.
     Tất cả lấy thẳng từ hồ sơ TCCS đã ban hành. Muốn sửa nội dung, phải cập nhật hồ sơ TCCS trước.</div>`;
   o+=`<button class="tccsbtn" data-tccskhoa="${i}">Áp lại từ TCCS</button>`;
+  o+=`<button class="tccsbtn tem-mokhoa" data-temmokhoa="${i}">Mở khoá để sửa tay</button>`;
   TEM_O.forEach(([k,nhan,hint,bb])=>{
     const v=(p.hstem||{})[k]||'';
     o+=`<div class="tf"><label>${esc(nhan)}${bb?'<i>*</i>':''}</label>`;
@@ -3928,6 +3940,21 @@ $('rows').addEventListener('click',async e=>{
   if(tcb){e.stopPropagation();const i=+tcb.dataset.tccs;
     const r=apTCCS(i);bao(r.ly_do);return}
 
+  const tmk=e.target.closest('[data-temmokhoa]');
+  if(tmk){e.stopPropagation();const i=+tmk.dataset.temmokhoa,p=sp[i];if(!p)return;
+    const so=(TCCS_DATA[hai(p.maSP)]||{}).soTCCS||'';
+    const ok=await hoi('Mở khoá hồ sơ tem để sửa tay?',
+      '<b>'+esc(p.ten)+'</b> đang khoá theo TCCS '+esc(so)+': nội dung tem lấy thẳng từ hồ sơ TCCS đã ban hành để tem luôn khớp TCCS.<br><br>'
+      +'Mở khoá thì sửa tay được các ô (riêng <b>Xuất xứ</b> vẫn khoá như mọi mặt hàng). Nội dung tem khi đó <b>do người sửa chịu trách nhiệm</b> đối chiếu với TCCS.<br><br>'
+      +'Muốn quay lại đúng TCCS thì bấm <b>Khoá lại theo TCCS</b>.',{nutOK:'Mở khoá để sửa'});
+    if(!ok)return;
+    p.temMoKhoa=true;moTem.delete(i);luuNgay();ve();bao('Đã mở khoá — sửa tay được hồ sơ tem của '+p.ten);return}
+  const tkl=e.target.closest('[data-temkhoalai]');
+  if(tkl){e.stopPropagation();const i=+tkl.dataset.temkhoalai,p=sp[i];if(!p)return;
+    const so=(TCCS_DATA[hai(p.maSP)]||{}).soTCCS||'';
+    const ok=await hoi('Khoá lại theo TCCS?','Toàn bộ hồ sơ tem của <b>'+esc(p.ten)+'</b> sẽ được thay lại đúng theo TCCS '+esc(so)+' — <b>những gì đã sửa tay sẽ bị thay</b>.',{nutOK:'Khoá lại',nguyHiem:true});
+    if(!ok)return;
+    p.temMoKhoa=false;const kq=apTCCSKhoa(i);bao(kq.ok?'Đã khoá lại — '+kq.ly_do:kq.ly_do);return}
   const tck=e.target.closest('[data-tccskhoa]');
   if(tck){e.stopPropagation();const i=+tck.dataset.tccskhoa;
     const r=apTCCSKhoa(i);bao(r.ly_do);return}

@@ -118,6 +118,27 @@ const s13=await E(()=>{const html='<div class="to"><div class="tem">T</div></div
 ok('S13: taiFileIn tạo file tự chứa: có bản in + kiểu in + nút In, tên file an toàn', s13.tai==='PEROMA-tem-lô-1.html'&&s13.coTem&&s13.coIn&&s13.coCssIn&&s13.khongAnHet, JSON.stringify(s13));
 ok('S13: mã nguồn Admin chỉ có ĐÚNG 1 thẻ đóng body (chuỗi trong file in đã tách chữ)', (fs.readFileSync('/tmp/huong/bang-tra-huong-lieu.html','utf8').match(/<\/body>/g)||[]).length===1);
 ok('S13: lô ở tab Báo cáo có nút "Lưu file tem để in ở máy khác"', /data-intem="[^"]+" data-quafile="1"/.test(await E(()=>{const r=nk.find(x=>!x.huy&&x.lot);if(!r)return 'data-intem="x" data-quafile="1"';traLot=r.lot;tab='bc';ve();const h=$('viewBC').innerHTML;traLot='';chuyenTab('tq');return h})));
+/* S14 (10/09/2026) — mở khoá / khoá lại hồ sơ tem của mặt hàng khoá theo TCCS (khách: "không thể chỉnh được hồ sơ tem") */
+const s14=await E(async()=>{
+  const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), p=sp[i], goc=JSON.stringify({maSP:p.maSP,hstem:p.hstem,temMoKhoa:p.temMoKhoa});
+  p.maSP='32'; p.temMoKhoa=false; dongBoTCCSKhoaLucNap(); mo.clear(); mo.add(i); chuyenTab('ct');
+  const kq={dangKhoaKhongGo:!document.querySelector('[data-tem="tenVN"][data-i="'+i+'"]'), coNutMo:!!document.querySelector('[data-temmokhoa="'+i+'"]')};
+  document.querySelector('[data-temmokhoa="'+i+'"]').click(); await new Promise(r=>setTimeout(r,150));
+  kq.hoiXacNhan=$('dlgT').textContent==='Mở khoá hồ sơ tem để sửa tay?'; $('dlgO').click(); await new Promise(r=>setTimeout(r,200));
+  kq.moKhoa=p.temMoKhoa===true && !!document.querySelector('[data-tem="tenVN"][data-i="'+i+'"]') && !!document.querySelector('.temstat.mokhoa');
+  p.hstem.congDung='SỬA TAY S14'; dongBoTCCSKhoaLucNap(); kq.napLaiKhongDe=p.hstem.congDung==='SỬA TAY S14';
+  kq.dongBo=sachCauHinh(sp)[i].temMoKhoa===true;
+  kq.xuatXuVanKhoa=!document.querySelector('[data-tem="xuatXu"][data-i="'+i+'"]');
+  document.querySelector('[data-temkhoalai="'+i+'"]').click(); await new Promise(r=>setTimeout(r,150)); $('dlgO').click(); await new Promise(r=>setTimeout(r,200));
+  kq.khoaLai=p.temMoKhoa===false && p.hstem.congDung===TCCS_DATA['32'].congDung && !document.querySelector('[data-tem="tenVN"][data-i="'+i+'"]');
+  const g=JSON.parse(goc); p.maSP=g.maSP; p.hstem=g.hstem; p.temMoKhoa=g.temMoKhoa; mo.clear(); luuNgay(); chuyenTab('tq');
+  return kq;});
+ok('S14: mặt hàng khoá TCCS mặc định vẫn chỉ đọc, có nút "Mở khoá để sửa tay"', s14.dangKhoaKhongGo&&s14.coNutMo, JSON.stringify(s14));
+ok('S14: mở khoá phải qua hộp xác nhận, mở xong gõ được + có dải báo "Đang sửa tay"', s14.hoiXacNhan&&s14.moKhoa);
+ok('S14: đã mở khoá thì tự-áp-TCCS lúc mở app KHÔNG ghi đè phần sửa tay', s14.napLaiKhongDe);
+ok('S14: cờ mở khoá được đồng bộ (sachCauHinh) — máy/bản khác không tự khoá lại', s14.dongBo);
+ok('S14: Xuất xứ vẫn khoá như mọi mặt hàng (quy tắc pháp lý 25/08 giữ nguyên)', s14.xuatXuVanKhoa);
+ok('S14: "Khoá lại theo TCCS" → thay lại đúng TCCS, chỉ đọc trở lại', s14.khoaLai);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');

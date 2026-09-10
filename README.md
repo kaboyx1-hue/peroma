@@ -75,7 +75,7 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S13/R9): **386 + 183 + 19 + 21 + 17 = 626 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S14/R9): **392 + 183 + 19 + 21 + 17 = 632 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 
