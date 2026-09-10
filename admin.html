@@ -478,7 +478,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S7</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S8</i></h1>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
     <div class="tabs">
@@ -577,6 +577,25 @@ function ghiKetNoi(url,mk){
 }
 let DONGBO_URL=String(docKetNoi().url||'');
 let LEGACY_SHARED_TOKEN=String(docKetNoi().mk||'');
+
+/* 10/09/2026 — ADMIN TRÊN ĐIỆN THOẠI = CHẾ ĐỘ CHỈ XEM (khách quyết: "tạm thời admin mobile ngừng
+   hoạt động, sau khi cập nhật chuẩn admin pc thì sau này hãy dựng lại admin mobile").
+   Lý do kỹ thuật (lỗi H4 / D): mọi máy Admin đẩy-kéo NGUYÊN KHỐI cấu hình, ai gửi sau thắng. Hai máy
+   Admin cùng sửa → máy gửi sau đè mất thay đổi của máy kia. Nặng hơn, sau khi kênh Sheet được sửa để
+   trừ tồn kho (ghiNhanMeLanDau), rà đối kháng chỉ ra: nk[] lưu RIÊNG từng máy nhưng nguonHuong (có
+   daDungKg) lại đồng bộ chung — nên máy thứ hai nhận cùng một mẻ sẽ TRỪ TỒN KHO LẦN NỮA rồi đẩy lên.
+   Chỉ còn đúng MỘT máy được ghi thì cả hai vấn đề cùng biến mất.
+   Ở chế độ chỉ xem: vẫn kéo về và xem được mọi thứ; KHÔNG gửi bất cứ gì lên Sheet (chặn ở dbGoi cho
+   mọi POST, và dbDayCauHinh dừng êm để không báo "mất mạng" giả); KHÔNG trừ tồn kho khi nhận mẻ.
+   Nhận diện điện thoại = thiết bị cảm ứng làm con trỏ chính + cạnh ngắn màn hình < 900px. Máy tính
+   dùng chuột/touchpad không bị ảnh hưởng. Có nút gỡ phòng khi nhận nhầm (VD máy tính bảng dùng như PC).
+   Khi dựng lại Admin mobile chuẩn: bỏ khối này là quay về hành vi cũ. */
+const ADMIN_SUA_KEY='peroma:adminChoPhepSua';
+function laDienThoai(){
+  try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<900}catch(e){return false}
+}
+function daChoPhepSuaTrenMayNay(){try{return localStorage.getItem(ADMIN_SUA_KEY)==='1'}catch(e){return false}}
+let adminChiXem=laDienThoai()&&!daChoPhepSuaTrenMayNay();
 let dbTT='tat', dbHen2=null, dbDangKeo=false, dbDangKeoBc=false, dongBoCauHinhTs='';
 function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function dbVeTT(t,ghiChu){
@@ -585,6 +604,9 @@ function dbVeTT(t,ghiChu){
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
 async function dbGoi(url,tuychon){
+  // 10/09/2026: lưới an toàn cho chế độ chỉ xem — chặn MỌI lệnh ghi (POST), kể cả đường ghi thêm sau này
+  if(adminChiXem&&tuychon&&String(tuychon.method||'').toUpperCase()==='POST')
+    throw new Error('Admin trên điện thoại đang ở chế độ chỉ xem — không gửi thay đổi lên hệ thống');
   const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),12000);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
@@ -622,6 +644,7 @@ function sachCauHinh(mang){
 }
 async function dbDayCauHinh(){
   if(!DONGBO_URL)return;
+  if(adminChiXem)return;   // 10/09/2026: chế độ chỉ xem — dừng êm, không báo "mất mạng" giả (dbGoi cũng chặn)
   dbVeTT('dang');
   try{
     /* 27/08/2026 — bản S2: trước đây thiếu nguonHuong/huongDangDung/tonKhoHuong trong gói gửi
@@ -707,6 +730,41 @@ async function dbKeoCauHinhNeuMoiHon(){
     dbVeTT('ok');
   }catch(e){ /* mất mạng hoặc chưa triển khai Sheet — im lặng, không chặn mở app */ }
 }
+/* 10/09/2026 — HÀM DÙNG CHUNG cho mọi kênh nhận mẻ từ máy nhân viên.
+   Lỗi đã sửa: logic "nhận mẻ lần đầu" (snapshot giá hương + trừ tồn kho nhà cung cấp) trước đây CHỈ
+   nằm trong nhánh nhận file .json tay (#nvIn). Bản S2 (27/08/2026) thêm kênh đồng bộ qua Sheet
+   (dbKeoNhatKy) — nay là kênh CHÍNH, 20 giây/lần — nhưng không mang theo logic này, chỉ nk.push(r).
+   Hậu quả: mẻ nhận qua Sheet không có giá lúc sản xuất → chiPhiHuongRecord() rơi về giá HIỆN TẠI
+   theo huongDangDung chung (sai nguồn riêng của mặt hàng, hoặc 0đ nếu chưa đặt); và dòng NCC không
+   bao giờ bị trừ daDungKg → "còn lại" không giảm, cảnh báo sắp hết nguồn không bao giờ bật.
+   Đây đúng dạng lỗi gốc rễ của dự án: một nghiệp vụ nằm ở 2 chỗ, thêm chỗ thứ 2 mà không mang theo.
+   Sửa bằng cách gom về MỘT hàm, cả hai kênh cùng gọi — không chép thêm bản thứ hai.
+
+   Bất biến giữ nguyên từ bản gốc (PATCH V1 mục D2 + 26/08/2026-S):
+   - CHỈ snapshot lần đầu: mẻ đã có giá (khác null/undefined) thì TUYỆT ĐỐI không tính lại, dù giá
+     hiện tại đã đổi — giữ đúng lịch sử chi phí.
+   - Trừ tồn kho gắn với đúng điều kiện đó, nên mỗi mẻ chỉ bị trừ MỘT lần. Lớp chặn thứ hai: cả hai
+     kênh đều chỉ gọi hàm này cho mẻ có id CHƯA có trong nk[].
+   - Giá theo NGUỒN RIÊNG của đúng mặt hàng (nguonDangDungCuaMatHang), không theo huongDangDung chung.
+   - mlDung là GRAM; soKg/daDungKg là KG → chia 1000.
+   Hàm chỉ ghi vào bản ghi r và vào nguonHuong; KHÔNG đẩy vào nk[] (việc đó do nơi gọi làm). */
+function ghiNhanMeLanDau(r){
+  delete r.daGui;   // cờ "đã gửi" chỉ có nghĩa bên máy nhân viên
+  if(r.giaHuongTheoGLucSX!==undefined&&r.giaHuongTheoGLucSX!==null)return;
+  const pMh=sp.find(x=>x.ten===r.sp);
+  const nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
+  const giaG=nguon?nguon.e.gia/(nguon.e.soKg*1000):0;
+  r.giaHuongTheoGLucSX=giaG||null;
+  r.chiPhiHuongLucSX=giaG>0?Math.round(num(r.mlDung)*giaG):null;
+  // trừ tồn kho ĐÚNG dòng NCC/giá vừa dùng — mlDung là GRAM, soKg/daDungKg tính bằng KG.
+  // Chế độ chỉ xem (Admin trên điện thoại) KHÔNG trừ: máy đó không phải nguồn sự thật, trừ ở đây là
+  // trừ chồng lên phần máy chính đã trừ (xem chú thích adminChiXem). Giá thì vẫn ghi để màn hình
+  // điện thoại hiện đúng chi phí — giá chỉ nằm trong bản ghi mẻ cục bộ, không bị đẩy lên.
+  if(nguon&&num(r.mlDung)>0&&!adminChiXem){
+    const e=nguonHuong[r.huong]&&nguonHuong[r.huong][nguon.ix];
+    if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;
+  }
+}
 async function dbKeoNhatKy(){
   if(!DONGBO_URL||dbDangKeo)return;
   dbDangKeo=true;
@@ -714,7 +772,7 @@ async function dbKeoNhatKy(){
     const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky');
     if(j.ok && Array.isArray(j.nk)){
       let them=0;
-      j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ nk.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
+      j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ ghiNhanMeLanDau(r); nk.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
       if(them){ luuNgay(); if(typeof ve==='function')ve(); bao('🟢 Nhận '+them+' mẻ mới từ máy nhân viên'); }
       dbVeTT('ok');
     }
@@ -2962,36 +3020,31 @@ $('viewSL').addEventListener('change',async e=>{
          nơi DUY NHẤT snapshot lần đầu; sau khi đã có giá trị (không null) thì TUYỆT ĐỐI không
          tính lại nữa dù giá hương hiện tại có đổi sau này — giữ đúng lịch sử chi phí (test
          case 6 của bản đặc tả). */
-      moi.forEach(r=>{delete r.daGui;
-        if(r.giaHuongTheoGLucSX===undefined||r.giaHuongTheoGLucSX===null){
-          /* 26/08/2026-S: giá lấy theo NGUỒN RIÊNG của đúng mặt hàng (r.sp) cho đúng hương
-             (r.huong), không còn dùng huongDangDung chung nữa — xem giaHuongChoMatHang().
-             Mặt hàng không tồn tại nữa (đã xoá khỏi danh mục) hoặc chưa xác định nguồn thì
-             coi như chưa có giá (null), giống hệt hành vi cũ khi chưa khai giá. */
-          const pMh=sp.find(x=>x.ten===r.sp);
-          const nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
-          const giaG=nguon?nguon.e.gia/(nguon.e.soKg*1000):0;
-          r.giaHuongTheoGLucSX=giaG||null;
-          r.chiPhiHuongLucSX=giaG>0?Math.round(num(r.mlDung)*giaG):null;
-          // trừ tồn kho ĐÚNG dòng NCC/giá vừa dùng — mlDung là GRAM, soKg/daDungKg tính bằng KG
-          if(nguon&&num(r.mlDung)>0){
-            const e=nguonHuong[r.huong]&&nguonHuong[r.huong][nguon.ix];
-            if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;
-          }
-        }
-        nk.push(r)});
+      /* 10/09/2026: logic snapshot giá + trừ tồn kho chuyển về hàm dùng chung ghiNhanMeLanDau()
+         (khai báo cạnh dbKeoNhatKy) để kênh Sheet và kênh file này chạy CÙNG một đoạn mã — trước
+         đây chỉ nhánh này có, kênh Sheet bỏ sót. Hành vi của nhánh file giữ nguyên 100%. */
+      /* 10/09/2026 — LỌC LẠI ngay trước khi thêm (lỗi rà đối kháng bắt được sau bản sửa kênh Sheet):
+         `moi`/`moiBc` được tính TRƯỚC hộp thoại hoi() ở trên. Trong lúc hộp thoại chờ người dùng bấm,
+         vòng kéo 20 giây của kênh Sheet (dbKeoNhatKy/dbKeoBaoCao) vẫn chạy và có thể đã thêm đúng những
+         mẻ đó. Không lọc lại thì bấm "Nhận" sẽ thêm TRÙNG, và — từ khi kênh Sheet cũng trừ tồn kho —
+         bản ghi từ file (object khác, giá null) sẽ bị ghiNhanMeLanDau() TRỪ TỒN KHO LẦN THỨ HAI.
+         Dùng mảng đã lọc cho cả việc thêm lẫn ghi nhật ký nhận file để số liệu nhật ký cũng đúng. */
+      const moiThat=moi.filter(r=>!nk.some(x=>x.id===r.id));
+      const moiBcThat=moiBc.filter(r=>!bcNgay.some(x=>x.id===r.id));
+      moiThat.forEach(r=>{ ghiNhanMeLanDau(r); nk.push(r) });
       nk.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||'')));
       // gom tên nhân viên mới vào danh mục
-      moi.forEach(r=>{const t=String(r.nv||'').trim(); if(t&&!nvDS.includes(t))nvDS.push(t)});
-      moiBc.forEach(r=>{delete r.daGui; bcNgay.push(r); const t=String(r.nv||'').trim(); if(t&&!nvDS.includes(t))nvDS.push(t)});
+      moiThat.forEach(r=>{const t=String(r.nv||'').trim(); if(t&&!nvDS.includes(t))nvDS.push(t)});
+      moiBcThat.forEach(r=>{delete r.daGui; bcNgay.push(r); const t=String(r.nv||'').trim(); if(t&&!nvDS.includes(t))nvDS.push(t)});
       bcNgay.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||'')));
       moiAe.forEach(r=>{delete r.daGui; auditEvents.push(r)});
       auditEvents.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||'')));
       /* 26/08/2026-M2: ghi lại nhật ký nhận file — khách phản hồi thông báo "Đã nhận..." tự
          tan mất, không có chỗ xem lại đã nhận file nào, lúc nào, từ ai, bao nhiêu mẻ/báo cáo. */
-      nhanNhatKy.push({ts:new Date().toISOString(),nv:d.nv||'',file:f.name,soMe:moi.length,soBc:moiBc.length,soAe:moiAe.length});
+      nhanNhatKy.push({ts:new Date().toISOString(),nv:d.nv||'',file:f.name,soMe:moiThat.length,soBc:moiBcThat.length,soAe:moiAe.length});
       nhanNhatKy=nhanNhatKy.slice(-30);
-      luuNgay();ve();bao(`Đã nhận ${moi.length} mẻ · ${moiBc.length} báo cáo tiến độ`);
+      luuNgay();ve();bao(`Đã nhận ${moiThat.length} mẻ · ${moiBcThat.length} báo cáo tiến độ`
+        +((moi.length-moiThat.length)+(moiBc.length-moiBcThat.length)>0?' (phần còn lại đã tự về qua Google Sheet trong lúc chờ)':''));
     }catch(err){bao('File không đọc được')}
     e.target.value='';return}
 });
@@ -3320,6 +3373,34 @@ $('rows').addEventListener('click',async e=>{
 });
 
 $('rows').addEventListener('change',async e=>{
+  /* 10/09/2026 — sửa lỗi "đổi tên mặt hàng làm không in được tem lô cũ".
+     Ô tên ở tab Công thức trước đây gán thẳng p.ten theo TỪNG PHÍM (listener 'input' bên dưới),
+     KHÔNG cập nhật lịch sử nk[].sp như nút Đổi tên (doiTen). Hậu quả: inTem() tìm mặt hàng theo
+     r.sp không còn thấy → không in được tem cho mọi lô cũ; bên NV apCauHinhVaoSP() ghép theo tên
+     nên mẻ đang gõ dở bị xoá trắng; mỗi phím còn đẩy một tên trung gian lên Sheet.
+     Sửa: đổi tên CHỈ khi rời ô / bấm Enter (sự kiện 'change'), qua đúng doiTen() có sẵn — KHÔNG đổi
+     business rule của doiTen() (quyết định nghiệp vụ đã chốt), chỉ gọi nó từ đúng chỗ.
+     TUYỆT ĐỐI không gọi doiTen() theo từng phím: tên trung gian có thể trùng một mặt hàng khác
+     đang có (đổi "Cát A" → "Cát ABC" đi qua "Cát AB"), và doiTen() sẽ GỘP LỊCH SỬ hai mặt hàng
+     làm một, không tách lại được. Vì vậy phải chặn trùng tên TRƯỚC khi đổi. */
+  if(e.target.dataset.f==='ten'&&e.target.dataset.i!==undefined){
+    const i=+e.target.dataset.i, p=sp[i]; if(!p)return;
+    const tenCu=String(p.ten||''), tenMoi=String(e.target.value||'').trim();
+    if(tenMoi===tenCu)return;
+    if(!tenMoi){ e.target.value=tenCu; bao('Tên mặt hàng không được để trống — đã giữ tên cũ'); return }
+    if(sp.some((x,k)=>k!==i&&String(x.ten||'').trim().toLowerCase()===tenMoi.toLowerCase())){
+      e.target.value=tenCu;
+      bao('Đã có mặt hàng tên "'+tenMoi+'" — hai mặt hàng trùng tên sẽ lẫn lịch sử sản xuất. Đặt tên khác.');
+      return}
+    if(tenCu){
+      const soMe=nk.filter(r=>r.sp===tenCu).length;
+      doiTen('sp',tenCu,tenMoi);
+      if(soMe)bao('Đã đổi tên, cập nhật theo '+soMe+' mẻ trong lịch sử');
+    }else{
+      p.ten=tenMoi;   // mặt hàng mới chưa có tên: chưa có lịch sử để cập nhật, không gọi doiTen('',…)
+    }
+    luuNgay(); ve();
+    return}
   const cn=e.target.dataset.chonnguon;
   if(cn!==undefined){
     const [i,h]=cn.split('|||');
@@ -3406,6 +3487,9 @@ $('rows').addEventListener('input',e=>{
   const cr=el.dataset.ctr;
   if(cr!==undefined){sp[+cr].pkbCT=el.value;bumpRecipeVersion(sp[+cr]);luu();return}
   const f=el.dataset.f;if(!f)return;
+  /* 10/09/2026: ô tên KHÔNG xử lý theo từng phím nữa — đổi tên chạy ở listener 'change' (rời ô /
+     Enter) qua doiTen(), xem chú thích ở đó. Để ô tự hiển thị chữ đang gõ, không vẽ lại. */
+  if(f==='ten')return;
   const i=+el.dataset.i;
   sp[i][f]=(f==='kg'||f==='ml')?num(el.value):(f==='pkb'?el.checked:el.value);
   if(f==='kg'&&num(el.value)>0&&!num(sp[i].me))sp[i].me=num(el.value);
@@ -3559,6 +3643,30 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
      mới hơn từ Sheet ở nền — nếu có bản mới sẽ tự vẽ lại. Không await ở đây, để mở app không
      bị treo khi mất mạng hoặc máy chủ chậm. */
   dbKeoCauHinhNeuMoiHon();
+})();
+/* 10/09/2026 — banner cho chế độ chỉ xem trên điện thoại (xem chú thích adminChiXem ở đầu phần đồng
+   bộ). Dựng bằng JS lúc mở app để HTML tĩnh không đổi; dùng lại class .canh có sẵn. Nút gỡ có hộp
+   thoại xác nhận, vì bấm nhầm trên điện thoại là mở lại đúng lỗi 2 máy Admin ghi đè nhau. */
+(function(){
+  if(!adminChiXem)return;
+  const stick=document.querySelector('.stick'), bar=stick&&stick.querySelector('.bar');
+  if(!stick)return;
+  const d=document.createElement('div');
+  d.className='canh'; d.id='chiXemBanner';
+  d.innerHTML='<b>ĐIỆN THOẠI — CHỈ XEM</b><br>Admin tạm thời chỉ sửa trên <b>máy tính</b>. '
+    +'Thay đổi ở đây <b>không</b> được gửi lên hệ thống và <b>không</b> trừ tồn kho.'
+    +'<br><button class="sbtn" id="chiXemGo" style="margin-top:8px">Đây là máy tính — bật chỉnh sửa</button>';
+  bar?bar.after(d):stick.prepend(d);
+  document.getElementById('chiXemGo').addEventListener('click',async()=>{
+    const c=await hoi('Bật chỉnh sửa trên máy này?',
+      'Chỉ bật nếu đây là <b>máy tính</b> dùng làm máy Admin chính.<br><br>'
+      +'Nếu là điện thoại hoặc máy Admin thứ hai, hai máy cùng sửa sẽ <b>ghi đè mất thay đổi của nhau</b> '
+      +'và <b>trừ tồn kho hương liệu hai lần</b>.',
+      {nutOK:'Đây là máy tính — bật',nguyHiem:true});
+    if(!c)return;
+    try{localStorage.setItem(ADMIN_SUA_KEY,'1')}catch(e){}
+    adminChiXem=false; d.remove(); bao('Đã bật chỉnh sửa trên máy này');
+  });
 })();
 /* 10/09/2026 — bản S7: đăng ký sw.js để app mở được khi mất mạng (khách duyệt như ngoại lệ có
    chủ đích với quy tắc 1 file — xem chú thích đầu sw.js). CHỈ đăng ký trên https hoặc máy

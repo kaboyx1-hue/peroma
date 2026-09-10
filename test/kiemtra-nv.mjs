@@ -689,6 +689,41 @@ ok('27/08/2026-R3: mốc KHÔNG đổi thì lần đồng bộ sau không tự x
 // dọn lại dữ liệu test
 await E(()=>{nk=nk.filter(r=>!r.id.startsWith('AFTEST-'));bcNgay=bcNgay.filter(r=>!r.id.startsWith('AFTEST-'));xoaMocApDung='';luu()});
 
+console.log('\n── AG. KHÔNG NHẢY NHẦM MẶT HÀNG KHI ADMIN ĐỔI DANH MỤC (10/09/2026) ──');
+/* Tái hiện đúng lỗi: NV đang mở 1 mặt hàng (moSP là SỐ THỨ TỰ), Admin xoá 1 mặt hàng đứng TRƯỚC
+   nó → lần đồng bộ cấu hình kế tiếp trả mảng mới lệch vị trí. Trước khi sửa, màn hình lặng lẽ
+   chuyển sang mặt hàng khác và NV ghi nhầm. Đồng thời kiểm dữ liệu đang gõ dở vẫn còn (H1). */
+const agKq=await E(async()=>{
+  const goc=JSON.parse(JSON.stringify(sp));
+  const moTruoc=Math.min(2,sp.length-1);            // mở mặt hàng ở vị trí thứ 3
+  moSP=moTruoc;
+  const tenDangMo=sp[moSP].ten;
+  sp[moSP].sl='321';                                // đang gõ dở kg — phải còn nguyên sau đồng bộ
+  const cauHinhMoi=goc.filter((x,i)=>i!==0)        // Admin xoá mặt hàng đứng ĐẦU (trước mặt hàng đang mở)
+    .map(x=>({...x,sl:'',pb:[],huongMe:'',ngaysx:''}));
+  const dbGoiThat=window.dbGoi; const urlThatCuaTest=DONGBO_URL; DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
+  window.dbGoi=async()=>({ok:1, cauhinh:{sp:cauHinhMoi,kho}});
+  await dbKeoCauHinh();
+  window.dbGoi=dbGoiThat; DONGBO_URL=urlThatCuaTest;
+  const r={tenDangMo, moTruoc, moSau:moSP, tenSau:sp[moSP]?sp[moSP].ten:'(không có)', slSau:sp[moSP]?sp[moSP].sl:'(không có)'};
+  // kịch bản 2: chính mặt hàng đang mở bị Admin xoá → phải quay về danh sách + báo rõ
+  const cauHinh2=sp.filter(x=>x.ten!==tenDangMo).map(x=>({...x,sl:'',pb:[],huongMe:'',ngaysx:''}));
+  window.dbGoi=async()=>({ok:1, cauhinh:{sp:cauHinh2,kho}});
+  DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
+  await dbKeoCauHinh();
+  window.dbGoi=dbGoiThat; DONGBO_URL=urlThatCuaTest;
+  r.moSauXoa=moSP; r.toast=document.getElementById('toast').textContent;
+  // trả danh mục về nguyên trạng cho các phần test khác
+  sp=goc; moSP=-1; luu();
+  return r;
+});
+ok('AG: Admin xoá mặt hàng đứng trước → NV vẫn đang mở ĐÚNG mặt hàng cũ (theo tên, không theo số thứ tự)',
+  agKq.tenSau===agKq.tenDangMo, `trước "${agKq.tenDangMo}" (vị trí ${agKq.moTruoc}) → sau "${agKq.tenSau}" (vị trí ${agKq.moSau})`);
+ok('AG: vị trí đã được dời theo đúng mặt hàng (lùi 1 vì mặt hàng đầu bị xoá)', agKq.moSau===agKq.moTruoc-1, `${agKq.moTruoc} → ${agKq.moSau}`);
+ok('AG: số kg đang gõ dở vẫn còn nguyên (không vi phạm H1)', agKq.slSau==='321', agKq.slSau);
+ok('AG: chính mặt hàng đang mở bị xoá → quay về danh sách (moSP=-1), không trỏ sang hàng khác', agKq.moSauXoa===-1, agKq.moSauXoa);
+ok('AG: có báo rõ cho NV biết mặt hàng vừa bị xoá/đổi tên', /vừa xoá hoặc đổi tên mặt hàng/.test(agKq.toast), agKq.toast);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

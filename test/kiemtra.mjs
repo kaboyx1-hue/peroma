@@ -1340,9 +1340,12 @@ ok('nhan(p) không còn badge hương/quy cách xem trước (đơn giản hoá)
 ok('badge tóm tắt đầu thẻ hiện "APPROVED" (mặt hàng đang cho phép SX)', (await E(()=>document.querySelector('.r.open .meta .bdg.s-ok').textContent))==='APPROVED');
 ok('nút chọn trạng thái trong chi tiết hiện "Cho phép" (tiếng Việt, không đổi)', (await E(()=>[...document.querySelectorAll('.r.open .ttb.ok')].some(b=>b.textContent==='Cho phép'))));
 
-/* AS5: sửa tên tại chỗ hoạt động đúng, không làm sập/mở nhầm thẻ */
+/* AS5: sửa tên tại chỗ hoạt động đúng, không làm sập/mở nhầm thẻ.
+   10/09/2026: tên giờ đổi khi RỜI Ô ('change'), không theo từng phím ('input') — xem lý do ở mục AW
+   (đổi theo phím có thể gộp lịch sử hai mặt hàng). Mô phỏng đúng người dùng: gõ rồi rời ô. */
 await E(x=>{const el=document.querySelector('.r.open input.tennm');el.focus();el.value='Cát Zaka liti thường (test)';
-  el.dispatchEvent(new Event('input',{bubbles:true}));},iAS);
+  el.dispatchEvent(new Event('input',{bubbles:true}));
+  el.dispatchEvent(new Event('change',{bubbles:true}));},iAS);
 await p.waitForTimeout(200);
 ok('sửa tên tại chỗ cập nhật đúng p.ten', (await Ea(x=>sp[x].ten,iAS))==='Cát Zaka liti thường (test)');
 ok('thẻ vẫn đang mở sau khi gõ tên (không bị đóng nhầm)', (await Ea(x=>mo.has(x),iAS))===true);
@@ -1649,6 +1652,91 @@ await Ea(g=>{
   luuNgay(); if(typeof ve==='function')ve();
 }, {spS:avSpGoc, khoS:avKhoGoc, tsS:avTsGoc});
 ok('khôi phục lại danh mục thật sau khi test (không để sót dữ liệu giả)', (await E(()=>sp.length))>1);
+
+console.log('\n── AW. ĐỔI TÊN Ở Ô GÕ TAB CÔNG THỨC PHẢI CẬP NHẬT LỊCH SỬ (10/09/2026) ──');
+/* Lỗi cũ: ô tên gán thẳng p.ten theo từng phím, không cập nhật nk[].sp → inTem() tìm mặt hàng theo
+   r.sp không thấy → không in được tem cho mọi lô cũ. Test đi đúng đường người dùng: gõ vào ô rồi
+   rời ô (sự kiện 'change'), và kiểm cả các đường chặn: trùng tên, để trống, gõ dở chưa rời ô. */
+await E(()=>{tab='ct';mo.clear();ve()}); await p.waitForTimeout(200);
+const awKq=await E(async()=>{
+  const spGoc=JSON.parse(JSON.stringify(sp)), nkGoc=JSON.parse(JSON.stringify(nk));
+  const i=0, tenCu=sp[i].ten, tenKhac=sp[1].ten, tenMoi=tenCu+' (đổi tên test)';
+  nk.push({id:'AWTEST-1',sp:tenCu,lot:'1111111111',ngaysx:'2026-09-01',quyCach:'5 kg',sl:10,huong:'Không mùi',mlDung:0,nv:'Test'});
+  ve();
+  const o=()=>document.querySelector(`[data-f="ten"][data-i="${i}"]`);
+  const r={tenCu};
+  // 1) gõ dở, CHƯA rời ô: không được đổi gì (tránh tên trung gian gộp lịch sử)
+  o().value=tenCu+' (đổi'; o().dispatchEvent(new Event('input',{bubbles:true}));
+  r.goDo=sp[i].ten;
+  // 2) rời ô với tên hợp lệ → đổi qua doiTen(), lịch sử đi theo
+  o().value=tenMoi; o().dispatchEvent(new Event('change',{bubbles:true}));
+  r.tenSau=sp[i].ten;
+  r.nkSau=(nk.find(x=>x.id==='AWTEST-1')||{}).sp;
+  r.inTemTimThay=!!sp.find(x=>x.ten===(nk.find(y=>y.id==='AWTEST-1')||{}).sp);   // đúng điều kiện inTem()
+  // 3) đổi sang tên TRÙNG mặt hàng khác → phải bị chặn, giữ nguyên
+  o().value=tenKhac; o().dispatchEvent(new Event('change',{bubbles:true}));
+  r.trungBiChan=sp[i].ten===tenMoi; r.trungToast=document.getElementById('toast').textContent;
+  r.oTraVe=o().value;
+  // 4) trùng khác hoa/thường cũng phải chặn
+  o().value=tenKhac.toUpperCase(); o().dispatchEvent(new Event('change',{bubbles:true}));
+  r.trungHoaBiChan=sp[i].ten===tenMoi;
+  // 5) để trống → chặn
+  o().value='   '; o().dispatchEvent(new Event('change',{bubbles:true}));
+  r.rongBiChan=sp[i].ten===tenMoi;
+  sp=spGoc; nk=nkGoc; luuNgay(); ve();
+  return r;
+});
+ok('AW: đang gõ dở (chưa rời ô) thì CHƯA đổi tên — tránh tên trung gian trùng mặt hàng khác', awKq.goDo===awKq.tenCu, awKq.goDo);
+ok('AW: rời ô → tên mặt hàng đã đổi', /đổi tên test/.test(awKq.tenSau||''), awKq.tenSau);
+ok('AW: lịch sử mẻ (nk[].sp) đổi theo — không còn trỏ về tên cũ', awKq.nkSau===awKq.tenSau, `nk: "${awKq.nkSau}"`);
+ok('AW: lô cũ vẫn tìm được mặt hàng → in được tem (đúng điều kiện inTem())', awKq.inTemTimThay);
+ok('AW: đổi sang tên TRÙNG mặt hàng khác bị chặn, giữ nguyên tên', awKq.trungBiChan, awKq.trungToast);
+ok('AW: ô tự trả về tên hợp lệ sau khi bị chặn', /đổi tên test/.test(awKq.oTraVe||''), awKq.oTraVe);
+ok('AW: trùng tên khác hoa/thường cũng bị chặn', awKq.trungHoaBiChan);
+ok('AW: để trống tên bị chặn, giữ tên cũ', awKq.rongBiChan);
+
+console.log('\n── AX. MẺ NHẬN QUA SHEET PHẢI GHI GIÁ + TRỪ TỒN KHO NHƯ QUA FILE (10/09/2026) ──');
+/* Lỗi cũ: chỉ nhánh nhận file .json tay mới snapshot giá hương lúc SX và trừ daDungKg của dòng NCC.
+   Kênh Sheet (dbKeoNhatKy — kênh CHÍNH) chỉ nk.push(r) → chi phí hương sai/0đ, tồn kho NCC không giảm.
+   Test: dựng 1 nguồn hương có giá, giả lập Sheet trả 1 mẻ mới, kiểm giá + chi phí + daDungKg.
+   Rồi giả lập Sheet trả LẠI đúng mẻ đó → không được trừ tồn kho lần 2. */
+const axKq=await E(async()=>{
+  const spGoc=JSON.parse(JSON.stringify(sp)), nkGoc=JSON.parse(JSON.stringify(nk)),
+        nguonGoc=JSON.parse(JSON.stringify(nguonHuong)), khoGoc=kho.slice(), nvGoc=nvDS.slice();
+  const H='Hương Test AX', p0=sp[0];
+  if(!kho.includes(H))kho.push(H);
+  // 1 nguồn: 500.000đ cho 1 kg = 500 đ/g ; mặt hàng p0 dùng hương H với đúng 1 nguồn → tự chọn nguồn đó
+  nguonHuong[H]=[{ncc:'NCC Test AX',gia:500000,soKg:1,ngay:'10/09/2026',daDungKg:0}];
+  p0.huongs=[H]; p0.nguonHuongChon={};
+  const me={id:'AXTEST-1',sp:p0.ten,huong:H,mlDung:250,sl:100,lot:'2222222222',ngaysx:'2026-09-10',
+    quyCach:'5 kg',nv:'Test AX',ts:new Date().toISOString(),daGui:1,
+    giaHuongTheoGLucSX:null,chiPhiHuongLucSX:null};          // NV luôn gửi 2 trường giá = null
+  const dbGoiThat=window.dbGoi; const urlThatCuaTest=DONGBO_URL; DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
+  window.dbGoi=async(u)=>String(u).includes('a=nhatky')?{ok:1,nk:[JSON.parse(JSON.stringify(me))]}:{ok:0};
+  await dbKeoNhatKy();
+  const r1=nk.find(x=>x.id==='AXTEST-1')||{};
+  const kq={gia:r1.giaHuongTheoGLucSX, chiPhi:r1.chiPhiHuongLucSX, daGuiConKhong:('daGui' in r1),
+            daDung1:nguonHuong[H][0].daDungKg, soBanGhi1:nk.filter(x=>x.id==='AXTEST-1').length,
+            chiPhiHienThi:chiPhiHuongRecord(r1)};
+  // Sheet trả lại đúng mẻ đó ở lần kéo sau → KHÔNG được trừ tồn kho lần 2, không nhân đôi bản ghi
+  await dbKeoNhatKy();
+  kq.daDung2=nguonHuong[H][0].daDungKg; kq.soBanGhi2=nk.filter(x=>x.id==='AXTEST-1').length;
+  // Giá NCC đổi SAU khi đã nhận → chi phí mẻ cũ phải giữ nguyên (không tính lại)
+  nguonHuong[H][0].gia=900000;
+  kq.chiPhiSauKhiDoiGia=chiPhiHuongRecord(nk.find(x=>x.id==='AXTEST-1'));
+  window.dbGoi=dbGoiThat; DONGBO_URL=urlThatCuaTest;
+  sp=spGoc; nk=nkGoc; nguonHuong=nguonGoc; kho=khoGoc; nvDS=nvGoc; luuNgay(); ve();
+  return kq;
+});
+// 500.000đ / (1 kg × 1000) = 500 đ/g. Chỉ chấp nhận đúng 500 — lệch 1000 lần (0,5 hay 500.000) là lỗi đơn vị g/kg.
+ok('AX: mẻ qua Sheet được ghi giá hương lúc SX (500 đ/g)', Math.abs(axKq.gia-500)<1e-9, `giá=${axKq.gia} đ/g`);
+ok('AX: chi phí hương lúc SX đúng = 250 g × 500 đ/g = 125.000đ', axKq.chiPhi===125000, `chi phí=${axKq.chiPhi}`);
+ok('AX: báo cáo chi phí hiển thị đúng 125.000đ (không còn rơi về 0đ / giá NCC khác)', axKq.chiPhiHienThi===125000, axKq.chiPhiHienThi);
+ok('AX: trừ đúng tồn kho dòng NCC: 250 g = 0,25 kg', axKq.daDung1===0.25, `daDungKg=${axKq.daDung1}`);
+ok('AX: bỏ cờ daGui (chỉ có nghĩa bên máy NV) — giống nhánh file', axKq.daGuiConKhong===false);
+ok('AX: Sheet trả lại đúng mẻ đó → KHÔNG trừ tồn kho lần 2', axKq.daDung2===0.25, `daDungKg=${axKq.daDung2}`);
+ok('AX: không nhân đôi bản ghi mẻ', axKq.soBanGhi1===1&&axKq.soBanGhi2===1, `${axKq.soBanGhi1} → ${axKq.soBanGhi2}`);
+ok('AX: giá NCC đổi sau → chi phí mẻ cũ giữ nguyên lịch sử (không tính lại)', axKq.chiPhiSauKhiDoiGia===125000, axKq.chiPhiSauKhiDoiGia);
 
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));

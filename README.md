@@ -4,8 +4,12 @@ Pha hương liệu, ghi mẻ, cấp số lô, in tem, tra lô, báo cáo sản l
 
 ## Mở app
 
-- [Máy quản lý (Admin)](https://kaboyx1-hue.github.io/peroma/admin.html)
+- [Máy quản lý (Admin)](https://kaboyx1-hue.github.io/peroma/admin.html) — **chỉ dùng trên máy tính**
 - [Máy nhân viên](https://kaboyx1-hue.github.io/peroma/nhanvien.html)
+
+> ⚠️ **Chỉ dùng MỘT máy Admin để chỉnh sửa.** Mở Admin trên điện thoại sẽ tự vào **chế độ chỉ xem**: xem được mọi thứ nhưng không gửi thay đổi lên hệ thống và không trừ tồn kho. Lý do: các máy Admin đồng bộ nguyên khối cấu hình, nên hai máy cùng sửa sẽ ghi đè mất thay đổi của nhau và **trừ tồn kho hương liệu hai lần**. Chế độ này tạm thời, sẽ gỡ khi dựng lại bản Admin cho điện thoại.
+>
+> **Không dùng link `…/exec?trang=admin` của Apps Script nữa**, và không dán file `Admin.html` cũ vào Apps Script — bản đó chưa có các bản sửa, chạy song song sẽ xử lý dữ liệu khác nhau.
 
 ## Lần đầu mở trên một máy mới
 
@@ -51,9 +55,9 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 ## Kiểm thử
 
-Bộ test gồm 5 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
+Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S7/R5): **342 + 169 + 19 + 21 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S8/R6): **358 + 174 + 19 + 21 + 17 = 589 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 

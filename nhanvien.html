@@ -164,7 +164,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R5</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R6</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--sub,#8a8a99);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="whoBtn">—</button>
     </div>
@@ -306,7 +306,23 @@ async function dbKeoCauHinh(){
     }
     if(j.ok && j.cauhinh){
       const c=j.cauhinh;
-      if(Array.isArray(c.sp)&&c.sp.length)sp=apCauHinhVaoSP(sp,c.sp);
+      /* 10/09/2026 — sửa lỗi "nhảy nhầm mặt hàng": moSP là SỐ THỨ TỰ trong sp[], nhưng
+         apCauHinhVaoSP() trả về mảng MỚI theo thứ tự của Admin. Admin thêm/xoá/sắp xếp một mặt
+         hàng đứng trước → sau ≤20 giây màn hình NV lặng lẽ chuyển sang mặt hàng KHÁC; NV gõ tiếp
+         quy cách/hương thì ghi vào sai mặt hàng, bấm Xác nhận là sinh lô sai mã SP.
+         Sửa tại đúng chỗ thay mảng (không đụng 17 chỗ dùng sp[moSP]): nhớ TÊN mặt hàng đang mở,
+         thay mảng xong thì tìm lại vị trí theo tên. Tên là khoá liên kết theo quyết định nghiệp
+         vụ đã chốt (xem doiTen() bên Admin). Mặt hàng đang mở không còn nữa → quay về danh sách
+         và BÁO RÕ, thay vì im lặng trỏ sang hàng khác. */
+      if(Array.isArray(c.sp)&&c.sp.length){
+        const tenDangMo=(moSP>=0&&sp[moSP])?sp[moSP].ten:null;
+        sp=apCauHinhVaoSP(sp,c.sp);
+        if(tenDangMo!==null){
+          const viTriMoi=sp.findIndex(x=>x.ten===tenDangMo);
+          if(viTriMoi<0){ moSP=-1; bao('Quản lý vừa xoá hoặc đổi tên mặt hàng "'+tenDangMo+'" — đã đóng lại. Kiểm tra lại trước khi ghi mẻ.'); }
+          else moSP=viTriMoi;
+        }
+      }
       if(Array.isArray(c.kho))kho=c.kho;
       if(Array.isArray(c.cp))cp=c.cp;
       if(Array.isArray(c.dr))dr=c.dr;
