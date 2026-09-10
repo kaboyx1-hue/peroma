@@ -3,13 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 10/09/2026: cho phép 'Thêm vào màn hình chính' mở toàn màn hình như app, thanh trạng thái
+     cùng màu nền tối. Nằm ngay trong HTML — không tạo thêm file manifest (giữ đúng phạm vi
+     ngoại lệ khách đã duyệt: chỉ thêm 1 file sw.js). -->
+<meta name="theme-color" content="#0B0F14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peroma QL">
 <meta name="theme-color" content="#0B0F14">
 <title>Pha hương liệu — Quản trị</title>
 <style>
 :root{
   --bg:#0B0F14; --panel:#121821; --row:#151C26; --row-alt:#121822; --row-on:#1B2534;
   --line:#232E3C; --line-2:#2E3B4B;
-  --txt:#E8EEF5; --txt-2:#9AAABB; --txt-3:#64748B;
+  /* 10/09/2026: --txt-3 cũ (#64748B) chỉ đạt tương phản 4.04 trên nền #0B0F14, dưới ngưỡng
+     dễ đọc 4.5. Màu này dùng cho 36 chỗ chữ phụ (ghi chú, nhãn mờ, đơn vị) — trong xưởng
+     ánh sáng kém hoặc mắt người lớn tuổi thì khó đọc. Nâng lên #78879C = 5.26, vẫn mờ hơn
+     --txt-2 nên giữ nguyên thứ bậc chữ chính / phụ. */
+  --txt:#E8EEF5; --txt-2:#9AAABB; --txt-3:#78879C;
   --amber:#FFB020; --red:#F0564B; --red-dim:#3A1714;
   --cyan:#2DD4BF; --cyan-dim:#0E2A2B;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono","DejaVu Sans Mono",Menlo,monospace;
@@ -2573,10 +2585,12 @@ function veSL(){
    <div class="bk"><h5>Kết nối Google Sheet ${DONGBO_URL?'<span class="bdg" style="background:var(--cyan-dim);color:var(--cyan)">ĐÃ NỐI</span>':'<span class="bdg" style="background:var(--red-dim);color:var(--red)">CHƯA NỐI</span>'}</h5>
      <p>Địa chỉ Apps Script và mật khẩu <b>không nằm trong mã nguồn</b> — mỗi máy nhập một lần, lưu trong trình duyệt của máy đó. Bỏ trống thì app vẫn chạy bình thường nhưng <b>không đồng bộ</b>: dữ liệu chỉ nằm trên máy này.</p>
      <label style="display:block;font-size:12px;color:var(--txt-2);margin:8px 0 3px">Địa chỉ Apps Script (kết thúc bằng <code>/exec</code>)</label>
-     <input id="knUrl" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/..../exec"
+     <input id="knUrl" type="url" inputmode="url" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
+            placeholder="https://script.google.com/macros/s/..../exec"
             value="${esc(DONGBO_URL)}" style="width:100%;font-size:12px;font-family:var(--mono)">
      <label style="display:block;font-size:12px;color:var(--txt-2);margin:8px 0 3px">Mật khẩu (khớp với biến MATKHAU trong Code.gs)</label>
-     <input id="knMk" type="text" spellcheck="false" placeholder="mật khẩu dùng chung"
+     <input id="knMk" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
+            placeholder="mật khẩu dùng chung"
             value="${esc(LEGACY_SHARED_TOKEN)}" style="width:100%;font-size:12px;font-family:var(--mono)">
      <button class="bigbtn" id="knLuu" style="margin-top:10px">Lưu &amp; kiểm tra kết nối</button>
      <button class="bigbtn alt" id="knXoa" style="margin-top:6px">Xoá kết nối trên máy này</button>
@@ -3545,6 +3559,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
      mới hơn từ Sheet ở nền — nếu có bản mới sẽ tự vẽ lại. Không await ở đây, để mở app không
      bị treo khi mất mạng hoặc máy chủ chậm. */
   dbKeoCauHinhNeuMoiHon();
+})();
+/* 10/09/2026 — bản S7: đăng ký sw.js để app mở được khi mất mạng (khách duyệt như ngoại lệ có
+   chủ đích với quy tắc 1 file — xem chú thích đầu sw.js). CHỈ đăng ký trên https hoặc máy
+   cục bộ (để test). Bỏ qua êm, KHÔNG báo lỗi, khi:
+   - mở từ file:// (gửi file qua Zalo như trước) — trình duyệt không cho Service Worker ở đó;
+   - chạy trong Apps Script (?trang=admin, iframe googleusercontent) — không cùng nguồn với sw.js;
+   - thiếu file sw.js (404) — app vẫn chạy đầy đủ, chỉ không có chế độ offline.
+   Đăng ký sau sự kiện load để không tranh băng thông với lần tải đầu. */
+(function(){
+  const duocPhep=location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const trongAppsScript=/googleusercontent\.com$|script\.google\.com$/.test(location.hostname);
+  if(!('serviceWorker' in navigator)||!duocPhep||trongAppsScript)return;
+  addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
 })();
 </script>
 </body>

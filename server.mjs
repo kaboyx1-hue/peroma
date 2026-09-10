@@ -22,16 +22,6 @@ http.createServer((req, res) => {
     res.end(JSON.stringify({ schemaVersion: 1, ok: 1, cauhinh: null, ts: '', xoaMocTs: '', nk: [], bc: [] }));
     return;
   }
-  /* Route tạm (10/09/2026) phục vụ BẢN GỐC chưa sửa, để so sánh xem 2 test đang hỏng ở bộ
-     Nhân viên là lỗi có sẵn từ trước hay do thay đổi hôm nay gây ra. Xoá được sau khi kết luận. */
-  if (/^\/kiemchung-nv\//.test(req.url)) {
-    const p2 = path.resolve('./kiemchung/nv', decodeURIComponent(req.url.split('?')[0]).replace(/^\/kiemchung-nv\//, ''));
-    if (fs.existsSync(p2)) {
-      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-      fs.createReadStream(p2).pipe(res);
-      return;
-    }
-  }
   const rel = decodeURIComponent(req.url.split('?')[0]).replace(/^\/+/, '');
   const full = path.resolve(ROOT, rel);
   if (!full.startsWith(ROOT) || !fs.existsSync(full) || fs.statSync(full).isDirectory()) {

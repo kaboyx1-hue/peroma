@@ -3,13 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- 10/09/2026: cho phép 'Thêm vào màn hình chính' mở toàn màn hình như app, thanh trạng thái
+     cùng màu nền tối. Nằm ngay trong HTML — không tạo thêm file manifest (giữ đúng phạm vi
+     ngoại lệ khách đã duyệt: chỉ thêm 1 file sw.js). -->
+<meta name="theme-color" content="#0B0F14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peroma">
 <meta name="theme-color" content="#0B0F14">
 <title>Peroma — Nhân viên</title>
 <style>
 :root{
   --bg:#0B0F14; --panel:#121821; --row:#151C26; --row2:#121822;
   --line:#232E3C; --line2:#2E3B4B;
-  --txt:#E8EEF5; --txt2:#9AAABB; --txt3:#64748B;
+  /* 10/09/2026: --txt3 cũ (#64748B) chỉ đạt tương phản 4.04 trên nền #0B0F14, dưới ngưỡng
+     dễ đọc 4.5. Nâng lên #78879C = 5.26 cho hợp xưởng sản xuất (ánh sáng kém, mắt người lớn
+     tuổi), vẫn mờ hơn --txt2 nên giữ nguyên thứ bậc chữ chính / phụ. */
+  --txt:#E8EEF5; --txt2:#9AAABB; --txt3:#78879C;
   --am:#FFB020; --red:#F0564B; --redd:#3A1714; --cy:#2DD4BF; --cyd:#0E2A2B;
   --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono","DejaVu Sans Mono",Menlo,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -22,12 +33,22 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 .stick{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
 .bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
 .bar h1{margin:0;font-size:17px;font-weight:800;letter-spacing:.04em;flex:1}
-.bar h1 i{display:block;font-style:normal;font-size:10.5px;font-weight:600;color:var(--txt3);letter-spacing:.12em;margin-top:2px}
+/* 10/09/2026: dòng phiên bản bị ngắt giữa chừng ("10/09/2026-" xuống dòng "R5") vì letter-spacing
+   .12em làm chuỗi dài hơn bề ngang còn lại trên máy 375px. Giảm giãn chữ + cấm ngắt dòng, kèm
+   ellipsis phòng khi tên bản dài hơn nữa. Chỉ đụng dòng phụ, không đổi tên hay cỡ tiêu đề chính. */
+.bar h1 i{display:block;font-style:normal;font-size:10.5px;font-weight:600;color:var(--txt3);
+  letter-spacing:.06em;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .who{font-size:12.5px;font-weight:700;background:var(--row);color:var(--txt2);
   border:1px solid var(--line2);border-radius:7px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+/* 10/09/2026 — bản R5: 5 tab × min-width 88px = 440px, rộng hơn màn hình điện thoại 375px nên
+   tab cuối ("Dữ liệu") bị đẩy khuất. Thanh cuộn lại bị ẩn (scrollbar-width:none) nên KHÔNG có
+   dấu hiệu nào cho thấy còn tab bên phải — trong khi màn hình trống lại đang bảo người dùng
+   "Vào tab Dữ liệu → Nạp cấu hình", và đó cũng là nơi khai kết nối Google Sheet.
+   Sửa: min-width 0 để flex:1 chia đều theo bề ngang máy — luôn thấy đủ 5 tab, kể cả máy 320px.
+   Giữ nguyên overflow-x:auto làm lưới an toàn nếu sau này thêm tab nữa. */
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex:1;min-width:88px;font:inherit;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+.tab{flex:1;min-width:0;font:inherit;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
   background:transparent;color:var(--txt3);border:none;border-bottom:2px solid transparent;padding:13px 6px;cursor:pointer}
 .tab.on{color:var(--am);border-bottom-color:var(--am);background:#171207}
 .hom{padding:9px 14px;background:var(--cyd);color:var(--cy);font-size:13px;font-weight:700;border-bottom:1px solid var(--line)}
@@ -668,7 +689,10 @@ function veLo(){
     return `<div class="card lot"${r.huy?' style="opacity:.6"':''}>
     <h5 data-thulo="${esc(r.id)}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px">
       <span>${lotDep(r.lot)}${r.huy?' <span style="font-size:12px;font-weight:800;color:var(--red);letter-spacing:.06em">· ĐÃ HUỶ</span>':''}${r.ngungSX?' <span style="font-size:12px;font-weight:800;color:var(--am);letter-spacing:.06em">· NGỪNG SẢN XUẤT</span>':''}</span>
-      <span style="font-size:12px;font-weight:400;color:var(--txt-3);white-space:nowrap">${dong?tomTat+' · ▸':'▾ Thu gọn'}</span>
+      <!-- 10/09/2026: sửa var(--txt-3) → var(--txt3). Bản Admin đặt tên biến có gạch nối
+           (--txt-3), bản Nhân viên thì không (--txt3); chỗ này viết theo kiểu Admin nên biến
+           không tồn tại, chữ tóm tắt mất màu mờ và kế thừa màu chữ cha. -->
+      <span style="font-size:12px;font-weight:400;color:var(--txt3);white-space:nowrap">${dong?tomTat+' · ▸':'▾ Thu gọn'}</span>
     </h5>
     ${dong?'':`
     ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--am)">${esc(r.ngungLyDo)||'—'}</b></div>`:''}
@@ -684,7 +708,7 @@ function veLo(){
     <div class="kv"><span>Trạng thái</span><b style="color:${TRANG_THAI_SX[trangThaiSXCua(r)].mau}">${TRANG_THAI_SX[trangThaiSXCua(r)].n}</b></div>
     ${(()=>{const ls=auditEvents.filter(a=>a.entityId===r.id||a.entityId===r.batchId).slice().reverse();
       if(!ls.length)return '';
-      return `<details><summary style="cursor:pointer;color:var(--txt-2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`
+      return `<details><summary style="cursor:pointer;color:var(--txt2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`   /* 10/09/2026: --txt-2 → --txt2, cùng lỗi tên biến như trên */
         +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
         +`</details>`})()}
     ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>`}
@@ -722,8 +746,10 @@ function veDL(){
   <div class="card">
     <div class="fld"><label>Kết nối Google Sheet — ${DONGBO_URL?'<b style="color:var(--cy)">đã nối</b>':'<b style="color:var(--am)">chưa nối</b>'}</label>
       <div class="note" style="margin-bottom:9px">Quản lý cho địa chỉ và mật khẩu, máy này nhập <b>một lần</b>. Bỏ trống thì vẫn ghi mẻ bình thường, chỉ không tự gửi lên — phải gửi file tay như cũ.</div>
-      <input id="knUrl" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/..../exec" value="${esc(DONGBO_URL)}" style="width:100%;font-size:12px;margin-bottom:6px">
-      <input id="knMk" type="text" spellcheck="false" placeholder="mật khẩu" value="${esc(LEGACY_SHARED_TOKEN)}" style="width:100%;font-size:12px">
+      <input id="knUrl" type="url" inputmode="url" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
+             placeholder="https://script.google.com/macros/s/..../exec" value="${esc(DONGBO_URL)}" style="width:100%;font-size:12px;margin-bottom:6px">
+      <input id="knMk" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
+             placeholder="mật khẩu" value="${esc(LEGACY_SHARED_TOKEN)}" style="width:100%;font-size:12px">
       <button class="add" id="knLuu" style="margin-top:8px;width:100%">Lưu &amp; kiểm tra</button>
       <div id="knKq" class="note" style="margin-top:7px"></div></div>
   </div>
@@ -1210,6 +1236,15 @@ function xuatMe(){
   }catch(e){}
   ve();
   dbBatDauVongLap();
+})();
+/* 10/09/2026 — bản R5: đăng ký sw.js cho chế độ mất mạng — giống hệt bản Admin S7, xem chú thích
+   bên đó và đầu sw.js. Bỏ qua êm ở file:// (gửi qua Zalo), trong Apps Script, hoặc khi thiếu sw.js.
+   Việc "có mạng lại tự đẩy mẻ lên" vẫn do app lo như cũ (cờ daGui + vòng lặp 15 giây). */
+(function(){
+  const duocPhep=location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  const trongAppsScript=/googleusercontent\.com$|script\.google\.com$/.test(location.hostname);
+  if(!('serviceWorker' in navigator)||!duocPhep||trongAppsScript)return;
+  addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
 })();
 </script>
 </body>
