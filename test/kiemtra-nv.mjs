@@ -35,7 +35,13 @@ const CAU_HINH={v:8,sp:[
 fs.writeFileSync('/tmp/nv/cauhinh.json',JSON.stringify(CAU_HINH));
 
 const b=await chromium.launch({executablePath:CHROME});
-const ctx=await b.newContext({acceptDownloads:true});
+/* S16 (10/09/2026): in tem giờ tự dàn chữ — nội dung tem dài ở khổ 5×4 thì app HỎI đổi khổ trước khi in.
+   Các bài test cũ (kiểm đúng bản ghi / đúng id, không kiểm khổ) không trả lời hộp này nên sẽ chờ mãi. Tự bấm
+   "In khổ đề xuất" giùm; bài test S16 tự tắt bằng window.__tatTuDongKhoTem=true để kiểm hộp thoại thật. */
+const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m=document.getElementById('mask'),o=document.getElementById('dlgO');
+  if(!t||!m||!o||window.__tatTuDongKhoTem)return;
+  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click()},40)};
+const ctx=await b.newContext({acceptDownloads:true}); await ctx.addInitScript(TU_KHO_TEM);
 const p=await ctx.newPage(); const cerr=[];
 p.on('pageerror',e=>cerr.push('PAGEERROR '+e.message));
 p.on('console',m=>{if(m.type()==='error')cerr.push(m.text())});
@@ -317,7 +323,7 @@ ok('lô 27.000 bao vẫn chỉ dựng đúng 1 trang (20 tem), không thể treo
 const sBefore=await E(()=>{
   const pp=sp[0];
   pp.hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
-  const id='TESTLON-NV-1';
+  const id='TESTLON-NV-1'; temCot=3; temHang=2; // S16/R10: xem ghi chú cùng chỗ bên kiemtra.mjs
   nk.push({id,sp:pp.ten,ngaysx:'2026-08-25',lot:'1101070826',soBao:27000,huong:pp.huongs&&pp.huongs[0]||'',quyCach:'1 kg'});
   const before=$('temIn').innerHTML;
   return before;

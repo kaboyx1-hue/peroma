@@ -271,31 +271,33 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 
 /* ═══ BẢN IN TEM — TRẮNG ĐEN HOÀN TOÀN ═══ */
 #temIn{display:none}
+/* ══TEM-CSS══ Kiểu bản in tem — dùng CHUNG cho #temIn (lúc in) và #temDo (khung đo ẩn, xem coChuVua()),
+   để cỡ chữ đo được luôn đúng bằng lúc in. S16/R10 (10/09/2026): tờ tem CỐ ĐỊNH đúng vùng in A4 lề 6 mm
+   (197×284 mm, chừa 1 mm cho sai số máy in), ô lưới KHÔNG được giãn theo nội dung (min-height:0) — trước
+   đây nội dung dài làm ô cao gấp đôi, tem đè nhau và tràn sang trang 2. Mọi cỡ chữ tính theo --co (cỡ gốc
+   của bảng thông tin) do coChuVua() chọn cho vừa ô; 3 lớp to-lon/vua/nho chỉ còn là cỡ khởi đầu. */
+#temDo{position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none}
+:is(#temIn,#temDo){background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;line-height:1.3;padding:0;margin:0}
+:is(#temIn,#temDo) .to{display:grid;gap:1.5mm;page-break-after:always;width:197mm;height:284mm;box-sizing:border-box;overflow:hidden}
+:is(#temIn,#temDo) .to:last-child{page-break-after:auto}
+:is(#temIn,#temDo) .to-lon{--co:8.5pt} :is(#temIn,#temDo) .to-vua{--co:6.8pt} :is(#temIn,#temDo) .to-nho{--co:5.3pt}
+:is(#temIn,#temDo) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co)}
+:is(#temIn,#temDo) .t1{text-align:center;font-weight:bold;letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
+:is(#temIn,#temDo) .t2{text-align:center;font-weight:bold;margin:0 0 .1em;line-height:1.15;font-size:1.65em}
+:is(#temIn,#temDo) .t3{text-align:center;margin:0 0 .35em;font-size:1.06em}
+:is(#temIn,#temDo) table{width:100%;border-collapse:collapse;font-size:1em}
+:is(#temIn,#temDo) td{border:.5pt solid #000;padding:.18em .3em;vertical-align:top}
+:is(#temIn,#temDo) td.k{width:34%;font-weight:bold}
+:is(#temIn,#temDo) .kh{border:.5pt solid #000;border-top:none;padding:.3em;line-height:1.3;font-size:1em}
+:is(#temIn,#temDo) .cb{font-style:italic;margin-top:.25em;line-height:1.25;font-size:.88em}
+/* ══HẾT-TEM-CSS══ */
 @media print{
   @page{size:A4;margin:6mm}
-  html,body{background:#fff!important}
+  /* S16/R10: bỏ lề trong của trang app khi in (khoảng chừa thanh trạng thái / thanh menu trái trên máy tính)
+     — không bỏ thì tờ tem 284 mm bị đẩy xuống + lệch phải, tràn sang trang 2 */
+  html,body{background:#fff!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
   body>*{display:none!important}
-  #temIn{display:block!important;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;padding:0;margin:0}
-  /* Mỗi .to là MỘT tờ A4, dàn lưới cột×hàng do admin chọn (mặc định 5×4).
-     Nhiều .to nối tiếp = nhiều tờ, đủ số lượng tem cần (xem trangTem()). */
-  #temIn .to{display:grid;gap:1.5mm;page-break-after:always;width:100%;height:100%;box-sizing:border-box}
-  #temIn .to:last-child{page-break-after:auto}
-  #temIn .tem{border:1pt solid #000;padding:5pt 6pt;box-sizing:border-box;overflow:hidden;width:100%}
-  #temIn .t1{text-align:center;font-weight:bold;letter-spacing:.5pt;margin:0 0 2pt}
-  #temIn .t2{text-align:center;font-weight:bold;margin:0 0 1pt;line-height:1.15}
-  #temIn .t3{text-align:center;margin:0 0 3pt}
-  #temIn table{width:100%;border-collapse:collapse}
-  #temIn td{border:.5pt solid #000;padding:1.5pt 2.5pt;vertical-align:top}
-  #temIn td.k{width:34%;font-weight:bold}
-  #temIn .kh{border:.5pt solid #000;border-top:none;padding:2.5pt;line-height:1.3}
-  #temIn .cb{font-style:italic;margin-top:2pt;line-height:1.25}
-  /* 3 mức cỡ chữ theo mật độ tem/tờ — càng nhiều tem/tờ càng phải chữ nhỏ để không tràn ô */
-  #temIn .to-lon .t1{font-size:9pt} #temIn .to-lon .t2{font-size:14pt} #temIn .to-lon .t3{font-size:9pt}
-  #temIn .to-lon table,#temIn .to-lon .kh{font-size:8.5pt} #temIn .to-lon .cb{font-size:7.5pt}
-  #temIn .to-vua .t1{font-size:7.5pt} #temIn .to-vua .t2{font-size:11pt} #temIn .to-vua .t3{font-size:7.5pt}
-  #temIn .to-vua table,#temIn .to-vua .kh{font-size:6.8pt} #temIn .to-vua .cb{font-size:6pt}
-  #temIn .to-nho .t1{font-size:6pt} #temIn .to-nho .t2{font-size:8.5pt} #temIn .to-nho .t3{font-size:6pt}
-  #temIn .to-nho table,#temIn .to-nho .kh{font-size:5.3pt} #temIn .to-nho .cb{font-size:4.6pt}
+  #temIn{display:block!important}
 }
 .marow{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--row)}
 .marow .tn{flex:1;min-width:0;font:inherit;font-size:13.5px;background:transparent;color:var(--txt);
@@ -815,7 +817,7 @@ html,body{background:var(--bg);min-height:100%}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S15</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S16</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2336,6 +2338,72 @@ function temHTML(r,p){
   </div>`;
 }
 
+/* ── TỰ DÀN CHỮ TEM CHO VỪA Ô — 10/09/2026 (Admin S16 / Nhân viên R10) ──
+   Khách gửi ảnh bản in: tem đè lên nhau, tràn sang trang 2. Gốc rễ: tờ tem cao "100%" nhưng
+   #temIn không có chiều cao nên không giới hạn thật; ô lưới lại được phép giãn theo nội dung
+   (min-height:auto), nên nội dung dài (công dụng, hướng dẫn…) làm hàng cao gấp đôi, chèn hàng
+   dưới và đẩy sang trang sau; cỡ chữ chỉ có 3 mức cố định theo SỐ tem/tờ, không theo độ DÀI nội dung.
+   Nay: tờ tem cố định đúng vùng in A4 (lề 6 mm), mỗi ô cố định; coChuVua() đo thật nội dung tem
+   trong khung ẩn #temDo (cùng kiểu với lúc in) và chọn cỡ chữ LỚN NHẤT vừa ô (tìm nhị phân).
+   Chữ phải co dưới TEM_CO_DOC (khó đọc) thì hỏi trước khi in và đề xuất khổ ít tem/tờ hơn cho chữ
+   đủ lớn. KHÔNG đổi nội dung tem (temHTML giữ nguyên), chỉ đổi cách dàn lên giấy. */
+const TEM_CO_MIN=4, TEM_CO_MAX=14, TEM_CO_DOC=6; // pt
+const temCoCache=new Map();
+function khungDoTem(){let d=document.getElementById('temDo');
+  if(!d){d=document.createElement('div');d.id='temDo';d.setAttribute('aria-hidden','true');document.body.appendChild(d)}return d}
+function coChuVua(mot,cot,hang){
+  const khoa=cot+'x'+hang+'|'+mot; if(temCoCache.has(khoa))return temCoCache.get(khoa);
+  const d=khungDoTem();
+  d.innerHTML='<div class="to" style="grid-template-columns:repeat('+cot+',1fr);grid-template-rows:repeat('+hang+',1fr)">'+mot+'</div>';
+  const tem=d.querySelector('.tem'); let kq;
+  if(!tem){kq={co:8.5,tran:false}}
+  else{
+    const vua=co=>{tem.style.setProperty('--co',co+'pt');return tem.scrollHeight<=tem.clientHeight+1&&tem.scrollWidth<=tem.clientWidth+1};
+    if(vua(TEM_CO_MAX))kq={co:TEM_CO_MAX,tran:false};
+    else if(!vua(TEM_CO_MIN))kq={co:TEM_CO_MIN,tran:true};
+    else{let lo=TEM_CO_MIN,hi=TEM_CO_MAX;for(let k=0;k<10;k++){const m=(lo+hi)/2;if(vua(m))lo=m;else hi=m}
+      kq={co:Math.floor(lo*10)/10,tran:false}}
+  }
+  d.innerHTML='';
+  if(temCoCache.size>60)temCoCache.clear();
+  temCoCache.set(khoa,kq); return kq;
+}
+/* Khổ đề xuất: nhiều tem/tờ nhất mà chữ vẫn ≥ TEM_CO_DOC (ưu tiên chữ to hơn khi bằng số tem) */
+function khoTemGoiY(mot,cot,hang){
+  let tot=null;
+  for(let c=1;c<=6;c++)for(let h=1;h<=8;h++){
+    const n=c*h; if(n>=cot*hang)continue;
+    const k=coChuVua(mot,c,h); if(k.tran||k.co<TEM_CO_DOC)continue;
+    if(!tot||n>tot.n||(n===tot.n&&k.co>tot.co))tot={c,h,n,co:k.co};
+  }
+  return tot;
+}
+/* Gọi TRƯỚC khi dựng bản in. Trả về false nếu người dùng huỷ. Chỉ chờ (await) khi thật sự cần hỏi —
+   trường hợp bình thường chạy đồng bộ, không đổi thứ tự xử lý của inTem(). */
+function xetKhoTem(r,p){
+  const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
+  const kq=coChuVua(temHTML(r,p),cot,hang);
+  if(!kq.tran&&kq.co>=TEM_CO_DOC)return null;
+  return {cot,hang,kq,goiY:khoTemGoiY(temHTML(r,p),cot,hang)};
+}
+async function hoiKhoTem(x){
+  const hien=x.cot+'×'+x.hang+' ('+(x.cot*x.hang)+' tem/tờ)';
+  const coTxt=v=>String(v).replace('.',',')+' pt';
+  if(!x.goiY){
+    if(x.kq.tran){await hoi('Tem quá dài','Nội dung hồ sơ tem dài tới mức kể cả 1 tem/tờ cũng không vừa. Rút gọn bớt Công dụng / Hướng dẫn trong hồ sơ tem rồi in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return false}
+    return true;
+  }
+  const g=x.goiY, deXuat=g.c+'×'+g.h+' ('+g.n+' tem/tờ)';
+  const ok=await hoi(x.kq.tran?'Khổ này không đủ chỗ cho tem':'Chữ trên tem sẽ rất nhỏ',
+    (x.kq.tran
+      ?'Với khổ <b>'+hien+'</b>, nội dung tem này dài nên kể cả co chữ nhỏ nhất vẫn <b>không vừa ô — sẽ mất chữ</b>.'
+      :'Với khổ <b>'+hien+'</b>, nội dung tem này dài nên chữ phải co còn <b>'+coTxt(x.kq.co)+'</b> — khó đọc.')
+    +'<br><br>Đề xuất khổ <b>'+deXuat+'</b>: chữ <b>'+coTxt(g.co)+'</b>, vừa khít ô. (Khổ mới được nhớ cho những lần in sau; đổi lại ở ô "Khổ in tem phụ".)',
+    {nutOK:'In khổ '+g.c+'×'+g.h,nutHuy:x.kq.tran?'Huỷ':'Vẫn in '+x.cot+'×'+x.hang});
+  if(ok){temCot=g.c;temHang=g.h;luu();return true}
+  return !x.kq.tran;
+}
+
 /* Chỉ dựng ĐÚNG 1 trang A4 dàn kín tem giống nhau (temCot x temHang ô, đã canh khổ A4).
    KHÔNG tự tính số trang theo r.soBao nữa — in nhiều bản (nhân bản vật lý) là việc admin
    tự làm bằng tính năng "in nhiều bản" (Ctrl+P → Số bản in) của trình duyệt/máy in.
@@ -2347,7 +2415,8 @@ function trangTem(r,p){
   const moiTo=cot*hang;
   const mot=temHTML(r,p);
   const cls=moiTo<=2?'to-lon':(moiTo<=6?'to-vua':'to-nho');
-  return `<div class="to ${cls}" style="grid-template-columns:repeat(${cot},1fr);grid-template-rows:repeat(${hang},1fr)">`
+  const vua=coChuVua(mot,cot,hang); // S16/R10: cỡ chữ lớn nhất vừa ô (đo thật), thay 3 mức cố định
+  return `<div class="to ${cls}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="grid-template-columns:repeat(${cot},1fr);grid-template-rows:repeat(${hang},1fr);--co:${vua.co}pt">`
     +Array.from({length:moiTo}).map(()=>mot).join('')+`</div>`;
 }
 
@@ -2367,6 +2436,12 @@ function trangTem(r,p){
    Apps Script hay dữ liệu nào khác. */
 function cssBanIn(){
   const t=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  // S16/R10: kiểu tem nằm giữa 2 mốc ══TEM-CSS══ (dùng chung lúc in + khung đo); còn @media print chỉ ẩn/hiện
+  const m0=t.indexOf('/* ══TEM-CSS══'), m1=t.indexOf('/* ══HẾT-TEM-CSS══ */');
+  const khoiTem=(m0>=0&&m1>m0)?t.slice(m0,m1)+'\n':'';
+  return khoiTem+cssBanInCu(t);
+}
+function cssBanInCu(t){
   const i=t.indexOf('@media print{'); if(i<0)return '';
   const j=t.indexOf('{',i); let d=0;
   for(let k=j;k<t.length;k++){if(t[k]==='{')d++;else if(t[k]==='}'){d--;if(!d)return t.slice(j+1,k)}}
@@ -2388,7 +2463,7 @@ function taiFileIn(tenFile,tieuDe,moTa,htmlIn){
     +'.thanh button{font:inherit;font-size:15px;font-weight:700;background:#F5A524;color:#1C1C1E;border:0;border-radius:10px;padding:11px 24px;cursor:pointer}'
     +css
     +'@media screen{html,body{background:#E9E9EC!important}#temIn{padding:16px}'
-    +'#temIn .to{width:198mm;height:285mm;background:#fff;margin:0 auto 16px;box-shadow:0 2px 14px rgba(0,0,0,.16)}'
+    +'#temIn .to{background:#fff;margin:0 auto 16px;box-shadow:0 2px 14px rgba(0,0,0,.16)}'
     +'#temIn>:not(.to){background:#fff;max-width:198mm;margin:0 auto 16px;padding:8mm;box-shadow:0 2px 14px rgba(0,0,0,.16)}}'
     +'@media print{.thanh{display:none!important}#temIn{padding:0}}'
     +'</sty'+'le></he'+'ad><bo'+'dy><div class="thanh"><b>PEROMA · '+esc(tieuDe)+'</b><span>'+esc(moTa)+'</span>'
@@ -2412,6 +2487,7 @@ async function inTem(id,quaFile){
     +`<br><br>Mở mặt hàng ở tab Công thức, điền khối <b>Hồ sơ tem</b> rồi in lại.`
     +`<br>Mặt hàng chưa có số hiệu TCCS thì <b>không được in tem</b>.`,
     {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  { const x=xetKhoTem(r,p); if(x&&!(await hoiKhoTem(x)))return; } // S16/R10: tự dàn trang
   const htmlTem=trangTem(r,p);
   r.daInTem=true;r.inTemLuc=new Date().toISOString();luuNgay();
   if(quaFile){

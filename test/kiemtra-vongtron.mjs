@@ -9,7 +9,13 @@ let dat=0,hong=0; const ok=(t,c,g='')=>{c?dat++:hong++;console.log(`${c?'✓':'�
 const _n=new Date();
 const LOT_UI='110107'+String(_n.getMonth()+1).padStart(2,'0')+String(_n.getFullYear()).slice(-2);
 const b=await chromium.launch({executablePath:CH});
-const ctx=await b.newContext({acceptDownloads:true}); const err=[];
+/* S16 (10/09/2026): in tem giờ tự dàn chữ — nội dung tem dài ở khổ 5×4 thì app HỎI đổi khổ trước khi in.
+   Các bài test cũ (kiểm đúng bản ghi / đúng id, không kiểm khổ) không trả lời hộp này nên sẽ chờ mãi. Tự bấm
+   "In khổ đề xuất" giùm; bài test S16 tự tắt bằng window.__tatTuDongKhoTem=true để kiểm hộp thoại thật. */
+const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m=document.getElementById('mask'),o=document.getElementById('dlgO');
+  if(!t||!m||!o||window.__tatTuDongKhoTem)return;
+  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click()},40)};
+const ctx=await b.newContext({acceptDownloads:true}); await ctx.addInitScript(TU_KHO_TEM); const err=[];
 
 // ── 1. ADMIN: dựng dữ liệu rồi xuất .json
 const A=await ctx.newPage(); A.on('pageerror',e=>err.push('ADMIN '+e.message));

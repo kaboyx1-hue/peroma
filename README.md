@@ -29,6 +29,12 @@ Có 2 cách, dùng cách nào cũng được:
 1. **Lưu file in rồi gửi sang máy khác** (không cần mạng, máy nhận không cần cài Peroma). Ở thẻ lô (tab *Tra lô* bên nhân viên, hoặc *Báo cáo → Tra cứu số lot* bên Admin) bấm **"Máy in hỏng? Lưu file tem để in ở máy khác"**; với phiếu công thức bấm **"Máy in hỏng? Lưu file phiếu…"**. App lưu 1 file `.html` đúng y bản in (cùng khổ A4, cùng cỡ chữ). Gửi file qua Zalo / USB / email sang máy có máy in → mở bằng trình duyệt → bấm **In**. File chỉ chứa nội dung tem/phiếu, không có mật khẩu hay dữ liệu khác.
 2. **Máy khác tự lấy lô qua hệ thống** (khi có mạng và đã khai kết nối Google Sheet). Máy nhân viên còn lại vào tab *Tra lô* → **"Tải lô do máy khác ghi"** → chọn lô (ghi "máy khác") → in tem. Dùng được cả khi máy cũ hỏng hẳn. Các lô tải về chỉ để xem và in: không lưu vào máy này, không gửi ngược lên Sheet, không huỷ/sửa được. Máy Admin thì vốn đã thấy mọi lô, in từ *Báo cáo → Tra cứu số lot*.
 
+## In tem — tự dàn trang (S16/R10)
+
+Mỗi tờ A4 chia đúng cột × hàng đã chọn; mỗi ô tem cố định, app **tự đo nội dung và chọn cỡ chữ lớn nhất vừa ô** — không còn tem đè nhau hay tràn sang trang 2. Nếu khổ đang chọn buộc chữ nhỏ hơn 6 pt (khó đọc) hoặc không vừa, app hỏi trước khi in và đề xuất khổ ít tem/tờ hơn; chọn khổ đề xuất thì máy nhớ cho lần sau.
+
+Đo thật trên khung tem hiện tại (bảng 12 dòng + khối địa chỉ công ty): khổ **3×2 (6 tem/tờ)** là khổ dày nhất còn đọc được (≈ 6–7,6 pt); khổ 5×4 mặc định cũ chỉ còn 4 pt kể cả khi nội dung rất ngắn.
+
 ## Lần đầu mở trên một máy mới
 
 App **không** chứa sẵn địa chỉ Google Sheet và mật khẩu — phải nhập một lần cho mỗi máy:
@@ -75,7 +81,7 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S15/R9): **394 + 183 + 19 + 21 + 17 = 634 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S16/R10): **399 + 183 + 19 + 21 + 17 = 639 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 

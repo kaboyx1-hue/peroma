@@ -9,7 +9,14 @@ let dat=0,hong=0; const loi=[];
 const ok=(t,c,ghi='')=>{c?dat++:(hong++,loi.push(t));console.log(`${c?'✓':'✗ HỎNG'}  ${t}${ghi?'  → '+ghi:''}`)};
 
 const b=await chromium.launch({executablePath:CHROME});
-const p=await (await b.newContext()).newPage();
+/* S16 (10/09/2026): in tem giờ tự dàn chữ — nội dung tem dài ở khổ 5×4 thì app HỎI đổi khổ trước khi in.
+   Các bài test cũ (kiểm đúng bản ghi / đúng id, không kiểm khổ) không trả lời hộp này nên sẽ chờ mãi. Tự bấm
+   "In khổ đề xuất" giùm; bài test S16 tự tắt bằng window.__tatTuDongKhoTem=true để kiểm hộp thoại thật. */
+const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m=document.getElementById('mask'),o=document.getElementById('dlgO');
+  if(!t||!m||!o||window.__tatTuDongKhoTem)return;
+  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click()},40)};
+const ctxA=await b.newContext(); await ctxA.addInitScript(TU_KHO_TEM);
+const p=await ctxA.newPage();
 const cerr=[]; p.on('pageerror',e=>cerr.push('PAGEERROR '+e.message));
 p.on('console',m=>{if(m.type()==='error')cerr.push(m.text())});
 p.on('response',r=>{if(r.status()>=400)cerr.push('HTTP '+r.status()+' → '+r.url())});
@@ -114,7 +121,7 @@ ok('S12: điều hướng chỉ đổi đúng những gì bài thử cố ý đ�
 const s13=await E(()=>{const html='<div class="to"><div class="tem">T</div></div>'; let tai=null; const goc=HTMLAnchorElement.prototype.click;
   HTMLAnchorElement.prototype.click=function(){tai=this.download};
   const doc=taiFileIn('PEROMA tem/lô:1.html','Tem phụ lô 1','mô tả',html); HTMLAnchorElement.prototype.click=goc;
-  return {tai, coTem:doc.includes(html), coIn:/window\.print\(\)/.test(doc), coCssIn:/#temIn \.tem\{/.test(doc), khongAnHet:!/body>\*\{display:none/.test(doc)};});
+  return {tai, coTem:doc.includes(html), coIn:/window\.print\(\)/.test(doc), coCssIn:/\.tem\{/.test(doc)&&/\.to\{[^}]*height:284mm/.test(doc), khongAnHet:!/body>\*\{display:none/.test(doc)};});
 ok('S13: taiFileIn tạo file tự chứa: có bản in + kiểu in + nút In, tên file an toàn', s13.tai==='PEROMA-tem-lô-1.html'&&s13.coTem&&s13.coIn&&s13.coCssIn&&s13.khongAnHet, JSON.stringify(s13));
 ok('S13: mã nguồn Admin chỉ có ĐÚNG 1 thẻ đóng body (chuỗi trong file in đã tách chữ)', (fs.readFileSync('/tmp/huong/bang-tra-huong-lieu.html','utf8').match(/<\/body>/g)||[]).length===1);
 ok('S13: lô ở tab Báo cáo có nút "Lưu file tem để in ở máy khác"', /data-intem="[^"]+" data-quafile="1"/.test(await E(()=>{const r=nk.find(x=>!x.huy&&x.lot);if(!r)return 'data-intem="x" data-quafile="1"';traLot=r.lot;tab='bc';ve();const h=$('viewBC').innerHTML;traLot='';chuyenTab('tq');return h})));
@@ -151,6 +158,34 @@ const s14b=await E(()=>{
   return {giu,apDung};});
 ok('S14b: server CHƯA có trường temMoKhoa → kéo cấu hình về vẫn giữ cờ mở khoá trên máy', s14b.giu, JSON.stringify(s14b));
 ok('S14b: server gửi rõ temMoKhoa=false → áp dụng đúng (không giữ bừa)', s14b.apDung);
+/* S16 (10/09/2026) — tự dàn chữ tem cho vừa ô (khách: "bản in chèn nén lẫn nhau, tràn sang trang 2") */
+const s16=await E(async()=>{ window.__tatTuDongKhoTem=true;
+  const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), p=sp[i], goc={hstem:p.hstem,cot:temCot,hang:temHang}, inCu=window.print; window.print=()=>{};
+  p.hstem={...temTrong(),...TCCS_DATA['32']};           // tem dài thật (TCCS 02:2026/HAMBII) như ảnh khách gửi
+  const r={id:'S16-T',sp:p.ten,huong:'Hương Kem',quyCach:'1 kg',sl:100,soBao:100,kgBao:1,ngaysx:'2026-09-10',lot:'3202040926',nv:'T',daGui:1};
+  nk.push(r); temCot=5; temHang=4;
+  const kq={};
+  const x=xetKhoTem(r,p); kq.canHoi=!!x; kq.goiY=x&&x.goiY&&(x.goiY.c+'x'+x.goiY.h); kq.goiYDuDoc=!!(x&&x.goiY&&x.goiY.co>=TEM_CO_DOC);
+  const cho=inTem('S16-T'); await new Promise(z=>setTimeout(z,150));
+  kq.coHop=/Khổ này không đủ chỗ|Chữ trên tem sẽ rất nhỏ/.test($('dlgT').textContent);
+  $('dlgO').click(); await cho;
+  const to=document.querySelector('#temIn .to');
+  kq.doiKho=(temCot+'x'+temHang)===kq.goiY; kq.co=+to.dataset.co; kq.khongTran=!to.dataset.tran;
+  kq.moiTemVua=await new Promise(z=>{const d=khungDoTem();d.innerHTML=to.outerHTML;
+    const n=[...d.querySelectorAll('.tem')].filter(t=>t.scrollHeight>t.clientHeight+1).length;d.innerHTML='';z(n===0)});
+  // tem ngắn: không hỏi, chữ đủ to
+  p.hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
+  temCot=3; temHang=2; kq.temNganKhongHoi=xetKhoTem(r,p)===null;
+  kq.temNganCo=+(/data-co="([\d.]+)"/.exec(trangTem(r,p))||[])[1];
+  // CSS in: bỏ lề trong của trang khi in (không đẩy tờ tem sang trang 2)
+  kq.cssBoLe=[...document.querySelectorAll('style')].some(st=>/@media print\{[\s\S]*html,body\{[^}]*padding:0!important/.test(st.textContent));
+  nk.splice(nk.findIndex(z=>z.id==='S16-T'),1); p.hstem=goc.hstem; temCot=goc.cot; temHang=goc.hang; window.print=inCu; luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
+  return kq;});
+ok('S16: tem dài ở khổ 5×4 → hỏi trước khi in, đề xuất khổ ít tem hơn mà chữ vẫn đọc được', s16.canHoi&&s16.coHop&&s16.goiYDuDoc, JSON.stringify(s16));
+ok('S16: chọn khổ đề xuất → đổi đúng khổ, chữ ≥ '+6+' pt, không tràn', s16.doiKho&&s16.co>=6&&s16.khongTran);
+ok('S16: mọi ô tem trong bản in đều vừa (không chữ nào tràn/đè sang ô khác)', s16.moiTemVua);
+ok('S16: tem ngắn ở khổ 3×2 → không hỏi gì, chữ tự to lên (≥ 6 pt)', s16.temNganKhongHoi&&s16.temNganCo>=6, 'co='+s16.temNganCo);
+ok('S16: CSS in bỏ lề trong của trang app (tờ tem không bị đẩy sang trang 2)', s16.cssBoLe);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
@@ -465,7 +500,7 @@ ok('lô 27.000 bao vẫn chỉ dựng đúng 1 trang (20 tem), không còn phụ
 const beforeHtml=await E(()=>{
   const c=sp[0];
   c.hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
-  const id='TESTLON-1';
+  const id='TESTLON-1'; temCot=3; temHang=2; // S16: khổ 5×4 giờ hỏi đổi khổ (khung tem không vừa) — bài này chỉ kiểm không bị chặn theo số bao
   nk.push({id,sp:c.ten,ngaysx:'2026-08-25',lot:'1101070826',soBao:27000,huong:'Chanh tươi',quyCach:'1 kg'});
   const before=$('temIn').innerHTML;
   return before;
