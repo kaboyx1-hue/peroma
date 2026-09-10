@@ -13,11 +13,12 @@ Pha hương liệu, ghi mẻ, cấp số lô, in tem, tra lô, báo cáo sản l
 
 ## Giao diện
 
-Từ bản S9/R7 (10/09/2026), Peroma dùng chung kiểu giao diện với **Zaka** cho dễ quen tay khi dùng cả hai: cùng bảng màu, thanh tiêu đề màu thương hiệu, tab gạch chân, nút bo tròn.
+Từ bản S10/R8 (10/09/2026), bố cục và màu theo mẫu Figma [Full Dashboard with Widgets, Sidebar, Charts, Graphs](https://www.figma.com/community/file/1292982580121452290/full-dashboard-with-widgets-sidebar-charts-graphs): nền trắng xám, thẻ trắng bo tròn, điểm nhấn cam.
 
-- Mặc định **tối** ("Xanh rêu"). Bấm nút **☀ / 🌙** trên thanh tiêu đề để đổi sang **sáng** ("Mùn cưa") và ngược lại.
-- Mỗi máy nhớ lựa chọn riêng; lựa chọn này **không** nằm trong dữ liệu đồng bộ hay file sao lưu.
-- Bản in tem vẫn trắng đen như cũ, không phụ thuộc giao diện đang bật.
+- **Máy tính** (màn hình rộng từ 900px): thanh menu nổi bên trái. **Điện thoại**: tab trên cùng, có biểu tượng.
+- **Admin mở vào trang Tổng quan**: mẻ hôm nay, sản lượng và hương liệu 7 ngày (so với 7 ngày trước), % mặt hàng sẵn sàng sản xuất, mẻ gần nhất, biểu đồ sản lượng 14 ngày, việc cần làm, top mặt hàng 30 ngày, tồn kho hương liệu. Trang này **chỉ đọc**: không sửa dữ liệu, không đồng bộ gì thêm; mẻ đã huỷ không tính.
+- Mặc định **sáng**. Nút **🌙 / ☀** (đáy menu trên máy tính, góc trên trên điện thoại) đổi sang **tối**. Mỗi máy nhớ lựa chọn riêng; lựa chọn này **không** nằm trong dữ liệu đồng bộ hay file sao lưu.
+- Bản in tem vẫn trắng đen như cũ.
 
 ## Lần đầu mở trên một máy mới
 
@@ -65,7 +66,7 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S9/R7): **358 + 174 + 19 + 21 + 17 = 589 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S10/R8): **367 + 174 + 19 + 21 + 17 = 598 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 

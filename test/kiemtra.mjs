@@ -18,7 +18,45 @@ await p.goto(FILE); await p.waitForTimeout(900);
 const E=f=>p.evaluate(f), Ea=(f,a)=>p.evaluate(f,a);
 
 console.log('\n── A. KHỞI ĐỘNG ──');
-ok('4 tab hiện đủ', (await E(()=>document.querySelectorAll('.tab').length))===4);
+ok('5 tab hiện đủ (S10 thêm Tổng quan)', (await E(()=>document.querySelectorAll('.tab').length))===5);
+/* S10 (10/09/2026) — trang Tổng quan: mở app vào đây, CHỈ ĐỌC, số khớp dữ liệu, bấm mẻ mở đúng lô */
+ok('TQ: mở app vào trang Tổng quan', (await E(()=>tab==='tq'&&document.getElementById('viewTQ').style.display===''&&document.getElementById('viewCT').style.display==='none'&&document.querySelector('.tab.on').dataset.tab==='tq')));
+const tqKq=await E(()=>{
+  const goc=JSON.stringify({sp,kho,nk,tonKhoHuong,maHuong,maQC}), nkGoc=nk.slice(), luuGoc=localStorage.getItem(KEY);
+  const hn=ngayTruoc(0), hq=ngayTruoc(1);
+  nk.push({id:'TQ1',sp:sp[0].ten,huong:'Hương Chanh',sl:100,mlDung:50,ngaysx:hn,ts:hn+'T08:00:00',lot:'4110110926'},
+          {id:'TQ2',sp:sp[1].ten,huong:'Hương Táo',sl:150,mlDung:75,ngaysx:hn,ts:hn+'T09:00:00',lot:'4211110926'},
+          {id:'TQ3',sp:sp[1].ten,huong:'Hương Táo',sl:999,mlDung:1,ngaysx:hn,ts:hn+'T10:00:00',lot:'4211110926',huy:true},
+          {id:'TQ4',sp:sp[0].ten,huong:'Hương Chanh',sl:50,mlDung:25,ngaysx:hq,ts:hq+'T08:00:00',lot:'4110110926'});
+  const truocVe=JSON.stringify({sp,kho,nk,tonKhoHuong,maHuong,maQC});
+  veTQ();
+  const h=document.getElementById('viewTQ').innerHTML, t=document.getElementById('viewTQ').textContent;
+  const kq={
+    khongGhi: JSON.stringify({sp,kho,nk,tonKhoHuong,maHuong,maQC})===truocVe,
+    meHN: (document.querySelector('#viewTQ .w .so').firstChild.textContent||'').trim(),
+    kgHN: /250 kg · hôm qua 1 mẻ/.test(t),
+    boHuy: !/999/.test(t),
+    ganNhat: (document.querySelector('#viewTQ .tqr .t b')||{}).textContent===sp[1].ten,
+    coBieuDo: !!document.querySelector('#viewTQ svg.tqchart path.duong'),
+    coGauge: !!document.querySelector('#viewTQ svg.gauge'),
+  };
+  document.querySelector('#viewTQ .tqr').click();
+  kq.moLo = tab==='bc' && traLot==='4211110926' && document.getElementById('viewBC').style.display==='';
+  nk.length=0; nkGoc.forEach(r=>nk.push(r)); traLot='';
+  chuyenTab('tq');
+  kq.traLai = JSON.stringify({sp,kho,nk,tonKhoHuong,maHuong,maQC})===goc && localStorage.getItem(KEY)===luuGoc;
+  return kq;
+});
+ok('TQ: vẽ Tổng quan KHÔNG ghi/sửa dữ liệu nào (chỉ đọc)', tqKq.khongGhi, JSON.stringify(tqKq));
+ok('TQ: "Mẻ hôm nay" đếm đúng, mẻ đã huỷ không tính', tqKq.meHN==='2' && tqKq.boHuy, 'meHN='+tqKq.meHN);
+ok('TQ: kg hôm nay + số mẻ hôm qua đúng', tqKq.kgHN);
+ok('TQ: "Mẻ gần nhất" xếp mẻ mới nhất lên đầu', tqKq.ganNhat);
+ok('TQ: có biểu đồ sản lượng và đồng hồ sẵn sàng', tqKq.coBieuDo && tqKq.coGauge);
+ok('TQ: bấm một mẻ → sang Báo cáo, mở đúng số lô', tqKq.moLo);
+ok('TQ: dọn dữ liệu thử xong, dữ liệu gốc còn nguyên', tqKq.traLai);
+const tqToi=await E(()=>{const t0=document.documentElement.classList.contains('toi');document.getElementById('btnSangToi').click();
+  const kq=[document.documentElement.classList.contains('toi')!==t0, localStorage.getItem('peroma:sangtoi')];document.getElementById('btnSangToi').click();return kq});
+ok('Nút sáng/tối đổi giao diện và nhớ lựa chọn trên máy', tqToi[0] && (tqToi[1]==='toi'||tqToi[1]==='sang'), JSON.stringify(tqToi));
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');

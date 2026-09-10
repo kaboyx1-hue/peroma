@@ -10,34 +10,32 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Peroma">
-<meta name="theme-color" content="#1F5B44">
-<!-- 10/09/2026 (S9/R7): gắn lớp "sang" lên <html> TRƯỚC khi vẽ trang để máy đã chọn giao diện
-     sáng không bị chớp màn tối lúc mở app. Chỉ đọc 1 khoá hiển thị riêng của máy này. -->
-<script>try{if(localStorage.getItem('peroma:sangtoi')==='sang')document.documentElement.classList.add('sang')}catch(e){}</script>
+<meta name="theme-color" content="#FFFFFF">
+<!-- 10/09/2026 (S10/R8): mặc định SÁNG theo mẫu Figma. Máy nào đã chọn tối thì gắn lớp "toi" lên
+     <html> TRƯỚC khi vẽ trang để không bị chớp màn sáng lúc mở app. Chỉ đọc 1 khoá hiển thị riêng. -->
+<script>try{if(localStorage.getItem('peroma:sangtoi')==='toi')document.documentElement.classList.add('toi')}catch(e){}</script>
 <title>Peroma — Nhân viên</title>
 <style>
-/* ══ GIAO DIỆN ĐỒNG BỘ VỚI ZAKA — 10/09/2026 (bản S9 / R7) ══
-   Khách yêu cầu Peroma "na ná" Zaka cho dễ dùng khi chuyển qua lại giữa 2 app. Lấy bảng màu,
-   hình khối (bo góc 14/20, nút chuyển màu, thanh tiêu đề màu thương hiệu, tab gạch chân 3px) và
-   nút đổi sáng/tối của Zaka. CHỈ đổi cách hiển thị: không đổi id/class/cấu trúc HTML, không đổi
-   logic. Tên biến màu cũ của Peroma (--amber, --cyan, --panel…) giữ nguyên và trỏ sang bảng mới,
-   nên hàng trăm chỗ đang dùng không phải sửa.
-   Ý nghĩa màu: --amber (cũ vàng) = màu nhấn chính -> xanh rêu / nâu mùn cưa; --cyan (cũ ngọc) =
-   thông tin, số lô, lựa chọn đang dùng -> xanh dương; trạng thái "đúng/khớp" -> xanh lá (--ok);
-   cảnh báo "lệch/tạm/chưa lưu" -> vàng (--warnTx); lỗi -> đỏ gạch (--badTx). */
+/* ══ BỐ CỤC & MÀU THEO MẪU FIGMA "Full Dashboard with Widgets, Sidebar" — 10/09/2026 (S10 / R8) ══
+   Khách chọn mẫu Figma (Giliard Gomes, Figma Community) thay cho giao diện Zaka của bản S9/R7:
+   nền trắng xám, thẻ trắng bo tròn, điểm nhấn cam, biểu đồ xanh lá; máy tính có thanh menu nổi bên
+   trái, điện thoại giữ tab trên cùng. Mặc định SÁNG như mẫu; nút 🌙/☀ đổi sang bản tối cùng tông.
+   CHỈ đổi hiển thị + thêm trang Tổng quan chỉ-đọc ở Admin: không đổi logic, dữ liệu, đồng bộ.
+   Tên biến màu cũ của Peroma (--amber, --cyan, --panel…) giữ nguyên và trỏ sang bảng mới.
+   Ý nghĩa màu: --amber = nhấn chính (cam đậm để chữ đọc được); --cyan = thông tin/số lô (xanh
+   dương); --ok = đúng/khớp (xanh lá); --warnTx = lệch/tạm/chưa lưu; --badTx = lỗi.
+   Mọi màu chữ đã đo tương phản >= 4.5 trên mọi nền nó nằm lên, ở cả 2 chế độ. */
 :root{
-  /* Bảng "Xanh rêu" — lấy NGUYÊN từ Zaka (quanly.html, bản duyệt 2026-09-08) */
-  --bg:#0F1713; --bg2:#141F19; --card:#182420; --c2:#1F2F28; --line:#2C4239; --tx:#E4EFE8; --tx2:#93AC9E;
-  --acc:#5FC896; --acc2:#7FAEDD; --brand:#1F5B44; --brandTx:#EAF8EF;
-  --ok:#57D49B; --warn:#E7B75C; --bad:#E68B72; --pur:#A6A6EA; --info:#6FA9DE;
-  --okBg:#16301F; --badBg:#2E1E19; --warnBg:#2E2618; --purBg:#1F2140; --infoBg:#152C3C;
-  --shadow:0 10px 28px -14px rgba(0,0,0,.55); --btnGlow:0 6px 18px -8px rgba(95,200,150,.4);
-  /* Bổ sung riêng Peroma — Zaka không cần vì ít chữ phụ/khung màu hơn. Mọi màu chữ đã đo
-     tương phản >= 4.5 trên mọi nền nó nằm lên (thẻ, dòng xen kẽ, ô nhập, nền cảnh báo). */
-  --tx3:#88A294; --line2:#3A5449; --rowAlt:#15211C; --rowOn:#213329;
-  --accTx:#5FC896; --warnTx:#E7B75C; --badTx:#E68B72; --badTx2:#F2C2B4; --infoTx:#6FA9DE;
-  --okLine:#2B5A3C; --warnLine:#5A4A26; --badLine:#5A3328; --infoLine:#28506B;
-  --btnA:#5FC896; --btnB:#7FAEDD; --onAcc:#0B1A12;
+  /* Sáng — theo mẫu Figma */
+  --bg:#F4F4F5; --bg2:#EFEFF1; --card:#FFFFFF; --c2:#F6F6F7; --line:#E9E9EC; --tx:#1C1C1E; --tx2:#585860;
+  --acc:#F5A524; --acc2:#FFCB7D; --accSoft:#FFF4E0; --brand:#FFFFFF; --brandTx:#1C1C1E; --chart:#4CB86F;
+  --ok:#23794A; --warn:#E0901A; --bad:#E5534B; --pur:#6B45C0; --info:#2A62A8;
+  --okBg:#E7F6EC; --badBg:#FDECEA; --warnBg:#FFF3DC; --purBg:#F1ECFB; --infoBg:#EAF2FC;
+  --shadow:0 12px 32px -18px rgba(20,20,30,.22); --shadowSm:0 1px 2px rgba(20,20,30,.04); --btnGlow:0 6px 16px -8px rgba(245,165,36,.55);
+  --tx3:#6B6B73; --line2:#DCDCE0; --rowAlt:#FAFAFA; --rowOn:#FFF6E6;
+  --accTx:#945400; --warnTx:#8F5A00; --badTx:#C0342C; --badTx2:#9E2A23; --infoTx:#2A62A8;
+  --okLine:#BFE3CB; --warnLine:#F6D9A6; --badLine:#F3C4BF; --infoLine:#C4D8F2;
+  --btnA:#F5A524; --btnB:#F9BD55; --onAcc:#1C1C1E;
   /* Tên biến cũ của Peroma -> trỏ sang bảng mới */
   --panel:var(--card); --row:var(--card); --row2:var(--rowAlt);
   --txt:var(--tx); --txt2:var(--tx2); --txt3:var(--tx3);
@@ -45,19 +43,17 @@
   --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono","DejaVu Sans Mono",Menlo,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
-:root.sang{
-  /* Bảng "Mùn cưa" của Zaka. Riêng các màu CHỮ (tx2, ok, pur, info…) được đậm thêm một bậc so
-     với Zaka: bảng gốc có vài màu chỉ đạt 3–4.3 trên nền kem — Peroma có nhiều chữ phụ nhỏ và
-     dùng trong xưởng, nên giữ đúng ngưỡng 4.5 như đã chốt ngày 10/09/2026. */
-  --bg:#F8F4EA; --bg2:#F2EBD9; --card:#FFFDF8; --c2:#F3EAD6; --line:#E7DAB9; --tx:#4A3B28; --tx2:#6B5B40;
-  --acc:#BE8A55; --acc2:#C98098; --brand:#9C6636; --brandTx:#FFF8EC;
-  --ok:#397045; --warn:#C2790F; --bad:#BC5A3C; --pur:#7A5298; --info:#34668F;
-  --okBg:#E5F0E2; --badBg:#F6E2DA; --warnBg:#F7EAD0; --purBg:#EEE4F3; --infoBg:#E3EDF5;
-  --shadow:0 10px 26px -16px rgba(120,90,40,.20); --btnGlow:0 6px 16px -8px rgba(190,138,85,.38);
-  --tx3:#756548; --line2:#D6C39A; --rowAlt:#FAF5EA; --rowOn:#F3EAD6;
-  --accTx:#8A5A2B; --warnTx:#8A5608; --badTx:#A6472B; --badTx2:#8A3A22; --infoTx:#34668F;
-  --okLine:#B9D6B5; --warnLine:#E6CF9E; --badLine:#E8BFB0; --infoLine:#BBD2E6;
-  --btnA:#9C6636; --btnB:#A85F78; --onAcc:#FFFFFF;
+:root.toi{
+  /* Tối — cùng tông với mẫu (xám trung tính + cam), cho ai quen màn tối trong xưởng */
+  --bg:#111113; --bg2:#141416; --card:#1C1C1F; --c2:#26262A; --line:#2E2E33; --tx:#EDEDEF; --tx2:#A6A6AF;
+  --acc:#F5A524; --acc2:#B97A1C; --accSoft:#2B2213; --brand:#1C1C1F; --brandTx:#EDEDEF; --chart:#5BC47A;
+  --ok:#5BC47A; --warn:#F5A524; --bad:#E5534B; --pur:#B39DFA; --info:#6FA8F5;
+  --okBg:#15291C; --badBg:#2E1716; --warnBg:#2B2213; --purBg:#221B38; --infoBg:#14233A;
+  --shadow:0 14px 34px -18px rgba(0,0,0,.7); --shadowSm:0 1px 2px rgba(0,0,0,.3); --btnGlow:0 6px 16px -8px rgba(245,165,36,.45);
+  --tx3:#909099; --line2:#3A3A40; --rowAlt:#19191C; --rowOn:#2A2419;
+  --accTx:#FFB547; --warnTx:#FFB547; --badTx:#FF7B72; --badTx2:#FFC2BC; --infoTx:#6FA8F5;
+  --okLine:#2A5236; --warnLine:#5A4520; --badLine:#5C2B28; --infoLine:#28446B;
+  --btnA:#F5A524; --btnB:#F9BD55; --onAcc:#1C1C1E;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg)}
@@ -193,53 +189,83 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 }
 @media(min-width:700px){ .chips button{font-size:15px} .r{padding:17px 16px} }
 
-/* ══ LỚP HÌNH KHỐI KIỂU ZAKA (S9/R7) — đặt cuối để đè lên kiểu cũ, chỉ đổi hiển thị ══ */
-/* nền chuyển màu đặt trên <html> để phủ kín cả màn hình (đặt trên body thì dừng ở cuối nội dung) */
-html{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%) fixed;min-height:100%}
-body{background:transparent}
-.stick{background:var(--card);box-shadow:var(--shadow)}
-.bar{background:var(--brand);color:var(--brandTx)}
-.bar h1 i{color:var(--brandTx)}
-.tabs{background:var(--card);border-top:0}
-.tab{font-weight:600;letter-spacing:0;text-transform:none;color:var(--tx2);border-bottom:3px solid transparent}
-.tab.on{color:var(--accTx);border-bottom-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent);font-weight:700}
-.dlg{background:var(--card);border-color:var(--line);border-radius:20px;box-shadow:var(--shadow)}
+/* ══ LỚP BỐ CỤC THEO MẪU FIGMA (S10/R8) — đặt cuối để đè lên kiểu cũ, chỉ đổi hiển thị ══ */
+html,body{background:var(--bg);min-height:100%}
+.stick{background:var(--card);box-shadow:var(--shadowSm);border-bottom:1px solid var(--line)}
+.bar{background:var(--card);color:var(--tx)}
+.bar h1{letter-spacing:0}
+.bar h1 i{color:var(--tx3)}
+/* chấm tròn cam trước tên app — như logo quả cam của mẫu */
+.bar h1::before{content:'';display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;
+  background:linear-gradient(135deg,var(--acc),var(--acc2));vertical-align:0}
+.tabs{background:var(--card);border-top:0;border-bottom:0}
+.tab{font-weight:600;letter-spacing:0;text-transform:none;color:var(--tx2);border-bottom:3px solid transparent;line-height:1.2}
+.tab .ic{display:block;width:19px;height:19px;margin:0 auto 4px}
+.tab.on{color:var(--tx);border-bottom-color:var(--acc);background:var(--accSoft)}
+.tab.on .ic{color:var(--acc)}
+.dlg{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
 .toast{border-radius:14px;box-shadow:var(--shadow)}
 .bdg{border-radius:8px}
-/* nút đổi sáng/tối — cùng biểu tượng như Zaka (☀ khi đang tối, 🌙 khi đang sáng) */
 #btnSangToi{font-size:15px;line-height:1;padding:7px 10px;flex:none}
-/* 5 tab trên máy 375px: chữ thường 13px, cho phép xuống 2 dòng ("Chốt thực tế") thay vì bị cắt */
-.tab{font-size:13px;padding:12px 3px;white-space:normal;line-height:1.25}
-.who{background:rgba(255,255,255,.1);color:var(--brandTx);border-color:rgba(255,255,255,.3);border-radius:12px}
-/* thêm nút sáng/tối làm thanh tiêu đề chật trên máy 375px, đẩy nút tên người dùng ra ngoài màn hình:
-   cho tiêu đề co lại (dòng phiên bản đã có sẵn dấu …) để các nút bên phải luôn hiện đủ */
+@media(min-width:900px){
+  /* MÁY TÍNH: thanh menu nổi bên trái như mẫu. Dùng lại đúng khối .stick có sẵn (thanh tiêu đề +
+     tab) — chỉ đổi vị trí hiển thị, không đổi HTML/JS nào đang dùng các phần tử này. */
+  :root{--sideW:236px}
+  body{padding-left:calc(var(--sideW) + 30px)}
+  .stick{position:fixed;left:14px;top:14px;bottom:14px;width:var(--sideW);z-index:30;display:flex;flex-direction:column;
+    border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:16px 12px 70px;overflow-y:auto;overflow-x:hidden}
+  .bar{flex-wrap:wrap;padding:4px 8px 16px;margin-bottom:10px;border-bottom:1px solid var(--line)}
+  .bar h1{flex:1 1 100%;font-size:16px}
+  .tabs{flex-direction:column;gap:3px;overflow:visible}
+  .tab{flex:none;display:flex;align-items:center;gap:11px;text-align:left;padding:10px 12px;border-radius:12px;
+    border-bottom:0;font-size:14px;font-weight:500;white-space:nowrap}
+  .tab .ic{margin:0;width:18px;height:18px;flex:none}
+  .tab:hover{background:var(--c2);color:var(--tx)}
+  .tab.on{background:var(--accSoft);color:var(--tx);font-weight:700}
+  /* nút sáng/tối xuống đáy thanh menu, có chữ — như mục "Settings" của mẫu */
+  #btnSangToi{position:absolute;left:12px;right:12px;bottom:14px;display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:12px;font-size:15px;text-align:left}
+  #btnSangToi::after{content:attr(data-nhan);font-size:13.5px;font-weight:600}
+}
+/* 5 tab trên máy 375px: biểu tượng trên, chữ dưới, cho phép xuống dòng ("Chốt thực tế") thay vì bị cắt */
+.tab{font-size:12px;padding:10px 2px 9px;white-space:normal}
 .bar h1{min-width:0}
-.bar #btnSangToi{padding:7px 9px}
+.who{background:var(--c2);color:var(--tx);border-color:var(--line);border-radius:12px}
 .oke,.chips button.on{background:linear-gradient(135deg,var(--btnA) 0%,var(--btnB) 100%);color:var(--onAcc);
   border-color:transparent;box-shadow:var(--btnGlow)}
 .oke:disabled{box-shadow:none}
-.card{border-radius:20px;box-shadow:var(--shadow)}
+.card{border-radius:20px;border-color:var(--line);box-shadow:var(--shadowSm)}
 .fld input,.fld select{border-radius:14px}
 .pb select,.pb input,.chips button,.pb .x{border-radius:12px}
 .big{border-radius:18px}
 .add,.pair button,.canh,.note{border-radius:14px}
+@media(min-width:900px){
+  .app{max-width:980px;margin:0 auto;padding:16px 16px 0 0}
+  .stick{padding-bottom:118px}
+  /* khối người dùng ở đáy menu như mẫu (tên + vai trò), trên nút sáng/tối */
+  #whoBtn{position:absolute;left:12px;right:12px;bottom:62px;padding:10px 12px;text-align:left;font-size:14px}
+  #dbDen{padding:0 0 0 20px}
+  .hom{margin-top:12px;border:0;border-radius:14px;font-size:12.5px}
+  .card{margin:0 0 14px}
+  .pg>.sec:first-child{padding-top:4px}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R7</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R8</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
     </div>
     <div class="tabs">
-      <button class="tab on" data-tab="me">Pha mẻ</button>
-      <button class="tab" data-tab="lo">Tra lô</button>
-      <button class="tab" data-tab="cp">Chất phun</button>
-      <button class="tab" data-tab="bc">Chốt thực tế</button>
-      <button class="tab" data-tab="dl">Dữ liệu</button>
+      <button class="tab on" data-tab="me"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/></svg><span>Pha mẻ</span></button>
+      <button class="tab" data-tab="lo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span>Tra lô</span></button>
+      <button class="tab" data-tab="cp"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0C6 9.9 12 3.5 12 3.5z"/></svg><span>Chất phun</span></button>
+      <button class="tab" data-tab="bc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 12.3l2.8 2.8L16.2 9"/></svg><span>Chốt thực tế</span></button>
+      <button class="tab" data-tab="dl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6"/></svg><span>Dữ liệu</span></button>
     </div>
     <div class="hom" id="hom"></div>
   </div>
@@ -252,20 +278,21 @@ body{background:transparent}
   <div class="pair"><button class="huy" id="dlgC">Hủy</button><button class="oke" id="dlgO">Xác nhận</button></div>
 </div></div>
 <script>
-/* ── GIAO DIỆN SÁNG / TỐI — 10/09/2026 (S9/R7), cùng khuôn với Zaka (doiSangToi/napSangToi) ──
-   Chỉ là tuỳ chọn hiển thị của TỪNG MÁY, lưu riêng khoá 'peroma:sangtoi'. KHÔNG nằm trong cấu
-   hình đồng bộ hay file sao lưu (không đụng H1), máy nào chọn riêng máy đó. */
+/* ── GIAO DIỆN SÁNG / TỐI — 10/09/2026 (S9/R7, đổi mặc định sang SÁNG ở S10/R8 theo mẫu Figma) ──
+   Chỉ là tuỳ chọn hiển thị của TỪNG MÁY, lưu riêng khoá 'peroma:sangtoi' ('sang'/'toi'). KHÔNG nằm
+   trong cấu hình đồng bộ hay file sao lưu (không đụng H1), máy nào chọn riêng máy đó. */
 const SANGTOI_KEY='peroma:sangtoi';
 function veNutSangToi(){
-  const sang=document.documentElement.classList.contains('sang');
+  const toi=document.documentElement.classList.contains('toi');
   const b=document.getElementById('btnSangToi');
-  if(b){b.textContent=sang?'\u{1F319}':'\u2600';b.title=sang?'Đổi sang giao diện tối':'Đổi sang giao diện sáng';b.setAttribute('aria-label',b.title);}
-  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',sang?'#9C6636':'#1F5B44'));
+  if(b){b.textContent=toi?'\u2600':'\u{1F319}';b.dataset.nhan=toi?'Giao diện sáng':'Giao diện tối';
+    b.title=toi?'Đổi sang giao diện sáng':'Đổi sang giao diện tối';b.setAttribute('aria-label',b.title);}
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m=>m.setAttribute('content',toi?'#1C1C1F':'#FFFFFF'));
 }
 function doiSangToi(){
-  const sang=!document.documentElement.classList.contains('sang');
-  document.documentElement.classList.toggle('sang',sang);
-  try{localStorage.setItem(SANGTOI_KEY,sang?'sang':'toi')}catch(e){}
+  const toi=!document.documentElement.classList.contains('toi');
+  document.documentElement.classList.toggle('toi',toi);
+  try{localStorage.setItem(SANGTOI_KEY,toi?'toi':'sang')}catch(e){}
   veNutSangToi();
 }
 document.getElementById('btnSangToi').addEventListener('click',doiSangToi);
