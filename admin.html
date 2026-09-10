@@ -768,13 +768,47 @@ html,body{background:var(--bg);min-height:100%}
   .ctnav{grid-template-columns:1fr 1fr}
   .ctsec{padding:14px}
 }
+/* ══ S12: khai nguyên liệu tại chỗ · đường dẫn bổ sung · nút thu gọn hồ sơ tem ══ */
+.ctfix{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+/* nhóm Hồ sơ tem: đầu nhóm đã có nút Thu gọn/Mở ra + mô tả → ẩn thanh thu gọn và nhãn cũ bị lặp
+   (vẫn giữ trong trang để mọi chỗ khác đang dùng không bị ảnh hưởng) */
+.ctsec[data-sec="tem"] .fld>label,.ctsec[data-sec="tem"] .fld>.ncc-hd{display:none}
+.ctfx{font:inherit;font-size:11.5px;font-weight:700;color:var(--accTx);background:var(--card);border:1px dashed var(--acc);border-radius:999px;
+  padding:3px 9px;cursor:pointer;white-space:nowrap}
+.ctfx:hover{background:var(--accSoft);border-style:solid}
+.ctgon{flex:none;font:inherit;font-size:12.5px;font-weight:700;color:var(--tx);background:var(--c2);border:1px solid var(--line2);border-radius:10px;
+  padding:7px 12px;cursor:pointer;white-space:nowrap}
+.ctgon:hover{border-color:var(--acc)}
+.ctsec[data-sec="tem"] .ncc-hd{border:1px solid var(--line2);border-radius:12px;padding:11px 14px;background:var(--c2);margin-bottom:10px}
+.ctsec[data-sec="tem"] .ncc-hd:hover{border-color:var(--acc)}
+.ctsec[data-sec="tem"] .ncc-ten{font-size:14px}
+.lnk{font:inherit;font-weight:700;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.lnk:hover{color:var(--accTx)}
+@keyframes ctFlash{0%,100%{box-shadow:var(--shadowSm)}20%,70%{box-shadow:0 0 0 3px var(--acc),var(--shadow)}}
+.ctflash{animation:ctFlash 1.6s ease}
+.tf.ctflash{border-radius:12px}
+.ctnl{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ctnl-h,.ctnl-r{display:grid;grid-template-columns:minmax(0,1fr) 110px 72px 58px;gap:8px;align-items:center;padding:8px 10px}
+.ctnl-h{background:var(--c2);font-size:11.5px;font-weight:700;color:var(--tx2)}
+.ctnl-h span:nth-child(2),.ctnl-h span:nth-child(3){text-align:right}
+.ctnl-r{border-top:1px solid var(--line)}
+.ctnl-r select,.ctnl-r input{font:inherit;font-size:14px;background:var(--bg);color:var(--txt);border:1px solid var(--line2);border-radius:10px;padding:8px 9px;min-width:0;width:100%}
+.ctnl-r input{text-align:right;font-family:var(--mono);font-weight:700}
+.ctnl-r select:focus,.ctnl-r input:focus{outline:none;border-color:var(--acc)}
+.ctnl-pt{text-align:right;font-size:13px;font-weight:600;color:var(--tx2)}
+.ctnl-x{font:inherit;font-size:12px;font-weight:700;color:var(--badTx);background:var(--badBg);border:1px solid var(--badLine);border-radius:9px;padding:7px 0;cursor:pointer}
+.ctnl-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ctnl-act .addbtn{flex:1;min-width:170px;width:auto;margin:0}
+.ctnl-act .ctnl-moi{background:var(--accSoft);border-color:var(--acc);border-style:solid}
+.ctnl-hint{margin-top:8px;line-height:1.55}
+@media(max-width:520px){.ctnl-h,.ctnl-r{grid-template-columns:minmax(0,1fr) 84px 50px}.ctnl-h span:nth-child(3),.ctnl-pt{display:none}.ctnl-r .ctnl-x{grid-column:auto}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S11</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S12</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2045,46 +2079,51 @@ function nlLech(p){
   return {tong,chuan,dat:Math.abs(lech)<=0.001,lech};
 }
 function veNL(p,i){
+  /* S12 (10/09/2026) — khách: "không có mục khai báo ra từng loại nguyên vật liệu cấu thành 1 thành
+     phẩm". Trước đây Danh mục nguyên liệu còn trống thì khối này chỉ báo "phải thêm ở Danh mục trước"
+     — phải rời trang, sang tab khác, rồi quay lại. Nay khai được NGAY TẠI ĐÂY: nút "+ Khai nguyên liệu
+     mới" hỏi tên, tự thêm vào Danh mục nguyên liệu (để dùng lại cho mặt hàng khác) và thêm luôn dòng
+     vào công thức. Vẫn giữ quy tắc cũ: danh mục trống thì KHÔNG hiện nút chọn-từ-danh-mục (tránh ô chọn
+     rỗng gây hiểu lầm là lỗi, 26/08/2026-R). Trình bày dạng bảng thành phần (như form định mức Odoo):
+     nguyên liệu · kg cho 1 mẻ chuẩn · tỉ trọng trong mẻ. Mọi ô nhập giữ nguyên data-nlten/data-nlkg. */
   const ds=p.congThucNL||[];
-  const {tong,dat,lech}=nlLech(p);
+  const {tong,dat,lech}=nlLech(p), chuan=num(p.kg);
   // Tên đã khai nhưng KHÔNG còn trong Danh mục (xoá mất, hoặc dữ liệu cũ trước khi có danh
   // mục) vẫn phải hiện được trong select, không được để mất/rỗng dữ liệu admin đã khai.
   const dsChon=[...nlDM]; ds.forEach(x=>{if(x.ten&&!dsChon.includes(x.ten))dsChon.push(x.ten)});
-  let o=`<div class="hset" style="margin-top:0;flex-direction:column;align-items:stretch;gap:6px">`;
-  o+=ds.map((x,j)=>{
-    // đã chọn ở dòng khác thì khoá lại — 1 nguyên liệu chỉ khai 1 dòng trong cùng công thức
-    const dungNoiKhac=new Set(ds.filter((y,k)=>k!==j&&y.ten).map(y=>y.ten));
-    return `<div style="display:flex;gap:6px;align-items:center">
-      <select data-nlten="${i}:${j}" style="flex:1;min-width:0">
-        <option value="">— chọn nguyên liệu —</option>
-        ${dsChon.map(t=>`<option value="${esc(t)}"${x.ten===t?' selected':''}${dungNoiKhac.has(t)?' disabled':''}>${esc(t)}${dungNoiKhac.has(t)?' (đã chọn ở dòng khác)':''}</option>`).join('')}
-      </select>
-      <input data-nlkg="${i}:${j}" type="text" inputmode="decimal" value="${x.kg}" style="width:84px;flex:none" placeholder="kg">
-      <button data-nldel="${i}:${j}" class="ctdel" style="padding:6px 9px;margin:0;margin-top:0;flex:none;width:auto">Xoá</button>
-    </div>`}).join('');
-  o+=`</div>`;
-  /* 26/08/2026-R (vá theo phản hồi): trước đây bấm "+ Thêm nguyên liệu" khi Danh mục nguyên
-     liệu còn TRỐNG thì vẫn thêm được dòng, nhưng ô chọn chỉ có mỗi "— chọn nguyên liệu —"
-     rỗng — khách hiểu nhầm là lỗi/không tìm thấy. Giờ CHẶN LUÔN từ gốc: Danh mục trống thì
-     không cho thêm dòng nữa (ẩn nút thêm), thay bằng lối tắt bấm 1 phát sang tab Danh mục. */
-  if(!nlDM.length){
-    o+=`<div class="canh" style="margin-top:8px">Chưa có nguyên liệu nào trong <b>Danh mục</b> để chọn — phải thêm ở đó trước.</div>
-      <button class="addbtn" data-gonl="1" style="margin:8px 0 0;width:100%">Đi tới tab Danh mục để thêm nguyên liệu</button>`;
-  }else{
-    o+=`<button class="addbtn" data-nladd="${i}" style="margin:8px 0 0;width:100%">+ Thêm nguyên liệu</button>`;
+  let o='';
+  if(ds.length){
+    o+='<div class="ctnl"><div class="ctnl-h"><span>Nguyên liệu cấu thành</span><span>kg / mẻ chuẩn</span><span>Tỉ trọng</span><span></span></div>';
+    o+=ds.map((x,j)=>{
+      // đã chọn ở dòng khác thì khoá lại — 1 nguyên liệu chỉ khai 1 dòng trong cùng công thức
+      const dungNoiKhac=new Set(ds.filter((y,k)=>k!==j&&y.ten).map(y=>y.ten));
+      const pt=chuan>0&&num(x.kg)>0?fmt(Math.round(num(x.kg)/chuan*1000)/10)+'%':'—';
+      return '<div class="ctnl-r">'
+        +'<select data-nlten="'+i+':'+j+'"><option value="">— chọn nguyên liệu —</option>'
+        +dsChon.map(t=>'<option value="'+esc(t)+'"'+(x.ten===t?' selected':'')+(dungNoiKhac.has(t)?' disabled':'')+'>'+esc(t)+(dungNoiKhac.has(t)?' (đã chọn ở dòng khác)':'')+'</option>').join('')
+        +'</select>'
+        +'<input data-nlkg="'+i+':'+j+'" type="text" inputmode="decimal" value="'+x.kg+'" placeholder="kg">'
+        +'<span class="ctnl-pt">'+pt+'</span>'
+        +'<button data-nldel="'+i+':'+j+'" class="ctnl-x" title="Xoá dòng nguyên liệu này" aria-label="Xoá dòng">Xoá</button></div>';
+    }).join('');
+    o+='</div>';
   }
+  o+='<div class="ctnl-act">';
+  if(nlDM.length)o+='<button class="addbtn" data-nladd="'+i+'">+ Chọn từ danh mục</button>';
+  o+='<button class="addbtn ctnl-moi" data-nlmoi="'+i+'">+ Khai nguyên liệu mới</button></div>';
+  if(!nlDM.length)o+='<div class="hint ctnl-hint">Chưa có nguyên liệu nào trong <b>Danh mục</b> — khai tên mới ngay tại đây, app tự thêm vào Danh mục để dùng lại cho mặt hàng khác. Muốn quản lý cả danh sách thì <button class="lnk" data-gonl="1">sang tab Danh mục</button>.</div>';
   if(!ds.length){
-    o+=`<div class="log" style="margin-top:6px">Chưa khai hàm lượng nguyên liệu nào. Nhân viên chỉ xem, không sửa được.</div>`;
+    o+='<div class="log" style="margin-top:6px">Chưa khai hàm lượng nguyên liệu nào. Nhân viên chỉ xem, không sửa được.</div>';
   }else{
-    const chuan=num(p.kg), pt=chuan>0?Math.min(100,tong/chuan*100):0;
+    const pt=chuan>0?Math.min(100,tong/chuan*100):0;
     if(dat){
-      o+=`<div class="nlsum ok"><span class="so">${fmt(tong)} / ${fmt(chuan)} kg</span><span class="badge">Đã đủ</span></div>
-      <div class="nlbar"><i class="ok" style="width:${pt}%"></i></div>`;
+      o+='<div class="nlsum ok"><span class="so">'+fmt(tong)+' / '+fmt(chuan)+' kg</span><span class="badge">Đã đủ</span></div>'
+        +'<div class="nlbar"><i class="ok" style="width:'+pt+'%"></i></div>';
     }else{
-      const kieu=lech>0?'du':'thieu', nhan=lech>0?`Dư ${fmt(lech)} kg`:`Thiếu ${fmt(-lech)} kg`;
-      o+=`<div class="nlsum ${kieu}"><span class="so">${fmt(tong)} / ${fmt(chuan)} kg</span><span class="badge">${nhan}</span></div>
-      <div class="nlbar"><i class="${kieu}" style="width:${pt}%"></i></div>
-      <div class="log" style="margin-top:4px">Chưa khớp mẻ chuẩn — sửa lại cho đúng, công thức chưa khớp thì chưa dùng làm căn cứ pha chế. Nhân viên chỉ xem, không sửa được.</div>`;
+      const kieu=lech>0?'du':'thieu', nhan=lech>0?'Dư '+fmt(lech)+' kg':'Thiếu '+fmt(-lech)+' kg';
+      o+='<div class="nlsum '+kieu+'"><span class="so">'+fmt(tong)+' / '+fmt(chuan)+' kg</span><span class="badge">'+nhan+'</span></div>'
+        +'<div class="nlbar"><i class="'+kieu+'" style="width:'+pt+'%"></i></div>'
+        +'<div class="log" style="margin-top:4px">Chưa khớp mẻ chuẩn — sửa lại cho đúng, công thức chưa khớp thì chưa dùng làm căn cứ pha chế. Nhân viên chỉ xem, không sửa được.</div>';
     }
   }
   return o;
@@ -2162,7 +2201,7 @@ function veTem(p,i){
   const t=p.hstem||temMoi(), th=temThieu(p);
   let o=`<div class="tembox">`;
   o+=th.length
-    ?`<div class="temstat no">Còn <b>${th.length}</b> ô chưa điền: ${th.map(esc).join(' · ')}.<br>Chưa đủ thì <b>không in tem được</b>.</div>`
+    ?`<div class="temstat no">Còn <b>${th.length}</b> ô chưa điền: ${TEM_O.filter(x=>x[3]&&!String(t[x[0]]||'').trim()).map(x=>`<button type="button" class="lnk" data-temfocus="${x[0]}" data-i="${i}">${esc(x[1])}</button>`).join(' · ')}.<br>Chưa đủ thì <b>không in tem được</b>. Bấm tên ô để tới đúng ô cần điền.</div>`
     :`<div class="temstat ok">Hồ sơ tem đã đủ. In được tem cho mọi lô của mặt hàng này.</div>`;
   if(TCCS_KHONG_CO.includes(p.ten)){
     o+=`<div class="temstat no">⛔ ${esc(p.ten)} KHÔNG CÓ hồ sơ TCCS — không được lấy dữ liệu tự động, không được in tem cho tới khi có TCCS.</div>`;
@@ -2346,6 +2385,17 @@ const CT_IC={
   tem:ctSvg('<path d="M5 3.5h9l5 5V20.5H5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/>'),
 };
 const ctChip=(loai,chu)=>'<span class="ctchip '+loai+'">'+chu+'</span>';
+/* S12: đường dẫn "bổ sung" cho từng mục còn thiếu, ngay trên dòng mặt hàng (không cần mở ra mới thấy) */
+function ctLinkThieu(p,i,k){
+  const coNL=(p.congThucNL||[]).length>0, ds=[];
+  if(!k.muc[0][0])ds.push(['h','Chọn hương']);
+  if(!k.muc[1][0])ds.push(['dm','Sửa hàm lượng nguyên liệu']);
+  else if(!coNL)ds.push(['dm','Khai nguyên liệu']);
+  if(!k.muc[2][0])ds.push(['tem','Hồ sơ tem · '+k.th.length+' ô']);
+  if(!k.muc[3][0])ds.push(['ma','Cấp mã']);
+  if(!ds.length)return '';
+  return '<span class="ctfix">'+ds.map(([m,t])=>'<button type="button" class="ctfx" data-ctgo="'+m+'" data-ci="'+i+'" title="Đi tới chỗ bổ sung">'+t+' →</button>').join('')+'</span>';
+}
 function veCTDau(){
   const kiem=sp.map(ctKiem), xet=sp.filter(p=>p.tt!=='dinh');
   const san=sp.filter((p,i)=>p.tt!=='dinh'&&kiem[i].dat===4).length, pct=xet.length?Math.round(san/xet.length*100):0;
@@ -2377,12 +2427,13 @@ function veCT(){
       ['dm','Định mức & nguyên liệu',!coNL?'Chưa khai nguyên liệu':k.nl.dat?'Khớp mẻ chuẩn':'Lệch mẻ chuẩn',!coNL?'':k.nl.dat?'ok':'bad'],
       ['sx','Sản xuất & đóng gói',(TT[tk]||TT.ok).n+(dq?' · '+dq:''),tk==='dinh'?'bad':tk==='tam'?'warn':'ok'],
       ['tem','Hồ sơ tem',k.th.length?'Còn thiếu '+k.th.length+' ô':'Đã đủ, in tem được',k.th.length?'bad':'ok']];
-    const dau=(key,tieuDe,moTa,chip)=>'<header>'+CT_IC[key]+'<div><b>'+tieuDe+'</b><span>'+moTa+'</span></div>'+chip+'</header>';
+    const dau=(key,tieuDe,moTa,chip,them)=>'<header>'+CT_IC[key]+'<div><b>'+tieuDe+'</b><span>'+moTa+'</span></div>'+chip+(them||'')+'</header>';
+    const temDong=moTem.has(i);
     return `<div class="r${p.pkb?' pkb':''}${c<=0?' zero':''}${p.tt==='dinh'?' dinh':''}${mo.has(i)?' open':''}">
       <div class="rmain" data-t="${i}">
         <span class="ctav" style="background:${tqMauAv(p.ten)}" aria-hidden="true">${esc(tqChuDau(p.ten))}</span>
         <span class="nm"><input class="tennm" data-f="ten" data-i="${i}" value="${esc(p.ten)}" placeholder="Tên mặt hàng">
-          <span class="ctsub">${hs.length?esc(hs.join(' + ')):'Chưa chọn hương'} · mẻ chuẩn ${fmt(num(p.kg))} kg${hai(p.maSP)?' · mã '+hai(p.maSP):''}${p.pkb?`<em class="ctphun"> · phun khử bụi${p.pkbPhut?' '+esc(p.pkbPhut)+' phút':''}</em>`:''}</span></span>
+          <span class="ctsub">${hs.length?esc(hs.join(' + ')):'Chưa chọn hương'} · mẻ chuẩn ${fmt(num(p.kg))} kg${hai(p.maSP)?' · mã '+hai(p.maSP):''}${p.pkb?`<em class="ctphun"> · phun khử bụi${p.pkbPhut?' '+esc(p.pkbPhut)+' phút':''}</em>`:''}</span>${ctLinkThieu(p,i,k)}</span>
         <span class="ctst"><span class="meta">${nhan(p)}</span>
           <span class="ctdo${san?' du':''}" title="${san?'Đủ điều kiện sản xuất':'Còn thiếu: '+esc(thieu.join(', '))}">${k.muc.map(m=>'<i'+(m[0]?' class="c"':'')+'></i>').join('')}<em>${san?'Sẵn sàng':k.dat+'/4 hồ sơ'}</em></span></span>
         <span class="me${num(p.me)!==num(p.kg)?' khac':''}" title="${num(p.me)!==num(p.kg)?`Đang tính theo mẻ ${fmt(num(p.me))} kg — KHÁC mẻ chuẩn ${fmt(num(p.kg))} kg. Đổi lại đúng ${fmt(num(p.kg))} nếu muốn tính cho mẻ chuẩn.`:'Số kg mẻ đang định làm. Đổi số này để tính lại "Cần dùng" cho đúng mẻ đó — không cần bằng mẻ chuẩn.'}"><input class="meinp" data-me="${i}" type="text" inputmode="decimal" value="${p.me}"><span class="meu">KG</span></span>
@@ -2415,7 +2466,7 @@ function veCT(){
                 <div class="fld"><label>Ghi chú</label><textarea data-f="ghi" data-i="${i}" placeholder="Lưu ý khi pha…">${esc(p.ghi)}</textarea></div></div>
             </div>
           </section>
-          <section class="ctsec rong" data-sec="tem" data-si="${i}">${dau('tem','Hồ sơ tem','Điền một lần, dùng cho mọi lô — thiếu ô bắt buộc thì không in được tem',temChip)}
+          <section class="ctsec rong" data-sec="tem" data-si="${i}">${dau('tem','Hồ sơ tem','Điền một lần, dùng cho mọi lô — thiếu ô bắt buộc thì không in được tem',temChip,'<button type="button" class="ctgon" data-tratem="'+i+'" aria-expanded="'+!temDong+'">'+(temDong?'Mở ra ▾':'Thu gọn ▴')+'</button>')}
             <div class="fld"><label>Hồ sơ tem — điền một lần, dùng cho mọi lô</label>${veTemBlock(p,i)}</div>
           </section>
         </div>
@@ -3198,13 +3249,14 @@ function veTQ(){
   const canXem=huongDs.filter(x=>x.tt!=='ok').length;
   const viec=[
     [loChuaInTem().length,'lô chưa in tem (ghi quá '+ngayNhacInTem+' ngày)','bc',true],
-    [chuaMa,'mã chưa cấp trong Danh mục','ma',true],
-    [sp.filter(p=>!(p.huongs||[]).length).length,'mặt hàng chưa có hương','ct',false],
-    [sp.filter(p=>!nhuNhau(p.huongs,p.tam)).length,'mặt hàng đổi hương chưa lưu','ct',false],
+    [chuaMa,'mã chưa cấp trong Danh mục','ma',true,'','jump'],
+    [sp.filter(p=>!(p.huongs||[]).length).length,'mặt hàng chưa có hương','ct',false,'huong'],
+    [sp.filter(p=>temThieu(p).length).length,'mặt hàng thiếu hồ sơ tem','ct',false,'tem'],
+    [sp.filter(p=>!nhuNhau(p.huongs,p.tam)).length,'mặt hàng đổi hương chưa lưu','ct',false,'all'],
     [canXem,'hương sắp hết hoặc đã hết','ma',true],
   ].filter(v=>v[0]>0);
   o+='<div class="w w-4"><h4>Việc cần làm <small>'+(viec.length?viec.length+' mục':'')+'</small></h4>'
-    +(viec.length?viec.map(v=>'<div class="tqviec'+(v[3]?' xau':'')+'" data-tqgo="'+v[2]+'"><b>'+v[0]+'</b><span>'+v[1]+'</span></div>').join('')
+    +(viec.length?viec.map(v=>'<div class="tqviec'+(v[3]?' xau':'')+'" data-tqgo="'+v[2]+'"'+(v[4]?' data-tqloc="'+v[4]+'"':'')+(v[5]?' data-tqjump="1"':'')+'><b>'+v[0]+'</b><span>'+v[1]+'</span></div>').join('')
       :'<div class="tqxong">✓ Không có việc tồn đọng</div>')+'</div>';
 
   // Top mặt hàng 30 ngày — như khối "Top states" của mẫu
@@ -3261,7 +3313,12 @@ document.querySelector('.tabs').addEventListener('click',e=>{
 
 /* Tổng quan: bấm "Xem … →"/mục việc cần làm thì sang đúng tab; bấm một mẻ thì mở lô đó ở Báo cáo */
 $('viewTQ').addEventListener('click',e=>{
-  const g=e.target.closest('[data-tqgo]'); if(g){chuyenTab(g.dataset.tqgo);return}
+  const g=e.target.closest('[data-tqgo]');
+  if(g){ // S12: lọc sẵn đúng nhóm ở tab Công thức / nhảy tới dòng mã còn thiếu ở Danh mục
+    if(g.dataset.tqloc){locCT=g.dataset.tqloc;$('q').value=''}
+    chuyenTab(g.dataset.tqgo);
+    if(g.dataset.tqjump)requestAnimationFrame(()=>{const j=document.querySelector('#viewMA [data-jumpthieu]');if(j)j.click()});
+    return}
   const l=e.target.closest('[data-tqlot]'); if(!l)return;
   traLot=l.dataset.tqlot; chuyenTab('bc');
   requestAnimationFrame(()=>{const s=document.getElementById('traLot');if(s)s.scrollIntoView({block:'start'})});
@@ -3761,6 +3818,20 @@ $('rows').addEventListener('click',async e=>{
     requestAnimationFrame(()=>{const sec=[...document.querySelectorAll('#viewMA .sec')].find(x=>x.textContent.startsWith('Nguyên liệu'));
       if(sec)sec.scrollIntoView({block:'start',behavior:'smooth'});});
     return}
+  const nlm=e.target.closest('[data-nlmoi]');
+  if(nlm){e.stopPropagation();const i=+nlm.dataset.nlmoi;
+    // S12: khai nguyên liệu mới ngay trong công thức — cùng quy tắc với nút "+ Thêm" ở Danh mục
+    // (bỏ khoảng trắng thừa, không phân biệt hoa/thường khi so trùng), rồi thêm dòng vào công thức.
+    const g=await hoi('Khai nguyên liệu mới','Tên nguyên liệu cấu thành <b>'+esc(sp[i].ten)+'</b>. Tên mới được thêm luôn vào Danh mục nguyên liệu để dùng lại cho mặt hàng khác.',{nhap:true,goiY:'VD: Cát bentonite',nutOK:'Thêm'});
+    if(g===null||!String(g).trim())return;
+    const t=String(g).trim(), co=nlDM.find(x=>x.toLowerCase()===t.toLowerCase()), ten=co||t;
+    if(!co)nlDM.push(t);
+    if(!Array.isArray(sp[i].congThucNL))sp[i].congThucNL=[];
+    if(sp[i].congThucNL.some(x=>x.ten===ten)){luuNgay();ve();bao('"'+ten+'" đã có trong công thức này');return}
+    sp[i].congThucNL.push({ten,kg:0});bumpRecipeVersion(sp[i]);luu();ve();
+    bao(co?'Đã thêm "'+ten+'" (có sẵn trong Danh mục) — nhập số kg':'Đã khai "'+ten+'" và thêm vào Danh mục — nhập số kg');
+    requestAnimationFrame(()=>{const el=document.querySelector('[data-nlkg="'+i+':'+(sp[i].congThucNL.length-1)+'"]');if(el){el.focus();el.select()}});
+    return}
   const nla=e.target.closest('[data-nladd]');
   if(nla){e.stopPropagation();const i=+nla.dataset.nladd;
     if(!Array.isArray(sp[i].congThucNL))sp[i].congThucNL=[];
@@ -3899,7 +3970,7 @@ $('rows').addEventListener('click',async e=>{
       {nutOK:'Xoá',nguyHiem:true});
     if(!c)return;
     sp.splice(i,1);mo.clear();moCT.clear();luuNgay();ve();bao('Đã xoá');return}
-  if(e.target.closest('[data-me]')||e.target.closest('[data-r]')||e.target.closest('[data-f]'))return;
+  if(e.target.closest('[data-me]')||e.target.closest('[data-r]')||e.target.closest('[data-f]')||e.target.closest('[data-ctgo]'))return;
   const t=e.target.closest('[data-t]');
   if(t){const i=+t.dataset.t;if(mo.has(i))mo.delete(i);else{mo.add(i);pbTuDong(sp[i])}ve()}
 });
@@ -4048,6 +4119,43 @@ $('q').addEventListener('input',ve);
    nút Thêm có sẵn, thanh neo trong trang hồ sơ nhảy tới đúng nhóm của đúng mặt hàng */
 $('ctLoc').addEventListener('click',e=>{const b=e.target.closest('[data-ctloc]');if(!b)return;locCT=b.dataset.ctloc;veCT()});
 $('ctHead').addEventListener('click',e=>{if(e.target.closest('[data-ctadd]'))$('addBtn').click()});
+/* S12 (10/09/2026) — khách: "thông tin thiếu trong mục Công thức có thể tạo đường dẫn tới mục để bổ
+   sung, như hương bị báo thiếu nhưng không có nút để dẫn tới". ctDenMuc(i,muc) mở đúng mặt hàng i,
+   cuộn tới đúng nhóm và nháy viền để mắt bắt được. Riêng "mã" nằm ở tab Danh mục: sang đó, cuộn tới
+   đúng dòng mã của mặt hàng, nháy đỏ và đặt con trỏ vào ô mã. Chỉ điều hướng, không đổi dữ liệu. */
+function ctNhay(el,lop){if(!el)return;el.classList.remove(lop);void el.offsetWidth;el.classList.add(lop);setTimeout(()=>el.classList.remove(lop),1600)}
+function ctDenMuc(i,muc){
+  const p=sp[i]; if(!p)return;
+  if(muc==='ma'){
+    chuyenTab('ma');
+    requestAnimationFrame(()=>{
+      const el=[...document.querySelectorAll('#viewMA .mi[data-ma="sp"]')].find(x=>x.dataset.k===p.ten);
+      if(!el)return;
+      el.scrollIntoView({block:'center',behavior:'smooth'});ctNhay(el.closest('.marow'),'flash');el.focus({preventScroll:true});
+    });
+    return;
+  }
+  if(tab!=='ct'){tab='ct';document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab==='ct'))}
+  if(muc==='tem')moTem.delete(i);
+  if(!mo.has(i)){mo.add(i);pbTuDong(p)}
+  ve();
+  // mặt hàng đang bị bộ lọc/ô tìm ẩn đi thì bỏ lọc để thấy được nó
+  if(!document.querySelector('[data-t="'+i+'"]')){locCT='all';$('q').value='';ve()}
+  requestAnimationFrame(()=>{
+    const s=document.querySelector('.ctsec[data-sec="'+muc+'"][data-si="'+i+'"]');
+    if(s){s.scrollIntoView({block:'start',behavior:'smooth'});ctNhay(s,'ctflash')}
+  });
+}
+$('rows').addEventListener('click',e=>{
+  const g=e.target.closest('[data-ctgo]');
+  if(g){e.preventDefault();ctDenMuc(+g.dataset.ci,g.dataset.ctgo);return}
+  // hồ sơ tem: bấm tên ô còn thiếu → cuộn tới đúng ô đó và đặt con trỏ vào
+  const tf=e.target.closest('[data-temfocus]');
+  if(tf){const el=document.querySelector('[data-tem="'+tf.dataset.temfocus+'"][data-i="'+tf.dataset.i+'"]');
+    if(el){el.scrollIntoView({block:'center',behavior:'smooth'});el.focus({preventScroll:true});ctNhay(el.closest('.tf'),'ctflash')}
+    return}
+});
+
 $('rows').addEventListener('click',e=>{const b=e.target.closest('[data-ctnav]');if(!b)return;
   const el=document.querySelector('.ctsec[data-sec="'+b.dataset.ctnav+'"][data-si="'+b.dataset.ci+'"]');
   if(el)el.scrollIntoView({block:'start',behavior:'smooth'})});

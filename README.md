@@ -19,6 +19,7 @@ Từ bản S10/R8 (10/09/2026), bố cục và màu theo mẫu Figma [Full Dashb
 - **Admin mở vào trang Tổng quan**: mẻ hôm nay, sản lượng và hương liệu 7 ngày (so với 7 ngày trước), % mặt hàng sẵn sàng sản xuất, mẻ gần nhất, biểu đồ sản lượng 14 ngày, việc cần làm, top mặt hàng 30 ngày, tồn kho hương liệu. Trang này **chỉ đọc**: không sửa dữ liệu, không đồng bộ gì thêm; mẻ đã huỷ không tính.
 - Mặc định **sáng**. Nút **🌙 / ☀** (đáy menu trên máy tính, góc trên trên điện thoại) đổi sang **tối**. Mỗi máy nhớ lựa chọn riêng; lựa chọn này **không** nằm trong dữ liệu đồng bộ hay file sao lưu.
 - **Tab Công thức** (S11) theo cách các phần mềm doanh nghiệp trình bày dữ liệu gốc: danh sách kiểu *Index table* của Shopify Polaris (huy hiệu trạng thái, thanh tiến độ hồ sơ 4 mục, lọc nhanh theo nhóm + ô tìm) và trang hồ sơ kiểu *Object page* của SAP Fiori (4 ô tóm tắt kiêm thanh neo, nội dung chia nhóm Hương liệu · Định mức & nguyên liệu · Sản xuất & đóng gói · Hồ sơ tem, mỗi nhóm có huy hiệu đủ/thiếu). Lọc nhanh chỉ lọc hiển thị.
+- **S12:** khai nguyên liệu cấu thành ngay trong công thức (nút *+ Khai nguyên liệu mới*, tự thêm vào Danh mục); mục nào còn thiếu có đường dẫn *Chọn hương → / Khai nguyên liệu → / Hồ sơ tem → / Cấp mã →* tới đúng chỗ bổ sung; nhóm Hồ sơ tem có nút *Thu gọn / Mở ra* rõ ràng, bấm tên ô còn thiếu để tới đúng ô.
 - Bản in tem vẫn trắng đen như cũ.
 
 ## Lần đầu mở trên một máy mới
@@ -67,7 +68,7 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S11/R8): **372 + 174 + 19 + 21 + 17 = 603 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S12/R8): **383 + 174 + 19 + 21 + 17 = 614 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 

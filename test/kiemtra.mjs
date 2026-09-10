@@ -79,6 +79,37 @@ ok('CT: lọc "Chưa có hương" chỉ hiện đúng các mặt hàng chưa có
 ok('CT: lọc + ô tìm dùng chung được, bỏ lọc thì hiện đủ lại', ctKq.timKetHop && ctKq.traLai);
 ok('CT: trang hồ sơ có 4 nhóm + 4 ô neo nhảy tới nhóm', ctKq.neo);
 ok('CT: lọc/mở hồ sơ KHÔNG đổi dữ liệu mặt hàng', ctKq.khongDoiDuLieu);
+/* S12 (10/09/2026) — khai nguyên liệu tại chỗ, đường dẫn bổ sung, nút thu gọn hồ sơ tem */
+const s12Goc=await E(()=>JSON.stringify({sp,nlDM}));
+const s12i=await E(()=>{const i=sp.findIndex(x=>x.ten==='Cát Zaka pro'); locCT='all'; $('q').value=''; mo.clear(); chuyenTab('ct'); return i});
+ok('S12: mặt hàng thiếu thông tin có đường dẫn bổ sung ngay trên dòng', await Ea(i=>!!document.querySelector('.ctfx[data-ctgo="h"][data-ci="'+i+'"]'),s12i));
+await p.click('.ctfx[data-ctgo="h"][data-ci="'+s12i+'"]'); await p.waitForTimeout(500);
+ok('S12: bấm "Chọn hương →" mở đúng mặt hàng và tới đúng nhóm Hương liệu, KHÔNG đóng/mở nhầm dòng',
+  await Ea(i=>mo.has(i)&&!!document.querySelector('.ctsec[data-sec="h"][data-si="'+i+'"]'),s12i));
+const s12nl=await Ea(i=>{const a=nlDM.slice(),b=(sp[i].congThucNL||[]).slice(); nlDM.length=0; sp[i].congThucNL=[]; ve(); return {a,b}},s12i);
+await p.click('[data-nlmoi="'+s12i+'"]'); await p.waitForTimeout(200);
+await p.fill('#dlgI','  Cát thử S12  '); await p.click('#dlgO'); await p.waitForTimeout(300);
+const s12kq=await Ea(i=>({dm:nlDM.slice(),ct:JSON.stringify(sp[i].congThucNL),focus:document.activeElement&&document.activeElement.dataset.nlkg}),s12i);
+ok('S12: "+ Khai nguyên liệu mới" khi Danh mục TRỐNG → thêm vào Danh mục (bỏ khoảng trắng thừa) + thêm dòng vào công thức',
+  JSON.stringify(s12kq.dm)==='["Cát thử S12"]'&&s12kq.ct==='[{"ten":"Cát thử S12","kg":0}]', JSON.stringify(s12kq));
+ok('S12: sau khi khai, con trỏ nằm sẵn ở ô kg của dòng vừa thêm', s12kq.focus===s12i+':0');
+await p.click('[data-nlmoi="'+s12i+'"]'); await p.waitForTimeout(200);
+await p.fill('#dlgI','cát THỬ s12'); await p.click('#dlgO'); await p.waitForTimeout(300);
+ok('S12: khai trùng tên (khác hoa/thường) KHÔNG tạo mục/dòng trùng', await Ea(i=>nlDM.length===1&&sp[i].congThucNL.length===1,s12i));
+ok('S12: có nút "sang tab Danh mục" nhưng vẫn KHÔNG hiện nút chọn-từ-danh-mục khi danh mục trống (giữ quy tắc 26/08)',
+  await Ea(i=>{nlDM.length=0;const h=veNL(sp[i],i);return /data-gonl="1"/.test(h)&&!/data-nladd="/.test(h)&&/data-nlmoi="/.test(h)},s12i));
+await Ea(([i,a,b])=>{nlDM.length=0;a.forEach(x=>nlDM.push(x));sp[i].congThucNL=b;ve()},[s12i,s12nl.a,s12nl.b]);
+ok('S12: nhóm Hồ sơ tem có nút Thu gọn rõ ràng ở đầu nhóm', await Ea(i=>!!document.querySelector('.ctsec[data-sec="tem"] .ctgon[data-tratem="'+i+'"]'),s12i));
+ok('S12: tên ô còn thiếu trong hồ sơ tem bấm được để tới đúng ô', await Ea(i=>{const b=document.querySelector('[data-temfocus][data-i="'+i+'"]');if(!b)return false;b.click();return document.activeElement&&document.activeElement.dataset.tem===b.dataset.temfocus},s12i));
+const s12ma=await E(()=>sp.findIndex(x=>!hai(x.maSP)));
+if(s12ma>=0){ await E(()=>{mo.clear();chuyenTab('ct')}); await p.click('.ctfx[data-ctgo="ma"][data-ci="'+s12ma+'"]'); await p.waitForTimeout(400);
+  ok('S12: bấm "Cấp mã →" sang Danh mục, con trỏ vào đúng ô mã của mặt hàng', await Ea(i=>tab==='ma'&&document.activeElement&&document.activeElement.dataset.ma==='sp'&&document.activeElement.dataset.k===sp[i].ten,s12ma)); }
+await E(()=>{chuyenTab('tq')}); await p.click('.tqviec[data-tqloc="huong"]').catch(()=>{}); await p.waitForTimeout(200);
+ok('S12: Tổng quan "mặt hàng chưa có hương" → sang Công thức, lọc sẵn đúng nhóm', await E(()=>tab==='ct'&&locCT==='huong')||await E(()=>!sp.some(x=>!(x.huongs||[]).length)));
+await E(()=>{locCT='all';mo.clear();moTem.clear();chuyenTab('tq')});
+const s12Khac=await Ea(g=>{const a=JSON.parse(g),kq=[];a.sp.forEach((x,i)=>Object.keys({...x,...sp[i]}).forEach(k=>{if(JSON.stringify(x[k])!==JSON.stringify(sp[i][k]))kq.push(sp[i].ten+'.'+k)}));if(JSON.stringify(a.nlDM)!==JSON.stringify(nlDM))kq.push('nlDM');return kq},s12Goc);
+console.log('   (S12 khác biệt sau test:',JSON.stringify(s12Khac),')');
+ok('S12: điều hướng chỉ đổi đúng những gì bài thử cố ý đổi (không đụng mặt hàng/danh mục khác)', s12Khac.every(k=>/^Cát Zaka pro.(recipeVersion|recipeFingerprint|recipeEffectiveFrom|recipeUpdatedAt|congThucNL|hstem|pb)$/.test(k)), JSON.stringify(s12Khac));
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
