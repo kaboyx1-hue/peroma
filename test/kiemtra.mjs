@@ -14,7 +14,8 @@ const b=await chromium.launch({executablePath:CHROME});
    "In khổ đề xuất" giùm; bài test S16 tự tắt bằng window.__tatTuDongKhoTem=true để kiểm hộp thoại thật. */
 const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m=document.getElementById('mask'),o=document.getElementById('dlgO');
   if(!t||!m||!o||window.__tatTuDongKhoTem)return;
-  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click()},40)};
+  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click();
+  const d=document.getElementById('danTem'); if(d){const n=document.getElementById('dtIn'); if(n&&!n.disabled)n.click(); else {const g=d.querySelector('[data-dt="goiy"]'); if(g)g.click()}}},40)};
 const ctxA=await b.newContext(); await ctxA.addInitScript(TU_KHO_TEM);
 const p=await ctxA.newPage();
 const cerr=[]; p.on('pageerror',e=>cerr.push('PAGEERROR '+e.message));
@@ -125,6 +126,14 @@ const s13=await E(()=>{const html='<div class="to"><div class="tem">T</div></div
 ok('S13: taiFileIn tạo file tự chứa: có bản in + kiểu in + nút In, tên file an toàn', s13.tai==='PEROMA-tem-lô-1.html'&&s13.coTem&&s13.coIn&&s13.coCssIn&&s13.khongAnHet, JSON.stringify(s13));
 ok('S13: mã nguồn Admin chỉ có ĐÚNG 1 thẻ đóng body (chuỗi trong file in đã tách chữ)', (fs.readFileSync('/tmp/huong/bang-tra-huong-lieu.html','utf8').match(/<\/body>/g)||[]).length===1);
 ok('S13: lô ở tab Báo cáo có nút "Lưu file tem để in ở máy khác"', /data-intem="[^"]+" data-quafile="1"/.test(await E(()=>{const r=nk.find(x=>!x.huy&&x.lot);if(!r)return 'data-intem="x" data-quafile="1"';traLot=r.lot;tab='bc';ve();const h=$('viewBC').innerHTML;traLot='';chuyenTab('tq');return h})));
+const s13f=await E(async()=>{const r={id:'S13F',sp:sp[0].ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'1101070926',nv:'T',daGui:1};
+  const goc=sp[0].hstem; sp[0].hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
+  const c0=temCot,h0=temHang; temCot=3;temHang=2; nk.push(r); traLot=r.lot; chuyenTab('bc');
+  let tai=null, daIn=0; const gA=HTMLAnchorElement.prototype.click, gP=window.print; HTMLAnchorElement.prototype.click=function(){tai=this.download}; window.print=()=>{daIn++};
+  document.querySelector('[data-intem="S13F"][data-quafile]').click(); await new Promise(z=>setTimeout(z,300));
+  HTMLAnchorElement.prototype.click=gA; window.print=gP; nk.splice(nk.findIndex(z=>z.id==='S13F'),1); sp[0].hstem=goc; temCot=c0;temHang=h0; traLot=''; luuNgay(); chuyenTab('tq');
+  return {tai,daIn};});
+ok('S13/S17: nút "Lưu file tem để in ở máy khác" bên Admin LƯU FILE thật, không in', /^PEROMA-tem-lo-1101070926/.test(s13f.tai||'')&&s13f.daIn===0, JSON.stringify(s13f));
 /* S14 (10/09/2026) — mở khoá / khoá lại hồ sơ tem của mặt hàng khoá theo TCCS (khách: "không thể chỉnh được hồ sơ tem") */
 const s14=await E(async()=>{
   const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), p=sp[i], goc=JSON.stringify({maSP:p.maSP,hstem:p.hstem,temMoKhoa:p.temMoKhoa});
@@ -158,32 +167,49 @@ const s14b=await E(()=>{
   return {giu,apDung};});
 ok('S14b: server CHƯA có trường temMoKhoa → kéo cấu hình về vẫn giữ cờ mở khoá trên máy', s14b.giu, JSON.stringify(s14b));
 ok('S14b: server gửi rõ temMoKhoa=false → áp dụng đúng (không giữ bừa)', s14b.apDung);
-/* S16 (10/09/2026) — tự dàn chữ tem cho vừa ô (khách: "bản in chèn nén lẫn nhau, tràn sang trang 2") */
+/* S16+S17 (10/09/2026) — tự dàn chữ tem cho vừa ô + bảng "Dàn trang tem" (khách: "chọn số tem trên một hàng và cột,
+   tự suy ra kích thước để dàn cho trang đều"; trước đó: "bản in chèn nén lẫn nhau, tràn sang trang 2") */
 const s16=await E(async()=>{ window.__tatTuDongKhoTem=true;
-  const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), p=sp[i], goc={hstem:p.hstem,cot:temCot,hang:temHang}, inCu=window.print; window.print=()=>{};
+  const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), p=sp[i], goc={hstem:p.hstem,cot:temCot,hang:temHang}, inCu=window.print; let daIn=0; window.print=()=>{daIn++};
+  try{localStorage.removeItem(TEM_KHO_DUYET_KEY)}catch(e){}
   p.hstem={...temTrong(),...TCCS_DATA['32']};           // tem dài thật (TCCS 02:2026/HAMBII) như ảnh khách gửi
   const r={id:'S16-T',sp:p.ten,huong:'Hương Kem',quyCach:'1 kg',sl:100,soBao:100,kgBao:1,ngaysx:'2026-09-10',lot:'3202040926',nv:'T',daGui:1};
   nk.push(r); temCot=5; temHang=4;
   const kq={};
-  const x=xetKhoTem(r,p); kq.canHoi=!!x; kq.goiY=x&&x.goiY&&(x.goiY.c+'x'+x.goiY.h); kq.goiYDuDoc=!!(x&&x.goiY&&x.goiY.co>=TEM_CO_DOC);
-  const cho=inTem('S16-T'); await new Promise(z=>setTimeout(z,150));
-  kq.coHop=/Khổ này không đủ chỗ|Chữ trên tem sẽ rất nhỏ/.test($('dlgT').textContent);
-  $('dlgO').click(); await cho;
+  const pr=inTem('S16-T'); await cho(200);
+  const d=document.getElementById('danTem'); kq.moBang=!!d;
+  kq.kichThuoc54=/38,2 × 69,9 mm/.test($('dtKq').textContent);
+  kq.khongChoIn54=$('dtIn').disabled && /Không vừa/.test($('dtTT').textContent);
+  $('dtCot').value='4'; $('dtHang').value='3'; $('dtCot').dispatchEvent(new Event('input',{bubbles:true})); await cho(80);
+  kq.kichThuoc43=/12 tem/.test($('dtKq').textContent)&&/48,1 × 93,7 mm/.test($('dtKq').textContent);
+  kq.nho43=!$('dtIn').disabled && /Chữ nhỏ/.test($('dtTT').textContent);
+  document.querySelector('[data-dt="goiy"]').click(); await cho(80);
+  kq.goiY=$('dtCot').value+'x'+$('dtHang').value; kq.goiYDe=/dễ đọc/.test($('dtTT').textContent);
+  $('dtIn').click(); await pr; await cho(100);
   const to=document.querySelector('#temIn .to');
-  kq.doiKho=(temCot+'x'+temHang)===kq.goiY; kq.co=+to.dataset.co; kq.khongTran=!to.dataset.tran;
-  kq.moiTemVua=await new Promise(z=>{const d=khungDoTem();d.innerHTML=to.outerHTML;
-    const n=[...d.querySelectorAll('.tem')].filter(t=>t.scrollHeight>t.clientHeight+1).length;d.innerHTML='';z(n===0)});
-  // tem ngắn: không hỏi, chữ đủ to
+  kq.daIn=daIn===1; kq.luuKho=(temCot+'x'+temHang)===kq.goiY; kq.co=+to.dataset.co; kq.khongTran=!to.dataset.tran; kq.dongBang=!document.getElementById('danTem');
+  kq.moiTemVua=await new Promise(z=>{const dd=khungDoTem();dd.innerHTML=to.outerHTML;
+    const n=[...dd.querySelectorAll('.tem')].filter(t=>t.scrollHeight>t.clientHeight+1).length;dd.innerHTML='';z(n===0)});
+  // khổ đã dễ đọc → bấm In thường là in thẳng, không mở bảng
+  daIn=0; await inTem('S16-T'); await cho(200); kq.inThang=daIn===1&&!document.getElementById('danTem');
+  // Huỷ bảng → không in
+  daIn=0; const pr2=inTem('S16-T',false,true); await cho(150); document.querySelector('[data-dt="huy"]').click(); await pr2; await cho(200); kq.huyKhongIn=daIn===0;
+  // tem ngắn ở khổ 3×2: không hỏi gì, chữ đủ to
   p.hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
   temCot=3; temHang=2; kq.temNganKhongHoi=xetKhoTem(r,p)===null;
   kq.temNganCo=+(/data-co="([\d.]+)"/.exec(trangTem(r,p))||[])[1];
-  // CSS in: bỏ lề trong của trang khi in (không đẩy tờ tem sang trang 2)
   kq.cssBoLe=[...document.querySelectorAll('style')].some(st=>/@media print\{[\s\S]*html,body\{[^}]*padding:0!important/.test(st.textContent));
   nk.splice(nk.findIndex(z=>z.id==='S16-T'),1); p.hstem=goc.hstem; temCot=goc.cot; temHang=goc.hang; window.print=inCu; luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
   return kq;});
-ok('S16: tem dài ở khổ 5×4 → hỏi trước khi in, đề xuất khổ ít tem hơn mà chữ vẫn đọc được', s16.canHoi&&s16.coHop&&s16.goiYDuDoc, JSON.stringify(s16));
-ok('S16: chọn khổ đề xuất → đổi đúng khổ, chữ ≥ '+6+' pt, không tràn', s16.doiKho&&s16.co>=6&&s16.khongTran);
-ok('S16: mọi ô tem trong bản in đều vừa (không chữ nào tràn/đè sang ô khác)', s16.moiTemVua);
+ok('S17: khổ đang lưu không vừa → bấm In mở bảng "Dàn trang tem", báo đúng kích thước mỗi tem (5×4: 38,2 × 69,9 mm)', s16.moBang&&s16.kichThuoc54, JSON.stringify(s16));
+ok('S17: nội dung không vừa ô → KHÔNG cho bấm In (tránh mất chữ)', s16.khongChoIn54);
+ok('S17: chọn 4 tem mỗi hàng × 3 hàng → tự tính 12 tem, mỗi tem 48,1 × 93,7 mm; chữ nhỏ vẫn cho in (có cảnh báo)', s16.kichThuoc43&&s16.nho43);
+ok('S17: nút gợi ý chọn khổ nhiều tem nhất mà chữ vẫn dễ đọc', s16.goiYDe);
+ok('S17: bấm In → in đúng khổ đã chọn, máy nhớ khổ, chữ ≥ 6 pt, không tràn, bảng đóng lại', s16.daIn&&s16.luuKho&&s16.co>=6&&s16.khongTran&&s16.dongBang);
+ok('S17: mọi ô tem trong bản in đều vừa (không chữ nào tràn/đè sang ô khác)', s16.moiTemVua);
+ok('S17: khổ đã dễ đọc → nút In thường in thẳng, không hỏi', s16.inThang);
+ok('S17: bấm Huỷ trên bảng → không in', s16.huyKhongIn);
 ok('S16: tem ngắn ở khổ 3×2 → không hỏi gì, chữ tự to lên (≥ 6 pt)', s16.temNganKhongHoi&&s16.temNganCo>=6, 'co='+s16.temNganCo);
 ok('S16: CSS in bỏ lề trong của trang app (tờ tem không bị đẩy sang trang 2)', s16.cssBoLe);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);

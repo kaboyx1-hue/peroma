@@ -27,7 +27,7 @@
    GỠ BỎ KHẨN CẤP: đổi TU_HUY thành true rồi đẩy lên. Mọi máy sẽ tự xoá bản lưu và
    tự huỷ đăng ký ở lần mở kế tiếp có mạng, quay về hành vi như chưa từng có file này. */
 
-const PHIEN_BAN = 'peroma-2026-09-10-s16';
+const PHIEN_BAN = 'peroma-2026-09-10-s17';
 const TU_HUY = false;
 
 self.addEventListener('install', () => self.skipWaiting());

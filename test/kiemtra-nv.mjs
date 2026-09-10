@@ -40,7 +40,8 @@ const b=await chromium.launch({executablePath:CHROME});
    "In khổ đề xuất" giùm; bài test S16 tự tắt bằng window.__tatTuDongKhoTem=true để kiểm hộp thoại thật. */
 const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m=document.getElementById('mask'),o=document.getElementById('dlgO');
   if(!t||!m||!o||window.__tatTuDongKhoTem)return;
-  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click()},40)};
+  if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click();
+  const d=document.getElementById('danTem'); if(d){const n=document.getElementById('dtIn'); if(n&&!n.disabled)n.click(); else {const g=d.querySelector('[data-dt="goiy"]'); if(g)g.click()}}},40)};
 const ctx=await b.newContext({acceptDownloads:true}); await ctx.addInitScript(TU_KHO_TEM);
 const p=await ctx.newPage(); const cerr=[];
 p.on('pageerror',e=>cerr.push('PAGEERROR '+e.message));

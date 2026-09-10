@@ -170,19 +170,19 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
    đây nội dung dài làm ô cao gấp đôi, tem đè nhau và tràn sang trang 2. Mọi cỡ chữ tính theo --co (cỡ gốc
    của bảng thông tin) do coChuVua() chọn cho vừa ô; 3 lớp to-lon/vua/nho chỉ còn là cỡ khởi đầu. */
 #temDo{position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none}
-:is(#temIn,#temDo){background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;line-height:1.3;padding:0;margin:0}
-:is(#temIn,#temDo) .to{display:grid;gap:1.5mm;page-break-after:always;width:197mm;height:284mm;box-sizing:border-box;overflow:hidden}
-:is(#temIn,#temDo) .to:last-child{page-break-after:auto}
-:is(#temIn,#temDo) .to-lon{--co:8.5pt} :is(#temIn,#temDo) .to-vua{--co:6.8pt} :is(#temIn,#temDo) .to-nho{--co:5.3pt}
-:is(#temIn,#temDo) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co)}
-:is(#temIn,#temDo) .t1{text-align:center;font-weight:bold;letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
-:is(#temIn,#temDo) .t2{text-align:center;font-weight:bold;margin:0 0 .1em;line-height:1.15;font-size:1.65em}
-:is(#temIn,#temDo) .t3{text-align:center;margin:0 0 .35em;font-size:1.06em}
-:is(#temIn,#temDo) table{width:100%;border-collapse:collapse;font-size:1em}
-:is(#temIn,#temDo) td{border:.5pt solid #000;padding:.18em .3em;vertical-align:top}
-:is(#temIn,#temDo) td.k{width:32%;font-weight:bold}
-:is(#temIn,#temDo) .kh{border:.5pt solid #000;border-top:none;padding:.3em;line-height:1.3;font-size:1em}
-:is(#temIn,#temDo) .cb{font-style:italic;margin-top:.25em;line-height:1.25;font-size:.88em}
+:is(#temIn,#temDo,.xemTem){background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;line-height:1.3;padding:0;margin:0}
+:is(#temIn,#temDo,.xemTem) .to{display:grid;gap:1.5mm;page-break-after:always;width:197mm;height:284mm;box-sizing:border-box;overflow:hidden}
+:is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
+:is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
+:is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co)}
+:is(#temIn,#temDo,.xemTem) .t1{text-align:center;font-weight:bold;letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
+:is(#temIn,#temDo,.xemTem) .t2{text-align:center;font-weight:bold;margin:0 0 .1em;line-height:1.15;font-size:1.65em}
+:is(#temIn,#temDo,.xemTem) .t3{text-align:center;margin:0 0 .35em;font-size:1.06em}
+:is(#temIn,#temDo,.xemTem) table{width:100%;border-collapse:collapse;font-size:1em}
+:is(#temIn,#temDo,.xemTem) td{border:.5pt solid #000;padding:.18em .3em;vertical-align:top}
+:is(#temIn,#temDo,.xemTem) td.k{width:32%;font-weight:bold}
+:is(#temIn,#temDo,.xemTem) .kh{border:.5pt solid #000;border-top:none;padding:.3em;line-height:1.3;font-size:1em}
+:is(#temIn,#temDo,.xemTem) .cb{font-style:italic;margin-top:.25em;line-height:1.25;font-size:.88em}
 /* ══HẾT-TEM-CSS══ */
 @media print{
   @page{size:A4;margin:6mm}
@@ -259,13 +259,47 @@ html,body{background:var(--bg);min-height:100%}
 .add.ghe:hover{color:var(--tx);border-color:var(--acc)}
 .ghichu{font-size:12.5px;color:var(--txt2);line-height:1.5;margin-top:8px}
 .ghichu.htnhan{background:var(--infoBg);color:var(--infoTx);border-radius:12px;padding:9px 12px;margin:0 0 10px;font-weight:600}
+/* ══ S17/R11: bảng "Dàn trang tem" — chọn số tem mỗi hàng × số hàng, xem trước tờ A4 ══ */
+.dt-mask{position:fixed;inset:0;z-index:80;background:rgba(12,18,15,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.dt-hop{width:100%;max-width:860px;max-height:calc(100vh - 32px);overflow:auto;background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.dt-dau{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.dt-dau b{display:block;font-size:17px}.dt-dau span{display:block;font-size:12.5px;color:var(--tx2);margin-top:2px}
+.dt-x{font:inherit;font-size:20px;line-height:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--c2);color:var(--tx2);cursor:pointer;flex:none}
+.dt-than{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:22px;padding:18px 20px}
+.dt-xem{min-width:0}
+.dt-giay{position:relative;width:100%;aspect-ratio:210/297;background:#fff;border:1px solid var(--line2);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
+.dt-vung{position:absolute;left:0;top:0;transform-origin:0 0}
+.dt-cap{font-size:12px;color:var(--tx2);text-align:center;margin-top:8px}
+.dt-dk{min-width:0;display:flex;flex-direction:column;gap:12px}
+.dt-o label{display:block;font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:6px}
+.dt-so{display:flex;align-items:stretch;gap:6px}
+.dt-so button{font:inherit;font-size:20px;font-weight:700;width:44px;border-radius:12px;border:1px solid var(--line2);background:var(--c2);color:var(--tx);cursor:pointer}
+.dt-so input{width:70px;text-align:center;font:inherit;font-size:20px;font-weight:700;border-radius:12px;border:1px solid var(--line2);background:var(--bg);color:var(--tx);padding:8px}
+.dt-so input:focus{outline:none;border-color:var(--acc)}
+.dt-nhanh-t{font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:-6px}
+.dt-nhanh{display:flex;flex-wrap:wrap;gap:6px}
+.dt-nhanh button{font:inherit;font-size:13px;font-weight:700;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--tx);padding:6px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;line-height:1.2;min-width:58px}
+.dt-nhanh button small{font-size:10.5px;font-weight:600;color:var(--tx2)}
+.dt-nhanh button.ok{border-color:var(--okLine)}.dt-nhanh button.nho{border-color:var(--warnLine);background:var(--warnBg)}.dt-nhanh button.tran{border-style:dashed;color:var(--tx3)}
+.dt-nhanh button.on{outline:2px solid var(--acc);outline-offset:1px}
+.dt-kq{font-size:14px;line-height:1.5;background:var(--c2);border-radius:12px;padding:10px 12px}
+.dt-tt{font-size:13.5px;font-weight:600;border-radius:12px;padding:9px 12px}
+.dt-tt.ok{background:var(--okBg);color:var(--ok)}.dt-tt.nho{background:var(--warnBg);color:var(--warnTx)}.dt-tt.tran{background:var(--badBg);color:var(--badTx)}
+.dt-goiy{font-size:13px;color:var(--tx2)}
+.dt-goiy button{font:inherit;font-weight:700;color:var(--accTx);background:var(--accSoft);border:1px solid var(--acc);border-radius:999px;padding:3px 10px;cursor:pointer;margin-left:4px}
+.dt-nut{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+.dt-nut button{font:inherit;font-size:15px;font-weight:700;border-radius:14px;padding:12px 20px;cursor:pointer}
+.dt-huy{background:var(--c2);color:var(--tx);border:1px solid var(--line2)}
+.dt-in{background:linear-gradient(135deg,var(--btnA),var(--btnB));color:var(--onAcc);border:0;box-shadow:var(--btnGlow)}
+.dt-in:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+@media(max-width:700px){.dt-than{grid-template-columns:1fr}.dt-xem{max-width:240px;margin:0 auto;width:100%}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R10</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R11</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -813,11 +847,12 @@ function veLo(){
       ?`<button class="add" data-taiht="1">Tải lô do máy khác ghi (qua hệ thống)</button><div class="ghichu">${nkHTLuc?`Đã tải ${nkHT.length} mẻ của máy khác lúc ${nkHTLuc} — chỉ để xem &amp; in tem, không lưu vào máy này.`:'Dùng khi máy khác (hoặc máy in của máy khác) hỏng mà cần in tem cho lô máy đó đã ghi.'}</div>`
       :`<div class="ghichu">Máy này chưa nối Google Sheet nên chỉ thấy lô ghi tại máy này. Cần in tem cho lô của máy khác: nhờ máy đó bấm <b>"Lưu file tem"</b> rồi gửi file sang, hoặc khai kết nối ở tab Dữ liệu.</div>`}
     </div>`;
-  o+=`<div class="card"><div class="fld"><label>Khổ in tem phụ — cột × hàng / tờ A4</label>
+  o+=`<div class="card"><div class="fld"><label>Khổ in tem phụ — số tem mỗi hàng (ngang) × số hàng (dọc) / tờ A4</label>
     <div style="display:flex;gap:9px">
       <input id="temCotIn" type="number" min="1" max="10" value="${temCot}" style="width:70px">
       <input id="temHangIn" type="number" min="1" max="10" value="${temHang}" style="width:70px">
     </div></div>
+    <div class="ghichu">→ ${temCot*temHang} tem/tờ, mỗi tem <b>${mmTxt(kichThuocTem(temCot,temHang).w)} × ${mmTxt(kichThuocTem(temCot,temHang).h)} mm</b> (chia đều tờ A4). Chữ tự co cho vừa ô — bấm <b>"Dàn trang tem"</b> ở thẻ lô để xem trước.</div>
     <div class="note">In đúng theo số bao/túi của lô đó. Không rõ số bao thì in đủ 1 tờ (${temCot*temHang} tem) để cắt dần.</div></div>`;
   if(!traLot)return o+`<div class="none">Chọn 1 lô ở trên để xem thông tin.</div>`;
   const hit=nk.concat(nkHT).filter(r=>String(r.lot||'')===traLot).slice().reverse().slice(0,8);
@@ -856,6 +891,7 @@ function veLo(){
         +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
         +`</details>`})()}
     ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>
+    <button class="add ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang tem (chọn số tem mỗi hàng × số hàng, xem trước)</button>
     <button class="add ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
     ${r._heThong?'':`<button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>`}
     `}
@@ -973,30 +1009,91 @@ function khoTemGoiY(mot,cot,hang){
   }
   return tot;
 }
-/* Gọi TRƯỚC khi dựng bản in. Trả về false nếu người dùng huỷ. Chỉ chờ (await) khi thật sự cần hỏi —
-   trường hợp bình thường chạy đồng bộ, không đổi thứ tự xử lý của inTem(). */
+/* ── BẢNG "DÀN TRANG TEM" — 10/09/2026 (Admin S17 / Nhân viên R11) ──
+   Khách: "được phép chọn số lượng tem trên một hàng và cột, từ đó tự suy ra kích thước để dàn cho trang
+   đều". Bảng này cho chọn SỐ TEM MỖI HÀNG (ngang) và SỐ HÀNG (dọc) bằng nút +/− hoặc khổ chọn nhanh; app
+   tự chia đều vùng in A4 (197 × 284 mm, lề 6 mm), ghi rõ kích thước MỖI TEM (mm) và cỡ chữ tự co cho vừa
+   (coChuVua), kèm ẢNH XEM TRƯỚC đúng tờ sẽ in (cùng kiểu CSS với bản in). Chữ dưới TEM_CO_DOC thì báo
+   "chữ nhỏ" nhưng vẫn cho in nếu người dùng chọn; nội dung không vừa ô thì KHÔNG cho in (tránh mất chữ).
+   Mở tự động khi bấm In mà khổ đang lưu không vừa / chữ nhỏ chưa từng được duyệt; mở tay bằng nút
+   "Dàn trang" cạnh nút In tem. Khổ đã chọn được nhớ (temCot/temHang như cũ). */
+const TEM_VUNG_W=197, TEM_VUNG_H=284, TEM_KHE=1.5; // mm — khớp CSS .to
+const TEM_KHO_NHANH=[[2,2],[3,2],[2,3],[3,3],[4,3],[3,4],[4,4],[5,4]];
+const TEM_KHO_DUYET_KEY='peroma:temKhoDuyet'; // khổ chữ-nhỏ người dùng đã chủ động chọn trên máy này (tuỳ chọn hiển thị, không đồng bộ)
+function kichThuocTem(cot,hang){
+  const w=(TEM_VUNG_W-(cot-1)*TEM_KHE)/cot, h=(TEM_VUNG_H-(hang-1)*TEM_KHE)/hang;
+  return {w:Math.round(w*10)/10,h:Math.round(h*10)/10};
+}
+const mmTxt=v=>String(v).replace('.',',');
+function khoDaDuyet(cot,hang){try{return localStorage.getItem(TEM_KHO_DUYET_KEY)===cot+'x'+hang}catch(e){return false}}
+/* Có cần mở bảng dàn trang trước khi in không? (null = in thẳng như cũ) */
 function xetKhoTem(r,p){
   const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
   const kq=coChuVua(temHTML(r,p),cot,hang);
-  if(!kq.tran&&kq.co>=TEM_CO_DOC)return null;
-  return {cot,hang,kq,goiY:khoTemGoiY(temHTML(r,p),cot,hang)};
+  if(kq.tran)return {cot,hang,kq};
+  if(kq.co<TEM_CO_DOC&&!khoDaDuyet(cot,hang))return {cot,hang,kq};
+  return null;
 }
-async function hoiKhoTem(x){
-  const hien=x.cot+'×'+x.hang+' ('+(x.cot*x.hang)+' tem/tờ)';
-  const coTxt=v=>String(v).replace('.',',')+' pt';
-  if(!x.goiY){
-    if(x.kq.tran){await hoi('Tem quá dài','Nội dung hồ sơ tem dài tới mức kể cả 1 tem/tờ cũng không vừa. Rút gọn bớt Công dụng / Hướng dẫn trong hồ sơ tem rồi in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return false}
-    return true;
-  }
-  const g=x.goiY, deXuat=g.c+'×'+g.h+' ('+g.n+' tem/tờ)';
-  const ok=await hoi(x.kq.tran?'Khổ này không đủ chỗ cho tem':'Chữ trên tem sẽ rất nhỏ',
-    (x.kq.tran
-      ?'Với khổ <b>'+hien+'</b>, nội dung tem này dài nên kể cả co chữ nhỏ nhất vẫn <b>không vừa ô — sẽ mất chữ</b>.'
-      :'Với khổ <b>'+hien+'</b>, nội dung tem này dài nên chữ phải co còn <b>'+coTxt(x.kq.co)+'</b> — khó đọc.')
-    +'<br><br>Đề xuất khổ <b>'+deXuat+'</b>: chữ <b>'+coTxt(g.co)+'</b>, vừa khít ô. (Khổ mới được nhớ cho những lần in sau; đổi lại ở ô "Khổ in tem phụ".)',
-    {nutOK:'In khổ '+g.c+'×'+g.h,nutHuy:x.kq.tran?'Huỷ':'Vẫn in '+x.cot+'×'+x.hang});
-  if(ok){temCot=g.c;temHang=g.h;luu();return true}
-  return !x.kq.tran;
+function moDanTem(r,p,quaFile){
+  return new Promise(xong=>{
+    const mot=temHTML(r,p);
+    let cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
+    let el=document.getElementById('danTem'); if(el)el.remove();
+    el=document.createElement('div'); el.id='danTem'; el.className='dt-mask';
+    el.innerHTML='<div class="dt-hop" role="dialog" aria-modal="true" aria-labelledby="dtTieuDe">'
+      +'<div class="dt-dau"><div><b id="dtTieuDe">Dàn trang tem</b><span>'+esc(r.sp||'')+' · lô '+esc(lotDep(r.lot||''))+'</span></div><button type="button" class="dt-x" data-dt="huy" aria-label="Đóng">×</button></div>'
+      +'<div class="dt-than"><div class="dt-xem"><div class="dt-giay" id="dtGiay"><div class="dt-vung xemTem" id="dtVung"></div></div><div class="dt-cap">Tờ A4 dọc · 210 × 297 mm · lề 6 mm</div></div>'
+      +'<div class="dt-dk">'
+      +'<div class="dt-o"><label for="dtCot">Số tem mỗi hàng (ngang)</label><div class="dt-so"><button type="button" data-dt="c-" aria-label="Bớt 1 tem mỗi hàng">−</button><input id="dtCot" inputmode="numeric" value="'+cot+'"><button type="button" data-dt="c+" aria-label="Thêm 1 tem mỗi hàng">+</button></div></div>'
+      +'<div class="dt-o"><label for="dtHang">Số hàng (dọc)</label><div class="dt-so"><button type="button" data-dt="h-" aria-label="Bớt 1 hàng">−</button><input id="dtHang" inputmode="numeric" value="'+hang+'"><button type="button" data-dt="h+" aria-label="Thêm 1 hàng">+</button></div></div>'
+      +'<div class="dt-nhanh-t">Chọn nhanh</div><div class="dt-nhanh" id="dtNhanh"></div>'
+      +'<div class="dt-kq" id="dtKq"></div><div class="dt-tt" id="dtTT"></div><div class="dt-goiy" id="dtGoiY"></div>'
+      +'</div></div>'
+      +'<div class="dt-nut"><button type="button" class="dt-huy" data-dt="huy">Huỷ</button><button type="button" class="dt-in" id="dtIn" data-dt="in"></button></div></div>';
+    document.body.appendChild(el);
+    const giay=el.querySelector('#dtGiay'), vung=el.querySelector('#dtVung');
+    const ve2=()=>{
+      cot=Math.max(1,Math.min(10,Math.round(+el.querySelector('#dtCot').value)||cot));
+      hang=Math.max(1,Math.min(10,Math.round(+el.querySelector('#dtHang').value)||hang));
+      el.querySelector('#dtCot').value=cot; el.querySelector('#dtHang').value=hang;
+      const kq=coChuVua(mot,cot,hang), kt=kichThuocTem(cot,hang), n=cot*hang;
+      // ảnh xem trước: dựng đúng tờ in ở kích thước thật rồi thu nhỏ theo bề ngang khung giấy
+      const s=giay.clientWidth/(210*96/25.4);
+      vung.style.transform='scale('+s+')'; vung.style.left=(6*96/25.4*s)+'px'; vung.style.top=(6*96/25.4*s)+'px';
+      vung.innerHTML='<div class="to" style="grid-template-columns:repeat('+cot+',1fr);grid-template-rows:repeat('+hang+',1fr);--co:'+kq.co+'pt">'+Array.from({length:n}).map(()=>mot).join('')+'</div>';
+      el.querySelector('#dtKq').innerHTML='<b>'+n+' tem / tờ</b> · mỗi tem <b>'+mmTxt(kt.w)+' × '+mmTxt(kt.h)+' mm</b> · chữ tự co <b>'+(kq.tran?'—':mmTxt(kq.co)+' pt')+'</b>';
+      const tt=el.querySelector('#dtTT');
+      tt.className='dt-tt '+(kq.tran?'tran':kq.co<TEM_CO_DOC?'nho':'ok');
+      tt.textContent=kq.tran?'✗ Không vừa ô — nội dung tem sẽ bị mất chữ. Chọn ít tem hơn.'
+        :kq.co<TEM_CO_DOC?'⚠ Chữ nhỏ ('+mmTxt(kq.co)+' pt, dưới '+TEM_CO_DOC+' pt) — vẫn in được nhưng khó đọc.':'✓ Chữ dễ đọc, vừa khít ô.';
+      const g=khoTemGoiY(mot,11,11);
+      el.querySelector('#dtGoiY').innerHTML=g?'Nhiều tem nhất mà chữ vẫn dễ đọc: <button type="button" data-dt="goiy" data-c="'+g.c+'" data-h="'+g.h+'">'+g.c+' × '+g.h+' ('+g.n+' tem · '+mmTxt(g.co)+' pt)</button>':'';
+      el.querySelector('#dtNhanh').innerHTML=TEM_KHO_NHANH.map(([c,h])=>{const k=coChuVua(mot,c,h);
+        return '<button type="button" class="'+(c===cot&&h===hang?'on ':'')+(k.tran?'tran':k.co<TEM_CO_DOC?'nho':'ok')+'" data-dt="kho" data-c="'+c+'" data-h="'+h+'" title="'+(k.tran?'Không vừa':mmTxt(k.co)+' pt')+'">'+c+'×'+h+'<small>'+(c*h)+' tem</small></button>'}).join('');
+      const nutIn=el.querySelector('#dtIn'); nutIn.disabled=kq.tran;
+      nutIn.textContent=(quaFile?'Lưu file ':'In ')+n+' tem ('+cot+' × '+hang+')';
+    };
+    const dong=v=>{document.removeEventListener('keydown',phim);el.remove();xong(v)};
+    const phim=e=>{if(e.key==='Escape')dong(false)};
+    document.addEventListener('keydown',phim);
+    el.addEventListener('click',e=>{
+      if(e.target===el){dong(false);return}
+      const b=e.target.closest('[data-dt]'); if(!b)return;
+      const t=b.dataset.dt, ic=el.querySelector('#dtCot'), ih=el.querySelector('#dtHang');
+      if(t==='huy'){dong(false);return}
+      if(t==='c-')ic.value=Math.max(1,cot-1); else if(t==='c+')ic.value=Math.min(10,cot+1);
+      else if(t==='h-')ih.value=Math.max(1,hang-1); else if(t==='h+')ih.value=Math.min(10,hang+1);
+      else if(t==='kho'||t==='goiy'){ic.value=b.dataset.c;ih.value=b.dataset.h}
+      else if(t==='in'){if(b.disabled)return;
+        const kq=coChuVua(mot,cot,hang); temCot=cot;temHang=hang;luu();
+        try{if(kq.co<TEM_CO_DOC)localStorage.setItem(TEM_KHO_DUYET_KEY,cot+'x'+hang)}catch(e){}
+        dong(true);return}
+      ve2();
+    });
+    el.addEventListener('input',e=>{if(e.target.id==='dtCot'||e.target.id==='dtHang'){if(String(e.target.value).trim())ve2()}});
+    requestAnimationFrame(ve2); ve2();
+    setTimeout(()=>{const b=el.querySelector('#dtIn');if(b&&!b.disabled)b.focus()},30);
+  });
 }
 
 /* Chỉ dựng ĐÚNG 1 trang A4 dàn kín tem giống nhau — xem giải thích ở bang-tra-huong-lieu.html
@@ -1217,7 +1314,7 @@ async function inPhieuCT(quaFile){
   bao('Phiếu công thức đã sẵn sàng in.');
   setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
 }
-async function inTem(id,quaFile){
+async function inTem(id,quaFile,luonHoi){
   // R9: tìm cả trong các lô tải từ hệ thống (nkHT — do máy khác ghi, chỉ nằm trong bộ nhớ)
   const r=nk.find(x=>x.id===id)||nkHT.find(x=>x.id===id); if(!r){bao('Không tìm thấy bản ghi');return}
   if(r.huy){await hoi('Lô này đã huỷ','Lô đã được đánh dấu huỷ nên không in tem được. Bỏ huỷ trước nếu muốn in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
@@ -1227,7 +1324,8 @@ async function inTem(id,quaFile){
   if(th.length){await hoi('Chưa in được tem',
     `<b>${esc(p.ten)}</b> chưa có đủ hồ sơ tem.<br><br>Còn thiếu <b>${th.length}</b> mục.<br>Báo quản lý bổ sung rồi nạp lại cấu hình.`,
     {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
-  { const x=xetKhoTem(r,p); if(x&&!(await hoiKhoTem(x)))return; } // S16/R10: tự dàn trang
+  // S17/R11: mở bảng dàn trang khi bấm "Dàn trang", hoặc khi khổ đang lưu không vừa / chữ nhỏ chưa được duyệt
+  if(luonHoi||xetKhoTem(r,p)){ if(!(await moDanTem(r,p,quaFile)))return; }
   const htmlTem=trangTem(r,p);
   if(!quaFile)$('temIn').innerHTML=htmlTem; // đặt bản in NGAY (trước lần chờ lưu) như hành vi cũ
   // lô của máy khác: không đánh dấu gì lên máy này (bản ghi đó không thuộc máy này, không lưu)
@@ -1332,7 +1430,7 @@ $('mask').addEventListener('click',async e=>{
   if(c){toi=c.dataset.cn; luu();
     document.querySelectorAll('[data-cn]').forEach(x=>x.classList.toggle('on',x===c));
     $('whoBtn').textContent=toi; return}
-  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile);return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile,!!it.dataset.dantem);return}
 });
 
 $('view').addEventListener('click',async e=>{
@@ -1418,7 +1516,7 @@ $('view').addEventListener('click',async e=>{
     ghiAudit('recipe',p.ten,'CONFIRM_RECIPE',null,{kg:num(p.sl),huong:p.huongMe,luc:p.xacNhanCTLuc});
     await luu(); ve(); bao('Đã xác nhận công thức')} return}
   const km=e.target.closest('[data-kiem]'); if(km){await kiemRoiGhi();return}
-  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile);return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile,!!it.dataset.dantem);return}
   if(e.target.closest('[data-taiht]')){await taiLoHeThong();return}
   const hl=e.target.closest('[data-huylo]'); if(hl){await huyLo(hl.dataset.huylo);return}
   const xu=e.target.closest('[data-xuat]'); if(xu){xuatMe();return}
