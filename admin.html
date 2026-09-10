@@ -862,14 +862,14 @@ html,body{background:var(--bg);min-height:100%}
 .dt-sua-cuoi{padding:0 14px 12px;font-size:12.5px;color:var(--tx2);line-height:1.5}
 .dt-luu{display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:700;color:var(--tx)}
 @media(max-width:700px){.dt-sua-luoi{grid-template-columns:1fr}}
-.tem-khacten{margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--warnBg);color:var(--warnTx);border:1px solid var(--warnLine);font-size:13px;line-height:1.55}
+.dt-sua-ten{margin:0 14px 10px;padding:9px 12px;border-radius:10px;background:var(--infoBg);color:var(--infoTx);font-size:12.5px;line-height:1.5}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S19</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S20</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1493,7 +1493,7 @@ const THANHPHAN_CHUAN=[
    10/09/2026 (S18): MỞ LẠI ô này, KHÔNG bắt buộc — dữ liệu TCCS (VD Little Mars) vẫn tự in dòng tên phụ mà không
    có cách sửa/xoá, đúng loại "chi tiết khoá cứng" khách phản ánh. Xoá trắng thì tem bỏ dòng này. */
 const TEM_O=[
- ['tenVN','Tên sản phẩm tiếng Việt','Phải trùng tên trong TCCS',1],
+ ['tenVN','Tên theo hồ sơ TCCS (chỉ để đối chiếu)','KHÔNG in lên tem — tem in tên mặt hàng trong Danh mục (khách chốt 10/09/2026). Không bắt buộc',0],
  ['tenEN','Tên phụ / tiếng Anh (dòng nhỏ dưới tên)','Không bắt buộc — để trống thì không in dòng này',0],
  ['thanhPhan','Thành phần','Tên đại diện, KHÔNG ghi %',1],
  ['congDung','Công dụng','Ngắn, trung thực, không cam kết tuyệt đối',1],
@@ -2394,16 +2394,10 @@ function veKhoiCty(t){
   return ds.length?'<div class="kh">'+ds.join('<br>')+'</div>':'';
 }
 
-/* S19/R13 (10/09/2026) — khách: "chọn lô cần tra hiện Cát lót chuồng, vào phiếu in lại là cát lót nền, không
-   nhất quán". Tên mặt hàng trong app (khoá liên kết, đổi phải qua doiTen) và tên in trên tem (hồ sơ tem, theo
-   TCCS) là 2 thứ khác nhau. tenTrenTem() trả về tên trên tem khi nó KHÁC tên mặt hàng, để hiện kèm ở ô chọn lô,
-   thẻ lô và nhắc trong Công thức — không tự đổi tên nào. */
-const chuanTen=s=>String(s||'').normalize('NFC').toLowerCase().replace(/\s+/g,' ').trim();
-function tenTrenTem(tenSP){const p=sp.find(x=>x.ten===tenSP);const t=p&&p.hstem&&String(p.hstem.tenVN||'').trim();return t&&chuanTen(t)!==chuanTen(tenSP)?t:''}
 
 /* S19/R13 — "Sửa nội dung tem lần cuối trước khi in" (trong bảng Dàn trang). Chỉ các ô NỘI DUNG của hồ sơ tem;
    số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ nên KHÔNG sửa ở đây (truy xuất). */
-const TEM_SUA_O=[['tenVN','Tên sản phẩm (tiêu đề lớn)'],['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phần'],['congDung','Công dụng',1],
+const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phần'],['congDung','Công dụng',1],
   ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
   ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],['ctyVaiTro','Dòng trách nhiệm'],
   ['ctyTen','Tên công ty'],['ctyDiaChi','Địa chỉ · trụ sở · MST · điện thoại',1],['canhBao','Dòng cảnh báo',1]];
@@ -2413,7 +2407,7 @@ function temHTML(r,p){
   const hd=hanDung(r.ngaysx,t.hsdNam);
   return `<div class="tem">
     ${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
-    <div class="t2">${esc(t.tenVN||r.sp)}</div>
+    <div class="t2">${esc((p&&p.ten)||r.sp)}</div><!-- S20/R14: tên mặt hàng trong Danh mục (khách chốt 10/09/2026), không lấy tenVN theo TCCS -->
     ${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>
       ${kv('Thành phần',t.thanhPhan)}
@@ -2519,6 +2513,7 @@ function moDanTem(r,p,quaFile){
       +'<div class="dt-kq" id="dtKq"></div><div class="dt-tt" id="dtTT"></div><div class="dt-goiy" id="dtGoiY"></div>'
       +'</div></div>'
       +'<details class="dt-sua"><summary>Sửa nội dung tem lần cuối trước khi in <small>(xem trước cập nhật ngay)</small></summary>'
+      +'<div class="dt-sua-ten">Tên trên tem: <b>'+esc(p.ten||r.sp||'')+'</b> — là tên mặt hàng trong Danh mục của Admin; muốn đổi thì đổi tên mặt hàng ở đó (đổi một lần, áp cho mọi chỗ).</div>'
       +'<div class="dt-sua-luoi">'+TEM_SUA_O.map(([k,nhan,dai])=>'<label class="dt-f'+(dai?' dai':'')+'"><span>'+esc(nhan)+'</span>'+(dai?'<textarea data-dtsua="'+k+'">'+esc(giaTri(k))+'</textarea>':'<input data-dtsua="'+k+'" value="'+esc(giaTri(k))+'">')+'</label>').join('')+'</div>'
       +'<div class="dt-sua-cuoi">Số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ — không sửa ở đây.'
       +(choLuu?(khoaTCCS?' Mặt hàng đang khoá theo TCCS: chỉ sửa cho lần in này (mở khoá ở tab Công thức nếu muốn lưu).':'<label class="dt-luu"><input type="checkbox" id="dtLuu"> Lưu luôn vào hồ sơ tem của mặt hàng (lần in sau dùng nội dung mới)</label>'):' Chỉ áp cho lần in này — không đổi hồ sơ tem của quản lý.')
@@ -2790,7 +2785,6 @@ function veCT(){
             </div>
           </section>
           <section class="ctsec rong" data-sec="tem" data-si="${i}">${dau('tem','Hồ sơ tem','Điền một lần, dùng cho mọi lô — thiếu ô bắt buộc thì không in được tem',temChip,'<button type="button" class="ctgon" data-tratem="'+i+'" aria-expanded="'+!temDong+'">'+(temDong?'Mở ra ▾':'Thu gọn ▴')+'</button>')}
-            ${tenTrenTem(p.ten)?`<div class="tem-khacten"><b>Tên chưa thống nhất:</b> mặt hàng tên <b>${esc(p.ten)}</b> nhưng tem in <b>${esc(tenTrenTem(p.ten))}</b>. Ô chọn lô và thẻ lô sẽ hiện kèm tên trên tem. Muốn thống nhất: sửa tên mặt hàng (ô tên ở đầu dòng) hoặc sửa "Tên sản phẩm tiếng Việt" bên dưới.</div>`:''}
             <div class="fld"><label>Hồ sơ tem — điền một lần, dùng cho mọi lô</label>${veTemBlock(p,i)}</div>
           </section>
         </div>
@@ -3308,7 +3302,7 @@ function veBC(){
          if(!cu||String(r.ts||'')>String(cu.ts||''))gap.set(l,r)});
        return [...gap.entries()]
          .sort((a,b)=>String(b[1].ts||'').localeCompare(String(a[1].ts||'')))
-         .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)}${tenTrenTem(r.sp)?' · tem: «'+esc(tenTrenTem(r.sp))+'»':''} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}</option>`).join('');
+         .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}</option>`).join('');
      })()}
    </select></div>`;
   if(traLot.trim()){
@@ -3317,7 +3311,7 @@ function veBC(){
     /* 25/08/2026: tô màu ưu tiên hương/quy cách/số bao — 3 mục nhân viên hay tra để đối chiếu
        lúc pha, tô nổi bật để dễ nhớ (đồng bộ đúng 3 màu với bản Nhân viên, xem veLo() bên đó). */
     else o+=hit.slice().reverse().slice(0,10).map(r=>`<div class="lot"${r.huy?' style="opacity:.6"':''}><h5>${esc(r.lot)}${r.huy?' <span style="font-size:12px;font-weight:800;color:var(--red);letter-spacing:.06em">· ĐÃ HUỶ</span>':''}${r.ngungSX?' <span style="font-size:12px;font-weight:800;color:var(--amber);letter-spacing:.06em">· NGỪNG SẢN XUẤT</span>':''}</h5>
-      <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>${tenTrenTem(r.sp)?`<div class="kv"><span>Tên in trên tem</span><b>${esc(tenTrenTem(r.sp))}</b></div>`:''}
+      <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
       <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
       ${r.soLenh?`<div class="kv"><span>Lệnh sản xuất</span><b>${esc(r.soLenh)}</b></div>`:''}
       ${String(r.lot||'').length===10?`<div class="kv"><span>Giải mã số lô</span><b>${lotDep(r.lot)}</b></div>`:''}

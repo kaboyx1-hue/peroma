@@ -254,8 +254,11 @@ const s19=await E(async()=>{ window.__tatTuDongKhoTem=true;
   const r={id:'S19-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'4101070926',nv:'T',daGui:1}; nk.push(r);
   traLot=r.lot; chuyenTab('bc');
   const kq={};
-  kq.option=[...document.querySelectorAll('#traLot option')].some(o=>o.value===r.lot&&/tem: «TÊN TRÊN TEM S19»/.test(o.textContent));
-  kq.kv=/Tên in trên tem\s*TÊN TRÊN TEM S19/.test($('viewBC').innerText);
+  // S20: tên thống nhất = tên mặt hàng trong Danh mục (khách chốt) — ô chọn lô, thẻ lô VÀ tem đều dùng tên này
+  kq.option=[...document.querySelectorAll('#traLot option')].some(o=>o.value===r.lot&&o.textContent.startsWith(p.ten+' — ')&&!/tem: «/.test(o.textContent));
+  kq.kv=!/Tên in trên tem/.test($('viewBC').innerText);
+  {const d=document.createElement('div');d.innerHTML=temHTML(r,p);kq.temTenDanhMuc=d.querySelector('.t2').textContent===p.ten&&!d.textContent.includes('TÊN TRÊN TEM S19');}
+  kq.tenVNKhongBatBuoc=!temThieu({hstem:{...p.hstem,tenVN:''}}).length;
   // sửa lần cuối, KHÔNG lưu
   const pr=inTem('S19-T',false,true); await cho(200);
   document.querySelector('.dt-sua').open=true; const o=document.querySelector('[data-dtsua="congDung"]'); o.value='SỬA LẦN CUỐI'; o.dispatchEvent(new Event('input',{bubbles:true})); await cho(350);
@@ -270,8 +273,9 @@ const s19=await E(async()=>{ window.__tatTuDongKhoTem=true;
   kq.luuVaoHoSo=p.hstem.congDung==='ĐÃ LƯU';
   nk.splice(nk.findIndex(z=>z.id==='S19-T'),1); p.hstem=goc.hstem; temCot=goc.cot; temHang=goc.hang; window.print=inCu; traLot=''; luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
   return kq;});
-ok('S19: ô chọn lô hiện kèm tên in trên tem khi khác tên mặt hàng', s19.option, JSON.stringify(s19));
-ok('S19: thẻ lô có dòng "Tên in trên tem"', s19.kv);
+ok('S20: tem in TÊN MẶT HÀNG trong Danh mục (không lấy tên theo TCCS)', s19.temTenDanhMuc, JSON.stringify(s19));
+ok('S20: ô chọn lô và thẻ lô dùng đúng tên Danh mục — không còn hiện kèm tên khác', s19.option&&s19.kv);
+ok('S20: tên theo TCCS (tenVN) không còn bắt buộc để in tem', s19.tenVNKhongBatBuoc);
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);
