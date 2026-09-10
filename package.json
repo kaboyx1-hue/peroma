@@ -1,0 +1,16 @@
+{
+  "name": "peroma",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Phần mềm sản xuất Khánh Hoàng — pha hương liệu, ghi mẻ, số lô, in tem",
+  "type": "module",
+  "scripts": {
+    "server": "node server.mjs",
+    "test": "cd test && node kiemtra.mjs",
+    "test:nv": "cd test && node kiemtra-nv.mjs",
+    "test:vongtron": "cd test && node kiemtra-vongtron.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

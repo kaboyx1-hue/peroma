@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0F14">
+<title>Peroma — Nhân viên</title>
+<style>
+:root{
+  --bg:#0B0F14; --panel:#121821; --row:#151C26; --row2:#121822;
+  --line:#232E3C; --line2:#2E3B4B;
+  --txt:#E8EEF5; --txt2:#9AAABB; --txt3:#64748B;
+  --am:#FFB020; --red:#F0564B; --redd:#3A1714; --cy:#2DD4BF; --cyd:#0E2A2B;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,"Roboto Mono","DejaVu Sans Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg)}
+body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.app{max-width:840px;margin:0 auto}
+.stick{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.bar h1{margin:0;font-size:17px;font-weight:800;letter-spacing:.04em;flex:1}
+.bar h1 i{display:block;font-style:normal;font-size:10.5px;font-weight:600;color:var(--txt3);letter-spacing:.12em;margin-top:2px}
+.who{font-size:12.5px;font-weight:700;background:var(--row);color:var(--txt2);
+  border:1px solid var(--line2);border-radius:7px;padding:7px 11px;cursor:pointer;white-space:nowrap}
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1;min-width:88px;font:inherit;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  background:transparent;color:var(--txt3);border:none;border-bottom:2px solid transparent;padding:13px 6px;cursor:pointer}
+.tab.on{color:var(--am);border-bottom-color:var(--am);background:#171207}
+.hom{padding:9px 14px;background:var(--cyd);color:var(--cy);font-size:13px;font-weight:700;border-bottom:1px solid var(--line)}
+.hom.nhac{background:var(--redd);color:#FFC9C4}
+.pg{padding:0 0 40px}
+.sec{font-size:10.5px;font-weight:800;letter-spacing:.11em;color:var(--txt3);text-transform:uppercase;
+  padding:16px 14px 7px}
+.r{display:flex;align-items:center;gap:12px;padding:15px 14px;border-bottom:1px solid var(--line);
+  background:var(--row);cursor:pointer}
+.r:nth-child(even){background:var(--row2)}
+.r:active{background:#1B2534}
+.r .n{flex:1;min-width:0}
+.r .n b{display:block;font-size:16px;font-weight:700}
+.r .n span{display:block;font-size:12px;color:var(--txt3);margin-top:2px}
+.r .go{color:var(--txt3);font-size:20px;flex:none}
+.bdg{font-size:9.5px;font-weight:800;letter-spacing:.06em;padding:3px 7px;border-radius:4px;text-transform:uppercase;flex:none}
+.bdg.tam{background:#3A2A08;color:var(--am)}
+.bdg.dinh{background:var(--redd);color:var(--red)}
+.card{margin:14px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px}
+.fld{margin-bottom:13px}
+.fld label{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--txt3);
+  text-transform:uppercase;margin-bottom:6px}
+.fld input,.fld select{width:100%;font:inherit;font-size:17px;background:var(--bg);color:var(--txt);
+  border:1px solid var(--line2);border-radius:9px;padding:13px 12px}
+.fld input.mn{font-family:var(--mono);font-weight:700;font-size:21px;text-align:right}
+.fld input:focus,.fld select:focus{outline:none;border-color:var(--am)}
+.fld input.xau{border-color:var(--red)}
+.big{background:var(--cyd);border:1px solid #1D4B4D;border-radius:10px;padding:14px;margin-bottom:13px;text-align:center}
+.big .l{font-size:10.5px;font-weight:800;letter-spacing:.11em;color:var(--cy);text-transform:uppercase}
+.big .v{font-family:var(--mono);font-size:38px;font-weight:800;color:var(--cy);line-height:1.15;margin-top:5px}
+.big .s{font-size:12.5px;color:var(--txt2);margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button{font:inherit;font-size:14px;font-weight:600;background:var(--row);color:var(--txt2);
+  border:1px solid var(--line2);border-radius:9px;padding:11px 14px;cursor:pointer}
+.chips button.on{background:var(--am);border-color:var(--am);color:#171003;font-weight:800}
+.pb{display:flex;gap:7px;align-items:center;margin-top:8px}
+.pb select{flex:1;min-width:0;font:inherit;font-size:15px;background:var(--bg);color:var(--txt);
+  border:1px solid var(--line2);border-radius:9px;padding:11px 8px}
+.pb input{width:92px;flex:none;font-family:var(--mono);font-size:17px;font-weight:700;text-align:right;
+  background:var(--bg);color:var(--txt);border:1px solid var(--line2);border-radius:9px;padding:11px 8px}
+.pb .x{flex:none;font-size:17px;font-weight:800;color:var(--red);background:var(--redd);
+  border:1px solid #5A2620;border-radius:9px;padding:10px 13px;cursor:pointer;line-height:1}
+.pbi{font-size:12.5px;color:var(--txt2);margin:5px 0 0 3px;line-height:1.5}
+.pbi b{font-family:var(--mono);color:var(--cy)}
+.pbi .du{color:var(--am)}
+.pbi .no{color:var(--red)}
+.add{width:100%;margin-top:9px;font:inherit;font-size:14px;font-weight:700;padding:12px;
+  background:var(--row);color:var(--am);border:1px dashed var(--line2);border-radius:9px;cursor:pointer}
+.tong{margin-top:11px;padding-top:11px;border-top:1px solid var(--line2);display:flex;
+  justify-content:space-between;gap:9px;font-size:13.5px;flex-wrap:wrap}
+.tong b{font-family:var(--mono);font-size:15px}
+.tong.khop b{color:var(--cy)} .tong.lech b{color:var(--am)}
+.canh{background:var(--redd);border:1px solid #5A2620;border-radius:9px;padding:11px 12px;
+  font-size:13px;line-height:1.55;color:#FFC9C4;margin-bottom:13px}
+.canh b{color:var(--red)}
+.note{background:#171207;border:1px solid #3A2A08;border-radius:9px;padding:11px 12px;
+  font-size:13px;line-height:1.55;color:var(--am);margin-bottom:13px}
+.pair{display:flex;gap:9px;margin-top:14px}
+.pair button{flex:1;font:inherit;font-size:15px;font-weight:800;padding:15px;border-radius:10px;cursor:pointer}
+.huy{background:var(--row);color:var(--txt2);border:1px solid var(--line2)}
+.oke{background:var(--am);color:#171003;border:none}
+.oke:disabled{opacity:.4;cursor:not-allowed}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv span{color:var(--txt3);flex:none}
+.kv b{text-align:right;word-break:break-word}
+.lot h5{margin:0 0 10px;font-family:var(--mono);font-size:22px;font-weight:800;color:var(--am);letter-spacing:.05em}
+.none{padding:26px 14px;text-align:center;color:var(--txt3);font-size:14px}
+.xn{font-size:15px;line-height:1.75}
+.xn .row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.xn .row span{color:var(--txt3);width:120px;flex:none;font-size:13px}
+.xn .row b{flex:1}
+.xn .lo{font-family:var(--mono);font-size:21px;color:var(--cy);font-weight:800}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+  background:#E8EEF5;color:#0B0F14;font-size:14px;font-weight:700;padding:12px 20px;border-radius:10px;
+  opacity:0;transition:.22s;z-index:60;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;
+  justify-content:center;z-index:70;padding:18px}
+.mask.on{display:flex}
+.dlg{background:var(--panel);border:1px solid var(--line2);border-radius:13px;padding:19px;max-width:460px;width:100%}
+.dlg h3{margin:0 0 9px;font-size:17px}
+.dlg p{margin:0 0 15px;font-size:14px;color:var(--txt2);line-height:1.65}
+.dlg .pair{margin-top:0}
+#temIn{display:none}
+@media print{
+  @page{size:A4;margin:6mm}
+  html,body{background:#fff!important}
+  body>*{display:none!important}
+  #temIn{display:block!important;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif}
+  #temIn .to{display:grid;gap:1.5mm;page-break-after:always;width:100%;height:100%;box-sizing:border-box}
+  #temIn .to:last-child{page-break-after:auto}
+  #temIn .tem{border:1pt solid #000;padding:5pt 6pt;box-sizing:border-box;overflow:hidden;width:100%}
+  #temIn .t1{text-align:center;font-weight:bold;letter-spacing:.5pt;margin:0 0 2pt}
+  #temIn .t2{text-align:center;font-weight:bold;margin:0 0 1pt;line-height:1.15}
+  #temIn .t3{text-align:center;margin:0 0 3pt}
+  #temIn table{width:100%;border-collapse:collapse}
+  #temIn td{border:.5pt solid #000;padding:1.5pt 2.5pt;vertical-align:top}
+  #temIn td.k{width:32%;font-weight:bold}
+  #temIn .kh{border:.5pt solid #000;border-top:none;padding:2.5pt;line-height:1.3}
+  #temIn .cb{font-style:italic;margin-top:2pt;line-height:1.25}
+  #temIn .to-lon .t1{font-size:9pt} #temIn .to-lon .t2{font-size:14pt} #temIn .to-lon .t3{font-size:9pt}
+  #temIn .to-lon table,#temIn .to-lon .kh{font-size:8.5pt} #temIn .to-lon .cb{font-size:7.5pt}
+  #temIn .to-vua .t1{font-size:7.5pt} #temIn .to-vua .t2{font-size:11pt} #temIn .to-vua .t3{font-size:7.5pt}
+  #temIn .to-vua table,#temIn .to-vua .kh{font-size:6.8pt} #temIn .to-vua .cb{font-size:6pt}
+  #temIn .to-nho .t1{font-size:6pt} #temIn .to-nho .t2{font-size:8.5pt} #temIn .to-nho .t3{font-size:6pt}
+  #temIn .to-nho table,#temIn .to-nho .kh{font-size:5.3pt} #temIn .to-nho .cb{font-size:4.6pt}
+}
+@media(min-width:700px){ .chips button{font-size:15px} .r{padding:17px 16px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="stick">
+    <div class="bar">
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R5</i></h1>
+      <span id="dbDen" style="font-size:12px;color:var(--sub,#8a8a99);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
+      <button class="who" id="whoBtn">—</button>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-tab="me">Pha mẻ</button>
+      <button class="tab" data-tab="lo">Tra lô</button>
+      <button class="tab" data-tab="cp">Chất phun</button>
+      <button class="tab" data-tab="bc">Chốt thực tế</button>
+      <button class="tab" data-tab="dl">Dữ liệu</button>
+    </div>
+    <div class="hom" id="hom"></div>
+  </div>
+  <div id="view" class="pg"></div>
+</div>
+<div id="temIn"></div>
+<div class="toast" id="toast"></div>
+<div class="mask" id="mask"><div class="dlg">
+  <h3 id="dlgT"></h3><p id="dlgM"></p>
+  <div class="pair"><button class="huy" id="dlgC">Hủy</button><button class="oke" id="dlgO">Xác nhận</button></div>
+</div></div>
+<script>
+/* ═══════════ PEROMA — BẢN NHÂN VIÊN ═══════════
+   Chỉ xem định mức + ghi mẻ + in tem + tra lô. KHÔNG sửa công thức, mã, danh mục.
+   Cấu hình nạp từ file .json do bản admin xuất ra.                              */
+const KEY='peroma-nv:v1';
+const mem={};
+const store={
+  async get(){ try{if(window.storage){const r=await window.storage.get(KEY);if(r&&r.value)return JSON.parse(r.value)}}catch(e){}
+    try{const v=localStorage.getItem(KEY);if(v)return JSON.parse(v)}catch(e){} return mem[KEY]||null },
+  async set(d){ mem[KEY]=d; const s=JSON.stringify(d);
+    try{if(window.storage){await window.storage.set(KEY,s);return}}catch(e){}
+    try{localStorage.setItem(KEY,s)}catch(e){} }
+};
+
+/* ═══ Đồng bộ Apps Script (đối-đối với bản Admin) ═══
+   NV: đẩy TỪNG MẺ vừa ghi lên máy chủ ngay lập tức (không cần bấm "Tải file" nữa,
+   nút đó vẫn giữ làm dự phòng khi mất mạng lâu ngày); kéo CẤU HÌNH (danh mục, công
+   thức, mã) về mỗi 20 giây — giữ nguyên mẻ đã ghi trên máy này, chỉ thay phần cấu hình. */
+/* 10/09/2026 — bản R5: ĐỊA CHỈ ĐỒNG BỘ + MẬT KHẨU KHÔNG CÒN VIẾT CỨNG TRONG MÃ NGUỒN.
+   Giống hệt bản Admin S7 (xem chú thích dài bên đó). Hai lý do: mã nguồn nay công khai trên
+   GitHub, và sự cố 10/09/2026 — bộ test chạy trên máy có mạng đã ghi đè dữ liệu thật lên Sheet.
+   Máy nhân viên nhập MỘT LẦN ở tab "Dữ liệu" → khối "Kết nối Google Sheet"; lưu riêng trong
+   trình duyệt máy đó. Để trống = máy chạy offline, ghi mẻ vẫn bình thường, chỉ không tự gửi
+   (vẫn dùng được nút tải file .json gửi tay cho quản lý như trước). */
+const KETNOI_KEY='peroma:ketnoi';
+function docKetNoi(){try{return JSON.parse(localStorage.getItem(KETNOI_KEY))||{}}catch(e){return{}}}
+function ghiKetNoi(url,mk){
+  try{localStorage.setItem(KETNOI_KEY,JSON.stringify({url:String(url||'').trim(),mk:String(mk||'').trim()}));return true}
+  catch(e){return false}
+}
+let DONGBO_URL=String(docKetNoi().url||'');
+let LEGACY_SHARED_TOKEN=String(docKetNoi().mk||'');
+let dbTT='tat', dbDangKeo=false;
+function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function dbVeTT(t,ghiChu){
+  dbTT=t; const el=document.getElementById('dbDen'); if(!el)return;
+  const map={tat:['⚪','Đồng bộ tắt'],dang:['🟡','Đang gửi…'],ok:['🟢','Đã đồng bộ '+dbGio()],loi:['🔴','Mất mạng — đang giữ lại'+(ghiChu?' ('+ghiChu+')':'')]};
+  const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
+}
+async function dbGoi(url,tuychon){
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),12000);
+  try{
+    const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
+    clearTimeout(to);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(j.loi) throw new Error(j.loi);
+    return j;
+  }catch(e){ clearTimeout(to); throw e; }
+}
+async function dbDayMe(banGhi){
+  if(!DONGBO_URL||!banGhi||!banGhi.length)return;
+  dbVeTT('dang');
+  try{
+    await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:banGhi})});
+    banGhi.forEach(r=>{const x=nk.find(y=>y.id===r.id); if(x)x.daGui=1});
+    luu(); if(typeof ve==='function')ve();
+    dbVeTT('ok');
+  }catch(e){ dbVeTT('loi', e.message); }
+}
+/* 27/08/2026 (phản hồi lần 3): "Xác nhận số thực tế" (bcNgay) trước đây KHÔNG có kênh tự đẩy
+   — bấm xong phải tự nhớ qua tab Dữ liệu xuất file .json gửi tay, khách phản hồi không biết
+   đẩy từ đâu. Giờ tự đẩy giống hệt cách nk (mẻ ghi) đã làm — cùng vòng lặp 15 giây, cùng cơ
+   chế đánh dấu daGui, chỉ khác action/sheet phía server (a=themBaoCao, xem Code.gs). Nút "tải
+   file mẻ" ở tab Dữ liệu vẫn còn — dùng khi mất mạng dài ngày, không bắt buộc nữa. */
+async function dbDayBaoCao(banGhi){
+  if(!DONGBO_URL||!banGhi||!banGhi.length)return;
+  dbVeTT('dang');
+  try{
+    await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themBaoCao',bc:banGhi})});
+    banGhi.forEach(r=>{const x=bcNgay.find(y=>y.id===r.id); if(x)x.daGui=1});
+    luu(); if(typeof ve==='function')ve();
+    dbVeTT('ok');
+  }catch(e){ dbVeTT('loi', e.message); }
+}
+/* Ghép cấu hình mới về (catalog: kg/ml/hương/mã/hồ sơ tem…) nhưng GIỮ NGUYÊN
+   trạng thái đang nhập dở trên chính máy này (sl,pb,huongMe,ngaysx,lot,nv) —
+   khớp theo TÊN sản phẩm. Không làm vậy thì mỗi 20 giây, mẻ đang gõ dở trên máy
+   nhân viên bị xoá trắng khi cấu hình mới về (bug H1 — xem PRODUCTION-PROJECT-AUDIT.md). */
+function apCauHinhVaoSP(spCu,spMoi){
+  const cu={}; (spCu||[]).forEach(p=>{ if(p&&p.ten) cu[p.ten]=p });
+  return (spMoi||[]).map(p=>{
+    const c=cu[p.ten];
+    const o={...p, sl:c?c.sl:'', pb:c?[...c.pb]:[], huongMe:c?c.huongMe:'',
+      ngaysx:c?c.ngaysx:'', lot:c?c.lot:'', nv:c?c.nv:'',
+      daInPhieu:c?!!c.daInPhieu:false, xacNhanCT:c?!!c.xacNhanCT:false,
+      xacNhanCTBoi:c?c.xacNhanCTBoi||'':'', xacNhanCTSnap:c?c.xacNhanCTSnap||'':'',
+      /* PATCH V1.1 mục P1-A: xacNhanCTLuc cũng là state đang nhập dở (mốc lúc bấm xác nhận
+         phiếu, gắn với đúng nội dung phiếu đang mở) — phải giữ nguyên qua mỗi lần kéo cấu
+         hình mới về, giống xacNhanCTBoi/xacNhanCTSnap, không thì mất giờ xác nhận thật. */
+      xacNhanCTLuc:c?c.xacNhanCTLuc||'':''};
+    if(!c)pbTuDong(o); // mặt hàng mới về từ Admin, chưa có runtime state nào — tự tạo dòng nếu chỉ 1 quy cách
+    return o;
+  });
+}
+async function dbKeoCauHinh(){
+  if(!DONGBO_URL||dbDangKeo)return;
+  dbDangKeo=true;
+  try{
+    const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=cauhinh');
+    /* 27/08/2026-R3: khách yêu cầu "Admin toàn quyền" — bỏ hẳn ý định thêm nút xoá riêng bên máy
+       nhân viên (đã thử ở bản R2, khách phản hồi không muốn). Thay bằng: máy nhân viên tự nhận
+       lệnh xoá từ Admin ngay trong lần đồng bộ cấu hình định kỳ (20 giây/lần, kênh đã có sẵn) —
+       so mốc xoaMocTs server trả về với mốc ĐÃ ÁP gần nhất của máy này (xoaMocApDung); khác thì
+       tự xoá nk/bcNgay cục bộ, không cần bấm gì. Cố ý CHỈ xoá nk/bcNgay (đúng đúng phạm vi nút
+       "Xoá dữ liệu mô phỏng" bên Admin) — không đụng sp/kho/cấu hình đang nhập dở (giữ invariant
+       H1, xem apCauHinhVaoSP() ngay dưới). Cần Code.gs bản mới nhất (có xoaMocTs) mới có field
+       này trong phản hồi — bản Code.gs cũ vẫn chạy bình thường, chỉ là chưa có tính năng này. */
+    if(j.ok && j.xoaMocTs && j.xoaMocTs!==xoaMocApDung){
+      const coGi=nk.length||bcNgay.length;
+      nk=[]; bcNgay=[]; xoaMocApDung=j.xoaMocTs;
+      /* 27/08/2026 (rà lỗi "ít lỗi hơn"): lưu NGAY ở đây, không chờ khối "if(j.cauhinh)" bên dưới
+         (chỗ luu() vốn được gọi) — nếu 1 phản hồi nào đó có xoaMocTs nhưng lại thiếu/rỗng cauhinh
+         (chưa xảy ra ở Code.gs hiện tại, nhưng phòng trước), việc xoá vẫn phải được LƯU LẠI ngay,
+         không thì tải lại trang trước lần đồng bộ kế tiếp sẽ làm nk/bcNgay "sống lại" từ ổ lưu cũ
+         trong khi xoaMocApDung cũng bị lùi lại theo — khiến thông báo xoá hiện lại 1 lần nữa. */
+      luu();
+      if(coGi)bao('Quản lý vừa xoá dữ liệu mô phỏng — máy này đã tự xoá theo (mẻ đã ghi + báo cáo chốt thực tế)');
+    }
+    if(j.ok && j.cauhinh){
+      const c=j.cauhinh;
+      if(Array.isArray(c.sp)&&c.sp.length)sp=apCauHinhVaoSP(sp,c.sp);
+      if(Array.isArray(c.kho))kho=c.kho;
+      if(Array.isArray(c.cp))cp=c.cp;
+      if(Array.isArray(c.dr))dr=c.dr;
+      if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
+      if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
+      if(c.kgQC&&typeof c.kgQC==='object')kgQC=c.kgQC;
+      if(Array.isArray(c.nvDS))nvDS=c.nvDS;
+      if(typeof c.nlTong==='number')nlTong=c.nlTong;
+      if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
+      if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
+      luu(); if(typeof ve==='function')ve();
+    }
+    dbVeTT('ok');
+  }catch(e){ dbVeTT('loi', e.message); }
+  dbDangKeo=false;
+}
+function dbBatDauVongLap(){
+  if(!DONGBO_URL)return;
+  dbKeoCauHinh();
+  setInterval(dbKeoCauHinh,20000);
+  setInterval(()=>{ const cho=nk.filter(r=>!r.daGui); if(cho.length)dbDayMe(cho);
+    const choBc=bcNgay.filter(r=>!r.daGui); if(choBc.length)dbDayBaoCao(choBc); },15000);
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const el=document.getElementById('dbDen');
+  if(el)el.addEventListener('click',()=>{dbKeoCauHinh();
+    const cho=nk.filter(r=>!r.daGui);if(cho.length)dbDayMe(cho);
+    const choBc=bcNgay.filter(r=>!r.daGui);if(choBc.length)dbDayBaoCao(choBc)});
+});
+
+let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='';
+// 27/08/2026-R3: mốc "lần Admin xoá dữ liệu mô phỏng" gần nhất máy này ĐÃ áp — xem dbKeoCauHinh()
+let xoaMocApDung='';
+/* 25/08/2026-J: "Báo cáo tiến độ" — gắn với ĐÚNG LÔ đã ghi trong ngày (chọn từ nk[]), không
+   còn gõ tự do theo mặt hàng: chọn lô → kgKeHoach lấy từ r.sl (số kg đã ghi lúc pha mẻ), nhập
+   kgThucTe (số kg THỰC TẾ hoàn thành) + lý do nếu chưa đạt.
+   bcNgay[] = {id,ngay,lot,sp,quyCach,kgKeHoach,kgThucTe,lyDo,nv,ts,daGui}. Gửi về Admin qua
+   đúng file .json xuất mẻ sẵn có (xem xuatMe()), không thêm kênh mạng riêng. */
+let bcNgay=[];
+/* 26/08/2026 — PATCH V1.1 mục P1-C: audit trail APPEND-ONLY — ai/làm gì/lúc nào/trước→sau.
+   Chỉ ghi field liên quan (KHÔNG lưu toàn bộ app state vào 1 event). Đồng bộ qua đúng kênh
+   file .json xuất/nhận mẻ sẵn có (xuatMe()/#nvIn bên Admin), dedupe theo id giống nk/bcNgay —
+   không thêm kênh mạng riêng nào. Không sửa/xoá event cũ, chỉ push thêm.
+   auditEvents[] = {id,entityType,entityId,action,actor,at,before,after,source,daGui}. */
+let auditEvents=[];
+function ghiAudit(entityType,entityId,action,before,after){
+  auditEvents.push({id:'AE'+Date.now()+'-'+Math.floor(Math.random()*100000),
+    entityType,entityId:String(entityId||''),action,actor:toi||'',at:new Date().toISOString(),
+    before:before===undefined?null:before, after:after===undefined?null:after, source:'employee'});
+}
+let nlTong=0, nlNgayKhai='', nlGhiChu=''; // 25/08/2026: theo dõi tiến độ so với 1 lô nguyên liệu thô chung admin khai báo — xem tongDaSanXuat()
+let temCot=5,temHang=4; // khổ in tem phụ, đồng bộ ý nghĩa với bản admin
+let tab='me', moSP=-1, traLot='', dangGhi=false;
+let loDong=new Set(); // 27/08/2026 (phản hồi lần 4): các thẻ lô ở tab Tra lô đã bấm THU GỌN (mặc định mở)
+const $=id=>document.getElementById(id);
+/* 27/08/2026: chấp nhận cả dấu phẩy lẫn dấu chấm thập phân, đồng bộ với bản Admin —
+   xem chú thích cùng ngày ở bang-tra-huong-lieu.html. */
+const num=v=>{const n=parseFloat(String(v==null?'':v).trim().replace(',','.'));return isFinite(n)?n:0};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=x=>x===0?'0':(Math.abs(x)<10?(Math.round(x*100)/100).toString().replace('.',','):Math.round(x).toLocaleString('vi-VN'));
+const z2=n=>String(n).padStart(2,'0');
+const isoNay=()=>{const d=new Date();return `${d.getFullYear()}-${z2(d.getMonth()+1)}-${z2(d.getDate())}`};
+const vnNgay=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(iso||'')};
+const hai=v=>{const t=String(v??'').replace(/\D/g,'');return t?t.slice(0,2).padStart(2,'0'):''};
+const mmyy=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-/);return m?m[2]+m[1].slice(2):''};
+const lotDep=l=>String(l||'').length===10?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4,6)} ${l.slice(6)}`:String(l||'');
+const kgCua=q=>{const v=+kgQC[q];return isFinite(v)&&v>0?v:0};
+/* 26/08/2026 — PATCH KIẾN TRÚC V1 (bản O), mục A4/B1: đơn vị hương liệu ĐÚNG theo nghiệp vụ
+   là GRAM (g), không phải mg như nhãn cũ. Công thức số học GIỮ NGUYÊN, chỉ đổi semantic:
+   kết quả trả về là số GRAM hương cần dùng.
+   LEGACY FIELD NAME: p.ml — vẫn giữ tên field để không phá dữ liệu cũ, nhưng từ bản này giá
+   trị được hiểu là GRAM (g)/mẻ chuẩn, không phải ml/mg. */
+const lieu=(p,kg)=>num(p.kg)>0?num(p.ml)/num(p.kg)*num(kg):0;
+/* 26/08/2026 — PATCH V1.1 mục P0.2 (UNSCENTED): "Không mùi" là sentinel "không dùng hương
+   liệu", không phải hương thật — dose PHẢI luôn = 0g bất kể công thức p.ml/p.kg của mặt hàng
+   là bao nhiêu. dùng fragranceDoseG() thay lieu() ở mọi nơi hiển thị/ghi số hương thực tế. */
+const UNSCENTED_LABEL='Không mùi';
+const isUnscented=v=>String(v||'').trim().toLocaleLowerCase('vi')===UNSCENTED_LABEL.toLocaleLowerCase('vi');
+const fragranceDoseG=(p,kg,selected)=>isUnscented(selected)?0:lieu(p,kg);
+/* 26/08/2026-M2: hàm lượng nguyên liệu — admin khai kg từng loại/mẻ chuẩn (p.kg), quy đổi
+   theo đúng số kg đang sản xuất thực tế (kg). Chỉ xem, không sửa được bên nhân viên. */
+const nlDong=(p,kg)=>{
+  const ds=p.congThucNL||[]; if(!ds.length)return [];
+  const ti=(num(p.kg)>0&&num(kg)>0)?num(kg)/num(p.kg):1;
+  return ds.map(x=>({ten:x.ten||'',kg:Math.round(num(x.kg)*ti*1000)/1000}));
+};
+function chiaBao(kg,q){const dv=kgCua(q);if(dv<=0)return null;
+  const so=Math.floor(num(kg)/dv);return{so,du:Math.round((num(kg)-so*dv)*1000)/1000,dv}}
+const donVi=q=>/kg|kilo|tấn/i.test(q)?'bao':'túi';
+/* 25/08/2026 — mặt hàng chỉ có ĐÚNG 1 quy cách hợp lệ thì tự tạo sẵn dòng đóng gói,
+   khỏi bắt bấm "+ Thêm quy cách" cho một lựa chọn không có gì để chọn. */
+function pbTuDong(p){
+  const ds=p.dauRa||[];
+  if(ds.length===1&&!((p.pb||[]).length))p.pb=[{qc:ds[0],kg:p.sl||''}];
+}
+function sinhLot(p,huong,qc,ngaysx){
+  const t=[];const ss=hai(p&&p.maSP);if(!ss)t.push('mã sản phẩm');
+  const hh=huong?hai(maHuong[huong]):'';if(!huong)t.push('chưa chọn hương');else if(!hh)t.push('mã hương');
+  const qq=qc?hai(maQC[qc]):'';if(!qc)t.push('chưa chọn quy cách');else if(!qq)t.push('mã quy cách');
+  const my=mmyy(ngaysx);if(!my)t.push('ngày sản xuất');
+  return t.length?{lot:'',thieu:t}:{lot:ss+hh+qq+my,thieu:[]}}
+const ctHL=p=>{const r=String(p&&p.pkbCT||'').trim();if(r)return{ct:r,rieng:true};
+  const c=cp.find(x=>x.ten===(p&&p.pkbChat));return{ct:String(c&&c.ct||''),rieng:false}};
+const hanDung=(iso,nam)=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),y=parseInt(nam,10);
+  return (!m||!isFinite(y)||y<=0)?'':`${m[3]}/${m[2]}/${+m[1]+y}`};
+const temThieu=p=>{const t=p&&p.hstem||{};
+  return ['tenVN','thanhPhan','congDung','doAm','hdsd','baoQuan','xuatXu','soTCCS','hsdNam']
+    .filter(k=>!String(t[k]||'').trim())};
+
+/* 25/08/2026: tổng kg đã sản xuất từ mốc ISO (mỗi mẻ có thể ra nhiều dòng nk theo quy cách,
+   nên phải gộp về đúng 1 nhóm mẻ gốc — tách theo tiền tố id trước dấu "-" — tránh đếm trùng. */
+/* 25/08/2026-H: đồng bộ đúng công thức bên Admin — mẻ bị đánh dấu "ngừng sản xuất" (r.ngungSX,
+   khai từ Admin) chỉ tính đúng số kg THỰC TẾ đã dùng (r.slThucTe), phần dư coi như chưa dùng
+   để tiến độ ở đây khớp với Admin (nhân viên chỉ xem, không tạo/sửa được ngừng sản xuất). */
+function tongDaSanXuat(tuISO){
+  const nhom={};
+  nk.forEach(r=>{
+    if(r.huy)return;
+    if(tuISO && String(r.ts||'')<tuISO)return;
+    const goc=String(r.id||'').split('-')[0]; if(!goc)return;
+    (nhom[goc]=nhom[goc]||[]).push(r);
+  });
+  let tong=0;
+  Object.values(nhom).forEach(ds=>{
+    const rNgung=ds.find(r=>r.ngungSX);
+    tong+=rNgung?num(rNgung.slThucTe):num(ds[0].kgVao!==undefined?ds[0].kgVao:ds[0].sl);
+  });
+  return Math.round(tong*1000)/1000;
+}
+/* 27/08/2026 (phản hồi lần 3): BỎ "Tiến độ nguyên liệu đầu vào" — xem lý do ở bản Admin (đổi
+   sang tồn kho + giá riêng từng nguyên liệu). nlTong/nlNgayKhai/nlGhiChu vẫn giữ trong dữ
+   liệu lưu/nạp để không phá máy cũ, chỉ không còn hiển thị. */
+const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung});
+addEventListener('pagehide',()=>luu());
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luu()});
+
+let dlgRes=null;
+function hoi(t,m,o={}){return new Promise(r=>{dlgRes=r;$('dlgT').textContent=t;$('dlgM').innerHTML=m;
+  $('dlgO').textContent=o.nutOK||'Xác nhận';$('dlgC').textContent=o.nutHuy||'Hủy';
+  $('dlgO').style.background=o.nguyHiem?'#F0564B':'';$('dlgO').style.color=o.nguyHiem?'#fff':'';
+  $('mask').classList.add('on')})}
+function dongDlg(v){$('mask').classList.remove('on');if(dlgRes){const r=dlgRes;dlgRes=null;r(v)}}
+function bao(m){const t=$('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('show'),2400)}
+
+/* ═══ Vẽ ═══ */
+function veHom(){
+  const h=$('hom'), hn=isoNay(), n=nk.filter(r=>r.ngaysx===hn&&!r.huy).length;
+  const gio=new Date().getHours();
+  const nhac = n===0 && gio>=15;
+  h.className='hom'+(nhac?' nhac':'');
+  h.innerHTML = nhac
+    ? `Hôm nay <b>chưa ghi mẻ nào</b>. Nếu đã pha rồi thì nhớ ghi trước khi về.`
+    : `Hôm nay đã ghi <b>${n}</b> mẻ${n?` · lô gần nhất <b>${lotDep(nk[nk.length-1].lot)}</b>`:''}`;
+}
+function ve(){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===tab));
+  $('whoBtn').textContent = toi || 'Chọn tên';
+  veHom();
+  const v=$('view');
+  if(!sp.length){ v.innerHTML=`<div class="card"><div class="note">Chưa có dữ liệu.<br>Vào tab <b>Dữ liệu</b> → <b>Nạp cấu hình</b>, chọn file <b>.json</b> mà quản lý gửi.</div></div>`;
+    if(tab==='dl')v.innerHTML=veDL(); if(tab==='bc')v.innerHTML=veBaoCao(); return }
+  v.innerHTML = tab==='me' ? (moSP<0?veDS():veMe()) : tab==='lo' ? veLo() : tab==='cp' ? veCP() : tab==='bc' ? veBaoCao() : veDL();
+  if(tab==='me'&&moSP>=0)nlPatch();
+}
+/* 25/08/2026-I: "Báo cáo tiến độ" — ghi chú cuối ngày, KHÔNG gắn với mẻ đã ghi thật (khách
+   chốt 25/08/2026-J: gắn báo cáo với ĐÚNG LÔ đã ghi trong ngày (nk[], chọn từ danh sách) —
+   kg "kế hoạch" lấy thẳng từ số kg đã ghi lúc pha mẻ (r.sl).
+   26/08/2026-M: BUG NGHIÊM TRỌNG phát hiện qua phản hồi thật của khách — đúng kịch bản gốc
+   của tính năng này ("dự định làm 500kg nhưng trục trặc chỉ làm được 300kg") thì KHÔNG CÓ lô
+   nào được ghi trong ngày (ghi mẻ chỉ tạo bản ghi khi đã HOÀN TẤT + xác nhận công thức — mẻ
+   dở dang/hỏng giữa chừng không bao giờ có lô). Bản J/K bắt buộc phải chọn 1 lô đã ghi mới
+   gửi được báo cáo → đúng lúc cần báo cáo nhất (mẻ KHÔNG xong) thì form biến mất hoàn toàn,
+   không có cách nào gửi. Sửa: LUÔN cho gửi báo cáo — nếu có lô đã ghi hôm nay thì chọn lô
+   (tự điền kế hoạch từ r.sl, giữ nguyên lợi ích tra cứu theo lô thật của bản J/K); nếu KHÔNG
+   có lô nào (mẻ chưa ghi được) thì chọn thẳng MẶT HÀNG + tự tay nhập kế hoạch (dự kiến) kg. */
+/* 26/08/2026 — PATCH KIẾN TRÚC V1, mục G3: chỉ CẢNH BÁO (không chặn cứng) khi chênh lệch
+   kế hoạch/thực tế vượt ngưỡng — cấu hình được, chưa phải business rule cố định. */
+const NGUONG_VARIANCE_PCT=2;
+function variance(kh,tt){
+  const v=Math.round((tt-kh)*1000)/1000;
+  const pct=kh>0?Math.round((v/kh)*10000)/100:0;
+  return {v,pct};
+}
+function variKgStr(v){const d=v>0?'+':(v<0?'-':'');return d+fmt(Math.abs(v))+' kg'}
+function variPctStr(pct){const d=pct>0?'+':'';return d+pct.toFixed(2).replace('.',',')+'%'}
+/* 27/08/2026 (phản hồi lần 3): khách phản hồi ô "chọn mặt hàng (khi chưa ghi được lô nào)"
+   chỉ liệt kê tên trần, khó nhận ra hơn ô "tra lô" (oLot ở tab Lô — liệt kê kèm hương/số
+   lô/ngày, mới nhất trước). Ô này KHÔNG THỂ liệt kê lô thật (đúng lúc dùng là khi mẻ hôm
+   nay hỏng/dở dang nên chưa hề có lô nào) — nhưng làm được phần "dễ hơn": mỗi mặt hàng kèm
+   theo hương gần nhất đã dùng + mẻ chuẩn để dễ nhận ra, và mặt hàng có sản xuất gần đây xếp
+   lên trước (giống cách oLot ưu tiên bản ghi mới nhất), thay vì liệt kê nguyên danh sách theo
+   thứ tự khai báo. Vẫn giữ value=index vào sp[] — không đổi logic bcGuiBtn phía dưới. */
+function bcSpOptions(){
+  const gapMoiNhat=new Map();
+  nk.forEach(r=>{if(!r.sp)return;const cu=gapMoiNhat.get(r.sp);
+    if(!cu||String(r.ts||'')>String(cu.ts||''))gapMoiNhat.set(r.sp,r)});
+  const co=[],chua=[];
+  sp.forEach((p,i)=>{const r=gapMoiNhat.get(p.ten);(r?co:chua).push({p,i,r})});
+  co.sort((a,b)=>String(b.r.ts||'').localeCompare(String(a.r.ts||'')));
+  const dong=({p,i,r})=>`<option value="${i}">${esc(p.ten)}${r?` — ${esc(r.huong||'?')} — Mẻ chuẩn ${fmt(num(p.kg))} kg — gần nhất ${esc(vnNgay(r.ngaysx))}`:` — Mẻ chuẩn ${fmt(num(p.kg))} kg — chưa từng ghi mẻ`}</option>`;
+  return co.map(dong).join('')+chua.map(dong).join('');
+}
+function veBaoCao(){
+  const hn=isoNay();
+  const dsLo=nk.filter(r=>!r.huy&&r.ngaysx===hn);
+  let o=`<div class="card">
+    <div class="fld"><label>Chốt thực tế sản xuất</label>
+    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Dùng khi không kịp đúng số đã dự kiến — kể cả khi mẻ CHƯA ghi được (trục trặc giữa chừng). Có lô đã ghi hôm nay thì chọn lô; chưa có lô nào thì chọn thẳng mặt hàng và tự nhập kế hoạch.</div>`;
+  if(dsLo.length){
+    o+=`<select id="bcLotIn"><option value="">— chọn lô đã ghi hôm nay —</option>
+      ${dsLo.map(r=>`<option value="${esc(r.id)}">${esc(r.sp)} · ${esc(r.quyCach)} · ${esc(lotDep(r.lot))} · kế hoạch ${fmt(num(r.sl))} kg</option>`).join('')}
+    </select>
+    <div class="log" style="margin:6px 0;font-size:12.5px;color:var(--txt3)">— hoặc, nếu mẻ hôm nay CHƯA ghi được lô nào —</div>`;
+  }
+  o+=`<select id="bcSpIn"><option value="">— chọn mặt hàng (khi chưa ghi được lô nào) —</option>
+      ${bcSpOptions()}
+    </select>
+    <input id="bcKeHoachIn" type="text" inputmode="decimal" placeholder="Kế hoạch (dự kiến) kg — chỉ cần khi chọn mặt hàng ở trên" style="margin-top:8px">
+    <input id="bcKgIn" type="text" inputmode="decimal" placeholder="Số kg thực tế đã hoàn thành" style="margin-top:8px">
+    <textarea id="bcLyDoIn" placeholder="Lý do nếu chênh lệch nhiều (không bắt buộc) — VD: thiếu người, hư máy, hết nguyên liệu, dôi thành phẩm..." style="margin-top:8px;min-height:64px"></textarea>
+    <div class="log" style="margin:6px 0 0;font-size:12.5px;color:var(--txt3)">Chênh lệch trong khoảng ±${NGUONG_VARIANCE_PCT}% là bình thường, không bắt buộc ghi lý do. Chênh lệch nhiều hơn thì nên ghi rõ lý do để quản lý dễ đối chiếu.</div>
+    <button class="add" id="bcGuiBtn" style="margin-top:8px">Xác nhận số thực tế</button>
+  </div></div>`;
+  const dsHomNay=bcNgay.filter(r=>r.ngay===hn).slice().reverse();
+  o+=`<div class="sec">Đã chốt hôm nay (${vnNgay(hn)})</div>`;
+  if(!dsHomNay.length)o+=`<div class="card"><div class="log">Chưa chốt thực tế lần nào hôm nay.</div></div>`;
+  else o+=dsHomNay.map(r=>{
+    const kh=num(r.kgKeHoach),tt=num(r.kgThucTe),{v,pct}=variance(kh,tt),coLech=kh>0&&Math.abs(v)>0.001;
+    return `<div class="card lot"><h5>${esc(r.sp)}${r.quyCach?' · '+esc(r.quyCach):''}</h5>
+    ${r.lot?`<div class="kv"><span>Số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
+    ${kh>0?`<div class="kv"><span>Kế hoạch</span><b>${fmt(kh)} kg</b></div>`:''}
+    <div class="kv"><span>Thực tế</span><b style="color:${coLech?'var(--am)':'var(--cy)'}">${fmt(tt)} kg</b></div>
+    ${coLech?`<div class="kv"><span>Chênh lệch</span><b style="color:${Math.abs(pct)>NGUONG_VARIANCE_PCT?'#F0564B':'var(--am)'}">${variKgStr(v)} (${variPctStr(pct)})</b></div>`:''}
+    ${r.lyDo?`<div class="kv"><span>Lý do</span><b style="color:var(--am)">${esc(r.lyDo)}</b></div>`:''}
+    <div class="kv"><span>Người báo cáo</span><b>${esc(r.nv)}</b></div>
+    <div class="kv"><span>Lúc</span><b>${esc(String(r.ts||'').replace('T',' ').slice(0,19))}</b></div>
+    </div>`}).join('');
+  return o;
+}
+function veDS(){
+  let o=`<div class="sec">Chọn mặt hàng cần pha</div>`;
+  o+=sp.map((p,i)=>{
+    const tt=p.tt||'ok';
+    return `<div class="r" data-sp="${i}">
+      <div class="n"><b>${esc(p.ten)}</b><span>Mẻ chuẩn ${fmt(num(p.kg))} kg · ${fmt(num(p.ml))} g hương${p.pkb?' · có phun khử bụi':''}</span></div>
+      ${tt==='tam'?'<span class="bdg tam">Tạm ngưng</span>':''}
+      ${tt==='dinh'?'<span class="bdg dinh">Đình chỉ</span>':''}
+      <span class="go">›</span></div>`}).join('');
+  return o;
+}
+/* 27/08/2026 (phản hồi lần 3): "Ngày sản xuất" bị bỏ quên từ hôm trước (giá trị cũ còn lưu
+   trên máy) dễ làm nhân viên ghi nhầm ngày. Tự sửa lại đúng NGÀY THỰC mỗi lần vào màn hình
+   pha mặt hàng này — CHỈ khi mẻ CHƯA in phiếu (p.daInPhieu false): sau khi đã in phiếu, ngày
+   trên phiếu và ngày ghi mẻ phải khớp nhau (snapPhieu() đã chốt), không được tự đổi ngầm. */
+function ngaysxTuSua(p){
+  if(p&&!p.daInPhieu&&p.ngaysx&&p.ngaysx!==isoNay()){p.ngaysx=isoNay();luu()}
+}
+function veMe(){
+  const p=sp[moSP]; if(!p)return veDS();
+  ngaysxTuSua(p);
+  const kg=num(p.sl), ml=fragranceDoseG(p,kg,p.huongMe);
+  const chuan=num(p.kg);
+  let o=`<div class="card">
+    <div class="r" data-back="1" style="margin:-14px -14px 13px;border-radius:11px 11px 0 0;border-bottom:1px solid var(--line)">
+      <span class="go">‹</span><div class="n"><b>${esc(p.ten)}</b><span>Đổi mặt hàng khác</span></div></div>`;
+
+  if((p.tt||'ok')==='dinh')
+    return o+`<div class="canh"><b>Mặt hàng đang đình chỉ sản xuất.</b>${p.ttLyDo?'<br>Lý do: '+esc(p.ttLyDo):''}<br>Không ghi mẻ được. Báo quản lý.</div></div>`;
+  if((p.tt||'ok')==='tam')
+    o+=`<div class="note"><b>Mặt hàng đang tạm ngưng.</b>${p.ttLyDo?'<br>Lý do: '+esc(p.ttLyDo):''}<br>Vẫn ghi mẻ được nhưng hãy hỏi quản lý trước.</div>`;
+
+  o+=`<div class="fld"><label>Ngày sản xuất</label>
+    <input type="date" data-f="ngaysx" value="${esc(p.ngaysx||isoNay())}"></div>`;
+  o+=`<div class="fld"><label>Đầu vào dự kiến / kế hoạch sản xuất (kg)</label>
+    <input class="mn" data-f="sl" inputmode="decimal" value="${esc(p.sl??'')}" placeholder="${fmt(chuan)}"></div>
+    <div class="log" style="margin:-4px 0 0">Đây là số kg dự kiến trước khi làm. Khi hoàn tất sẽ chốt số thực tế riêng (tab Báo cáo) — không cần sửa lại kế hoạch nếu sản xuất dôi hoặc thiếu.</div>`;
+  o+=`<div id="canhKg">${canhKgHTML(p)}</div>`;
+
+  o+=`<div class="big"><div class="l">Hương liệu cần đổ</div>
+    <div class="v">${kg>0?fmt(Math.round(ml*10)/10):'—'}</div>
+    <div class="s">${isUnscented(p.huongMe)?'Không mùi · không dùng hương liệu':(kg>0?`g · cho ${fmt(kg)} kg`:'Nhập số kg ở trên')}</div></div>`;
+
+  if((p.congThucNL||[]).length){
+    o+=`<div class="fld"><label>Hàm lượng nguyên liệu (chỉ xem — quản lý chỉnh)</label>
+      <div class="nlbox lot" style="margin:0;border:none;padding:0;background:transparent"></div>
+      <div class="nllog log" style="margin-top:2px"></div></div>`;
+  }
+
+  const hs=p.huongs||[];
+  o+=`<div class="fld"><label>Hương của mẻ này — chọn một</label>`;
+  o+= hs.length
+    ? `<div class="chips">`+hs.map(h=>`<button data-h="${esc(h)}" class="${p.huongMe===h?'on':''}">${esc(h)}</button>`).join('')+`</div>`
+    : `<div class="canh">Mặt hàng chưa có hương nào. Báo quản lý.</div>`;
+  o+=`</div>`;
+
+  /* 25/08/2026-J: khách yêu cầu đưa "Đóng gói — quy cách" lên TRƯỚC "Phiếu công thức" — chọn
+     quy cách/số lô xong rồi mới in phiếu, vì phiếu công thức đã có in kèm số lô theo quy cách
+     (xem phieuHTML()), nên cần chọn quy cách trước thì phiếu in ra mới có đủ thông tin. */
+  o+=`<div class="fld"><label>Đóng gói — mỗi quy cách một số lô</label>`;
+  const pb=p.pb||[], ds=p.dauRa||[];
+  if(!ds.length)o+=`<div class="canh">Mặt hàng chưa gán quy cách. Báo quản lý.</div>`;
+  pb.forEach((d,k)=>{
+    o+=`<div class="pb">
+      <select data-pbq="${k}"><option value="">— chọn quy cách —</option>
+      ${ds.map(q=>`<option value="${esc(q)}"${d.qc===q?' selected':''}>${esc(q)}</option>`).join('')}</select>
+      <input data-pbk="${k}" inputmode="decimal" value="${esc(d.kg??'')}" placeholder="kg">
+      <button class="x" data-pbx="${k}">×</button></div>`;
+    const cb=d.qc?chiaBao(d.kg,d.qc):null;
+    const rl=d.qc?sinhLot(p,p.huongMe,d.qc,p.ngaysx||isoNay()):{thieu:['chưa chọn quy cách']};
+    o+=`<div class="pbi">`;
+    if(cb)o+=`${fmt(num(d.kg))} kg ÷ ${fmt(cb.dv)} kg = <b>${cb.so}</b> ${donVi(d.qc)}`+(cb.du>0?` <span class="du">· dư ${fmt(cb.du)} kg</span>`:` · vừa chẵn`);
+    o+=rl.thieu.length?`<br><span class="no">Chưa ra số lô: ${rl.thieu.map(esc).join(' · ')}</span>`
+      :`<br>Số lô <b>${lotDep(rl.lot)}</b>`;
+    o+=`</div>`;
+  });
+  if(ds.length)o+=`<button class="add" data-pbadd="1">+ Thêm quy cách</button>`;
+  const tong=pb.reduce((a,d)=>a+num(d.kg),0), le=Math.round((kg-tong)*1000)/1000;
+  if(pb.length)o+=`<div class="tong ${Math.abs(le)<0.001?'khop':'lech'}">
+    <span>Vào <b>${fmt(kg)}</b> kg</span><span>Ra <b>${fmt(tong)}</b> kg</span>
+    <span>${Math.abs(le)<0.001?'Khớp':(le>0?`Thiếu <b>${fmt(le)}</b> kg`:`Dư <b>${fmt(-le)}</b> kg`)}</span></div>`;
+  o+=`</div>`;
+
+  /* 25/08/2026: bắt in phiếu công thức + xác nhận trước khi ghi mẻ được — để quy trách
+     nhiệm nếu sau này phát sinh sai công thức. Xem gate tương ứng trong kiemRoiGhi(). */
+  // 27/08/2026 (phản hồi lần 4): trước khi xác nhận công thức đúng, nút ghi rõ đây là bản in
+  // ĐỂ KIỂM TRA ("Phiếu xác nhận công thức") — sau khi bấm "Xác nhận công thức đã in là đúng"
+  // (data-xnct) thì đổi lại thành "In phiếu công thức" (chỉ còn là in bình thường/in thêm bản).
+  o+=`<div class="fld"><label>Phiếu công thức</label>
+    <button class="add" data-inphieu="1">${p.xacNhanCT?'In phiếu công thức':'Phiếu xác nhận công thức'}</button>`;
+  if(p.daInPhieu){
+    o+= p.xacNhanCT
+      ? `<div class="note" style="margin-top:9px;color:var(--cy);background:var(--cyd);border-color:#1D4B4D">Đã xác nhận công thức đúng.</div>`
+      : `<div class="canh" style="margin-top:9px">Đã in phiếu — bấm xác nhận bên dưới trước khi ghi mẻ.</div>
+         <button class="add" data-xnct="1" style="color:var(--cy);border-color:#1D4B4D">Xác nhận công thức đã in là đúng</button>`;
+  }
+  o+=`</div>`;
+
+  const chuaXacNhanCT = !p.daInPhieu || !p.xacNhanCT;
+  o+=`<div class="pair"><button class="huy" data-xoa="1">Xoá nội dung</button>
+    <button class="oke" data-kiem="1"${chuaXacNhanCT?' disabled title="Cần in phiếu công thức và xác nhận trước"':''}>Xác nhận</button></div>`;
+  return o+`</div>`;
+}
+/* Cảnh báo gõ nhầm kg — 27/08/2026 (phản hồi lần 4): khách đọc đi đọc lại vẫn không hiểu tác
+   dụng của cảnh báo này, và khung đỏ tạo cảm giác đang làm sai — BỎ HẲN theo yêu cầu. Giữ lại
+   hàm rỗng + div#canhKg (thay vì xoá hết) để không phải sửa capNhat() và mọi chỗ gọi khác. */
+function canhKgHTML(p){
+  return '';
+}
+function veLo(){
+  let o=`<div class="card"><div class="fld"><label>Chọn lô cần tra</label>
+    <select id="oLot">
+      <option value=""${traLot?'':' selected'}>— Chọn lô —</option>
+      ${(()=>{
+        const gap=new Map();
+        nk.forEach(r=>{const l=String(r.lot||'');if(!l)return;
+          const cu=gap.get(l);
+          if(!cu||String(r.ts||'')>String(cu.ts||''))gap.set(l,r)});
+        return [...gap.entries()]
+          .sort((a,b)=>String(b[1].ts||'').localeCompare(String(a[1].ts||'')))
+          .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}</option>`).join('');
+      })()}
+    </select></div></div>`;
+  o+=`<div class="card"><div class="fld"><label>Khổ in tem phụ — cột × hàng / tờ A4</label>
+    <div style="display:flex;gap:9px">
+      <input id="temCotIn" type="number" min="1" max="10" value="${temCot}" style="width:70px">
+      <input id="temHangIn" type="number" min="1" max="10" value="${temHang}" style="width:70px">
+    </div></div>
+    <div class="note">In đúng theo số bao/túi của lô đó. Không rõ số bao thì in đủ 1 tờ (${temCot*temHang} tem) để cắt dần.</div></div>`;
+  if(!traLot)return o+`<div class="none">Chọn 1 lô ở trên để xem thông tin.</div>`;
+  const hit=nk.filter(r=>String(r.lot||'')===traLot).slice().reverse().slice(0,8);
+  if(!hit.length)return o+`<div class="none">Không tìm thấy lô nào.<br>Lô do máy khác ghi thì máy này chưa có.</div>`;
+  /* 25/08/2026: tô màu ưu tiên các dòng nhân viên hay cần tra nhanh — hương/quy cách/số bao
+     là 3 mục dễ pha nhầm nhất nên tô màu nổi bật nhất để dễ nhớ; các dòng còn lại giữ màu chữ mặc định. */
+  // 27/08/2026 (phản hồi lần 4): thêm nút thu gọn cho từng thẻ lô — bấm vào tiêu đề để
+  // đóng/mở, mặc định vẫn MỞ (không đổi hành vi cũ nếu chưa ai bấm thu gọn).
+  return o+hit.map(r=>{
+    const dong=loDong.has(r.id);
+    const tomTat=`${esc(r.sp)} · ${esc(r.huong)} · ${esc(r.quyCach)}`;
+    return `<div class="card lot"${r.huy?' style="opacity:.6"':''}>
+    <h5 data-thulo="${esc(r.id)}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <span>${lotDep(r.lot)}${r.huy?' <span style="font-size:12px;font-weight:800;color:var(--red);letter-spacing:.06em">· ĐÃ HUỶ</span>':''}${r.ngungSX?' <span style="font-size:12px;font-weight:800;color:var(--am);letter-spacing:.06em">· NGỪNG SẢN XUẤT</span>':''}</span>
+      <span style="font-size:12px;font-weight:400;color:var(--txt-3);white-space:nowrap">${dong?tomTat+' · ▸':'▾ Thu gọn'}</span>
+    </h5>
+    ${dong?'':`
+    ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--am)">${esc(r.ngungLyDo)||'—'}</b></div>`:''}
+    <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
+    <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
+    <div class="kv"><span>Hương</span><b style="color:var(--cy)">${esc(r.huong)}</b></div>
+    <div class="kv"><span>Quy cách</span><b style="color:var(--am)">${esc(r.quyCach)}</b></div>
+    <div class="kv"><span>Đầu vào</span><b>${fmt(num(r.sl))} kg</b></div>
+    ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:#A78BFA">${esc(r.soBao)} ${donVi(r.quyCach)}${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
+    <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cy)">${fmt(num(r.mlDung))} g</b></div>
+    <div class="kv"><span>Người pha</span><b>${esc(r.nv)}</b></div>
+    ${r.pkb?`<div class="kv"><span>Phun khử bụi</span><b>Có${r.pkbPhut?' · '+esc(r.pkbPhut)+' phút':''}${r.pkbChat?' · '+esc(r.pkbChat):''}</b></div>`:''}
+    <div class="kv"><span>Trạng thái</span><b style="color:${TRANG_THAI_SX[trangThaiSXCua(r)].mau}">${TRANG_THAI_SX[trangThaiSXCua(r)].n}</b></div>
+    ${(()=>{const ls=auditEvents.filter(a=>a.entityId===r.id||a.entityId===r.batchId).slice().reverse();
+      if(!ls.length)return '';
+      return `<details><summary style="cursor:pointer;color:var(--txt-2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`
+        +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
+        +`</details>`})()}
+    ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>`}
+    <button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
+    `}
+    </div>`}).join('');
+}
+function veCP(){
+  const co=sp.filter(p=>p.pkb);
+  if(!co.length)return `<div class="none">Không có mặt hàng nào cần phun khử bụi.</div>`;
+  return `<div class="sec">Công thức pha chất phun — chỉ đọc</div>`+co.map(p=>{
+    const h=ctHL(p);
+    return `<div class="card"><div class="kv"><span>Mặt hàng</span><b>${esc(p.ten)}</b></div>
+      <div class="kv"><span>Chất phun</span><b>${esc(p.pkbChat||'chưa gán')}</b></div>
+      <div class="kv"><span>Thời gian phun</span><b>${p.pkbPhut?esc(p.pkbPhut)+' phút':'chưa có'}</b></div>
+      <div class="fld" style="margin:11px 0 0"><label>Công thức pha${h.rieng?' — riêng cho mặt hàng này':' — dùng chung'}</label>
+      <div style="white-space:pre-wrap;font-size:14px;line-height:1.65;background:var(--bg);
+        border:1px solid var(--line);border-radius:9px;padding:12px">${esc(h.ct||'Chưa có công thức. Hỏi quản lý.')}</div></div>
+      </div>`}).join('');
+}
+function veDL(){
+  const chuaGui=nk.filter(r=>!r.daGui).length;
+  return `<div class="card">
+    <div class="fld"><label>Tủ hồ sơ công ty</label>
+      <div class="note" style="margin-bottom:9px">Kho tài liệu chung — có cả hồ sơ TCCS gốc. Mở ở tab khác, không ảnh hưởng dữ liệu đang ghi mẻ.</div>
+      <a href="https://claude.ai/code/artifact/d1e828c4-2883-42c8-9e05-8b1336e44677" target="_blank" rel="noopener" class="add" style="display:block;text-align:center;text-decoration:none;color:var(--am)">Mở tủ hồ sơ công ty</a></div>
+  </div>
+  <div class="card">
+    <div class="kv"><span>Người dùng máy này</span><b>${esc(toi||'chưa chọn')}</b></div>
+    <div class="kv"><span>Cấu hình nạp ngày</span><b>${esc(napNgay||'chưa nạp')}</b></div>
+    <div class="kv"><span>Mặt hàng</span><b>${sp.length}</b></div>
+    <div class="kv"><span>Mẻ đã ghi trên máy này</span><b>${nk.length}</b></div>
+    <div class="kv"><span>Chưa gửi cho quản lý</span><b style="color:${chuaGui?'var(--am)':'var(--cy)'}">${chuaGui}</b></div>
+  </div>
+  <div class="card">
+    <div class="fld"><label>Kết nối Google Sheet — ${DONGBO_URL?'<b style="color:var(--cy)">đã nối</b>':'<b style="color:var(--am)">chưa nối</b>'}</label>
+      <div class="note" style="margin-bottom:9px">Quản lý cho địa chỉ và mật khẩu, máy này nhập <b>một lần</b>. Bỏ trống thì vẫn ghi mẻ bình thường, chỉ không tự gửi lên — phải gửi file tay như cũ.</div>
+      <input id="knUrl" type="text" spellcheck="false" placeholder="https://script.google.com/macros/s/..../exec" value="${esc(DONGBO_URL)}" style="width:100%;font-size:12px;margin-bottom:6px">
+      <input id="knMk" type="text" spellcheck="false" placeholder="mật khẩu" value="${esc(LEGACY_SHARED_TOKEN)}" style="width:100%;font-size:12px">
+      <button class="add" id="knLuu" style="margin-top:8px;width:100%">Lưu &amp; kiểm tra</button>
+      <div id="knKq" class="note" style="margin-top:7px"></div></div>
+  </div>
+  <div class="card">
+    <div class="fld"><label>1 · Nạp cấu hình từ quản lý</label>
+      <div class="note" style="margin-bottom:9px">Chọn file <b>.json</b> quản lý gửi. Nạp cấu hình <b>không xoá</b> mẻ đã ghi trên máy này.</div>
+      <input type="file" id="fIn" accept=".json,application/json" style="font-size:13px;color:var(--txt2)"></div>
+  </div>
+  <div class="card">
+    <div class="fld"><label>2 · Gửi mẻ đã ghi cho quản lý</label>
+      <div class="note" style="margin-bottom:9px">Tải file rồi gửi cho quản lý (Zalo, USB, email đều được).</div>
+      <button class="add" data-xuat="1" style="color:var(--txt);border-style:solid">Tải file mẻ đã ghi (.json)</button></div>
+  </div>
+  <div class="card"><div class="note">Đây là bản chạy độc lập. Hai máy chưa tự thấy nhau — phải chuyển file tay.
+    Khi quản lý nối xong đồng bộ trực tuyến thì bước 1 và 2 sẽ tự động.</div></div>`;
+}
+
+/* ═══ Tem ═══ */
+function temHTML(r,p){
+  const t=p.hstem||{}, kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
+  const hd=hanDung(r.ngaysx,t.hsdNam);
+  return `<div class="tem"><div class="t1">NHÃN SẢN PHẨM</div>
+    <div class="t2">${esc(t.tenVN||r.sp)}</div>${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
+    <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
+    ${kv('Công dụng',t.congDung)}
+    ${kv('Thông số kỹ thuật',[t.doAm?'Độ ẩm '+t.doAm:'',t.kichThuoc?'Kích thước hạt '+t.kichThuoc:''].filter(Boolean).join(' · '))}
+    ${kv('Hướng dẫn sử dụng',t.hdsd)}${kv('Hướng dẫn bảo quản',t.baoQuan)}${kv('Xuất xứ',t.xuatXu)}
+    ${kv('Tiêu chuẩn áp dụng','TCCS '+t.soTCCS)}${kv('Ngày sản xuất',vnNgay(r.ngaysx))}
+    ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
+    ${kv('Số lô',lotDep(r.lot))}</table>
+    <div class="kh">Sản xuất và chịu trách nhiệm về hàng hóa<br>
+    <b>CÔNG TY TNHH ĐẦU TƯ – THƯƠNG MẠI – DỊCH VỤ – XUẤT NHẬP KHẨU KHÁNH HOÀNG</b><br>
+    Địa chỉ chịu trách nhiệm và sản xuất: Số 8A An Dương Vương, Phường Phú Định, TP. Hồ Chí Minh, Việt Nam<br>
+    Trụ sở: 134/28 Đào Duy Anh, Phường Đức Nhuận, TP. Hồ Chí Minh, Việt Nam<br>
+    Mã số thuế: 0318698788 &nbsp;&nbsp; Điện thoại: 0343 423 401</div>
+    <div class="cb">Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.</div>
+    </div>`;
+}
+/* Chỉ dựng ĐÚNG 1 trang A4 dàn kín tem giống nhau — xem giải thích ở bang-tra-huong-lieu.html
+   (quyết định 25/08/2026). In nhiều bản dùng "Số bản in" của trình duyệt/máy in. */
+function trangTem(r,p){
+  const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
+  const moiTo=cot*hang;
+  const mot=temHTML(r,p);
+  const cls=moiTo<=2?'to-lon':(moiTo<=6?'to-vua':'to-nho');
+  return `<div class="to ${cls}" style="grid-template-columns:repeat(${cot},1fr);grid-template-rows:repeat(${hang},1fr)">`
+    +Array.from({length:moiTo}).map(()=>mot).join('')+`</div>`;
+}
+/* Tra theo id, KHÔNG theo lot — nhiều mẻ cố ý dùng chung 1 số lô (bug H2). */
+/* Đánh dấu huỷ / bỏ huỷ 1 mẻ trên máy này — giữ nguyên bản ghi (không xoá), chỉ chặn in tem
+   và không tính vào "Hôm nay đã ghi N mẻ". 25/08/2026, đồng bộ với cơ chế bên Admin. */
+async function huyLo(id){
+  const r=nk.find(x=>x.id===id); if(!r)return;
+  if(r.huy){
+    const c=await hoi('Bỏ huỷ lô này?',`Lô <b>${lotDep(r.lot)}</b> in tem được lại như bình thường.`,{nutOK:'Bỏ huỷ'});
+    if(!c)return; r.huy=false; r.huyLuc='';
+    ghiAudit('batch',r.id,'CANCEL',{huy:true},{huy:false});
+    await luu(); ve(); bao('Đã bỏ huỷ'); return;
+  }
+  const c=await hoi('Huỷ lô này?',
+    `Lô <b>${lotDep(r.lot)}</b> · ${esc(r.sp)} · ${fmt(r.sl)} kg sẽ KHÔNG in tem được nữa.<br><br>Dữ liệu vẫn còn, bỏ huỷ lại được bất cứ lúc nào.`,
+    {nutOK:'Huỷ lô này',nguyHiem:true});
+  if(!c)return;
+  r.huy=true; r.huyLuc=new Date().toISOString();
+  ghiAudit('batch',r.id,'CANCEL',{huy:false},{huy:true});
+  await luu(); ve(); bao('Đã huỷ lô');
+}
+/* 25/08/2026: phiếu công thức pha chế — in trước khi ghi mẻ, dùng lại chính khung in #temIn
+   sẵn có (chỉ 1 khu vực hiển thị lúc in cùng lúc nên tái dùng được, không cần khung in riêng). */
+/* 25/08/2026-I: khách yêu cầu bổ sung Số lô vào phiếu (trước đây quên) — tính trước bằng
+   đúng sinhLot() như lúc ghi mẻ thật, dựa trên các dòng quy cách (p.pb) đã chọn. Mẻ chia
+   nhiều quy cách thì liệt kê đủ từng số lô. Và: sau khi đã "Xác nhận công thức đã in là
+   đúng" (p.xacNhanCT), lần in lại phiếu sau đó tự điền sẵn tên người đã xác nhận vào dòng
+   chữ ký (p.xacNhanCTBoi) — khỏi phải ghi tay lại. Đổi nhãn "Chữ ký người pha" → "Chữ ký
+   người chịu trách nhiệm sản xuất" theo đúng yêu cầu khách. */
+/* 27/08/2026 (phản hồi lần 3): khách yêu cầu 1 loạt sửa trên phiếu công thức —
+   (1) dòng "Mẻ chuẩn công thức" đã ĐÚNG lấy từ p.kg/p.ml (số gắn ở đầu mặt hàng, không đổi
+   theo lệnh sản xuất) — chỉ in ĐẬM để khỏi lẫn với dòng "Kế hoạch đầu vào" (số kg lệnh) ngay
+   bên dưới, 2 số kg cạnh nhau dễ lẫn nếu không phân biệt rõ.
+   (2) tên hương in đậm cho dễ đọc lúc pha.
+   (3) "Hàm lượng nguyên liệu" — khách hiểu nhầm từng dòng phải bằng nguyên số kg đầu vào;
+   thực chất đây là 1 trong NHIỀU loại cấu thành mẻ — thêm câu chú thích ngắn ngay dưới bảng.
+   (4) "Số lô" không lặp lại chữ "Quy cách X" khi chỉ có ĐÚNG 1 dòng quy cách (đã hiện ở dòng
+   "Quy cách đóng gói" ngay trên rồi, lặp lại là thừa) — chỉ lặp khi có NHIỀU dòng cần phân biệt.
+   (5) bỏ dòng "Người pha" riêng, dồn vào cuối dòng "Kế hoạch đầu vào của lệnh".
+   (6) thêm dòng "Đầu ra" — số bao/túi tính sẵn theo từng quy cách, đỡ phải tự chia tay. */
+function phieuHTML(p){
+  const kg=num(p.sl), ml=fragranceDoseG(p,kg,p.huongMe);
+  const kv=(k,v)=>`<tr><td class="k">${esc(k)}</td><td>${v}</td></tr>`;
+  const dong=(p.pb||[]).filter(d=>d.qc&&num(d.kg)>0);
+  const quyCachDG=dong.length?dong.map(d=>esc(d.qc)).join(', '):'Chưa chọn quy cách đóng gói';
+  const chiNhieuDong=dong.length>1;
+  const soLo=dong.length
+    ? dong.map(d=>{const rl=sinhLot(p,p.huongMe,d.qc,p.ngaysx||isoNay());
+        const tien=chiNhieuDong?`Quy cách <b>${esc(d.qc)}</b> · `:'';
+        return rl.thieu.length?`${tien}Chưa ra được số lô (${rl.thieu.map(esc).join(', ')})`:`${tien}Số lô <b>${lotDep(rl.lot)}</b>`}).join('<br>')
+    : 'Chưa chọn quy cách đóng gói';
+  // 27/08/2026 (phản hồi lần 4): bỏ lặp lại "quy cách:" ở đầu dòng Đầu ra khi CHỈ có 1 quy
+  // cách (đã có ở dòng "Quy cách đóng gói" ngay trên rồi) — cùng cách xử lý với dòng Số lô.
+  const dauRa=dong.length
+    ? dong.map(d=>{const cb=chiaBao(d.kg,d.qc);
+        const tien=chiNhieuDong?`${esc(d.qc)}: `:'';
+        return cb?`${tien}<b>${cb.so}</b> ${donVi(d.qc)} × ${fmt(cb.dv)} kg${cb.du>0?` · dư ${fmt(cb.du)} kg`:''}`:`${tien}chưa tính được`}).join('<br>')
+    : '—';
+  const chuKy=(p.xacNhanCT&&p.xacNhanCTBoi)?esc(p.xacNhanCTBoi):'______________________';
+  const nlList=nlDong(p,kg||num(p.kg));
+  // 27/08/2026 (phản hồi lần 4): sửa lại chú thích SAI ở bản trước — hương liệu (đo bằng gram)
+  // KHÔNG tính vào trọng lượng nguyên liệu (đo bằng kg): các dòng nguyên liệu cộng lại đã ĐỦ
+  // đúng số kg đầu vào rồi, không cần cộng thêm hương liệu vào mới đủ.
+  const nlRow=nlList.length
+    ?`<tr><td class="k">Hàm lượng nguyên liệu</td><td>${nlList.map(x=>`${esc(x.ten||'?')}: <b>${fmt(x.kg)}</b> kg`).join('<br>')}
+      <div style="font-size:9pt;color:#555;margin-top:3pt">* mỗi dòng là 1 loại nguyên liệu cấu thành mẻ — cộng các dòng nguyên liệu lại là đã đủ đúng số kg đầu vào (hương liệu tính riêng theo gram ở dòng trên, không tính vào trọng lượng nguyên liệu).</div></td></tr>`
+    :'';
+  return `<div class="to" style="display:block;padding:14pt"><div class="tem" style="max-width:480pt;margin:0 auto">
+    <div class="t1">PHIẾU CÔNG THỨC PHA CHẾ</div>
+    <div class="t2">${esc(p.ten)}</div>
+    <table>
+      ${kv('Phiên bản công thức', esc('v'+(num(p.recipeVersion)||1)+(p.recipeEffectiveFrom?' · hiệu lực từ '+vnNgay(p.recipeEffectiveFrom.slice(0,10)):'')))}
+      ${kv('Mẻ chuẩn công thức', `<b>${fmt(num(p.kg))} kg ứng ${fmt(num(p.ml))} g hương</b>`)}
+      ${kv('Hương của mẻ này', p.huongMe?`<b>${esc(p.huongMe)}</b>`:'chưa chọn')}
+      ${kv('Kế hoạch đầu vào của lệnh', (kg>0?fmt(kg)+' kg':'chưa nhập')+' · Người pha: '+esc(toi||'________'))}
+      ${kv('Hương liệu cần đổ', kg>0?fmt(Math.round(ml*10)/10)+' g':'—')}
+      ${nlRow}
+      ${kv('Ngày sản xuất', esc(vnNgay(p.ngaysx||isoNay())))}
+      <tr><td class="k">Quy cách đóng gói</td><td>${quyCachDG}</td></tr>
+      <tr><td class="k">Đầu ra</td><td>${dauRa}</td></tr>
+      <tr><td class="k">Số lô</td><td>${soLo}</td></tr>
+    </table>
+    <div class="kh" style="margin-top:8pt">Tôi xác nhận đã đọc và sẽ pha đúng công thức trên. Nếu sau này phát sinh sai lệch, phiếu này dùng để đối chiếu trách nhiệm.<br><br>Chữ ký người chịu trách nhiệm sản xuất: ${chuKy}</div>
+  </div></div>`;
+}
+/* Snapshot đúng nội dung đã in để phát hiện sửa số liệu SAU khi xác nhận — sửa gì thì bắt
+   xác nhận lại, tránh trường hợp đổi kg/hương/quy cách rồi in lại vẫn được tự điền tên như
+   chưa hề đổi gì (an toàn hơn — chữ ký chỉ có giá trị đúng với đúng nội dung đã xác nhận). */
+const snapPhieu=p=>JSON.stringify({sl:p.sl,huongMe:p.huongMe,pb:p.pb,ngaysx:p.ngaysx});
+/* 26/08/2026 — PATCH V1.1 mục P1-B: trạng thái vòng đời tối giản của MỘT DÒNG đã ghi trong
+   nk[] — PLANNED/CONFIRMED đã có sẵn ở p.daInPhieu/p.xacNhanCT (không cần một field mới song
+   song với hai cờ đó). Từ đây (RECORDED) trở đi mới cần theo dõi trên chính record, và trạng
+   thái được TÍNH TỪ dữ liệu sẵn có (nk + bcNgay) — không thêm field mới phải giữ đồng bộ tay,
+   không tạo hệ thống trạng thái song song, đúng yêu cầu "dùng batchId, nk[] và bcNgay[] hiện
+   có làm bridge" thay vì bộ máy trạng thái riêng. */
+const TRANG_THAI_SX={CANCELLED:{n:'Đã huỷ',mau:'var(--red)'},RECORDED:{n:'Đã ghi — chờ chốt thực tế',mau:'var(--am)'},COMPLETED:{n:'Đã chốt thực tế',mau:'var(--cy)'}};
+function trangThaiSXCua(r,dsBaoCao){
+  if(!r)return null;
+  if(r.huy)return 'CANCELLED';
+  const co=(dsBaoCao||bcNgay||[]).some(b=>b.recordId===r.id);
+  return co?'COMPLETED':'RECORDED';
+}
+/* 26/08/2026 — PATCH V1.1 mục P1-A: snapshot NỘI DUNG công thức (khác snapshot CHI PHÍ đã có
+   sẵn ở P0/bản O) — chụp lại đúng công thức tại thời điểm ghi mẻ, gắn cứng vào record, để sau
+   này Admin sửa công thức gốc không làm thay đổi ý nghĩa của mẻ đã ghi trước đó. Trả object
+   JSON thuần (không giữ tham chiếu tới sp[]) nên an toàn khi serialize lưu/đồng bộ. */
+function recipeSnapshot(p,selected,kg){
+  return {
+    version:num(p.recipeVersion)||1,
+    effectiveFrom:p.recipeEffectiveFrom||'',
+    productName:p.ten,
+    basisKg:num(p.kg), fragranceDoseGPerBasis:num(p.ml),
+    selectedFragrance:selected||'',
+    selectedDoseG:Math.round(fragranceDoseG(p,kg,selected)*10)/10,
+    nguyenLieu:(p.congThucNL||[]).map(x=>({ten:String((x&&x.ten)||''),kgTrenMe:num(x&&x.kg)})),
+    pkb:!!p.pkb, pkbPhut:p.pkbPhut||'', pkbChat:p.pkbChat||'',
+    congThucPhun:p.pkb?ctHL(p).ct:'', congThucPhunRieng:p.pkb?!!ctHL(p).rieng:false,
+    taoLuc:new Date().toISOString()
+  };
+}
+async function inPhieuCT(){
+  const p=sp[moSP]; if(!p)return;
+  $('temIn').innerHTML=phieuHTML(p);
+  // in lại ĐÚNG NỘI DUNG đã xác nhận trước đó thì giữ nguyên, tự điền lại tên — sửa gì thì bắt xác nhận lại
+  const giuNguyenXacNhan=p.daInPhieu&&p.xacNhanCT&&p.xacNhanCTSnap===snapPhieu(p);
+  p.daInPhieu=true; if(!giuNguyenXacNhan)p.xacNhanCT=false;
+  ghiAudit('recipe',p.ten,'PRINT_RECIPE',null,{kg:num(p.sl),huong:p.huongMe,ngaysx:p.ngaysx});
+  await luu(); ve();
+  bao('Phiếu công thức đã sẵn sàng in.');
+  setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
+}
+async function inTem(id){
+  const r=nk.find(x=>x.id===id); if(!r){bao('Không tìm thấy bản ghi');return}
+  if(r.huy){await hoi('Lô này đã huỷ','Lô đã được đánh dấu huỷ nên không in tem được. Bỏ huỷ trước nếu muốn in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  const p=sp.find(x=>x.ten===r.sp);
+  if(!p){await hoi('Không in được',`Mặt hàng <b>${esc(r.sp)}</b> không có trong cấu hình máy này.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  const th=temThieu(p);
+  if(th.length){await hoi('Chưa in được tem',
+    `<b>${esc(p.ten)}</b> chưa có đủ hồ sơ tem.<br><br>Còn thiếu <b>${th.length}</b> mục.<br>Báo quản lý bổ sung rồi nạp lại cấu hình.`,
+    {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  $('temIn').innerHTML=trangTem(r,p);
+  bao('1 trang tem đã sẵn sàng — cần thêm bản thì dùng "Số bản in" trong hộp thoại in.');
+  r.daInTem=true;r.inTemLuc=new Date().toISOString();await luu();
+  setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
+}
+
+/* ═══ Ghi mẻ — 4 lớp chống sai ═══ */
+async function kiemRoiGhi(){
+  if(dangGhi)return;                                   // (1) chặn bấm hai lần
+  const p=sp[moSP]; if(!p)return;
+  const ngay=p.ngaysx||isoNay(), kg=num(p.sl);
+  if((p.tt||'ok')==='dinh'){await hoi('Không ghi được','Mặt hàng đang đình chỉ sản xuất.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  if(!toi){await hoi('Chưa chọn tên','Bấm nút tên ở góc trên bên phải để chọn tên bạn.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  if(kg<=0){bao('Chưa nhập số kg đầu vào');return}
+  if(!p.huongMe){bao('Chưa chọn hương');return}
+  if(!p.daInPhieu||!p.xacNhanCT){bao('Cần in phiếu công thức và xác nhận trước khi ghi mẻ');return}
+  const dong=(p.pb||[]).filter(d=>d.qc&&num(d.kg)>0);
+  if(!dong.length){bao('Chưa nhập quy cách đóng gói');return}
+  const tq=dong.map(d=>d.qc).filter((v,k,a)=>a.indexOf(v)!==k);
+  if(tq.length){await hoi('Trùng quy cách',`Quy cách <b>${esc(tq[0])}</b> có ở hai dòng. Gộp lại làm một.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  const kq=dong.map(d=>({d,r:sinhLot(p,p.huongMe,d.qc,ngay)}));
+  const hong=kq.filter(x=>x.r.thieu.length);
+  if(hong.length){await hoi('Chưa ra được số lô',
+    hong.map(x=>`<b>${esc(x.d.qc)}</b> — ${x.r.thieu.map(esc).join(' · ')}`).join('<br>')+
+    `<br><br>Thiếu mã số thì báo quản lý.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+
+  // (2) chặn ghi trùng — cùng SP, hương, ngày, kg
+  const trung=nk.find(r=>r.sp===p.ten&&r.huong===p.huongMe&&r.ngaysx===ngay&&num(r.sl)===num(dong[0].kg));
+  if(trung){const c=await hoi('Hình như mẻ này đã ghi rồi',
+    `Đã có mẻ <b>${esc(p.ten)}</b> · hương <b>${esc(p.huongMe)}</b> · <b>${fmt(num(trung.sl))} kg</b> ghi ngày <b>${vnNgay(ngay)}</b>.<br>Số lô <b>${lotDep(trung.lot)}</b>.<br><br>Đây là mẻ MỚI hay bấm nhầm lần hai?`,
+    {nutOK:'Mẻ mới, cứ ghi',nutHuy:'Bấm nhầm, hủy',nguyHiem:true}); if(!c)return}
+
+  // 27/08/2026 (phản hồi lần 4): khách yêu cầu bỏ hẳn bước "Đọc lại rồi xác nhận" — bấm
+  // "Xác nhận" (trước đây "Kiểm tra rồi ghi") là ghi thẳng luôn, không qua hộp thoại đọc lại
+  // nữa. Việc kiểm tra công thức đã có ở bước in phiếu + xác nhận công thức (data-xnct) rồi.
+  dangGhi=true;
+  const goc='M'+Date.now();
+  /* 26/08/2026 — PATCH V1.1 mục P0.2 (UNSCENTED): "Không mùi" → dm=0 nên mlDung luôn ra 0
+     bất kể công thức p.ml/p.kg của mặt hàng — không tiêu hao hương, không phát sinh chi phí. */
+  const dm=isUnscented(p.huongMe)?0:(num(p.kg)>0?num(p.ml)/num(p.kg):0);
+  const chung={ts:new Date().toISOString(),sp:p.ten,ngaysx:ngay,nv:toi,
+    maSP:hai(p.maSP),maHuong:hai(maHuong[p.huongMe]),thangSX:mmyy(ngay),
+    huong:p.huongMe,huongList:[...(p.huongs||[])],meChuan:num(p.kg),mlChuan:num(p.ml),
+    pkb:!!p.pkb,pkbPhut:p.pkbPhut||'',pkbChat:p.pkbChat||'',
+    pkbCT:p.pkb?ctHL(p).ct:'',pkbCTRieng:p.pkb?ctHL(p).rieng:false,
+    nguyenlieu:p.nguyenlieu||'',trangThai:p.tt||'ok',kgVao:kg,soDong:kq.length,tuNV:1,daGui:0,
+    /* PATCH V1.1 mục P1-A (acceptance #5): dùng ĐÚNG timestamp đã lưu lúc bấm "Xác nhận công
+       thức" (p.xacNhanCTLuc) — không tạo timestamp mới ở đây nữa. Nếu vì lý do cũ (dữ liệu từ
+       trước bản vá, hoặc đường vòng nào đó) mà chưa có, mới rơi về giờ hiện tại để không rỗng. */
+    xacNhanCT:true,xacNhanCTLuc:p.xacNhanCTLuc||new Date().toISOString(),xacNhanCTBoi:p.xacNhanCTBoi||toi,
+    recipeVersion:num(p.recipeVersion)||1,recipeSnapshot:recipeSnapshot(p,p.huongMe,kg),
+    /* PATCH V1.1 mục P1-B: batchId chung cho MỌI dòng quy cách sinh ra từ CÙNG một lần bấm
+       "Kiểm tra rồi ghi" — một lệnh SX có thể ra nhiều quy cách (VD 5kg + 10kg cùng lúc), mỗi
+       dòng vẫn có id riêng (goc+'-'+n như cũ) nhưng giờ nhận diện được là "cùng một đợt sản
+       xuất" qua batchId, phục vụ báo cáo/tra cứu sau này mà không đổi gì ở sinhLot()/LOT. */
+    batchId:goc,
+    /* 26/08/2026 — PATCH KIẾN TRÚC V1, mục D1: bản Nhân viên KHÔNG giữ bảng giá hương liệu
+       (nguonHuong/huongDangDung chỉ có ở Admin) nên KHÔNG tự snapshot giá ở đây — luôn gửi
+       null, để Admin snapshot đúng 1 lần lúc nhận mẻ lần đầu (xem #nvIn ở bản Admin, mục D2).
+       Sau khi đã có giá trị (không null) thì không được ghi đè lại nữa.
+       26/08/2026 — PATCH V1.1 mục P0.2: RIÊNG "Không mùi" thì biết chắc chi phí = 0 ngay từ
+       đây (không cần chờ giá hương), nên snapshot thẳng 0/0 luôn, khỏi qua bước null. */
+    giaHuongTheoGLucSX:isUnscented(p.huongMe)?0:null,
+    chiPhiHuongLucSX:isUnscented(p.huongMe)?0:null};
+  kq.forEach((x,k)=>{const g=num(x.d.kg), cb=chiaBao(g,x.d.qc);
+    x.id=goc+'-'+(k+1); // lưu lại id thật đã sinh — dùng cho nút "In tem" trong hộp thoại "Đã ghi xong"
+    nk.push({...chung,id:x.id,lot:x.r.lot,sl:g,maQC:hai(maQC[x.d.qc]),quyCach:x.d.qc,
+      soBao:cb?cb.so:'',kgBao:cb?cb.dv:'',kgDu:cb?cb.du:'',mlDung:Math.round(dm*g*10)/10})});
+  ghiAudit('batch',goc,'RECORD_BATCH',null,
+    {sp:p.ten,huong:p.huongMe,soDong:kq.length,quyCach:kq.map(x=>x.d.qc),tongKg:kg,lot:kq.map(x=>x.r.lot)});
+  p.sl='';p.pb=[];p.huongMe='';p.daInPhieu=false;p.xacNhanCT=false;p.xacNhanCTBoi='';p.xacNhanCTSnap='';p.xacNhanCTLuc=''; pbTuDong(p);
+  await luu(); dangGhi=false; ve();
+  dbDayMe(nk.filter(r=>r.id.startsWith(goc)));
+  // 27/08/2026 (phản hồi lần 4): khách yêu cầu bỏ luôn hộp thoại "Đã ghi xong" — ghi xong báo
+  // nhanh 1 dòng (toast bao(), tự biến mất) thay vì hộp thoại phải bấm mới đóng được. Muốn in
+  // tem thì qua tab Tra lô (đã có sẵn nút "In tem phụ cho lô này").
+  bao(`Đã lưu ${kq.length} lô: `+kq.map(x=>lotDep(x.r.lot)).join(', '));
+}
+
+/* ═══ Sự kiện ═══ */
+document.querySelector('.tabs').addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab]'); if(!t)return; tab=t.dataset.tab; ve()});
+$('dlgC').addEventListener('click',()=>dongDlg(null));
+$('dlgO').addEventListener('click',()=>dongDlg(true));
+$('mask').addEventListener('click',e=>{if(e.target.id==='mask')dongDlg(null)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null)});
+
+$('whoBtn').addEventListener('click',async()=>{
+  if(!nvDS.length){await hoi('Chưa có danh sách','Chưa nạp cấu hình nên chưa có danh sách nhân viên.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  const m=`<div class="chips" id="chonNV">`+nvDS.map(v=>`<button data-cn="${esc(v)}" class="${toi===v?'on':''}">${esc(v)}</button>`).join('')+`</div>`;
+  await hoi('Bạn là ai?',m,{nutOK:'Xong',nutHuy:'Đóng'}); ve();
+});
+$('mask').addEventListener('click',async e=>{
+  const c=e.target.closest('[data-cn]');
+  if(c){toi=c.dataset.cn; luu();
+    document.querySelectorAll('[data-cn]').forEach(x=>x.classList.toggle('on',x===c));
+    $('whoBtn').textContent=toi; return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem);return}
+});
+
+$('view').addEventListener('click',async e=>{
+  // 27/08/2026 (phản hồi lần 4): thu gọn/mở từng thẻ lô ở tab Tra lô
+  const tl=e.target.closest('[data-thulo]');
+  if(tl){ const id=tl.dataset.thulo; if(loDong.has(id))loDong.delete(id); else loDong.add(id); ve(); return }
+  /* 10/09/2026 — bản R5: máy nhân viên tự khai địa chỉ đồng bộ + mật khẩu (xem chú thích ở
+     chỗ khai báo DONGBO_URL). Kiểm tra bằng một lệnh ĐỌC trước khi báo thành công. */
+  if(e.target.id==='knLuu'){
+    const url=String(($('knUrl').value||'')).trim(), mk=String(($('knMk').value||'')).trim();
+    const kq=$('knKq');
+    if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/.test(url)){
+      kq.innerHTML='<b style="color:var(--am)">Địa chỉ phải bắt đầu bằng https://script.google.com/macros/s/… và kết thúc bằng /exec</b>';return}
+    kq.textContent='Đang kiểm tra…';
+    try{
+      const j=await dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh');
+      if(j&&j.loi){kq.innerHTML='<b style="color:var(--am)">Máy chủ trả lời: '+esc(j.loi)+'</b>';return}
+      if(!ghiKetNoi(url,mk)){kq.innerHTML='<b style="color:var(--am)">Trình duyệt không cho lưu (chế độ ẩn danh?).</b>';return}
+      DONGBO_URL=url; LEGACY_SHARED_TOKEN=mk;
+      kq.innerHTML='<b style="color:var(--cy)">Đã nối. Máy này sẽ tự nhận cấu hình và tự gửi mẻ lên.</b>';
+      dbVeTT('ok'); dbKeoCauHinh();
+    }catch(err){ kq.innerHTML='<b style="color:var(--am)">Không gọi được: '+esc(err.message||String(err))+'</b>'; }
+    return}
+  if(e.target.id==='bcGuiBtn'){
+    if(!toi){bao('Bấm nút tên ở góc trên bên phải để chọn tên bạn trước khi báo cáo');return}
+    const lotEl=$('bcLotIn'), spEl=$('bcSpIn'), khEl=$('bcKeHoachIn'), kgEl=$('bcKgIn'), lyDoEl=$('bcLyDoIn');
+    const kg=num(kgEl.value);
+    if(kgEl.value===''||!(kg>=0)){bao('Nhập đúng số kg thực tế đã làm (0 trở lên)');return}
+    const lyDo=String(lyDoEl.value||'').trim();
+    let rec;
+    if(lotEl&&lotEl.value){
+      // 26/08/2026-M: có lô đã ghi hôm nay — gắn báo cáo với đúng lô đó, kế hoạch lấy từ r.sl
+      const r=nk.find(x=>x.id===lotEl.value&&!x.huy);
+      if(!r){bao('Không tìm thấy lô đã chọn — mở lại tab Báo cáo và chọn lại');return}
+      /* 26/08/2026 — PATCH V1.1 mục P0.1 (H2): lưu thêm recordId=nk.id — đây mới là khóa DUY
+         NHẤT của đúng bản ghi này. `lot` chỉ giữ lại để hiển thị/tra cứu, KHÔNG dùng làm khóa
+         nữa bên Admin (1 lot có thể trùng ở dữ liệu biên/nhiều dòng quy cách). */
+      rec={lot:r.lot,recordId:r.id,sp:r.sp,quyCach:r.quyCach,kgKeHoach:num(r.sl)};
+    }else{
+      // 26/08/2026-M: CHƯA ghi được lô nào (mẻ dở dang/hỏng giữa chừng) — chọn thẳng mặt hàng,
+      // tự nhập kế hoạch tay, không có lot/quyCach vì chưa có bản ghi mẻ nào để tra.
+      if(!spEl||!spEl.value){bao('Chưa chọn lô hoặc mặt hàng để báo cáo');return}
+      const kh=num(khEl.value);
+      if(khEl.value===''||!(kh>0)){bao('Chưa ghi được lô nào thì cần tự nhập kế hoạch (dự kiến) kg');return}
+      rec={lot:'',sp:sp[+spEl.value].ten,quyCach:'',kgKeHoach:kh};
+    }
+    const bcMoi={id:'BC'+Date.now()+'-'+Math.floor(Math.random()*1000),ngay:isoNay(),
+      ...rec,kgThucTe:kg,lyDo,nv:toi,ts:new Date().toISOString()};
+    bcNgay.push(bcMoi);
+    ghiAudit('batch',rec.recordId||rec.lot||rec.sp,'FINALIZE_ACTUAL',
+      {kgKeHoach:rec.kgKeHoach},{kgThucTe:kg,lyDo});
+    await luu(); ve();
+    dbDayBaoCao([bcMoi]); // 27/08/2026: tự đẩy ngay, không chờ đủ 15 giây của vòng lặp nền
+    /* 26/08/2026 — PATCH KIẾN TRÚC V1, mục G3: chỉ CẢNH BÁO (toast), KHÔNG chặn gửi — chênh
+       lệch vượt ngưỡng mà chưa ghi lý do vẫn cho gửi bình thường. */
+    const {pct}=variance(rec.kgKeHoach,kg);
+    bao(rec.kgKeHoach>0&&Math.abs(pct)>NGUONG_VARIANCE_PCT&&!lyDo
+      ?`Đã xác nhận số thực tế — chênh lệch ${variPctStr(pct)}, đang tự gửi cho quản lý. Nên bổ sung lý do lần sau.`
+      :'Đã xác nhận số thực tế — đang tự gửi cho quản lý (xem tab Báo cáo bên máy quản lý).');
+    return}
+  const back=e.target.closest('[data-back]'); if(back){moSP=-1;ve();return}
+  const r=e.target.closest('[data-sp]'); if(r){moSP=+r.dataset.sp;
+    const p=sp[moSP]; if(!p.ngaysx)p.ngaysx=isoNay(); ngaysxTuSua(p); pbTuDong(p); ve(); scrollTo(0,0); return}
+  const h=e.target.closest('[data-h]'); if(h){const p=sp[moSP];
+    p.huongMe = p.huongMe===h.dataset.h?'':h.dataset.h; luu(); ve(); return}
+  const pa=e.target.closest('[data-pbadd]'); if(pa){const p=sp[moSP]; p.pb=p.pb||[];
+    const da=p.pb.map(d=>d.qc), con=(p.dauRa||[]).filter(q=>!da.includes(q));
+    const conKg=Math.round((num(p.sl)-p.pb.reduce((a,d)=>a+num(d.kg),0))*1000)/1000;
+    p.pb.push({qc:con[0]||'',kg:conKg>0?String(conKg):''}); luu(); ve(); return}
+  const px=e.target.closest('[data-pbx]'); if(px){sp[moSP].pb.splice(+px.dataset.pbx,1);luu();ve();return}
+  const xo=e.target.closest('[data-xoa]'); if(xo){const p=sp[moSP];
+    const c=await hoi('Xoá nội dung','Xoá số kg, hương và quy cách đang nhập?',{nutOK:'Xoá',nguyHiem:true});
+    if(!c)return; p.sl='';p.pb=[];p.huongMe='';p.daInPhieu=false;p.xacNhanCT=false;p.xacNhanCTBoi='';p.xacNhanCTSnap='';p.xacNhanCTLuc=''; pbTuDong(p); luu(); ve(); bao('Đã xoá'); return}
+  const ip=e.target.closest('[data-inphieu]'); if(ip){await inPhieuCT();return}
+  const xn=e.target.closest('[data-xnct]'); if(xn){const p=sp[moSP]; if(p){
+    if(!toi){bao('Bấm nút tên ở góc trên bên phải để chọn tên bạn trước khi xác nhận');return}
+    p.xacNhanCT=true; p.xacNhanCTBoi=toi; p.xacNhanCTSnap=snapPhieu(p);
+    /* 26/08/2026 — PATCH V1.1 mục P1-A (acceptance #5): mốc thời gian xác nhận phải là ĐÚNG
+       lúc bấm nút này — trước đây timestamp bị tạo muộn hơn, ở kiemRoiGhi() lúc ghi mẻ, nên
+       nếu người pha xác nhận lúc 8:00 nhưng mãi 10:00 mới ghi mẻ thì record ghi sai giờ xác
+       nhận thành 10:00. */
+    p.xacNhanCTLuc=new Date().toISOString();
+    ghiAudit('recipe',p.ten,'CONFIRM_RECIPE',null,{kg:num(p.sl),huong:p.huongMe,luc:p.xacNhanCTLuc});
+    await luu(); ve(); bao('Đã xác nhận công thức')} return}
+  const km=e.target.closest('[data-kiem]'); if(km){await kiemRoiGhi();return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem);return}
+  const hl=e.target.closest('[data-huylo]'); if(hl){await huyLo(hl.dataset.huylo);return}
+  const xu=e.target.closest('[data-xuat]'); if(xu){xuatMe();return}
+});
+$('view').addEventListener('input',e=>{
+  const el=e.target;
+  if(el.id==='oLot'){traLot=el.value;ve();return}
+  if(el.id==='temCotIn'||el.id==='temHangIn'){
+    const v=Math.max(1,Math.min(10,Math.round(+el.value)||(el.id==='temCotIn'?5:4)));
+    if(el.id==='temCotIn')temCot=v; else temHang=v;
+    luu();return}
+  const f=el.dataset.f;
+  if(f){const p=sp[moSP];
+    if(f==='sl'){const v=String(el.value||'').replace(/[^\d.,]/g,'').replace(',','.');
+      if(el.value!==v)el.value=v; p.sl=v;
+      const pb=p.pb||[]; if(pb.length===1&&!pb[0].tay)pb[0].kg=v;
+    } else p[f]=el.value;
+    luu(); capNhat(); return}
+  const k=el.dataset.pbk;
+  if(k!==undefined){const p=sp[moSP], v=String(el.value||'').replace(/[^\d.,]/g,'').replace(',','.');
+    if(el.value!==v)el.value=v;
+    if(p.pb&&p.pb[+k]){p.pb[+k].kg=v;p.pb[+k].tay=1} luu(); capNhat(); return}
+});
+$('view').addEventListener('change',e=>{
+  const q=e.target.dataset.pbq; if(q===undefined)return;
+  const p=sp[moSP]; if(p.pb&&p.pb[+q]){p.pb[+q].qc=e.target.value;luu();ve()}
+});
+/* Cập nhật số liệu tại chỗ — KHÔNG vẽ lại, giữ con trỏ */
+function capNhat(){
+  const p=sp[moSP]; if(!p)return;
+  const kg=num(p.sl), ml=fragranceDoseG(p,kg,p.huongMe);
+  const big=document.querySelector('.big');
+  if(big){big.querySelector('.v').textContent=kg>0?fmt(Math.round(ml*10)/10):'—';
+    big.querySelector('.s').textContent=isUnscented(p.huongMe)?'Không mùi · không dùng hương liệu':(kg>0?`g · cho ${fmt(kg)} kg`:'Nhập số kg ở trên')}
+  document.querySelectorAll('.pbi').forEach((el,k)=>{
+    const d=(p.pb||[])[k]; if(!d)return;
+    const cb=d.qc?chiaBao(d.kg,d.qc):null;
+    const rl=d.qc?sinhLot(p,p.huongMe,d.qc,p.ngaysx||isoNay()):{thieu:['chưa chọn quy cách']};
+    let o=''; if(cb)o+=`${fmt(num(d.kg))} kg ÷ ${fmt(cb.dv)} kg = <b>${cb.so}</b> ${donVi(d.qc)}`+(cb.du>0?` <span class="du">· dư ${fmt(cb.du)} kg</span>`:` · vừa chẵn`);
+    o+=rl.thieu.length?`<br><span class="no">Chưa ra số lô: ${rl.thieu.map(esc).join(' · ')}</span>`:`<br>Số lô <b>${lotDep(rl.lot)}</b>`;
+    el.innerHTML=o});
+  const t=document.querySelector('.tong');
+  if(t){const tong=(p.pb||[]).reduce((a,d)=>a+num(d.kg),0), le=Math.round((kg-tong)*1000)/1000;
+    t.className='tong '+(Math.abs(le)<0.001?'khop':'lech');
+    t.innerHTML=`<span>Vào <b>${fmt(kg)}</b> kg</span><span>Ra <b>${fmt(tong)}</b> kg</span>
+      <span>${Math.abs(le)<0.001?'Khớp':(le>0?`Thiếu <b>${fmt(le)}</b> kg`:`Dư <b>${fmt(-le)}</b> kg`)}</span>`}
+  // 27/08/2026 (phản hồi lần 4): bỏ hẳn khung đỏ "xau" khi gõ số kg lệch xa mẻ chuẩn (khách
+  // phản hồi tạo cảm giác đang làm sai) — không còn toggle class này ở đây nữa.
+  const ck=$('canhKg'); if(ck)ck.innerHTML=canhKgHTML(p);
+  nlPatch();
+}
+/* 26/08/2026-N: hàm lượng nguyên liệu — tách khỏi veMe() (chuỗi HTML tĩnh lúc mở mặt hàng)
+   vì capNhat() chỉ patch một số phần tử SAU khi gõ, không vẽ lại toàn bộ thẻ (giữ con trỏ khi
+   gõ số kg). Gọi ở CẢ hai chỗ: lúc mở mặt hàng (ve()) và mỗi lần gõ số kg (capNhat()) — thiếu
+   chỗ nào thì hàm lượng hiện "đứng hình" theo số kg lúc mở, không theo đúng số đang gõ. */
+function nlPatch(){
+  const p=sp[moSP]; if(!p)return;
+  const box=document.querySelector('.nlbox'); if(!box)return;
+  const log=document.querySelector('.nllog');
+  const kg=num(p.sl), chuan=num(p.kg);
+  const ds=nlDong(p,kg||chuan);
+  box.innerHTML=ds.map(x=>`<div class="kv"><span>${esc(x.ten||'—')}</span><b>${fmt(x.kg)} kg</b></div>`).join('');
+  if(log)log.textContent=kg>0?`Theo đúng ${fmt(kg)} kg đang sản xuất.`:`Chưa nhập sản lượng — đang hiện theo mẻ chuẩn ${fmt(chuan)} kg.`;
+}
+/* Nạp cấu hình từ quản lý — KHÔNG đụng vào mẻ đã ghi */
+$('view').addEventListener('change',async e=>{
+  if(e.target.id!=='fIn')return;
+  const f=e.target.files&&e.target.files[0]; if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d||!Array.isArray(d.sp)||!d.sp.length)throw 0;
+    const c=await hoi('Nạp cấu hình',
+      `Từ file <b>${esc(f.name)}</b><br><br><b>${d.sp.length}</b> mặt hàng · <b>${(d.kho||[]).length}</b> hương · <b>${(d.nvDS||[]).length}</b> nhân viên<br><br>Mẻ đã ghi trên máy này <b>vẫn giữ nguyên</b>.`,
+      {nutOK:'Nạp'});
+    if(!c){e.target.value='';return}
+    sp=d.sp.map(x=>({...x,sl:'',pb:[],huongMe:'',ngaysx:''}));
+    kho=d.kho||[]; cp=d.cp||[]; dr=d.dr||[];
+    maHuong=d.maHuong||{}; maQC=d.maQC||{}; kgQC=d.kgQC||{}; nvDS=d.nvDS||[];
+    if(typeof d.nlTong==='number')nlTong=d.nlTong;
+    if(typeof d.nlNgayKhai==='string')nlNgayKhai=d.nlNgayKhai;
+    if(typeof d.nlGhiChu==='string')nlGhiChu=d.nlGhiChu;
+    napNgay=new Date().toISOString().slice(0,10);
+    if(toi&&!nvDS.includes(toi))toi='';
+    moSP=-1; await luu(); ve(); bao('Đã nạp cấu hình');
+  }catch(x){bao('File không đọc được')}
+  e.target.value='';
+});
+function xuatMe(){
+  const gui=nk.filter(r=>!r.daGui);
+  const guiBc=bcNgay.filter(r=>!r.daGui);
+  const guiAe=auditEvents.filter(r=>!r.daGui);
+  if(!gui.length&&!guiBc.length&&!guiAe.length){bao('Không có mẻ hoặc báo cáo mới để gửi');return}
+  const s=JSON.stringify({loai:'peroma-me',nv:toi,ngay:isoNay(),nk:gui,bcNgay:guiBc,auditEvents:guiAe},null,1);
+  try{
+    const b=new Blob([s],{type:'application/json'}), u=URL.createObjectURL(b);
+    const a=document.createElement('a'); a.href=u; a.download=`peroma_me_${(toi||'nv').replace(/\s/g,'')}_${isoNay()}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1500);
+    nk.forEach(r=>{if(!r.daGui)r.daGui=1});
+    bcNgay.forEach(r=>{if(!r.daGui)r.daGui=1});
+    auditEvents.forEach(r=>{if(!r.daGui)r.daGui=1});
+    luu(); ve();
+    bao(`Đã tải ${gui.length} mẻ · ${guiBc.length} báo cáo — gửi file cho quản lý`);
+  }catch(e){bao('Trình duyệt chặn tải file')}
+}
+(async function(){
+  try{const d=await store.get();
+    if(d){sp=d.sp||[];kho=d.kho||[];cp=d.cp||[];dr=d.dr||[];
+      maHuong=d.maHuong||{};maQC=d.maQC||{};kgQC=d.kgQC||{};nvDS=d.nvDS||[];
+      nk=d.nk||[];toi=d.toi||'';napNgay=d.napNgay||'';xoaMocApDung=d.xoaMocApDung||'';
+      nlTong=typeof d.nlTong==='number'?d.nlTong:0; nlNgayKhai=d.nlNgayKhai||''; nlGhiChu=d.nlGhiChu||'';
+      bcNgay=Array.isArray(d.bcNgay)?d.bcNgay:[];
+      auditEvents=Array.isArray(d.auditEvents)?d.auditEvents:[];
+      if(Number.isFinite(+d.temCot)&&+d.temCot>=1)temCot=Math.min(10,Math.round(+d.temCot));
+      if(Number.isFinite(+d.temHang)&&+d.temHang>=1)temHang=Math.min(10,Math.round(+d.temHang))}
+  }catch(e){}
+  ve();
+  dbBatDauVongLap();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# ═══════════════════════════════════════════════════════════════
+#  PEROMA — NHỮNG THỨ KHÔNG ĐƯỢC ĐƯA LÊN GITHUB
+# ═══════════════════════════════════════════════════════════════
+#  LƯU Ý TÊN FILE: phải đúng ".gitignore" (CÓ dấu chấm ở đầu).
+#  Đặt tên "gitignore" (thiếu dấu chấm) thì Git KHÔNG đọc, file
+#  này thành vô tác dụng và mọi thứ bên dưới vẫn bị đẩy lên.
+#  (Đây là lỗi có thật đã xảy ra ở repo zaka — 10/09/2026.)
+
+# ── Bản sao dữ liệu sản xuất ──
+# Chứa công thức pha, giá nhập, nhà cung cấp, tồn kho.
+*.json
+peroma-KHOI-PHUC-*.json
+huonglieu_backup_*.json
+cauhinh*.json
+!package.json
+!package-lock.json
+
+# ── Thông tin kết nối ──
+# Từ bản S7/R5, link Apps Script + mật khẩu KHÔNG nằm trong mã nguồn
+# mà do từng máy tự nhập và lưu trong trình duyệt. Nếu sau này có ai
+# tạo file cấu hình riêng thì chặn sẵn ở đây.
+ketnoi.js
+ketnoi.json
+.env
+.env.*
+
+# ── Kết quả test, log, file tạm ──
+ketqua-*.txt
+*.log
+node_modules/
+.DS_Store
+Thumbs.db
