@@ -643,13 +643,138 @@ html,body{background:var(--bg);min-height:100%}
   .sin{max-width:none}
   body{padding-bottom:90px}
 }
+/* ══ TAB CÔNG THỨC — "danh sách + trang hồ sơ" (S11): Polaris Index table + SAP Fiori Object page ══ */
+:root{--ctcols:40px minmax(0,1fr) 196px 118px 96px 14px}
+@media(min-width:1180px){:root{--ctcols:42px minmax(0,1fr) 250px 124px 104px 14px}}
+.cthead{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:4px 2px 18px}
+.cth-t{flex:1;min-width:240px}
+.cth-t h2{margin:0;font-size:25px;font-weight:700;letter-spacing:-.02em;line-height:1.2}
+.cth-t p{margin:5px 0 0;font-size:13px;color:var(--tx2);line-height:1.5}
+.cth-f{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 16px 12px;min-width:210px;box-shadow:var(--shadowSm)}
+.cth-f span{display:block;font-size:12px;color:var(--tx2);font-weight:600}
+.cth-f b{display:block;font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:1px}
+.cth-f b small{font-size:12.5px;color:var(--tx2);font-weight:500;letter-spacing:0}
+.cth-f i{display:block;height:6px;border-radius:6px;background:var(--c2);margin-top:7px;overflow:hidden}
+.cth-f em{display:block;height:100%;border-radius:6px;background:var(--ok)}
+.cth-add{font:inherit;font-size:14px;font-weight:700;border:0;border-radius:14px;padding:13px 18px;cursor:pointer;white-space:nowrap;
+  background:linear-gradient(135deg,var(--btnA),var(--btnB));color:var(--onAcc);box-shadow:var(--btnGlow)}
+#viewCT .find{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 0 14px;background:none}
+.ctloc{display:flex;gap:3px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;box-shadow:var(--shadowSm)}
+.ctl{font:inherit;font-size:13px;font-weight:600;color:var(--tx2);background:none;border:0;border-radius:10px;padding:7px 11px;cursor:pointer;
+  display:inline-flex;gap:7px;align-items:center;white-space:nowrap}
+.ctl:hover{color:var(--tx);background:var(--c2)}
+.ctl span{font-size:11.5px;font-weight:700;background:var(--c2);color:var(--tx2);border-radius:999px;padding:1px 7px;min-width:22px;text-align:center}
+.ctl.on{background:var(--tx);color:var(--card)}
+.ctl.on span{background:var(--acc);color:var(--onAcc)}
+.ctsearch{flex:1;min-width:230px;position:relative;display:block}
+.ctsearch svg{position:absolute;left:14px;top:50%;width:17px;height:17px;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
+#viewCT .find input{height:46px;padding:0 14px 0 42px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadowSm)}
+#viewCT .find input:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--accSoft)}
+#viewCT .thead{display:grid;grid-template-columns:var(--ctcols);gap:14px;align-items:center;padding:12px 20px;background:var(--card);
+  border:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:18px 18px 0 0;font-size:11px;letter-spacing:.07em;color:var(--tx3)}
+#viewCT .thead>span{width:auto;flex:none}
+#viewCT .thead .c-me,#viewCT .thead .c-cd{text-align:right}
+#rows{background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:var(--shadow)}
+#rows>.none{padding:40px 16px}
+#rows .r,#rows .r:nth-child(even){background:var(--card)}
+#rows .r{border-bottom:1px solid var(--line)}
+#rows .r:last-child{border-bottom:0}
+#rows .r.pkb{box-shadow:none}
+#rows .rmain{display:grid;grid-template-columns:var(--ctcols);gap:14px;align-items:center;padding:14px 20px;transition:background .12s}
+#rows .rmain:hover{background:var(--rowAlt)}
+#rows .r.open .rmain{background:var(--accSoft)}
+.ctav{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13.5px;letter-spacing:.03em;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+#rows .nm{min-width:0}
+#rows .tennm{font-size:15px;font-weight:700;letter-spacing:-.005em}
+.ctsub{display:block;font-size:12.5px;color:var(--tx2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctst{display:flex;flex-direction:column;gap:7px;min-width:0}
+.ctst .meta{margin:0;gap:5px}
+.ctst .bdg{font-size:10.5px;letter-spacing:.03em;padding:3px 9px 3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-weight:700}
+.ctst .bdg::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.ctphun{font-style:normal;color:var(--infoTx);font-weight:600}
+/* phun khử bụi là quy trình, không phải lỗi: nền xanh thông tin thay cho nền đỏ cũ */
+.ctsec .pkbox.on{background:var(--infoBg);border-color:var(--infoLine)}
+.ctsec .pkbox .chk input{accent-color:var(--info)}
+.ctdo{display:flex;align-items:center;gap:3px;font-size:11.5px;color:var(--tx2);font-weight:600}
+.ctdo i{width:18px;height:5px;border-radius:3px;background:var(--line2)}
+.ctdo i.c{background:var(--acc)}
+.ctdo.du i{background:var(--ok)}
+.ctdo em{font-style:normal;margin-left:7px}
+.ctdo.du em{color:var(--ok)}
+#rows .me{width:auto;justify-self:end;display:inline-flex;align-items:center;gap:0;border:1px solid var(--line2);border-radius:12px;background:var(--card);overflow:hidden}
+#rows .meinp{width:60px;border:0;border-radius:0;background:transparent;color:var(--tx);font-size:15px;padding:9px 2px 9px 10px}
+#rows .meu{padding:0 10px 0 4px;color:var(--tx3);font-size:10.5px}
+#rows .me:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px var(--accSoft)}
+#rows .me.khac{border-color:var(--warnLine);background:var(--warnBg)}
+#rows .me.khac .meinp{color:var(--warnTx)}
+#rows .cd{width:auto;text-align:right}
+#rows .cd b{font-size:22px;color:var(--tx);font-family:var(--sans);font-weight:700;letter-spacing:-.02em}
+#rows .cd span{font-size:10.5px;color:var(--tx3)}
+#rows .r.zero .cd b{color:var(--tx3)}
+.ctchev::before{content:'';display:block;width:8px;height:8px;border-right:2px solid var(--tx3);border-bottom:2px solid var(--tx3);transform:rotate(-45deg);transition:transform .15s}
+.r.open .ctchev::before{transform:rotate(45deg)}
+/* trang hồ sơ khi mở một mặt hàng */
+#rows .det{padding:18px 20px 22px;border-top:1px solid var(--line);background:var(--bg)}
+.ctnav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.ctnv{position:relative;text-align:left;font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:11px 14px 12px 14px;cursor:pointer;
+  min-width:0;box-shadow:var(--shadowSm);transition:border-color .12s,transform .12s}
+.ctnv:hover{border-color:var(--acc);transform:translateY(-1px)}
+.ctnv span{display:block;font-size:11.5px;font-weight:600;color:var(--tx2);padding-right:14px}
+.ctnv b{display:block;font-size:14px;font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctnv .d{position:absolute;top:13px;right:13px;width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.ctnv .d.ok{background:var(--ok)}.ctnv .d.warn{background:var(--warn)}.ctnv .d.bad{background:var(--bad)}
+.ctsecs{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.ctsec{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 18px 18px;box-shadow:var(--shadowSm);
+  scroll-margin-top:calc(var(--stick,0px) + 12px)}
+.ctsec>header{display:flex;align-items:center;gap:12px;padding-bottom:13px;margin-bottom:15px;border-bottom:1px solid var(--line)}
+.ctsec>header svg{width:38px;height:38px;padding:9px;border-radius:12px;background:var(--accSoft);color:var(--accTx);flex:none}
+.ctsec>header div{flex:1;min-width:0}
+.ctsec>header b{display:block;font-size:15px;letter-spacing:-.005em}
+.ctsec>header div span{display:block;font-size:12px;color:var(--tx2);margin-top:2px;line-height:1.45}
+.ctchip{flex:none;font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 10px;background:var(--c2);color:var(--tx2);white-space:nowrap}
+.ctchip.ok{background:var(--okBg);color:var(--ok)}.ctchip.warn{background:var(--warnBg);color:var(--warnTx)}.ctchip.bad{background:var(--badBg);color:var(--badTx)}
+.ctsec .fld{margin-bottom:16px}
+.ctsec .fld:last-child,.ctsx>div>:last-child{margin-bottom:0}
+.ctsec .fld>label{text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:600;color:var(--tx2);margin-bottom:7px}
+.ctsec .fld.need{padding:12px 12px 14px;border-radius:14px;background:var(--badBg);border:1px solid var(--badLine)}
+.ctsec .fld.need>label{color:var(--badTx)}
+.ctsec .two{margin-bottom:16px;gap:12px}
+.ctsec .pkbox{margin-bottom:16px}
+.ctsx{display:grid;gap:16px}
+#rows .rm{margin-top:14px}
+@media(min-width:1180px){
+  .ctsecs{grid-template-columns:1fr 1fr}
+  .ctsec.rong{grid-column:1/-1}
+  .ctsx{grid-template-columns:1fr 1fr;gap:22px}
+}
+@media(min-width:900px){
+  #viewCT{background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
+  .ctsec{scroll-margin-top:16px}
+}
+@media(max-width:759px){
+  #viewCT{padding:0 10px 12px}
+  .cthead{padding:14px 2px 12px}.cth-t h2{font-size:21px}
+  .cth-t p{font-size:12.5px}
+  .cth-f{flex:1;min-width:0;padding:9px 12px 10px}.cth-add{flex:none;padding:12px 14px}
+  .ctloc{width:100%;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none}.ctloc::-webkit-scrollbar{display:none}
+  #viewCT .thead{display:none}
+  #rows{border-top:1px solid var(--line);border-radius:18px}
+  #rows .rmain{grid-template-columns:38px minmax(0,1fr) auto;grid-template-areas:"av nm cd" "av st me";row-gap:9px;column-gap:12px;padding:13px 14px}
+  .ctav{grid-area:av;align-self:start;width:38px;height:38px}
+  #rows .nm{grid-area:nm}.ctst{grid-area:st}#rows .me{grid-area:me}#rows .cd{grid-area:cd}
+  .ctchev{display:none}
+  #rows .det{padding:14px 12px 16px}
+  .ctnav{grid-template-columns:1fr 1fr}
+  .ctsec{padding:14px}
+}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S10</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S11</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -672,10 +797,14 @@ html,body{background:var(--bg);min-height:100%}
 
   <div id="viewTQ" class="pg"></div>
   <div id="viewCT">
-    <div class="find"><input id="q" type="search" placeholder="Tìm sản phẩm, hương, nguyên liệu…" autocomplete="off"></div>
+    <div class="cthead" id="ctHead"></div>
+    <div class="find">
+      <div class="ctloc" id="ctLoc" role="tablist" aria-label="Lọc mặt hàng"></div>
+      <label class="ctsearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" placeholder="Tìm sản phẩm, hương, nguyên liệu…" autocomplete="off"></label>
+    </div>
     <div class="thead">
-      <span class="c-no">#</span><span class="c-nm">Sản phẩm</span>
-      <span class="c-me">Mẻ / kg</span><span class="c-cd">Cần dùng (theo Mẻ)</span>
+      <span class="c-no"></span><span class="c-nm">Mặt hàng</span><span class="c-st">Trạng thái · hồ sơ</span>
+      <span class="c-me">Mẻ đang tính</span><span class="c-cd">Cần dùng</span><span></span>
     </div>
     <div class="rows" id="rows"></div>
   </div>
@@ -2183,40 +2312,112 @@ async function inTem(id){
   setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
 }
 
+/* ═══ Vẽ: công thức — bố cục "danh sách + trang hồ sơ" (S11, 10/09/2026) ═══
+   Khách thấy tab Công thức còn "basic", muốn chỉn chu kiểu phần mềm doanh nghiệp. Dựng lại theo:
+   - DANH SÁCH kiểu Index table của Shopify Polaris: mỗi dòng 1 mặt hàng, huy hiệu trạng thái ngắn có
+     chấm màu, cột số căn phải, thanh lọc nhanh theo nhóm (kèm số đếm) + ô tìm có biểu tượng.
+   - CHI TIẾT kiểu Object page của SAP Fiori: đầu trang là 4 ô tóm tắt kiêm thanh neo (bấm để nhảy tới
+     nhóm), nội dung chia nhóm có tiêu đề + huy hiệu đủ/thiếu của nhóm — giống cách form định mức
+     (Bill of Materials) của Odoo tách Thành phần / Công đoạn.
+   CHỈ đổi cách trình bày: mọi ô nhập giữ nguyên data-f/data-i/data-me…, mọi hàm con (veHuong,
+   veNguonHuongMatHang, veNL, veTemBlock, veTT, veDR, vePKB) giữ nguyên, chữ nhãn các khối giữ nguyên.
+   Không hiện lại các con số đã có ô nhập (khách từng yêu cầu bỏ dòng tính toán trùng lặp, 26/08/2026).
+   Bộ lọc nhanh chỉ lọc HIỂN THỊ, không đổi dữ liệu. "Sẵn sàng" dùng đúng định nghĩa của trang Tổng
+   quan: có hương + hàm lượng nguyên liệu khớp mẻ chuẩn + đủ hồ sơ tem + đã cấp mã. */
+let locCT='all';
+const CT_LOC=[['all','Tất cả'],['san','Sẵn sàng'],['huong','Chưa có hương'],['tem','Thiếu hồ sơ tem'],['ngung','Tạm ngưng / đình chỉ']];
+function ctKiem(p){
+  const nl=nlLech(p), th=temThieu(p);
+  const muc=[[(p.huongs||[]).length>0,'có hương'],[nl.dat,'hàm lượng nguyên liệu khớp mẻ chuẩn'],[!th.length,'đủ hồ sơ tem'],[!!hai(p.maSP),'đã cấp mã']];
+  return {nl,th,muc,dat:muc.filter(m=>m[0]).length};
+}
+function ctHopLoc(p,k){
+  if(locCT==='san')return p.tt!=='dinh'&&k.dat===4;
+  if(locCT==='huong')return !(p.huongs||[]).length;
+  if(locCT==='tem')return k.th.length>0;
+  if(locCT==='ngung')return p.tt==='tam'||p.tt==='dinh';
+  return true;
+}
+const ctSvg=d=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+d+'</svg>';
+const CT_IC={
+  h:ctSvg('<path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0C6 9.9 12 3.5 12 3.5z"/>'),
+  dm:ctSvg('<path d="M12 4v16M5 8h14M7 8l-3 6a3 3 0 0 0 6 0zM17 8l-3 6a3 3 0 0 0 6 0zM8 20h8"/>'),
+  sx:ctSvg('<path d="M3 20V10l5 3V10l5 3V6h8v14z"/><path d="M3 20h18"/>'),
+  tem:ctSvg('<path d="M5 3.5h9l5 5V20.5H5z"/><path d="M14 3.5v5h5M8.5 13h7M8.5 16.5h5"/>'),
+};
+const ctChip=(loai,chu)=>'<span class="ctchip '+loai+'">'+chu+'</span>';
+function veCTDau(){
+  const kiem=sp.map(ctKiem), xet=sp.filter(p=>p.tt!=='dinh');
+  const san=sp.filter((p,i)=>p.tt!=='dinh'&&kiem[i].dat===4).length, pct=xet.length?Math.round(san/xet.length*100):0;
+  const dem={all:sp.length,san,huong:sp.filter(p=>!(p.huongs||[]).length).length,
+    tem:kiem.filter(k=>k.th.length).length,ngung:sp.filter(p=>p.tt==='tam'||p.tt==='dinh').length};
+  $('ctHead').innerHTML='<div class="cth-t"><h2>Công thức</h2><p>Định mức hương liệu, nguyên liệu và hồ sơ tem của từng mặt hàng — nhân viên pha đúng theo trang này.</p></div>'
+    +'<div class="cth-f" title="Mặt hàng đình chỉ không tính"><span>Sẵn sàng sản xuất</span><b>'+san+'<small> / '+xet.length+' mặt hàng</small></b><i><em style="width:'+pct+'%"></em></i></div>'
+    +'<button class="cth-add" data-ctadd="1" type="button">+ Thêm mặt hàng</button>';
+  $('ctLoc').innerHTML=CT_LOC.map(([k,t])=>'<button type="button" role="tab" aria-selected="'+(locCT===k)+'" class="ctl'+(locCT===k?' on':'')+'" data-ctloc="'+k+'">'+t+'<span>'+dem[k]+'</span></button>').join('');
+}
 function veCT(){
   const tu=$('q').value.trim().toLowerCase();
-  const ds=sp.map((p,i)=>({p,i})).filter(({p})=>!tu||
-    (p.ten+' '+(p.huongs||[]).join(' ')+' '+p.nguyenlieu+' '+p.pkbChat+' '+p.ghi+' '+(TT[p.tt||'ok']||TT.ok).n+' '+(p.ttLyDo||'')+' '+(p.dauRa||[]).join(' ')).toLowerCase().includes(tu));
+  veCTDau();
+  const ds=sp.map((p,i)=>({p,i,k:ctKiem(p)})).filter(({p})=>!tu||
+    (p.ten+' '+(p.huongs||[]).join(' ')+' '+p.nguyenlieu+' '+p.pkbChat+' '+p.ghi+' '+(TT[p.tt||'ok']||TT.ok).n+' '+(p.ttLyDo||'')+' '+(p.dauRa||[]).join(' ')).toLowerCase().includes(tu))
+    .filter(({p,k})=>ctHopLoc(p,k));
   veQuick();
-  if(!ds.length){$('rows').innerHTML=`<div class="none">${sp.length?'Không có mặt hàng nào khớp.':'Chưa có mặt hàng.'}</div>`;return}
-  $('rows').innerHTML=ds.map(({p,i},k)=>{
-    const c=lieu(p),ro=num(p.kg)>0?num(p.ml)/num(p.kg)*100:0,ro2=Math.round(ro*10)/10;
+  if(!ds.length){$('rows').innerHTML='<div class="none">'+(!sp.length?'Chưa có mặt hàng.':(locCT!=='all'&&!tu)?'Không có mặt hàng nào trong nhóm này.':'Không có mặt hàng nào khớp.')+'</div>';return}
+  $('rows').innerHTML=ds.map(({p,i,k})=>{
+    const c=lieu(p), hs=p.huongs||[], chuaLuu=!nhuNhau(hs,p.tam||[]);
+    const san=k.dat===4&&p.tt!=='dinh', thieu=k.muc.filter(m=>!m[0]).map(m=>m[1]);
+    const coNL=(p.congThucNL||[]).length>0, tk=p.tt||'ok';
+    const ttChip=tk==='dinh'?ctChip('bad','Đình chỉ'):tk==='tam'?ctChip('warn','Tạm ngưng'):ctChip('ok','Cho phép');
+    const nlChip=!coNL?ctChip('','Chưa khai'):k.nl.dat?ctChip('ok','Khớp mẻ chuẩn'):ctChip('bad','Lệch '+fmt(Math.abs(k.nl.lech))+' kg');
+    const hChip=!hs.length?ctChip('bad','Chưa có'):chuaLuu?ctChip('warn','Chưa lưu'):ctChip('ok',hs.length+' hương');
+    const temChip=k.th.length?ctChip('bad','Thiếu '+k.th.length+' ô'):ctChip('ok','Đủ');
+    const dq=(p.dauRa||[]).join(' · ');
+    const neo=[['h','Hương liệu',hs.length?hs.join(' + '):'Chưa có hương',!hs.length?'bad':chuaLuu?'warn':'ok'],
+      ['dm','Định mức & nguyên liệu',!coNL?'Chưa khai nguyên liệu':k.nl.dat?'Khớp mẻ chuẩn':'Lệch mẻ chuẩn',!coNL?'':k.nl.dat?'ok':'bad'],
+      ['sx','Sản xuất & đóng gói',(TT[tk]||TT.ok).n+(dq?' · '+dq:''),tk==='dinh'?'bad':tk==='tam'?'warn':'ok'],
+      ['tem','Hồ sơ tem',k.th.length?'Còn thiếu '+k.th.length+' ô':'Đã đủ, in tem được',k.th.length?'bad':'ok']];
+    const dau=(key,tieuDe,moTa,chip)=>'<header>'+CT_IC[key]+'<div><b>'+tieuDe+'</b><span>'+moTa+'</span></div>'+chip+'</header>';
     return `<div class="r${p.pkb?' pkb':''}${c<=0?' zero':''}${p.tt==='dinh'?' dinh':''}${mo.has(i)?' open':''}">
       <div class="rmain" data-t="${i}">
-        <span class="no">${z2(k+1)}</span>
-        <span class="nm"><input class="tennm" data-f="ten" data-i="${i}" value="${esc(p.ten)}" placeholder="Tên mặt hàng"><span class="meta">${nhan(p)}
-          ${p.pkb?`<span class="bdg pkb">PHUN KHỬ BỤI${p.pkbPhut?' · '+esc(p.pkbPhut)+' PHÚT':''}</span>`:''}</span></span>
+        <span class="ctav" style="background:${tqMauAv(p.ten)}" aria-hidden="true">${esc(tqChuDau(p.ten))}</span>
+        <span class="nm"><input class="tennm" data-f="ten" data-i="${i}" value="${esc(p.ten)}" placeholder="Tên mặt hàng">
+          <span class="ctsub">${hs.length?esc(hs.join(' + ')):'Chưa chọn hương'} · mẻ chuẩn ${fmt(num(p.kg))} kg${hai(p.maSP)?' · mã '+hai(p.maSP):''}${p.pkb?`<em class="ctphun"> · phun khử bụi${p.pkbPhut?' '+esc(p.pkbPhut)+' phút':''}</em>`:''}</span></span>
+        <span class="ctst"><span class="meta">${nhan(p)}</span>
+          <span class="ctdo${san?' du':''}" title="${san?'Đủ điều kiện sản xuất':'Còn thiếu: '+esc(thieu.join(', '))}">${k.muc.map(m=>'<i'+(m[0]?' class="c"':'')+'></i>').join('')}<em>${san?'Sẵn sàng':k.dat+'/4 hồ sơ'}</em></span></span>
         <span class="me${num(p.me)!==num(p.kg)?' khac':''}" title="${num(p.me)!==num(p.kg)?`Đang tính theo mẻ ${fmt(num(p.me))} kg — KHÁC mẻ chuẩn ${fmt(num(p.kg))} kg. Đổi lại đúng ${fmt(num(p.kg))} nếu muốn tính cho mẻ chuẩn.`:'Số kg mẻ đang định làm. Đổi số này để tính lại "Cần dùng" cho đúng mẻ đó — không cần bằng mẻ chuẩn.'}"><input class="meinp" data-me="${i}" type="text" inputmode="decimal" value="${p.me}"><span class="meu">KG</span></span>
         <span class="cd" title="Định lượng gốc: ${fmt(num(p.ml))} g cho mỗi mẻ chuẩn ${fmt(num(p.kg))} kg. Đang chọn làm mẻ ${fmt(num(p.me))} kg → cần ${fmt(c)} g hương (tính theo tỉ lệ)."><b>${fmt(c)}</b><span>G/MẺ</span></span>
+        <span class="ctchev" aria-hidden="true"></span>
       </div>
       <div class="det">
-        <div class="grid">
-          <div class="fld${(p.huongs||[]).length?'':' need'}"><label>Hương đang sử dụng</label>${veHuong(p,i)}</div>
-          ${(p.huongs||[]).some(h=>!isUnscented(h))?`<div class="fld"><label>Nguồn hương liệu đang dùng (riêng mặt hàng này)</label>${veNguonHuongMatHang(p,i)}</div>`:''}
-          <div class="fld"><label>Nguyên liệu sử dụng</label><textarea data-f="nguyenlieu" data-i="${i}" placeholder="Loại hạt, cỡ hạt, nhà cung cấp…">${esc(p.nguyenlieu)}</textarea></div>
-          <div class="fld${nlLech(p).dat?'':' need'}"><label>Hàm lượng nguyên liệu (kg / mẻ chuẩn ${fmt(num(p.kg))} kg)</label>${veNL(p,i)}</div>
-          <div class="fld"><label>Hồ sơ tem — điền một lần, dùng cho mọi lô</label>${veTemBlock(p,i)}</div>
-          <div class="fld"><label>Trạng thái sản xuất</label>${veTT(p,i)}</div>
-          <div class="fld"><label>Quy cách đóng gói</label>${veDR(p,i)}</div>
-          <div class="pkbox${p.pkb?' on':''}">
-            <label class="chk"><input type="checkbox" data-f="pkb" data-i="${i}" ${p.pkb?'checked':''} ><span>Phun khử bụi</span></label>
-            ${p.pkb?vePKB(p,i):''}
-          </div>
-          <div class="two">
-            <div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" data-f="kg" data-i="${i}" type="text" inputmode="decimal" value="${p.kg}"></div>
-            <div class="fld"><label>Định lượng hương (g)</label><input class="mn" data-f="ml" data-i="${i}" type="text" inputmode="decimal" value="${p.ml}"></div>
-          </div>
-          <div class="fld"><label>Ghi chú</label><textarea data-f="ghi" data-i="${i}" placeholder="Lưu ý khi pha…">${esc(p.ghi)}</textarea></div>
+        <nav class="ctnav" aria-label="Các nhóm thông tin">${neo.map(([key,t,v,tt])=>`<button type="button" class="ctnv" data-ctnav="${key}" data-ci="${i}"><span>${t}</span><b>${esc(v)}</b><i class="d ${tt}"></i></button>`).join('')}</nav>
+        <div class="ctsecs">
+          <section class="ctsec" data-sec="h" data-si="${i}">${dau('h','Hương liệu','Hương pha cho mặt hàng và nguồn mua đang dùng',hChip)}
+            <div class="fld${hs.length?'':' need'}"><label>Hương đang sử dụng</label>${veHuong(p,i)}</div>
+            ${hs.some(h=>!isUnscented(h))?`<div class="fld"><label>Nguồn hương liệu đang dùng (riêng mặt hàng này)</label>${veNguonHuongMatHang(p,i)}</div>`:''}
+          </section>
+          <section class="ctsec" data-sec="dm" data-si="${i}">${dau('dm','Định mức & nguyên liệu','Mẻ chuẩn, định lượng hương và thành phần nguyên liệu',nlChip)}
+            <div class="two">
+              <div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" data-f="kg" data-i="${i}" type="text" inputmode="decimal" value="${p.kg}"></div>
+              <div class="fld"><label>Định lượng hương (g)</label><input class="mn" data-f="ml" data-i="${i}" type="text" inputmode="decimal" value="${p.ml}"></div>
+            </div>
+            <div class="fld"><label>Nguyên liệu sử dụng</label><textarea data-f="nguyenlieu" data-i="${i}" placeholder="Loại hạt, cỡ hạt, nhà cung cấp…">${esc(p.nguyenlieu)}</textarea></div>
+            <div class="fld${k.nl.dat?'':' need'}"><label>Hàm lượng nguyên liệu (kg / mẻ chuẩn ${fmt(num(p.kg))} kg)</label>${veNL(p,i)}</div>
+          </section>
+          <section class="ctsec rong" data-sec="sx" data-si="${i}">${dau('sx','Sản xuất & đóng gói','Trạng thái cho phép sản xuất, quy cách, phun khử bụi, ghi chú khi pha',ttChip)}
+            <div class="ctsx">
+              <div><div class="fld"><label>Trạng thái sản xuất</label>${veTT(p,i)}</div>
+                <div class="fld"><label>Quy cách đóng gói</label>${veDR(p,i)}</div></div>
+              <div><div class="pkbox${p.pkb?' on':''}">
+                  <label class="chk"><input type="checkbox" data-f="pkb" data-i="${i}" ${p.pkb?'checked':''} ><span>Phun khử bụi</span></label>
+                  ${p.pkb?vePKB(p,i):''}
+                </div>
+                <div class="fld"><label>Ghi chú</label><textarea data-f="ghi" data-i="${i}" placeholder="Lưu ý khi pha…">${esc(p.ghi)}</textarea></div></div>
+            </div>
+          </section>
+          <section class="ctsec rong" data-sec="tem" data-si="${i}">${dau('tem','Hồ sơ tem','Điền một lần, dùng cho mọi lô — thiếu ô bắt buộc thì không in được tem',temChip)}
+            <div class="fld"><label>Hồ sơ tem — điền một lần, dùng cho mọi lô</label>${veTemBlock(p,i)}</div>
+          </section>
         </div>
         ${sua?`<button class="rm" data-d="${i}">Xoá mặt hàng này</button>`:''}
       </div></div>`;
@@ -3843,6 +4044,13 @@ $('quick').addEventListener('click',e=>{
   if(c){const v=+c.dataset.kg;$('allKg').value=v;sp.forEach(p=>p.me=v);luu();ve();bao(`Đã áp mẻ ${v} kg`)}
 });
 $('q').addEventListener('input',ve);
+/* S11 — tab Công thức: lọc nhanh (chỉ lọc hiển thị), nút "+ Thêm mặt hàng" ở đầu trang dùng lại đúng
+   nút Thêm có sẵn, thanh neo trong trang hồ sơ nhảy tới đúng nhóm của đúng mặt hàng */
+$('ctLoc').addEventListener('click',e=>{const b=e.target.closest('[data-ctloc]');if(!b)return;locCT=b.dataset.ctloc;veCT()});
+$('ctHead').addEventListener('click',e=>{if(e.target.closest('[data-ctadd]'))$('addBtn').click()});
+$('rows').addEventListener('click',e=>{const b=e.target.closest('[data-ctnav]');if(!b)return;
+  const el=document.querySelector('.ctsec[data-sec="'+b.dataset.ctnav+'"][data-si="'+b.dataset.ci+'"]');
+  if(el)el.scrollIntoView({block:'start',behavior:'smooth'})});
 $('editBtn').addEventListener('click',()=>{
   sua=!sua;$('editBtn').textContent=sua?'Xong':'Quản lý';$('editBtn').classList.toggle('on',sua);
   ve();bao(sua?'Hiện nút xoá':'Đã ẩn nút xoá');

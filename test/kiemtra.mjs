@@ -57,6 +57,28 @@ ok('TQ: dọn dữ liệu thử xong, dữ liệu gốc còn nguyên', tqKq.traL
 const tqToi=await E(()=>{const t0=document.documentElement.classList.contains('toi');document.getElementById('btnSangToi').click();
   const kq=[document.documentElement.classList.contains('toi')!==t0, localStorage.getItem('peroma:sangtoi')];document.getElementById('btnSangToi').click();return kq});
 ok('Nút sáng/tối đổi giao diện và nhớ lựa chọn trên máy', tqToi[0] && (tqToi[1]==='toi'||tqToi[1]==='sang'), JSON.stringify(tqToi));
+/* S11 (10/09/2026) — tab Công thức kiểu "danh sách + trang hồ sơ": lọc nhanh chỉ lọc hiển thị */
+const ctKq=await E(()=>{
+  const goc=JSON.stringify(sp); chuyenTab('ct');
+  const dem=k=>+document.querySelector('[data-ctloc="'+k+'"] span').textContent;
+  const r={tatCa:dem('all')===sp.length, chuaHuong:dem('huong')===sp.filter(p=>!(p.huongs||[]).length).length};
+  document.querySelector('[data-ctloc="huong"]').click();
+  r.locDung=document.querySelectorAll('#rows .r').length===sp.filter(p=>!(p.huongs||[]).length).length;
+  r.nutOn=document.querySelector('[data-ctloc="huong"]').classList.contains('on');
+  $('q').value='zzz-khong-co'; veCT(); r.timKetHop=/Không có mặt hàng nào khớp/.test($('rows').textContent);
+  $('q').value=''; document.querySelector('[data-ctloc="all"]').click();
+  r.traLai=document.querySelectorAll('#rows .r').length===sp.length;
+  mo.clear(); mo.add(0); ve();
+  r.neo=document.querySelectorAll('.r.open [data-ctnav]').length===4 && document.querySelectorAll('.r.open .ctsec').length===4;
+  r.khongDoiDuLieu=JSON.stringify(sp)===goc;
+  mo.clear(); chuyenTab('tq');
+  return r;
+});
+ok('CT: số đếm trên thanh lọc khớp dữ liệu', ctKq.tatCa && ctKq.chuaHuong, JSON.stringify(ctKq));
+ok('CT: lọc "Chưa có hương" chỉ hiện đúng các mặt hàng chưa có hương', ctKq.locDung && ctKq.nutOn);
+ok('CT: lọc + ô tìm dùng chung được, bỏ lọc thì hiện đủ lại', ctKq.timKetHop && ctKq.traLai);
+ok('CT: trang hồ sơ có 4 nhóm + 4 ô neo nhảy tới nhóm', ctKq.neo);
+ok('CT: lọc/mở hồ sơ KHÔNG đổi dữ liệu mặt hàng', ctKq.khongDoiDuLieu);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
