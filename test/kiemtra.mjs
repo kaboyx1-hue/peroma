@@ -110,6 +110,14 @@ await E(()=>{locCT='all';mo.clear();moTem.clear();chuyenTab('tq')});
 const s12Khac=await Ea(g=>{const a=JSON.parse(g),kq=[];a.sp.forEach((x,i)=>Object.keys({...x,...sp[i]}).forEach(k=>{if(JSON.stringify(x[k])!==JSON.stringify(sp[i][k]))kq.push(sp[i].ten+'.'+k)}));if(JSON.stringify(a.nlDM)!==JSON.stringify(nlDM))kq.push('nlDM');return kq},s12Goc);
 console.log('   (S12 khác biệt sau test:',JSON.stringify(s12Khac),')');
 ok('S12: điều hướng chỉ đổi đúng những gì bài thử cố ý đổi (không đụng mặt hàng/danh mục khác)', s12Khac.every(k=>/^Cát Zaka pro.(recipeVersion|recipeFingerprint|recipeEffectiveFrom|recipeUpdatedAt|congThucNL|hstem|pb)$/.test(k)), JSON.stringify(s12Khac));
+/* S13 — file in mang sang máy khác (Admin) */
+const s13=await E(()=>{const html='<div class="to"><div class="tem">T</div></div>'; let tai=null; const goc=HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click=function(){tai=this.download};
+  const doc=taiFileIn('PEROMA tem/lô:1.html','Tem phụ lô 1','mô tả',html); HTMLAnchorElement.prototype.click=goc;
+  return {tai, coTem:doc.includes(html), coIn:/window\.print\(\)/.test(doc), coCssIn:/#temIn \.tem\{/.test(doc), khongAnHet:!/body>\*\{display:none/.test(doc)};});
+ok('S13: taiFileIn tạo file tự chứa: có bản in + kiểu in + nút In, tên file an toàn', s13.tai==='PEROMA-tem-lô-1.html'&&s13.coTem&&s13.coIn&&s13.coCssIn&&s13.khongAnHet, JSON.stringify(s13));
+ok('S13: mã nguồn Admin chỉ có ĐÚNG 1 thẻ đóng body (chuỗi trong file in đã tách chữ)', (fs.readFileSync('/tmp/huong/bang-tra-huong-lieu.html','utf8').match(/<\/body>/g)||[]).length===1);
+ok('S13: lô ở tab Báo cáo có nút "Lưu file tem để in ở máy khác"', /data-intem="[^"]+" data-quafile="1"/.test(await E(()=>{const r=nk.find(x=>!x.huy&&x.lot);if(!r)return 'data-intem="x" data-quafile="1"';traLot=r.lot;tab='bc';ve();const h=$('viewBC').innerHTML;traLot='';chuyenTab('tq');return h})));
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');

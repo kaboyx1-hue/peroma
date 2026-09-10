@@ -249,13 +249,18 @@ html,body{background:var(--bg);min-height:100%}
   .card{margin:0 0 14px}
   .pg>.sec:first-child{padding-top:4px}
 }
+/* R9: nút phụ "Lưu file … để in ở máy khác" + ghi chú nhỏ ở tab Tra lô */
+.add.ghe{background:transparent;color:var(--txt2);border:1px dashed var(--line2);font-weight:600;font-size:13px}
+.add.ghe:hover{color:var(--tx);border-color:var(--acc)}
+.ghichu{font-size:12.5px;color:var(--txt2);line-height:1.5;margin-top:8px}
+.ghichu.htnhan{background:var(--infoBg);color:var(--infoTx);border-radius:12px;padding:9px 12px;margin:0 0 10px;font-weight:600}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R8</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R9</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -764,7 +769,8 @@ function veMe(){
   // ĐỂ KIỂM TRA ("Phiếu xác nhận công thức") — sau khi bấm "Xác nhận công thức đã in là đúng"
   // (data-xnct) thì đổi lại thành "In phiếu công thức" (chỉ còn là in bình thường/in thêm bản).
   o+=`<div class="fld"><label>Phiếu công thức</label>
-    <button class="add" data-inphieu="1">${p.xacNhanCT?'In phiếu công thức':'Phiếu xác nhận công thức'}</button>`;
+    <button class="add" data-inphieu="1">${p.xacNhanCT?'In phiếu công thức':'Phiếu xác nhận công thức'}</button>
+    <button class="add ghe" data-inphieu="1" data-quafile="1">Máy in hỏng? Lưu file phiếu để in ở máy khác</button>`;
   if(p.daInPhieu){
     o+= p.xacNhanCT
       ? `<div class="note" style="margin-top:9px;color:var(--ok);background:var(--okBg);border-color:var(--okLine)">Đã xác nhận công thức đúng.</div>`
@@ -790,14 +796,18 @@ function veLo(){
       <option value=""${traLot?'':' selected'}>— Chọn lô —</option>
       ${(()=>{
         const gap=new Map();
-        nk.forEach(r=>{const l=String(r.lot||'');if(!l)return;
+        nk.concat(nkHT).forEach(r=>{const l=String(r.lot||'');if(!l)return;
           const cu=gap.get(l);
           if(!cu||String(r.ts||'')>String(cu.ts||''))gap.set(l,r)});
         return [...gap.entries()]
           .sort((a,b)=>String(b[1].ts||'').localeCompare(String(a[1].ts||'')))
-          .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}</option>`).join('');
+          .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}${r._heThong?' · máy khác':''}</option>`).join('');
       })()}
-    </select></div></div>`;
+    </select></div>
+    ${DONGBO_URL
+      ?`<button class="add" data-taiht="1">Tải lô do máy khác ghi (qua hệ thống)</button><div class="ghichu">${nkHTLuc?`Đã tải ${nkHT.length} mẻ của máy khác lúc ${nkHTLuc} — chỉ để xem &amp; in tem, không lưu vào máy này.`:'Dùng khi máy khác (hoặc máy in của máy khác) hỏng mà cần in tem cho lô máy đó đã ghi.'}</div>`
+      :`<div class="ghichu">Máy này chưa nối Google Sheet nên chỉ thấy lô ghi tại máy này. Cần in tem cho lô của máy khác: nhờ máy đó bấm <b>"Lưu file tem"</b> rồi gửi file sang, hoặc khai kết nối ở tab Dữ liệu.</div>`}
+    </div>`;
   o+=`<div class="card"><div class="fld"><label>Khổ in tem phụ — cột × hàng / tờ A4</label>
     <div style="display:flex;gap:9px">
       <input id="temCotIn" type="number" min="1" max="10" value="${temCot}" style="width:70px">
@@ -805,8 +815,8 @@ function veLo(){
     </div></div>
     <div class="note">In đúng theo số bao/túi của lô đó. Không rõ số bao thì in đủ 1 tờ (${temCot*temHang} tem) để cắt dần.</div></div>`;
   if(!traLot)return o+`<div class="none">Chọn 1 lô ở trên để xem thông tin.</div>`;
-  const hit=nk.filter(r=>String(r.lot||'')===traLot).slice().reverse().slice(0,8);
-  if(!hit.length)return o+`<div class="none">Không tìm thấy lô nào.<br>Lô do máy khác ghi thì máy này chưa có.</div>`;
+  const hit=nk.concat(nkHT).filter(r=>String(r.lot||'')===traLot).slice().reverse().slice(0,8);
+  if(!hit.length)return o+`<div class="none">Không tìm thấy lô nào.<br>Lô do máy khác ghi thì bấm "Tải lô do máy khác ghi" ở trên.</div>`;
   /* 25/08/2026: tô màu ưu tiên các dòng nhân viên hay cần tra nhanh — hương/quy cách/số bao
      là 3 mục dễ pha nhầm nhất nên tô màu nổi bật nhất để dễ nhớ; các dòng còn lại giữ màu chữ mặc định. */
   // 27/08/2026 (phản hồi lần 4): thêm nút thu gọn cho từng thẻ lô — bấm vào tiêu đề để
@@ -823,6 +833,7 @@ function veLo(){
       <span style="font-size:12px;font-weight:400;color:var(--txt3);white-space:nowrap">${dong?tomTat+' · ▸':'▾ Thu gọn'}</span>
     </h5>
     ${dong?'':`
+    ${r._heThong?`<div class="ghichu htnhan">Lô do máy khác ghi (tải từ hệ thống) — máy này chỉ xem &amp; in tem, không huỷ/sửa được.</div>`:''}
     ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--am)">${esc(r.ngungLyDo)||'—'}</b></div>`:''}
     <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
     <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
@@ -839,8 +850,9 @@ function veLo(){
       return `<details><summary style="cursor:pointer;color:var(--txt2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`   /* 10/09/2026: --txt-2 → --txt2, cùng lỗi tên biến như trên */
         +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
         +`</details>`})()}
-    ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>`}
-    <button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
+    ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>
+    <button class="add ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
+    ${r._heThong?'':`<button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>`}
     `}
     </div>`}).join('');
 }
@@ -1044,19 +1056,92 @@ function recipeSnapshot(p,selected,kg){
     taoLuc:new Date().toISOString()
   };
 }
-async function inPhieuCT(){
+
+/* ── FILE IN MANG SANG MÁY KHÁC — 10/09/2026 (Admin S13 / Nhân viên R9) ──
+   Khách: "máy in của máy tạo phiếu in tem có khi bị hư, cần chuyển sang máy khác nên cần backup
+   sang được máy khác hoặc chuyển giao bản in sang máy khác dễ dàng".
+   taiFileIn() lưu ĐÚNG bản in (cùng temHTML/trangTem/phieuHTML, cùng khổ A4, cùng cỡ chữ) thành
+   MỘT file .html tự chứa. Gửi file qua Zalo/USB/email sang bất kỳ máy nào có máy in, mở bằng trình
+   duyệt rồi bấm In — máy đó KHÔNG cần cài Peroma, KHÔNG cần mạng, KHÔNG cần đồng bộ.
+   Kiểu in lấy thẳng từ khối @media print của chính trang này lúc bấm (không chép tay lần 2) nên file
+   luôn in giống hệt in tại máy. File chỉ chứa nội dung tem/phiếu — không có mật khẩu, địa chỉ
+   Apps Script hay dữ liệu nào khác. */
+function cssBanIn(){
+  const t=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  const i=t.indexOf('@media print{'); if(i<0)return '';
+  const j=t.indexOf('{',i); let d=0;
+  for(let k=j;k<t.length;k++){if(t[k]==='{')d++;else if(t[k]==='}'){d--;if(!d)return t.slice(j+1,k)}}
+  return '';
+}
+function taiFileIn(tenFile,tieuDe,moTa,htmlIn){
+  // bỏ đúng 1 dòng "ẩn mọi thứ trừ bản in" — trong file chỉ có thanh nút In + bản in, và thanh nút
+  // tự ẩn khi in (xem @media print cuối file)
+  const css=cssBanIn().split('\n').filter(l=>!/body>\*\{display:none/.test(l)).join('\n');
+  // chữ trên tem kế thừa cỡ chữ + độ giãn dòng của trang app — chép đúng 2 giá trị đó sang file,
+  // không thì tem trong file thấp/cao hơn tem in tại máy (đo được: 427px so với 507px)
+  const ci=getComputedStyle(document.getElementById('temIn')), co=parseFloat(ci.fontSize)||16,
+        gd=(parseFloat(ci.lineHeight)/co)||1.4;
+  const doc='<!DOCTYPE html>\n<html lang="vi"><head><meta charset="utf-8">'
+    +'<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(tieuDe)+'</title><style>'
+    +'body{margin:0;font-family:Arial,Helvetica,sans-serif;color:#111}#temIn{font-size:'+co+'px;line-height:'+(Math.round(gd*1000)/1000)+'}'
+    +'.thanh{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #ddd;padding:12px 16px;display:flex;gap:6px 14px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 8px rgba(0,0,0,.06)}'
+    +'.thanh b{font-size:16px}.thanh span{font-size:13px;color:#555;flex:1;min-width:220px;line-height:1.45}'
+    +'.thanh button{font:inherit;font-size:15px;font-weight:700;background:#F5A524;color:#1C1C1E;border:0;border-radius:10px;padding:11px 24px;cursor:pointer}'
+    +css
+    +'@media screen{html,body{background:#E9E9EC!important}#temIn{padding:16px}'
+    +'#temIn .to{width:198mm;height:285mm;background:#fff;margin:0 auto 16px;box-shadow:0 2px 14px rgba(0,0,0,.16)}'
+    +'#temIn>:not(.to){background:#fff;max-width:198mm;margin:0 auto 16px;padding:8mm;box-shadow:0 2px 14px rgba(0,0,0,.16)}}'
+    +'@media print{.thanh{display:none!important}#temIn{padding:0}}'
+    +'</sty'+'le></he'+'ad><bo'+'dy><div class="thanh"><b>PEROMA · '+esc(tieuDe)+'</b><span>'+esc(moTa)+'</span>'
+    +'<button type="button" onclick="window.print()">In</button></div><div id="temIn">'+htmlIn+'</div></bo'+'dy></ht'+'ml>'; // tách chữ thẻ để mã nguồn app chỉ có ĐÚNG 1 thẻ đóng body/html thật
+  const b=new Blob([doc],{type:'text/html'}), u=URL.createObjectURL(b), a=document.createElement('a');
+  a.href=u; a.download=String(tenFile).replace(/[\\/:*?"<>|\s]+/g,'-').replace(/-+/g,'-');
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000);
+  return doc;
+}
+
+/* ── LÔ DO MÁY KHÁC GHI (qua Google Sheet) — 10/09/2026 (R9) ──
+   Máy nhân viên trước giờ chỉ tải CẤU HÌNH, không thấy mẻ do máy nhân viên khác ghi — nên khi máy
+   in của máy A hỏng (hoặc máy A hỏng hẳn), máy B không in được tem cho lô máy A đã ghi.
+   taiLoHeThong() đọc nhật ký trên Sheet bằng đúng hành động 'nhatky' Code.gs đã có sẵn (không đổi
+   Code.gs, không cần triển khai lại). Các mẻ tải về giữ RIÊNG trong nkHT, CHỈ NẰM TRONG BỘ NHỚ:
+   - KHÔNG gộp vào nk, KHÔNG lưu xuống máy, KHÔNG gửi ngược lên Sheet (không thể tạo mẻ trùng);
+   - chỉ để xem và in tem; không huỷ/sửa được lô của máy khác từ đây;
+   - tắt app mở lại là mất, cần thì bấm tải lại. */
+let nkHT=[], nkHTLuc='';
+async function taiLoHeThong(){
+  if(!DONGBO_URL){bao('Máy này chưa khai kết nối Google Sheet — vào tab Dữ liệu để khai');return}
+  bao('Đang tải các lô trên hệ thống…');
+  try{
+    const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky');
+    if(!j||!j.ok||!Array.isArray(j.nk))throw new Error((j&&j.loi)||'hệ thống không trả dữ liệu');
+    const coSan=new Set(nk.map(r=>r.id));
+    nkHT=j.nk.filter(r=>r&&r.id&&r.lot&&!coSan.has(r.id)).map(r=>Object.assign({},r,{_heThong:true}));
+    nkHTLuc=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    ve();
+    bao(nkHT.length?'Đã tải '+nkHT.length+' mẻ do máy khác ghi — chọn lô ở ô trên để xem & in tem':'Trên hệ thống không có mẻ nào của máy khác');
+  }catch(e){bao('Không tải được: '+e.message)}
+}
+async function inPhieuCT(quaFile){
   const p=sp[moSP]; if(!p)return;
-  $('temIn').innerHTML=phieuHTML(p);
+  const htmlPhieu=phieuHTML(p);
+  if(!quaFile)$('temIn').innerHTML=htmlPhieu;
   // in lại ĐÚNG NỘI DUNG đã xác nhận trước đó thì giữ nguyên, tự điền lại tên — sửa gì thì bắt xác nhận lại
   const giuNguyenXacNhan=p.daInPhieu&&p.xacNhanCT&&p.xacNhanCTSnap===snapPhieu(p);
   p.daInPhieu=true; if(!giuNguyenXacNhan)p.xacNhanCT=false;
   ghiAudit('recipe',p.ten,'PRINT_RECIPE',null,{kg:num(p.sl),huong:p.huongMe,ngaysx:p.ngaysx});
   await luu(); ve();
+  if(quaFile){
+    taiFileIn('PEROMA-phieu-cong-thuc-'+p.ten+'-'+(p.ngaysx||new Date().toISOString().slice(0,10))+'.html','Phiếu công thức — '+p.ten,
+      'Bản in do máy nhân viên '+(toi||'')+' tạo. Mở file này trên máy có máy in rồi bấm In (không cần cài Peroma, không cần mạng).',htmlPhieu);
+    bao('Đã lưu file phiếu — gửi file sang máy có máy in (Zalo, USB…), mở bằng trình duyệt rồi bấm In');
+    return}
   bao('Phiếu công thức đã sẵn sàng in.');
   setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
 }
-async function inTem(id){
-  const r=nk.find(x=>x.id===id); if(!r){bao('Không tìm thấy bản ghi');return}
+async function inTem(id,quaFile){
+  // R9: tìm cả trong các lô tải từ hệ thống (nkHT — do máy khác ghi, chỉ nằm trong bộ nhớ)
+  const r=nk.find(x=>x.id===id)||nkHT.find(x=>x.id===id); if(!r){bao('Không tìm thấy bản ghi');return}
   if(r.huy){await hoi('Lô này đã huỷ','Lô đã được đánh dấu huỷ nên không in tem được. Bỏ huỷ trước nếu muốn in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   const p=sp.find(x=>x.ten===r.sp);
   if(!p){await hoi('Không in được',`Mặt hàng <b>${esc(r.sp)}</b> không có trong cấu hình máy này.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
@@ -1064,9 +1149,16 @@ async function inTem(id){
   if(th.length){await hoi('Chưa in được tem',
     `<b>${esc(p.ten)}</b> chưa có đủ hồ sơ tem.<br><br>Còn thiếu <b>${th.length}</b> mục.<br>Báo quản lý bổ sung rồi nạp lại cấu hình.`,
     {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
-  $('temIn').innerHTML=trangTem(r,p);
+  const htmlTem=trangTem(r,p);
+  if(!quaFile)$('temIn').innerHTML=htmlTem; // đặt bản in NGAY (trước lần chờ lưu) như hành vi cũ
+  // lô của máy khác: không đánh dấu gì lên máy này (bản ghi đó không thuộc máy này, không lưu)
+  if(!r._heThong){r.daInTem=true;r.inTemLuc=new Date().toISOString();await luu()}
+  if(quaFile){
+    taiFileIn('PEROMA-tem-lo-'+r.lot+'-'+r.sp+'.html','Tem phụ lô '+lotDep(r.lot),
+      r.sp+' · '+(r.huong||'')+' · '+(r.quyCach||'')+' · ngày SX '+vnNgay(r.ngaysx)+'. Mở file này trên máy có máy in rồi bấm In — cần thêm bản thì chọn "Số bản in" trong hộp thoại in.',htmlTem);
+    bao('Đã lưu file tem — gửi file sang máy có máy in (Zalo, USB…), mở bằng trình duyệt rồi bấm In');
+    return}
   bao('1 trang tem đã sẵn sàng — cần thêm bản thì dùng "Số bản in" trong hộp thoại in.');
-  r.daInTem=true;r.inTemLuc=new Date().toISOString();await luu();
   setTimeout(()=>{try{window.print()}catch(e){bao('Trình duyệt chặn in')}},60);
 }
 
@@ -1161,7 +1253,7 @@ $('mask').addEventListener('click',async e=>{
   if(c){toi=c.dataset.cn; luu();
     document.querySelectorAll('[data-cn]').forEach(x=>x.classList.toggle('on',x===c));
     $('whoBtn').textContent=toi; return}
-  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem);return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile);return}
 });
 
 $('view').addEventListener('click',async e=>{
@@ -1235,7 +1327,7 @@ $('view').addEventListener('click',async e=>{
   const xo=e.target.closest('[data-xoa]'); if(xo){const p=sp[moSP];
     const c=await hoi('Xoá nội dung','Xoá số kg, hương và quy cách đang nhập?',{nutOK:'Xoá',nguyHiem:true});
     if(!c)return; p.sl='';p.pb=[];p.huongMe='';p.daInPhieu=false;p.xacNhanCT=false;p.xacNhanCTBoi='';p.xacNhanCTSnap='';p.xacNhanCTLuc=''; pbTuDong(p); luu(); ve(); bao('Đã xoá'); return}
-  const ip=e.target.closest('[data-inphieu]'); if(ip){await inPhieuCT();return}
+  const ip=e.target.closest('[data-inphieu]'); if(ip){await inPhieuCT(!!ip.dataset.quafile);return}
   const xn=e.target.closest('[data-xnct]'); if(xn){const p=sp[moSP]; if(p){
     if(!toi){bao('Bấm nút tên ở góc trên bên phải để chọn tên bạn trước khi xác nhận');return}
     p.xacNhanCT=true; p.xacNhanCTBoi=toi; p.xacNhanCTSnap=snapPhieu(p);
@@ -1247,7 +1339,8 @@ $('view').addEventListener('click',async e=>{
     ghiAudit('recipe',p.ten,'CONFIRM_RECIPE',null,{kg:num(p.sl),huong:p.huongMe,luc:p.xacNhanCTLuc});
     await luu(); ve(); bao('Đã xác nhận công thức')} return}
   const km=e.target.closest('[data-kiem]'); if(km){await kiemRoiGhi();return}
-  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem);return}
+  const it=e.target.closest('[data-intem]'); if(it){await inTem(it.dataset.intem,!!it.dataset.quafile);return}
+  if(e.target.closest('[data-taiht]')){await taiLoHeThong();return}
   const hl=e.target.closest('[data-huylo]'); if(hl){await huyLo(hl.dataset.huylo);return}
   const xu=e.target.closest('[data-xuat]'); if(xu){xuatMe();return}
 });

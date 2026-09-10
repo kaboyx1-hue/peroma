@@ -22,6 +22,13 @@ Từ bản S10/R8 (10/09/2026), bố cục và màu theo mẫu Figma [Full Dashb
 - **S12:** khai nguyên liệu cấu thành ngay trong công thức (nút *+ Khai nguyên liệu mới*, tự thêm vào Danh mục); mục nào còn thiếu có đường dẫn *Chọn hương → / Khai nguyên liệu → / Hồ sơ tem → / Cấp mã →* tới đúng chỗ bổ sung; nhóm Hồ sơ tem có nút *Thu gọn / Mở ra* rõ ràng, bấm tên ô còn thiếu để tới đúng ô.
 - Bản in tem vẫn trắng đen như cũ.
 
+## Khi máy in hỏng — in tem / phiếu ở máy khác
+
+Có 2 cách, dùng cách nào cũng được:
+
+1. **Lưu file in rồi gửi sang máy khác** (không cần mạng, máy nhận không cần cài Peroma). Ở thẻ lô (tab *Tra lô* bên nhân viên, hoặc *Báo cáo → Tra cứu số lot* bên Admin) bấm **"Máy in hỏng? Lưu file tem để in ở máy khác"**; với phiếu công thức bấm **"Máy in hỏng? Lưu file phiếu…"**. App lưu 1 file  đúng y bản in (cùng khổ A4, cùng cỡ chữ). Gửi file qua Zalo / USB / email sang máy có máy in → mở bằng trình duyệt → bấm **In**. File chỉ chứa nội dung tem/phiếu, không có mật khẩu hay dữ liệu khác.
+2. **Máy khác tự lấy lô qua hệ thống** (khi có mạng và đã khai kết nối Google Sheet). Máy nhân viên còn lại vào tab *Tra lô* → **"Tải lô do máy khác ghi"** → chọn lô (ghi "máy khác") → in tem. Dùng được cả khi máy cũ hỏng hẳn. Các lô tải về chỉ để xem và in: không lưu vào máy này, không gửi ngược lên Sheet, không huỷ/sửa được. Máy Admin thì vốn đã thấy mọi lô, in từ *Báo cáo → Tra cứu số lot*.
+
 ## Lần đầu mở trên một máy mới
 
 App **không** chứa sẵn địa chỉ Google Sheet và mật khẩu — phải nhập một lần cho mỗi máy:
@@ -68,7 +75,7 @@ Mật khẩu nằm ở biến `MATKHAU` trong `Code.gs` và phải khớp với 
 
 Bộ test gồm 6 phần: Admin (`kiemtra.mjs`), Nhân viên (`kiemtra-nv.mjs`), vòng tròn Admin→NV→Admin (`kiemtra-vongtron.mjs`), chế độ mất mạng (`kiemtra-offline.mjs`), chế độ chỉ xem trên điện thoại (`kiemtra-chixem.mjs`), và kiểm tra trước khi gửi (`kiemtra-truockhi-gui.mjs`).
 
-Kết quả lần chạy gần nhất (10/09/2026, bản S12/R8): **383 + 174 + 19 + 21 + 17 = 614 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
+Kết quả lần chạy gần nhất (10/09/2026, bản S13/R9): **386 + 183 + 19 + 21 + 17 = 626 phép kiểm, 0 hỏng**; kiểm tra trước khi gửi: không lỗi.
 
 > **Lưu ý:** bộ test hiện được viết cho môi trường làm việc cụ thể (đường dẫn Chrome và thư mục cố định trên máy phát triển, cấu trúc thư mục `huong/` + `nv/`), **chưa chạy thẳng được từ kho này trên máy khác**. Làm cho test chạy độc lập là việc riêng, chưa làm.
 

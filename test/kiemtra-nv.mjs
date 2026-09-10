@@ -724,6 +724,35 @@ ok('AG: số kg đang gõ dở vẫn còn nguyên (không vi phạm H1)', agKq.s
 ok('AG: chính mặt hàng đang mở bị xoá → quay về danh sách (moSP=-1), không trỏ sang hàng khác', agKq.moSauXoa===-1, agKq.moSauXoa);
 ok('AG: có báo rõ cho NV biết mặt hàng vừa bị xoá/đổi tên', /vừa xoá hoặc đổi tên mặt hàng/.test(agKq.toast), agKq.toast);
 
+console.log('\n── R9. MÁY IN HỎNG: LƯU FILE IN + LÔ DO MÁY KHÁC GHI (10/09/2026) ──');
+const r9=await E(()=>{const pp=sp[0];
+  pp.hstem={tenVN:'X',thanhPhan:'X',congDung:'X',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'};
+  nk.push({id:'R9-A1',sp:pp.ten,huong:(pp.huongs||[])[0]||'',quyCach:'5 kg',sl:100,soBao:20,ngaysx:'2026-09-10',ts:'2026-09-10T08:00:00',lot:'1101070926',nv:'Toàn',daGui:1});
+  tab='lo';traLot='1101070926';ve(); return {coNutFile:!!document.querySelector('[data-intem="R9-A1"][data-quafile]'), nutInVanDauTien:document.querySelector('[data-intem]').dataset.quafile===undefined};});
+ok('R9: thẻ lô có nút "Lưu file tem để in ở máy khác", nút In thường vẫn đứng trước', r9.coNutFile&&r9.nutInVanDauTien);
+const [r9dl]=await Promise.all([p.waitForEvent('download'),p.click('[data-intem="R9-A1"][data-quafile]')]);
+const r9f=r9dl.suggestedFilename(); const r9html=fs.readFileSync(await r9dl.path(),'utf8');
+ok('R9: lưu được file .html tên có số lô', /^PEROMA-tem-lo-1101070926-.*\.html$/.test(r9f), r9f);
+ok('R9: file tự chứa đủ tem (đúng số ô 1 tờ) + nút In, không cần Peroma', (r9html.match(/class="tem"/g)||[]).length===await E(()=>temCot*temHang) && /window\.print\(\)/.test(r9html));
+ok('R9: file KHÔNG chứa mật khẩu / địa chỉ Apps Script / dữ liệu khác', !/script\.google|macros\/s\/|"mk"|nguonHuong|auditEvents/.test(r9html));
+ok('R9: lưu file = đã tạo bản in → đánh dấu đã in như bấm In', await E(()=>nk.find(r=>r.id==='R9-A1').daInTem===true));
+const r9ht=await E(async()=>{const urlCu=DONGBO_URL, mkCu=LEGACY_SHARED_TOKEN, that=window.fetch, nkTruoc=JSON.stringify(nk);
+  DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; LEGACY_SHARED_TOKEN='x';
+  window.fetch=async(u,o)=>/a=nhatky/.test(String(u))?new Response(JSON.stringify({ok:1,nk:[
+    {id:'R9-A1',sp:sp[0].ten,lot:'1101070926',ngaysx:'2026-09-10'},
+    {id:'R9-B7',sp:sp[0].ten,huong:'Hương X',quyCach:'5 kg',sl:50,soBao:10,ngaysx:'2026-09-09',ts:'2026-09-09T09:00:00',lot:'1101070925',nv:'Loan'}]}),{headers:{'Content-Type':'application/json'}}):that(u,o);
+  await taiLoHeThong(); traLot='1101070925'; ve();
+  const kq={soHT:nkHT.length, boTrung:!nkHT.some(r=>r.id==='R9-A1'), trongChon:[...document.querySelectorAll('#oLot option')].some(o=>/máy khác/.test(o.textContent)),
+    nhan:!!document.querySelector('.htnhan'), khongHuy:!document.querySelector('[data-huylo="R9-B7"]'), coIn:!!document.querySelector('[data-intem="R9-B7"]')};
+  await inTem('R9-B7'); kq.inDuoc=/1101070925|11 01 07 0925/.test($('temIn').innerHTML);
+  kq.khongGopNk=JSON.stringify(nk)===nkTruoc; await luu(); kq.khongLuu=!JSON.stringify(localStorage).includes('R9-B7');
+  window.fetch=that; DONGBO_URL=urlCu; LEGACY_SHARED_TOKEN=mkCu; nkHT=[]; nkHTLuc=''; traLot=''; ve(); return kq;});
+ok('R9: tải lô máy khác qua hệ thống — bỏ mẻ máy này đã có, chỉ thêm mẻ của máy khác', r9ht.soHT===1&&r9ht.boTrung, JSON.stringify(r9ht));
+ok('R9: lô máy khác hiện trong ô chọn (ghi "máy khác") và có nhãn chỉ xem & in', r9ht.trongChon&&r9ht.nhan);
+ok('R9: lô máy khác KHÔNG có nút Huỷ lô, vẫn in được tem', r9ht.khongHuy&&r9ht.coIn&&r9ht.inDuoc);
+ok('R9: lô máy khác KHÔNG gộp vào dữ liệu máy này, KHÔNG lưu xuống máy (không thể gửi trùng lên Sheet)', r9ht.khongGopNk&&r9ht.khongLuu);
+await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
