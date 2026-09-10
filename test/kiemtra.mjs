@@ -246,6 +246,35 @@ ok('S18: bấm câu chọn nhanh → điền đúng xuất xứ', s18.cauXuatXu)
 ok('S18: "Áp phần chung cho mọi mặt hàng" → mọi mặt hàng nhận đúng khối công ty/cảnh báo', s18.apMoi);
 ok('S18: mặt hàng khoá TCCS tự áp lại TCCS nhưng GIỮ phần chung cuối tem', s18.khoaTCCSGiuCty);
 ok('S18: phần chung nằm trong hồ sơ tem → đồng bộ nguyên khối (không cần sửa Code.gs)', s18.dongBoNguyenKhoi);
+/* S19 (10/09/2026) — tên trên tem hiện kèm ở ô chọn lô/thẻ lô; sửa nội dung tem lần cuối trong bảng Dàn trang */
+const s19=await E(async()=>{ window.__tatTuDongKhoTem=true;
+  const cho=ms=>new Promise(z=>setTimeout(z,ms)), p=sp[0], goc={hstem:p.hstem,cot:temCot,hang:temHang}, inCu=window.print; let daIn=0; window.print=()=>{daIn++};
+  p.hstem={tenVN:'TÊN TRÊN TEM S19',thanhPhan:'B',congDung:'GỐC',doAm:'< 10%',hdsd:'D',baoQuan:'E',xuatXu:'F',soTCCS:'01:2026/KH',hsdNam:'10'};
+  temCot=3; temHang=2;
+  const r={id:'S19-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'4101070926',nv:'T',daGui:1}; nk.push(r);
+  traLot=r.lot; chuyenTab('bc');
+  const kq={};
+  kq.option=[...document.querySelectorAll('#traLot option')].some(o=>o.value===r.lot&&/tem: «TÊN TRÊN TEM S19»/.test(o.textContent));
+  kq.kv=/Tên in trên tem\s*TÊN TRÊN TEM S19/.test($('viewBC').innerText);
+  // sửa lần cuối, KHÔNG lưu
+  const pr=inTem('S19-T',false,true); await cho(200);
+  document.querySelector('.dt-sua').open=true; const o=document.querySelector('[data-dtsua="congDung"]'); o.value='SỬA LẦN CUỐI'; o.dispatchEvent(new Event('input',{bubbles:true})); await cho(350);
+  kq.xemTruoc=document.querySelector('#dtVung').innerText.includes('SỬA LẦN CUỐI');
+  kq.coOLuu=!!document.getElementById('dtLuu');
+  $('dtIn').click(); await pr; await cho(150);
+  kq.inNoiDungSua=$('temIn').innerText.includes('SỬA LẦN CUỐI'); kq.hoSoKhongDoi=p.hstem.congDung==='GỐC'; kq.daIn=daIn===1;
+  // có tick "Lưu luôn"
+  const pr2=inTem('S19-T',false,true); await cho(200);
+  document.querySelector('.dt-sua').open=true; const o2=document.querySelector('[data-dtsua="congDung"]'); o2.value='ĐÃ LƯU'; o2.dispatchEvent(new Event('input',{bubbles:true})); await cho(300);
+  document.getElementById('dtLuu').checked=true; $('dtIn').click(); await pr2; await cho(150);
+  kq.luuVaoHoSo=p.hstem.congDung==='ĐÃ LƯU';
+  nk.splice(nk.findIndex(z=>z.id==='S19-T'),1); p.hstem=goc.hstem; temCot=goc.cot; temHang=goc.hang; window.print=inCu; traLot=''; luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
+  return kq;});
+ok('S19: ô chọn lô hiện kèm tên in trên tem khi khác tên mặt hàng', s19.option, JSON.stringify(s19));
+ok('S19: thẻ lô có dòng "Tên in trên tem"', s19.kv);
+ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
+ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
+ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');

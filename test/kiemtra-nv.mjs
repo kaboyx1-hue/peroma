@@ -758,6 +758,19 @@ ok('R9: tải lô máy khác qua hệ thống — bỏ mẻ máy này đã có, 
 ok('R9: lô máy khác hiện trong ô chọn (ghi "máy khác") và có nhãn chỉ xem & in', r9ht.trongChon&&r9ht.nhan);
 ok('R9: lô máy khác KHÔNG có nút Huỷ lô, vẫn in được tem', r9ht.khongHuy&&r9ht.coIn&&r9ht.inDuoc);
 ok('R9: lô máy khác KHÔNG gộp vào dữ liệu máy này, KHÔNG lưu xuống máy (không thể gửi trùng lên Sheet)', r9ht.khongGopNk&&r9ht.khongLuu);
+/* R13: nhân viên được sửa nội dung tem lần cuối CHỈ cho lần in đó — không có ô lưu, cấu hình quản lý không đổi */
+const r13=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const pp=sp[0], goc=JSON.stringify(pp.hstem), inCu=window.print; window.print=()=>{};
+  pp.hstem={tenVN:'X',thanhPhan:'X',congDung:'GỐC',doAm:'< 10%',hdsd:'X',baoQuan:'X',xuatXu:'X',soTCCS:'01:2026/KH',hsdNam:'10'}; temCot=3; temHang=2;
+  nk.push({id:'R13-1',sp:pp.ten,huong:'H',quyCach:'5 kg',sl:10,soBao:2,kgBao:5,ngaysx:'2026-09-10',lot:'1101070926',nv:'T',daGui:1});
+  const pr=inTem('R13-1',false,true); await cho(200);
+  const kq={coOLuu:!!document.getElementById('dtLuu')};
+  const o=document.querySelector('[data-dtsua="congDung"]'); o.value='NV SỬA'; o.dispatchEvent(new Event('input',{bubbles:true})); await cho(300);
+  $('dtIn').click(); await pr; await cho(100);
+  kq.inSua=$('temIn').innerText.includes('NV SỬA'); kq.khongDoi=pp.hstem.congDung==='GỐC';
+  nk.splice(nk.findIndex(z=>z.id==='R13-1'),1); pp.hstem=JSON.parse(goc); window.print=inCu; window.__tatTuDongKhoTem=false; await luu();
+  return kq;});
+ok('R13: nhân viên sửa tem lần cuối → bản in dùng nội dung sửa, KHÔNG có ô lưu, hồ sơ tem không đổi', r13.inSua&&!r13.coOLuu&&r13.khongDoi, JSON.stringify(r13));
 await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
 
 console.log('\n────────────────────────────');

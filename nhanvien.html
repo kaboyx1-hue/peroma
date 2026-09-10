@@ -287,19 +287,32 @@ html,body{background:var(--bg);min-height:100%}
 .dt-tt.ok{background:var(--okBg);color:var(--ok)}.dt-tt.nho{background:var(--warnBg);color:var(--warnTx)}.dt-tt.tran{background:var(--badBg);color:var(--badTx)}
 .dt-goiy{font-size:13px;color:var(--tx2)}
 .dt-goiy button{font:inherit;font-weight:700;color:var(--accTx);background:var(--accSoft);border:1px solid var(--acc);border-radius:999px;padding:3px 10px;cursor:pointer;margin-left:4px}
-.dt-nut{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+.dt-nut{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--card);border-radius:0 0 20px 20px}
 .dt-nut button{font:inherit;font-size:15px;font-weight:700;border-radius:14px;padding:12px 20px;cursor:pointer}
 .dt-huy{background:var(--c2);color:var(--tx);border:1px solid var(--line2)}
 .dt-in{background:linear-gradient(135deg,var(--btnA),var(--btnB));color:var(--onAcc);border:0;box-shadow:var(--btnGlow)}
 .dt-in:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 @media(max-width:700px){.dt-than{grid-template-columns:1fr}.dt-xem{max-width:240px;margin:0 auto;width:100%}}
+/* S19/R13: mục "Sửa nội dung tem lần cuối" trong bảng Dàn trang */
+.dt-sua{margin:0 20px 6px;border:1px solid var(--line);border-radius:14px;background:var(--bg)}
+.dt-sua summary{cursor:pointer;padding:11px 14px;font-weight:700;font-size:14px}
+.dt-sua summary small{font-weight:500;color:var(--tx2)}
+.dt-sua-luoi{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 14px 10px}
+.dt-f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--tx2)}
+.dt-f.dai{grid-column:1/-1}
+.dt-f input,.dt-f textarea{font:inherit;font-size:13.5px;font-weight:400;color:var(--tx);background:var(--card);border:1px solid var(--line2);border-radius:10px;padding:8px 10px}
+.dt-f textarea{min-height:58px;resize:vertical;line-height:1.45}
+.dt-f input:focus,.dt-f textarea:focus{outline:none;border-color:var(--acc)}
+.dt-sua-cuoi{padding:0 14px 12px;font-size:12.5px;color:var(--tx2);line-height:1.5}
+.dt-luu{display:flex;gap:8px;align-items:center;margin-top:8px;font-weight:700;color:var(--tx)}
+@media(max-width:700px){.dt-sua-luoi{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R12</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 10/09/2026-R13</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -840,7 +853,7 @@ function veLo(){
           if(!cu||String(r.ts||'')>String(cu.ts||''))gap.set(l,r)});
         return [...gap.entries()]
           .sort((a,b)=>String(b[1].ts||'').localeCompare(String(a[1].ts||'')))
-          .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}${r._heThong?' · máy khác':''}</option>`).join('');
+          .map(([l,r])=>`<option value="${esc(l)}"${traLot===l?' selected':''}>${esc(r.sp)}${tenTrenTem(r.sp)?' · tem: «'+esc(tenTrenTem(r.sp))+'»':''} — ${esc(r.huong||'?')} — ${esc(lotDep(l))} — ${esc(vnNgay(r.ngaysx))}${r._heThong?' · máy khác':''}</option>`).join('');
       })()}
     </select></div>
     ${DONGBO_URL
@@ -875,7 +888,7 @@ function veLo(){
     ${dong?'':`
     ${r._heThong?`<div class="ghichu htnhan">Lô do máy khác ghi (tải từ hệ thống) — máy này chỉ xem &amp; in tem, không huỷ/sửa được.</div>`:''}
     ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--am)">${esc(r.ngungLyDo)||'—'}</b></div>`:''}
-    <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
+    <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>${tenTrenTem(r.sp)?`<div class="kv"><span>Tên in trên tem</span><b>${esc(tenTrenTem(r.sp))}</b></div>`:''}
     <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
     <div class="kv"><span>Hương</span><b style="color:var(--cy)">${esc(r.huong)}</b></div>
     <div class="kv"><span>Quy cách</span><b style="color:var(--am)">${esc(r.quyCach)}</b></div>
@@ -891,7 +904,7 @@ function veLo(){
         +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
         +`</details>`})()}
     ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>
-    <button class="add ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang tem (chọn số tem mỗi hàng × số hàng, xem trước)</button>
+    <button class="add ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button>
     <button class="add ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
     ${r._heThong?'':`<button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>`}
     `}
@@ -970,6 +983,20 @@ function veKhoiCty(t){
   const ds=[vt?esc(vt):'',ten?'<b>'+esc(ten)+'</b>':'',...dc].filter(Boolean);
   return ds.length?'<div class="kh">'+ds.join('<br>')+'</div>':'';
 }
+
+/* S19/R13 (10/09/2026) — khách: "chọn lô cần tra hiện Cát lót chuồng, vào phiếu in lại là cát lót nền, không
+   nhất quán". Tên mặt hàng trong app (khoá liên kết, đổi phải qua doiTen) và tên in trên tem (hồ sơ tem, theo
+   TCCS) là 2 thứ khác nhau. tenTrenTem() trả về tên trên tem khi nó KHÁC tên mặt hàng, để hiện kèm ở ô chọn lô,
+   thẻ lô và nhắc trong Công thức — không tự đổi tên nào. */
+const chuanTen=s=>String(s||'').normalize('NFC').toLowerCase().replace(/\s+/g,' ').trim();
+function tenTrenTem(tenSP){const p=sp.find(x=>x.ten===tenSP);const t=p&&p.hstem&&String(p.hstem.tenVN||'').trim();return t&&chuanTen(t)!==chuanTen(tenSP)?t:''}
+
+/* S19/R13 — "Sửa nội dung tem lần cuối trước khi in" (trong bảng Dàn trang). Chỉ các ô NỘI DUNG của hồ sơ tem;
+   số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ nên KHÔNG sửa ở đây (truy xuất). */
+const TEM_SUA_O=[['tenVN','Tên sản phẩm (tiêu đề lớn)'],['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phần'],['congDung','Công dụng',1],
+  ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
+  ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],['ctyVaiTro','Dòng trách nhiệm'],
+  ['ctyTen','Tên công ty'],['ctyDiaChi','Địa chỉ · trụ sở · MST · điện thoại',1],['canhBao','Dòng cảnh báo',1]];
 function temHTML(r,p){
   const t=p.hstem||{}, kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
   const hd=hanDung(r.ngaysx,t.hsdNam);
@@ -1053,7 +1080,11 @@ function xetKhoTem(r,p){
 }
 function moDanTem(r,p,quaFile){
   return new Promise(xong=>{
-    const mot=temHTML(r,p);
+    const suaTam={}; // S19: nội dung sửa lần cuối (chỉ cho lần in này, trừ khi Admin chọn lưu)
+    const pSua=()=>Object.keys(suaTam).length?{...p,hstem:{...(p.hstem||{}),...suaTam}}:p;
+    let mot=temHTML(r,p);
+    const choLuu=typeof TEM_O!=='undefined'&&typeof temMoi==='function', khoaTCCS=choLuu&&TCCS_KHOA.includes(hai(p.maSP))&&!p.temMoKhoa;
+    const giaTri=k=>{const t=p.hstem||{};return TEM_KHOI_CTY.includes(k)?temGT(t,k):String(t[k]||'')};
     let cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
     let el=document.getElementById('danTem'); if(el)el.remove();
     el=document.createElement('div'); el.id='danTem'; el.className='dt-mask';
@@ -1066,6 +1097,11 @@ function moDanTem(r,p,quaFile){
       +'<div class="dt-nhanh-t">Chọn nhanh</div><div class="dt-nhanh" id="dtNhanh"></div>'
       +'<div class="dt-kq" id="dtKq"></div><div class="dt-tt" id="dtTT"></div><div class="dt-goiy" id="dtGoiY"></div>'
       +'</div></div>'
+      +'<details class="dt-sua"><summary>Sửa nội dung tem lần cuối trước khi in <small>(xem trước cập nhật ngay)</small></summary>'
+      +'<div class="dt-sua-luoi">'+TEM_SUA_O.map(([k,nhan,dai])=>'<label class="dt-f'+(dai?' dai':'')+'"><span>'+esc(nhan)+'</span>'+(dai?'<textarea data-dtsua="'+k+'">'+esc(giaTri(k))+'</textarea>':'<input data-dtsua="'+k+'" value="'+esc(giaTri(k))+'">')+'</label>').join('')+'</div>'
+      +'<div class="dt-sua-cuoi">Số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ — không sửa ở đây.'
+      +(choLuu?(khoaTCCS?' Mặt hàng đang khoá theo TCCS: chỉ sửa cho lần in này (mở khoá ở tab Công thức nếu muốn lưu).':'<label class="dt-luu"><input type="checkbox" id="dtLuu"> Lưu luôn vào hồ sơ tem của mặt hàng (lần in sau dùng nội dung mới)</label>'):' Chỉ áp cho lần in này — không đổi hồ sơ tem của quản lý.')
+      +'</div></details>'
       +'<div class="dt-nut"><button type="button" class="dt-huy" data-dt="huy">Huỷ</button><button type="button" class="dt-in" id="dtIn" data-dt="in"></button></div></div>';
     document.body.appendChild(el);
     const giay=el.querySelector('#dtGiay'), vung=el.querySelector('#dtVung');
@@ -1104,10 +1140,15 @@ function moDanTem(r,p,quaFile){
       else if(t==='in'){if(b.disabled)return;
         const kq=coChuVua(mot,cot,hang); temCot=cot;temHang=hang;luu();
         try{if(kq.co<TEM_CO_DOC)localStorage.setItem(TEM_KHO_DUYET_KEY,cot+'x'+hang)}catch(e){}
-        dong(true);return}
+        const coSua=Object.keys(suaTam).length>0, luuLuon=coSua&&choLuu&&!khoaTCCS&&!!(el.querySelector('#dtLuu')||{}).checked;
+        if(luuLuon){p.hstem={...temMoi(),...(p.hstem||{}),...suaTam};luuNgay();ve()}
+        dong({hstem:coSua?{...(p.hstem||{}),...suaTam}:null,daLuu:luuLuon});return}
       ve2();
     });
-    el.addEventListener('input',e=>{if(e.target.id==='dtCot'||e.target.id==='dtHang'){if(String(e.target.value).trim())ve2()}});
+    let henSua=0;
+    el.addEventListener('input',e=>{if(e.target.id==='dtCot'||e.target.id==='dtHang'){if(String(e.target.value).trim())ve2();return}
+      const k=e.target.dataset.dtsua; if(!k)return;
+      suaTam[k]=e.target.value; clearTimeout(henSua); henSua=setTimeout(()=>{mot=temHTML(r,pSua());ve2()},180)});
     requestAnimationFrame(ve2); ve2();
     setTimeout(()=>{const b=el.querySelector('#dtIn');if(b&&!b.disabled)b.focus()},30);
   });
@@ -1342,8 +1383,10 @@ async function inTem(id,quaFile,luonHoi){
     `<b>${esc(p.ten)}</b> chưa có đủ hồ sơ tem.<br><br>Còn thiếu <b>${th.length}</b> mục.<br>Báo quản lý bổ sung rồi nạp lại cấu hình.`,
     {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   // S17/R11: mở bảng dàn trang khi bấm "Dàn trang", hoặc khi khổ đang lưu không vừa / chữ nhỏ chưa được duyệt
-  if(luonHoi||xetKhoTem(r,p)){ if(!(await moDanTem(r,p,quaFile)))return; }
-  const htmlTem=trangTem(r,p);
+  let pIn=p;
+  if(luonHoi||xetKhoTem(r,p)){ const kqDT=await moDanTem(r,p,quaFile); if(!kqDT)return;
+    if(kqDT.hstem&&kqDT.hstem!==true){pIn={...p,hstem:kqDT.hstem}; bao(kqDT.daLuu?'Đã lưu nội dung sửa vào hồ sơ tem':'In với nội dung sửa lần cuối — hồ sơ tem không đổi')} }
+  const htmlTem=trangTem(r,pIn);
   if(!quaFile)$('temIn').innerHTML=htmlTem; // đặt bản in NGAY (trước lần chờ lưu) như hành vi cũ
   // lô của máy khác: không đánh dấu gì lên máy này (bản ghi đó không thuộc máy này, không lưu)
   if(!r._heThong){r.daInTem=true;r.inTemLuc=new Date().toISOString();await luu()}
