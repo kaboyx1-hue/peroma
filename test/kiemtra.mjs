@@ -139,6 +139,18 @@ ok('S14: đã mở khoá thì tự-áp-TCCS lúc mở app KHÔNG ghi đè phần
 ok('S14: cờ mở khoá được đồng bộ (sachCauHinh) — máy/bản khác không tự khoá lại', s14.dongBo);
 ok('S14: Xuất xứ vẫn khoá như mọi mặt hàng (quy tắc pháp lý 25/08 giữ nguyên)', s14.xuatXuVanKhoa);
 ok('S14: "Khoá lại theo TCCS" → thay lại đúng TCCS, chỉ đọc trở lại', s14.khoaLai);
+/* S14b: Code.gs cũ (chưa triển khai lại) không có temMoKhoa → bản cấu hình kéo từ server thiếu hẳn trường này.
+   Kéo về KHÔNG được làm mất cờ đang có trên máy; còn server gửi rõ temMoKhoa:false thì phải áp dụng. */
+const s14b=await E(()=>{
+  const i=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'), goc=JSON.stringify(sp), cfg=JSON.parse(JSON.stringify(sachCauHinh(sp)));
+  sp[i].temMoKhoa=true;
+  const khongCo=cfg.map(x=>{const y={...x};delete y.temMoKhoa;return y});
+  apDungCauHinhTuServer({sp:khongCo}); const giu=sp.find(x=>x.ten==='Cát ăn (Hambi)').temMoKhoa===true;
+  apDungCauHinhTuServer({sp:cfg.map(x=>({...x,temMoKhoa:false}))}); const apDung=sp.find(x=>x.ten==='Cát ăn (Hambi)').temMoKhoa===false;
+  sp=napSP(JSON.parse(goc)); luuNgay(); ve();
+  return {giu,apDung};});
+ok('S14b: server CHƯA có trường temMoKhoa → kéo cấu hình về vẫn giữ cờ mở khoá trên máy', s14b.giu, JSON.stringify(s14b));
+ok('S14b: server gửi rõ temMoKhoa=false → áp dụng đúng (không giữ bừa)', s14b.apDung);
 ok('11 mặt hàng gốc', (await E(()=>sp.length))===11);
 ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');

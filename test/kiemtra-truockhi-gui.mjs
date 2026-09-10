@@ -82,5 +82,16 @@ const verAdmin=(admin.match(/BẢN\s+(\d{2}\/\d{2}\/\d{4}-[A-Z0-9]+)/)||[])[1];
 const verNv=(nv.match(/BẢN NHÂN VIÊN\s*·\s*(\d{2}\/\d{2}\/\d{4}-[A-Z0-9]+)/)||[])[1];
 console.log(`ℹ️  Phiên bản đang gửi — Admin: ${verAdmin||'?'} · Nhân viên: ${verNv||'?'} (tự kiểm tra bằng mắt, không tính lỗi)`);
 
+/* 10/09/2026 — bản S14: mọi trường của từng mặt hàng mà Admin đưa vào sachCauHinh() PHẢI có trong
+   sachCauHinhServer() của Code.gs — thiếu là server cắt mất khi đồng bộ (lỗi thật đã xảy ra: temMoKhoa). */
+{
+  const boChuThich=t=>t.replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
+  const khoang=(src,dau,cuoi)=>{const i=src.indexOf(dau);if(i<0)return '';const j=src.indexOf(cuoi,i);return j<0?'':boChuThich(src.slice(i,j))};
+  const truong=t=>[...new Set([...t.matchAll(/([A-Za-z_]\w*)\s*:/g)].map(m=>m[1]))];
+  const kc=truong(khoang(admin,'function sachCauHinh(','}));'));
+  const ks=truong(khoang(gs,'function sachCauHinhServer(','sp: sp,'));
+  const thieu=kc.filter(k=>!ks.includes(k));
+  ok('Mọi trường mặt hàng Admin đồng bộ đều có trong Code.gs (không bị server cắt mất)', kc.length>10&&ks.length>10&&!thieu.length, thieu.length?'thiếu: '+thieu.join(', '):'không đọc được danh sách trường');
+}
 console.log(`\nKẾT QUẢ:  ${loi===0?'KHÔNG CÓ LỖI — an toàn để gửi':loi+' LỖI — DỪNG LẠI, sửa xong mới gửi cho khách'}`);
 process.exit(loi?1:0);

@@ -815,7 +815,7 @@ html,body{background:var(--bg);min-height:100%}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S14</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S15</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1035,7 +1035,16 @@ function dbDayChoDL(){ clearTimeout(dbHen2); dbHen2=setTimeout(dbDayCauHinh,1500
 function apDungCauHinhTuServer(c){
   if(!c||typeof c!=='object')return;
   if(Array.isArray(c.sp)&&c.sp.length){
+    /* S14 (10/09/2026): trường cấu hình mới của từng mặt hàng có thể CHƯA có trong whitelist của
+       Code.gs (khi chủ chưa kịp triển khai lại Apps Script) → bản trên server thiếu hẳn trường đó.
+       Thay nguyên sp bằng bản server sẽ xoá mất giá trị đang có trên máy. Nên: trường nào bản server
+       KHÔNG CÓ KHOÁ (kiểm trên dữ liệu thô c.sp, không phải sau napSP) thì giữ giá trị trên máy. */
+    const giuLai=['temMoKhoa'], cu={};
+    sp.forEach(x=>{if(x&&x.ten)cu[x.ten]=x});
+    const tho=c.sp;
     sp=napSP(c.sp);
+    sp.forEach((x,k)=>{const t=tho[k]||{}, m=cu[x.ten]; if(!m)return;
+      giuLai.forEach(f=>{if(!(f in t)&&m[f]!==undefined)x[f]=m[f]})});
     sp.forEach(x=>{if(!(x.dauRa||[]).length)x.dauRa=drMacDinh(x.ten);pbTuDong(x)});
   }
   if(Array.isArray(c.kho)&&c.kho.length)kho=c.kho;

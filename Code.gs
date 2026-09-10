@@ -117,7 +117,11 @@ function sachCauHinhServer(c){
       // 27/08/2026 — bản S2: chọn/khoá nguồn hương liệu riêng từng mặt hàng — thuộc tính cấu
       // hình tĩnh (không phải trạng thái ghi mẻ dở), an toàn để đồng bộ, KHÔNG vi phạm H1.
       nguonHuongChon: (p.nguonHuongChon && typeof p.nguonHuongChon === 'object') ? p.nguonHuongChon : {},
-      nguonHuongKhoa: !!p.nguonHuongKhoa
+      nguonHuongKhoa: !!p.nguonHuongKhoa,
+      // 10/09/2026 — bản S14: chủ MỞ KHOÁ hồ sơ tem của mặt hàng khoá-theo-TCCS để sửa tay. Cấu hình
+      // tĩnh (không phải trạng thái ghi mẻ dở — không vi phạm H1). Thiếu dòng này thì server cắt mất
+      // cờ, máy khác/bản mở lại tưởng mặt hàng còn khoá và ghi đè phần đã sửa tay bằng TCCS.
+      temMoKhoa: !!p.temMoKhoa
       // CỐ Ý KHÔNG copy: sl, pb, huongMe, lot, ngaysx, nv, daInPhieu, xacNhanCT, xacNhanCTBoi,
       // xacNhanCTSnap, xacNhanCTLuc, recipeFingerprint — runtime batch state hoặc chi tiết nội
       // bộ không cần đồng bộ, giống hệt whitelist sachCauHinh() phía client (Admin).
