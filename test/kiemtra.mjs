@@ -533,10 +533,11 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   const kqNhiet=coChuVua(mot,1,1,true), kqA4_1x1=coChuVua(mot,1,1);
   kq.doKhungRieng=kqNhiet.co!==kqA4_1x1.co||kqNhiet.tran!==kqA4_1x1.tran; // A4 1×1 đo cả trang 197×284mm, nhiệt đo 61×61mm — chắc chắn khác nhau
 
-  // 4) hồ sơ tem ĐẦY ĐỦ trường thật (khách chốt "vẫn giữ đủ như tem A4") — GHI NHẬN: không vừa 65×65mm dù chữ nhỏ nhất
+  // 4) hồ sơ tem ĐẦY ĐỦ trường thật (khách chốt "vẫn giữ đủ như tem A4") — khách sửa: giấy bế sẵn 65×65mm cố định,
+  //    không đổi khổ được → đã nén CSS riêng .to-nhiet (không đổi temHTML/nội dung) cho vừa khít (~4,2pt)
   p.hstem=JSON.parse(gocHstem);
   const motDay=temHTML(r,p), kqDay=coChuVua(motDay,1,1,true);
-  kq.noiDungDayDuKhongVua=kqDay.tran===true; // phát hiện thật — báo cho khách, KHÔNG tự ý cắt bớt trường
+  kq.noiDungDayDuVua=kqDay.tran===false; // đã fix bằng CSS nén riêng cho khổ nhiệt, giữ nguyên mọi trường
 
   // 5) bảng "Dàn trang tem": nút chuyển khổ, chuyển đúng, ẩn/hiện cột×hàng đúng, không đổi temKho tới khi bấm In
   p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'}; // lại bản ngắn để bảng đo "vừa" được
@@ -574,7 +575,7 @@ ok('S26: CSS @page nhiet đúng 65×65mm, gắn đúng vào phần tử qua thu�
 ok('S26: khối TEM-CSS có kích thước .to-nhiet (61×61mm, lề 2mm) — dùng chung đo & in', s26.cssToNhietKichThuoc);
 ok('S26: file in mang máy khác (taiFileIn) mang theo đúng khổ nhiệt', s26.fileInCoKhoNhiet);
 ok('S26: coChuVua() đo khung nhiệt riêng, không lẫn cache với khung A4 1×1', s26.doKhungRieng);
-ok('S26 — PHÁT HIỆN CẦN BÁO KHÁCH: hồ sơ tem đầy đủ trường (như tem A4) KHÔNG VỪA khổ 65×65mm dù chữ nhỏ nhất (4pt) — xem chat', s26.noiDungDayDuKhongVua);
+ok('S26: hồ sơ tem đầy đủ trường (như tem A4, không cắt bớt) VỪA khổ 65×65mm nhờ CSS nén riêng .to-nhiet', s26.noiDungDayDuVua);
 ok('S26: bảng Dàn trang — mở mặc định đúng khổ đang lưu, hiện/ẩn ô cột×hàng đúng', s26.moBangMacDinhA4);
 ok('S26: chuyển khổ trong bảng → xem trước cập nhật ngay (khổ, chú thích, ẩn cột×hàng)', s26.chuyenSangNhiet);
 ok('S26: chọn khổ trong bảng chỉ là nháp — chưa bấm In thì KHÔNG đổi cấu hình máy', s26.chuaLuuKhiChuaBamIn);
