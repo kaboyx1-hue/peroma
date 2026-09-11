@@ -27,15 +27,18 @@
    Mọi màu chữ đã đo tương phản >= 4.5 trên mọi nền nó nằm lên, ở cả 2 chế độ. */
 :root{
   /* Sáng — theo mẫu Figma */
-  --bg:#F4F4F5; --bg2:#EFEFF1; --card:#FFFFFF; --c2:#F6F6F7; --line:#E9E9EC; --tx:#1C1C1E; --tx2:#585860;
-  --acc:#F5A524; --acc2:#FFCB7D; --accSoft:#FFF4E0; --brand:#FFFFFF; --brandTx:#1C1C1E; --chart:#4CB86F;
+  /* 11/09/2026 — khách: nền sáng đổi sang tông KEM cho dịu mắt hơn. Chỉ đổi trung tính
+     (nền/chữ/viền); màu nhấn cam và các màu ok/warn/bad/info/pur giữ nguyên (đã đo tương phản).
+     Mọi cặp chữ/nền mới đã đo lại ≥ 4.5:1 trên cả --bg và --card. */
+  --bg:#F7F2E7; --bg2:#F1EAD9; --card:#FFFCF5; --c2:#F2EBDC; --line:#E7DDC7; --tx:#241F17; --tx2:#5E5647;
+  --acc:#F5A524; --acc2:#FFCB7D; --accSoft:#FCEFD6; --brand:#FFFCF5; --brandTx:#241F17; --chart:#4CB86F;
   --ok:#23794A; --warn:#E0901A; --bad:#E5534B; --pur:#6B45C0; --info:#2A62A8;
   --okBg:#E7F6EC; --badBg:#FDECEA; --warnBg:#FFF3DC; --purBg:#F1ECFB; --infoBg:#EAF2FC;
-  --shadow:0 12px 32px -18px rgba(20,20,30,.22); --shadowSm:0 1px 2px rgba(20,20,30,.04); --btnGlow:0 6px 16px -8px rgba(245,165,36,.55);
-  --tx3:#6B6B73; --line2:#DCDCE0; --rowAlt:#FAFAFA; --rowOn:#FFF6E6;
-  --accTx:#945400; --warnTx:#8F5A00; --badTx:#C0342C; --badTx2:#9E2A23; --infoTx:#2A62A8;
+  --shadow:0 12px 32px -18px rgba(48,38,20,.20); --shadowSm:0 1px 2px rgba(48,38,20,.06); --btnGlow:0 6px 16px -8px rgba(245,165,36,.5);
+  --tx3:#746B5C; --line2:#E4D9C2; --rowAlt:#F2EBDA; --rowOn:#FCEACB;
+  --accTx:#8A4C00; --warnTx:#8F5A00; --badTx:#C0342C; --badTx2:#9E2A23; --infoTx:#2A62A8;
   --okLine:#BFE3CB; --warnLine:#F6D9A6; --badLine:#F3C4BF; --infoLine:#C4D8F2;
-  --btnA:#F5A524; --btnB:#F9BD55; --onAcc:#1C1C1E;
+  --btnA:#F5A524; --btnB:#F9BD55; --onAcc:#241F17;
   /* Tên biến cũ của Peroma -> trỏ sang bảng mới */
   --panel:var(--card); --row:var(--card); --row-alt:var(--rowAlt); --row-on:var(--rowOn); --line-2:var(--line2);
   --txt:var(--tx); --txt-2:var(--tx2); --txt-3:var(--tx3);
@@ -1007,7 +1010,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 10/09/2026-S23</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 11/09/2026-S24</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
