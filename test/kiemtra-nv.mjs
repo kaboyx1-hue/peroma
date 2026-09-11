@@ -824,6 +824,34 @@ const hvNv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq
   h.classList.add('hv-tat'); tab=tCu; ve();
   return kq;});
 ok('R16 chuyển động: tắt khi chạy test; đổi tab → nội dung trồi lên, vẽ lại cùng tab không chạy lại', hvNv.tatKhiTest&&hvNv.vaoTab&&hvNv.veLaiKhongChay, JSON.stringify(hvNv));
+/* R19 (11/09/2026) — khổ cuộn nhiệt 65×65mm, bản nhân viên (đồng bộ ý nghĩa với Admin S26) */
+const r19=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const goc={khoCu:temKho}, inCu=window.print; window.print=()=>{};
+  const pp=sp[0], gocHstem=JSON.stringify(pp.hstem);
+  kq.macDinhA4=temKho==='a4';
+  pp.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'}; temCot=3; temHang=2;
+  nk.push({id:'R19-1',sp:pp.ten,huong:'H',quyCach:'5 kg',sl:10,soBao:2,kgBao:5,ngaysx:'2026-09-11',lot:'1101070926',nv:'T',daGui:1});
+  temKho='nhiet';
+  const htmlNhiet=trangTem(nk.find(z=>z.id==='R19-1'),pp);
+  kq.trangTemNhiet=htmlNhiet.includes('to-nhiet')&&!htmlNhiet.includes('grid-template-columns');
+  temKho='a4';
+  const pr=inTem('R19-1',false,true); await cho(200);
+  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
+  kq.chuyenTrongBang=document.querySelector('[data-dt="khoNhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden;
+  document.getElementById('dtIn').click(); await pr; await cho(150);
+  kq.bamInMoiLuu=temKho==='nhiet';
+  tab='lo'; ve(); await cho(40);
+  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===2&&document.querySelector('[data-temkho="nhiet"]').classList.contains('on');
+  document.querySelector('[data-temkho="a4"]').click(); await cho(40);
+  kq.caiDatChuyenVeA4=temKho==='a4'&&document.getElementById('temCotIn');
+  nk.splice(nk.findIndex(z=>z.id==='R19-1'),1); pp.hstem=JSON.parse(gocHstem); temKho=goc.khoCu;
+  window.print=inCu; window.__tatTuDongKhoTem=false; await luu();
+  return kq;});
+ok('R19: mặc định vẫn khổ A4', r19.macDinhA4, JSON.stringify(r19));
+ok('R19: trangTem() khổ nhiệt = 1 tem/trang, không lưới cột×hàng', r19.trangTemNhiet);
+ok('R19: chuyển khổ trong bảng Dàn trang tem đúng, ẩn ô cột×hàng', r19.chuyenTrongBang);
+ok('R19: bấm In mới lưu khổ đã chọn', r19.bamInMoiLuu);
+ok('R19: khu cài đặt (tab Tra lô) có nút chuyển khổ, chuyển qua lại đúng', r19.caiDatCoNutKho&&r19.caiDatChuyenVeA4);
 await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
 
 console.log('\n────────────────────────────');

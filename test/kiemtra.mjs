@@ -506,6 +506,82 @@ ok('S23 chuyển động: đổi tab → nội dung trồi lên; vẽ lại cùn
 ok('S23 chuyển động: mở thẻ mặt hàng trượt xuống; hộp thoại bật ra', hv.moThe&&hv.hop);
 ok('S23 chuyển động: số Tổng quan đếm lên rồi trả đúng số gốc', hv.dangDem&&hv.demXong);
 ok('S23 chuyển động: máy bật "giảm chuyển động" → không có chuyển động', hvGiam==='none', hvGiam);
+/* S26 (11/09/2026) — khổ cuộn nhiệt 65×65mm làm lựa chọn thứ 2 cạnh A4 (khách: "sắp tới sẽ không dàn
+   trang A4 nữa, nó sẽ được coi là 1 option"). Máy in hiện ra bình thường trong hộp thoại In (khách xác
+   nhận) → dùng named @page (CSS Paged Media), không đụng driver/ZPL. */
+const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const goc={khoCu:temKho,cot:temCot,hang:temHang}, inCu=window.print; window.print=()=>{};
+  const p=sp.find(x=>x.maSP==='32')||sp.find(x=>/Little Mars/i.test(x.ten))||sp[0], gocHstem=JSON.stringify(p.hstem);
+  kq.macDinhA4=temKho==='a4';
+  // đóng gói cực ngắn để đo được cả trạng thái "vừa" (nội dung thật đủ trường sẽ tràn ở 65×65 — xem bên dưới)
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  const r={id:'S26-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'4101070926',nv:'T',daGui:1}; nk.push(r);
+
+  // 1) trangTem() ở khổ nhiệt: gắn class to-nhiet, không có grid cột×hàng, không đổi temHTML (nội dung tem)
+  temKho='nhiet';
+  const mot=temHTML(r,p), htmlNhiet=trangTem(r,p);
+  kq.trangTemNhiet=htmlNhiet.includes('to-nhiet')&&!htmlNhiet.includes('grid-template-columns')&&htmlNhiet.includes(mot.replace(/^<div class="tem">/,'').slice(0,30));
+  temKho='a4'; kq.trangTemA4KhongDoi=trangTem(r,p).includes('grid-template-columns:repeat(')&&!trangTem(r,p).includes('to-nhiet');
+
+  // 2) CSS: @page nhiet đúng 65×65mm, gắn đúng phần tử qua page:nhiet — có trong cả trang lẫn file export mang máy khác
+  const cssTrang=[...document.styleSheets].flatMap(ss=>{try{return [...ss.cssRules].map(x=>x.cssText)}catch(e){return []}}).join('\n');
+  kq.cssPageNhiet=/@page nhiet\s*\{[^}]*size:\s*65mm 65mm/.test(cssTrang)&&/\.to-nhiet\s*\{[^}]*page:\s*nhiet/i.test(cssTrang.replace(/\s+/g,' '));
+  kq.cssToNhietKichThuoc=/\.to\.to-nhiet\{[^}]*width:61mm;height:61mm/.test(cssBanIn().replace(/\s+/g,''))||/\.to\.to-nhiet\{width:61mm;height:61mm\}/.test(cssBanIn());
+  kq.fileInCoKhoNhiet=cssBanIn().includes('@page nhiet')&&cssBanIn().includes('size:65mm 65mm');
+
+  // 3) coChuVua(mot,1,1,true) đo đúng khung to-nhiet (61×61mm), khác cache với A4 1×1
+  const kqNhiet=coChuVua(mot,1,1,true), kqA4_1x1=coChuVua(mot,1,1);
+  kq.doKhungRieng=kqNhiet.co!==kqA4_1x1.co||kqNhiet.tran!==kqA4_1x1.tran; // A4 1×1 đo cả trang 197×284mm, nhiệt đo 61×61mm — chắc chắn khác nhau
+
+  // 4) hồ sơ tem ĐẦY ĐỦ trường thật (khách chốt "vẫn giữ đủ như tem A4") — GHI NHẬN: không vừa 65×65mm dù chữ nhỏ nhất
+  p.hstem=JSON.parse(gocHstem);
+  const motDay=temHTML(r,p), kqDay=coChuVua(motDay,1,1,true);
+  kq.noiDungDayDuKhongVua=kqDay.tran===true; // phát hiện thật — báo cho khách, KHÔNG tự ý cắt bớt trường
+
+  // 5) bảng "Dàn trang tem": nút chuyển khổ, chuyển đúng, ẩn/hiện cột×hàng đúng, không đổi temKho tới khi bấm In
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'}; // lại bản ngắn để bảng đo "vừa" được
+  temKho='a4';
+  const pr=inTem('S26-T',false,true); await cho(200);
+  kq.moBangMacDinhA4=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
+  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
+  kq.chuyenSangNhiet=document.querySelector('[data-dt="khoNhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden&&document.getElementById('dtOHang').hidden
+    &&/65 × 65 mm/.test(document.getElementById('dtCap').textContent)&&document.getElementById('dtVung').innerHTML.includes('to-nhiet');
+  kq.chuaLuuKhiChuaBamIn=temKho==='a4'; // chỉ là nháp trong bảng, chưa commit
+  document.querySelector('[data-dt="khoA4"]').click(); await cho(60);
+  kq.doiQuaLaiDuoc=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
+  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
+  document.getElementById('dtIn').click(); await pr; await cho(150);
+  kq.bamInMoiLuu=temKho==='nhiet'&&(()=>{try{return localStorage.getItem('peroma:temKhoDuyet')!=null}catch(e){return true}})();
+
+  // 6) khổ nhớ theo máy: lưu xuống store, nạp lại đúng
+  await luuNgay(); const daLuu=await store.get(); kq.luuXuongMay=daLuu.temKho==='nhiet';
+
+  // 7) khu cài đặt (tab Báo cáo): 2 nút chuyển khổ, ẩn ô cột×hàng khi đang nhiệt
+  nk.splice(nk.findIndex(z=>z.id==='S26-T'),1); p.hstem=JSON.parse(gocHstem); temKho=goc.khoCu; temCot=goc.cot; temHang=goc.hang;
+  window.print=inCu; window.__tatTuDongKhoTem=false; await luuNgay();
+  chuyenTab('bc'); await cho(40);
+  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===2;
+  document.querySelector('[data-temkho="nhiet"]').click(); await cho(40);
+  kq.caiDatChuyenDuoc=temKho==='nhiet'&&!$('viewBC').innerHTML.includes('id="temCotIn"');
+  document.querySelector('[data-temkho="a4"]').click(); await cho(40);
+  kq.caiDatVeLaiA4=temKho==='a4'&&$('viewBC').innerHTML.includes('id="temCotIn"');
+  chuyenTab('tq');
+  return kq;});
+ok('S26: mặc định vẫn khổ A4 (chưa đổi gì cho máy chưa từng chọn)', s26.macDinhA4, JSON.stringify(s26));
+ok('S26: trangTem() khổ nhiệt = 1 tem/trang (class to-nhiet, không lưới cột×hàng), không đổi nội dung tem', s26.trangTemNhiet);
+ok('S26: trangTem() khổ A4 không đổi hành vi cũ', s26.trangTemA4KhongDoi);
+ok('S26: CSS @page nhiet đúng 65×65mm, gắn đúng vào phần tử qua thuộc tính page', s26.cssPageNhiet);
+ok('S26: khối TEM-CSS có kích thước .to-nhiet (61×61mm, lề 2mm) — dùng chung đo & in', s26.cssToNhietKichThuoc);
+ok('S26: file in mang máy khác (taiFileIn) mang theo đúng khổ nhiệt', s26.fileInCoKhoNhiet);
+ok('S26: coChuVua() đo khung nhiệt riêng, không lẫn cache với khung A4 1×1', s26.doKhungRieng);
+ok('S26 — PHÁT HIỆN CẦN BÁO KHÁCH: hồ sơ tem đầy đủ trường (như tem A4) KHÔNG VỪA khổ 65×65mm dù chữ nhỏ nhất (4pt) — xem chat', s26.noiDungDayDuKhongVua);
+ok('S26: bảng Dàn trang — mở mặc định đúng khổ đang lưu, hiện/ẩn ô cột×hàng đúng', s26.moBangMacDinhA4);
+ok('S26: chuyển khổ trong bảng → xem trước cập nhật ngay (khổ, chú thích, ẩn cột×hàng)', s26.chuyenSangNhiet);
+ok('S26: chọn khổ trong bảng chỉ là nháp — chưa bấm In thì KHÔNG đổi cấu hình máy', s26.chuaLuuKhiChuaBamIn);
+ok('S26: đổi qua lại A4 ↔ nhiệt trong bảng nhiều lần vẫn đúng', s26.doiQuaLaiDuoc);
+ok('S26: bấm In mới thật sự lưu khổ đã chọn xuống máy', s26.bamInMoiLuu);
+ok('S26: khổ giấy nhớ theo máy (như temCot/temHang/temMau), nạp lại đúng', s26.luuXuongMay);
+ok('S26: khu cài đặt (tab Báo cáo) có 2 nút chuyển khổ, ẩn đúng ô cột×hàng theo khổ đang chọn', s26.caiDatCoNutKho&&s26.caiDatChuyenDuoc&&s26.caiDatVeLaiA4);
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);
