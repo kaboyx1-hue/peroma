@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peroma — Hồ sơ lô (kế toán)</title>
+<style>
+:root{
+  --bg:#F7F2E7; --card:#FFFCF5; --c2:#F2EBDC; --line:#E7DDC7; --line2:#E4D9C2;
+  --tx:#241F17; --tx2:#5E5647; --tx3:#746B5C;
+  --acc:#F5A524; --accSoft:#FCEFD6; --accTx:#8A4C00;
+  --ok:#23794A; --okBg:#E7F6EC; --bad:#E5534B; --badBg:#FDECEA;
+  --mono:ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg)}
+body{font-family:var(--sans);color:var(--tx);font-size:14.5px;line-height:1.4;padding:0 0 40px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 14px}
+.bar{padding:16px 14px 12px;border-bottom:1px solid var(--line);background:var(--card)}
+.bar h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.02em}
+.bar p{margin:4px 0 0;font-size:12.5px;color:var(--tx3)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:16px}
+.card h2{margin:0 0 8px;font-size:14px}
+label{display:block;font-size:11.5px;font-weight:700;color:var(--tx2);margin:10px 0 4px}
+input[type=url],input[type=text],input[type=password]{
+  width:100%;font:inherit;font-size:13.5px;padding:9px 10px;border:1px solid var(--line2);
+  border-radius:8px;background:var(--bg);color:var(--tx)
+}
+button{font:inherit;cursor:pointer}
+.btn{font-size:13px;font-weight:700;background:var(--acc);color:#241F17;border:0;border-radius:8px;padding:9px 16px}
+.btn.ghost{background:var(--card);border:1px solid var(--line2);color:var(--tx2)}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-top:10px}
+.msg{margin-top:10px;font-size:12.5px;padding:8px 10px;border-radius:8px}
+.msg.ok{background:var(--okBg);color:var(--ok)}
+.msg.bad{background:var(--badBg);color:var(--bad)}
+.top-actions{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:14px}
+.dot{font-size:12px;color:var(--tx3)}
+.tbl-wrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:1100px;font-size:13px}
+th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:10.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--tx3);background:var(--c2);white-space:nowrap}
+td.n{font-family:var(--mono);text-align:right;white-space:nowrap}
+td input{width:100%;font:inherit;font-size:12.5px;padding:5px 7px;border:1px solid var(--line2);border-radius:6px;background:var(--bg);color:var(--tx)}
+tr.dirty td{background:var(--accSoft)}
+.saved-tag{font-size:10.5px;color:var(--ok);margin-left:6px;white-space:nowrap}
+.none{padding:20px;text-align:center;color:var(--tx3);font-size:13px}
+.foot-note{margin-top:14px;font-size:11.5px;color:var(--tx3)}
+</style>
+</head>
+<body>
+<div class="bar"><div class="wrap">
+  <h1>PEROMA · HỒ SƠ LÔ <span style="font-weight:600;color:var(--tx3)">(dùng cho kế toán)</span></h1>
+  <p>Danh sách lô sản xuất thật (đọc từ cùng Google Sheet với Admin/Nhân viên) + số hoá đơn NCC, số biên bản huỷ lô — không đụng dữ liệu sản xuất.</p>
+</div></div>
+<div class="wrap">
+  <div id="ketnoi" class="card" style="display:none">
+    <h2>Kết nối Google Sheet</h2>
+    <p style="margin:0 0 4px;font-size:12.5px;color:var(--tx3)">Dùng đúng địa chỉ + mật khẩu đang dùng cho Admin/Nhân viên — trang này chỉ đọc thêm, không cần khai riêng.</p>
+    <label for="knUrl">Địa chỉ Apps Script (URL)</label>
+    <input id="knUrl" type="url" inputmode="url" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="https://script.google.com/macros/s/..../exec">
+    <label for="knMk">Mật khẩu</label>
+    <input id="knMk" type="password" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off" placeholder="mật khẩu">
+    <div class="row2"><button class="btn" id="btnKetNoi">Lưu &amp; kết nối</button></div>
+    <div id="ketnoiMsg"></div>
+  </div>
+
+  <div id="daKetNoi" style="display:none">
+    <div class="top-actions">
+      <span class="dot" id="ttDot">⚪ Chưa tải</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost sm" id="btnDoiKn">Đổi kết nối</button>
+        <button class="btn ghost sm" id="btnLamMoi">Làm mới</button>
+        <button class="btn sm" id="btnXuat">Xuất báo cáo (CSV)</button>
+      </div>
+    </div>
+    <div id="bang"></div>
+    <div class="foot-note">Gõ xong ô nào thì bấm "Lưu" ở đúng dòng đó — lưu lên Google Sheet, xem được từ mọi máy đã kết nối đúng mật khẩu. Số lô/ngày SX/mặt hàng/kg lấy thẳng từ Peroma, không sửa được ở đây.</div>
+  </div>
+</div>
+
+<script>
+const KETNOI_KEY='peroma:ketnoi';
+function docKetNoi(){try{return JSON.parse(localStorage.getItem(KETNOI_KEY))||{}}catch(e){return{}}}
+function ghiKetNoi(url,mk){try{localStorage.setItem(KETNOI_KEY,JSON.stringify({url:String(url||'').trim(),mk:String(mk||'').trim()}));return true}catch(e){return false}}
+let DONGBO_URL=String(docKetNoi().url||''), LEGACY_SHARED_TOKEN=String(docKetNoi().mk||'');
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+
+async function goi(url,tuychon){
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),15000);
+  try{
+    const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
+    clearTimeout(to);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const j=await r.json();
+    if(j.loi) throw new Error(j.loi);
+    return j;
+  }catch(e){ clearTimeout(to); throw e; }
+}
+
+let DU_LIEU=[]; // mảng đã ghép: {lot,ngaysx,sp,quyCach,sl,hoaDonNL,hoaDonHuong,bienBanHuy,ghiChu}
+
+function veKetNoi(){
+  const co=!!(DONGBO_URL&&LEGACY_SHARED_TOKEN);
+  $('ketnoi').style.display=co?'none':'block';
+  $('daKetNoi').style.display=co?'block':'none';
+  $('knUrl').value=DONGBO_URL; $('knMk').value=LEGACY_SHARED_TOKEN;
+}
+
+async function taiDuLieu(){
+  if(!DONGBO_URL||!LEGACY_SHARED_TOKEN)return;
+  $('ttDot').textContent='🟡 Đang tải…';
+  try{
+    const [jNk,jHs]=await Promise.all([
+      goi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky'),
+      goi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=hosoLo'),
+    ]);
+    const nk=Array.isArray(jNk.nk)?jNk.nk:[];
+    const hs={}; (Array.isArray(jHs.hosoLo)?jHs.hosoLo:[]).forEach(x=>{ if(x&&x.lot) hs[x.lot]=x });
+    DU_LIEU=nk.filter(r=>r&&!r.huy).map(r=>{
+      const h=hs[r.lot]||{};
+      return {lot:r.lot||'',ngaysx:r.ngaysx||'',sp:r.sp||'',quyCach:r.quyCach||'',sl:r.sl,
+        hoaDonNL:h.hoaDonNL||'',hoaDonHuong:h.hoaDonHuong||'',bienBanHuy:h.bienBanHuy||'',ghiChu:h.ghiChu||''};
+    }).sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||'')));
+    $('ttDot').textContent='🟢 Đã tải '+DU_LIEU.length+' lô';
+    veBang();
+  }catch(e){
+    $('ttDot').textContent='🔴 Lỗi: '+e.message;
+    $('bang').innerHTML='<div class="none">Không tải được — kiểm tra lại địa chỉ/mật khẩu ở "Đổi kết nối".</div>';
+  }
+}
+
+function veBang(){
+  if(!DU_LIEU.length){ $('bang').innerHTML='<div class="none">Chưa có lô nào.</div>'; return }
+  let o='<div class="tbl-wrap"><table><thead><tr>'
+    +'<th>Số lô</th><th>Ngày SX</th><th>Mặt hàng</th><th>Quy cách</th><th class="n">KG</th>'
+    +'<th>Số hoá đơn NL</th><th>Số hoá đơn hương</th><th>Số biên bản/QĐ huỷ</th><th>Ghi chú</th><th></th>'
+    +'</tr></thead><tbody>';
+  DU_LIEU.forEach((r,i)=>{
+    o+='<tr data-i="'+i+'">'
+      +'<td class="n">'+esc(r.lot)+'</td>'
+      +'<td>'+esc(r.ngaysx)+'</td>'
+      +'<td>'+esc(r.sp)+'</td>'
+      +'<td>'+esc(r.quyCach)+'</td>'
+      +'<td class="n">'+esc(r.sl)+'</td>'
+      +'<td><input data-f="hoaDonNL" value="'+esc(r.hoaDonNL)+'"></td>'
+      +'<td><input data-f="hoaDonHuong" value="'+esc(r.hoaDonHuong)+'"></td>'
+      +'<td><input data-f="bienBanHuy" value="'+esc(r.bienBanHuy)+'"></td>'
+      +'<td><input data-f="ghiChu" value="'+esc(r.ghiChu)+'"></td>'
+      +'<td><button class="btn ghost sm" data-luu="'+i+'">Lưu</button><span class="saved-tag" data-tag="'+i+'"></span></td>'
+      +'</tr>';
+  });
+  o+='</tbody></table></div>';
+  $('bang').innerHTML=o;
+}
+
+document.addEventListener('input',e=>{
+  const t=e.target; if(!t.dataset.f)return;
+  const tr=t.closest('tr'); if(tr)tr.classList.add('dirty');
+});
+
+document.addEventListener('click',async e=>{
+  const kn=e.target.closest('#btnKetNoi');
+  if(kn){
+    const url=String($('knUrl').value||'').trim(), mk=String($('knMk').value||'').trim();
+    if(!url||!mk){$('ketnoiMsg').innerHTML='<div class="msg bad">Nhập đủ địa chỉ và mật khẩu.</div>';return}
+    $('ketnoiMsg').innerHTML='<div class="msg">Đang kiểm tra…</div>';
+    try{
+      await goi(url+'?mk='+encodeURIComponent(mk)+'&a=tomtat');
+      ghiKetNoi(url,mk); DONGBO_URL=url; LEGACY_SHARED_TOKEN=mk;
+      $('ketnoiMsg').innerHTML='';
+      veKetNoi(); taiDuLieu();
+    }catch(err){ $('ketnoiMsg').innerHTML='<div class="msg bad">'+esc(err.message)+'</div>' }
+    return;
+  }
+  if(e.target.closest('#btnDoiKn')){ DONGBO_URL=''; LEGACY_SHARED_TOKEN=''; veKetNoi(); return }
+  if(e.target.closest('#btnLamMoi')){ taiDuLieu(); return }
+  if(e.target.closest('#btnXuat')){ xuatCSV(); return }
+  const luu=e.target.closest('[data-luu]');
+  if(luu){
+    const i=+luu.dataset.luu, r=DU_LIEU[i], tr=luu.closest('tr');
+    tr.querySelectorAll('input').forEach(inp=>{ r[inp.dataset.f]=inp.value });
+    luu.disabled=true; luu.textContent='Đang lưu…';
+    try{
+      await goi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuHosoLo',
+        dong:{lot:r.lot,hoaDonNL:r.hoaDonNL,hoaDonHuong:r.hoaDonHuong,bienBanHuy:r.bienBanHuy,ghiChu:r.ghiChu}})});
+      tr.classList.remove('dirty');
+      const tag=tr.querySelector('[data-tag]'); tag.textContent='✓ đã lưu';
+      setTimeout(()=>{tag.textContent=''},2500);
+    }catch(err){ alert('Không lưu được: '+err.message) }
+    luu.disabled=false; luu.textContent='Lưu';
+  }
+});
+
+function xuatCSV(){
+  if(!DU_LIEU.length)return;
+  const heads=['Số lô','Ngày SX','Mặt hàng','Quy cách','KG','Số hoá đơn NL','Số hoá đơn hương','Số biên bản/QĐ huỷ','Ghi chú'];
+  const q=s=>'"'+String(s==null?'':s).replace(/"/g,'""')+'"';
+  const rows=DU_LIEU.map(r=>[r.lot,r.ngaysx,r.sp,r.quyCach,r.sl,r.hoaDonNL,r.hoaDonHuong,r.bienBanHuy,r.ghiChu].map(q).join(','));
+  const csv='﻿'+heads.map(q).join(',')+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='PEROMA-ho-so-lo-'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+veKetNoi();
+if(DONGBO_URL&&LEGACY_SHARED_TOKEN) taiDuLieu();
+</script>
+</body>
+</html>
