@@ -836,12 +836,12 @@ const r19=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   kq.trangTemNhiet=htmlNhiet.includes('to-nhiet')&&!htmlNhiet.includes('grid-template-columns');
   temKho='a4';
   const pr=inTem('R19-1',false,true); await cho(200);
-  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
-  kq.chuyenTrongBang=document.querySelector('[data-dt="khoNhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden;
+  document.querySelector('[data-dt="kho-nhiet"]').click(); await cho(60);
+  kq.chuyenTrongBang=document.querySelector('[data-dt="kho-nhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden;
   document.getElementById('dtIn').click(); await pr; await cho(150);
   kq.bamInMoiLuu=temKho==='nhiet';
   tab='lo'; ve(); await cho(40);
-  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===2&&document.querySelector('[data-temkho="nhiet"]').classList.contains('on');
+  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===1+khoNhietDS.length&&document.querySelector('[data-temkho="nhiet"]').classList.contains('on');
   document.querySelector('[data-temkho="a4"]').click(); await cho(40);
   kq.caiDatChuyenVeA4=temKho==='a4'&&document.getElementById('temCotIn');
   nk.splice(nk.findIndex(z=>z.id==='R19-1'),1); pp.hstem=JSON.parse(gocHstem); temKho=goc.khoCu;
@@ -852,6 +852,35 @@ ok('R19: trangTem() khổ nhiệt = 1 tem/trang, không lưới cột×hàng', r
 ok('R19: chuyển khổ trong bảng Dàn trang tem đúng, ẩn ô cột×hàng', r19.chuyenTrongBang);
 ok('R19: bấm In mới lưu khổ đã chọn', r19.bamInMoiLuu);
 ok('R19: khu cài đặt (tab Tra lô) có nút chuyển khổ, chuyển qua lại đúng', r19.caiDatCoNutKho&&r19.caiDatChuyenVeA4);
+
+/* R20 (12/09/2026) — thêm khổ cuộn nhiệt thứ 2: 50×70mm, bản nhân viên (đồng bộ ý nghĩa với Admin S28) */
+const r20=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const goc={khoCu:temKho}, inCu=window.print; window.print=()=>{};
+  const pp=sp[0], gocHstem=JSON.stringify(pp.hstem);
+  pp.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'}; temCot=3; temHang=2;
+  nk.push({id:'R20-1',sp:pp.ten,huong:'H',quyCach:'5 kg',sl:10,soBao:2,kgBao:5,ngaysx:'2026-09-11',lot:'5070070926',nv:'T',daGui:1});
+  temKho='nhiet5070';
+  const html5070=trangTem(nk.find(z=>z.id==='R20-1'),pp);
+  kq.trangTem5070=html5070.includes('to-nhiet5070')&&!html5070.includes('grid-template-columns');
+  temKho='nhiet'; kq.trangTem65KhongDoi=trangTem(nk.find(z=>z.id==='R20-1'),pp).includes('to-nhiet"')&&!trangTem(nk.find(z=>z.id==='R20-1'),pp).includes('to-nhiet5070');
+  temKho='a4';
+  const pr=inTem('R20-1',false,true); await cho(200);
+  document.querySelector('[data-dt="kho-nhiet5070"]').click(); await cho(60);
+  kq.chuyenTrongBang5070=document.querySelector('[data-dt="kho-nhiet5070"]').classList.contains('on')&&document.getElementById('dtOCot').hidden;
+  document.getElementById('dtIn').click(); await pr; await cho(150);
+  kq.bamInMoiLuu5070=temKho==='nhiet5070';
+  tab='lo'; ve(); await cho(40);
+  kq.caiDatCoNutKho5070=document.querySelector('[data-temkho="nhiet5070"]')&&document.querySelector('[data-temkho="nhiet5070"]').classList.contains('on');
+  document.querySelector('[data-temkho="a4"]').click(); await cho(40);
+  kq.caiDatChuyenVeA4=temKho==='a4'&&document.getElementById('temCotIn');
+  nk.splice(nk.findIndex(z=>z.id==='R20-1'),1); pp.hstem=JSON.parse(gocHstem); temKho=goc.khoCu;
+  window.print=inCu; window.__tatTuDongKhoTem=false; await luu();
+  return kq;});
+ok('R20: trangTem() khổ 50×70mm = 1 tem/trang, không lưới cột×hàng', r20.trangTem5070);
+ok('R20: thêm khổ 50×70mm KHÔNG đụng hành vi khổ 65×65mm cũ (R19)', r20.trangTem65KhongDoi);
+ok('R20: chuyển khổ 50×70mm trong bảng Dàn trang tem đúng, ẩn ô cột×hàng', r20.chuyenTrongBang5070);
+ok('R20: bấm In mới lưu khổ 50×70mm đã chọn', r20.bamInMoiLuu5070);
+ok('R20: khu cài đặt (tab Tra lô) có nút khổ 50×70mm, chuyển qua lại đúng', r20.caiDatCoNutKho5070&&r20.caiDatChuyenVeA4);
 await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
 
 console.log('\n────────────────────────────');

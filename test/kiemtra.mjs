@@ -544,13 +544,13 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   temKho='a4';
   const pr=inTem('S26-T',false,true); await cho(200);
   kq.moBangMacDinhA4=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
-  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
-  kq.chuyenSangNhiet=document.querySelector('[data-dt="khoNhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden&&document.getElementById('dtOHang').hidden
+  document.querySelector('[data-dt="kho-nhiet"]').click(); await cho(60);
+  kq.chuyenSangNhiet=document.querySelector('[data-dt="kho-nhiet"]').classList.contains('on')&&document.getElementById('dtOCot').hidden&&document.getElementById('dtOHang').hidden
     &&/65 × 65 mm/.test(document.getElementById('dtCap').textContent)&&document.getElementById('dtVung').innerHTML.includes('to-nhiet');
   kq.chuaLuuKhiChuaBamIn=temKho==='a4'; // chỉ là nháp trong bảng, chưa commit
   document.querySelector('[data-dt="khoA4"]').click(); await cho(60);
   kq.doiQuaLaiDuoc=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
-  document.querySelector('[data-dt="khoNhiet"]').click(); await cho(60);
+  document.querySelector('[data-dt="kho-nhiet"]').click(); await cho(60);
   document.getElementById('dtIn').click(); await pr; await cho(150);
   kq.bamInMoiLuu=temKho==='nhiet'&&(()=>{try{return localStorage.getItem('peroma:temKhoDuyet')!=null}catch(e){return true}})();
 
@@ -561,7 +561,7 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   nk.splice(nk.findIndex(z=>z.id==='S26-T'),1); p.hstem=JSON.parse(gocHstem); temKho=goc.khoCu; temCot=goc.cot; temHang=goc.hang;
   window.print=inCu; window.__tatTuDongKhoTem=false; await luuNgay();
   chuyenTab('bc'); await cho(40);
-  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===2;
+  kq.caiDatCoNutKho=document.querySelectorAll('[data-temkho]').length===1+khoNhietDS.length;
   document.querySelector('[data-temkho="nhiet"]').click(); await cho(40);
   kq.caiDatChuyenDuoc=temKho==='nhiet'&&!$('viewBC').innerHTML.includes('id="temCotIn"');
   document.querySelector('[data-temkho="a4"]').click(); await cho(40);
@@ -582,7 +582,73 @@ ok('S26: chọn khổ trong bảng chỉ là nháp — chưa bấm In thì KHÔN
 ok('S26: đổi qua lại A4 ↔ nhiệt trong bảng nhiều lần vẫn đúng', s26.doiQuaLaiDuoc);
 ok('S26: bấm In mới thật sự lưu khổ đã chọn xuống máy', s26.bamInMoiLuu);
 ok('S26: khổ giấy nhớ theo máy (như temCot/temHang/temMau), nạp lại đúng', s26.luuXuongMay);
-ok('S26: khu cài đặt (tab Báo cáo) có 2 nút chuyển khổ, ẩn đúng ô cột×hàng theo khổ đang chọn', s26.caiDatCoNutKho&&s26.caiDatChuyenDuoc&&s26.caiDatVeLaiA4);
+ok('S26: khu cài đặt (tab Báo cáo) có đủ nút chuyển khổ (A4 + mọi khổ nhiệt), ẩn đúng ô cột×hàng theo khổ đang chọn', s26.caiDatCoNutKho&&s26.caiDatChuyenDuoc&&s26.caiDatVeLaiA4);
+
+/* S28 (12/09/2026) — thêm khổ cuộn nhiệt thứ 2: 50×70mm (khách: "thêm 1 khổ tem cho máy in nhiệt 50x70mm"),
+   song song khổ vuông 65×65mm (S26) và A4. Kiểm mirror S26 nhưng cho khổ mới + đảm bảo không đụng khổ 65×65 cũ. */
+const s28=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const goc={khoCu:temKho,cot:temCot,hang:temHang}, inCu=window.print; window.print=()=>{};
+  const p=sp.find(x=>x.maSP==='32')||sp.find(x=>/Little Mars/i.test(x.ten))||sp[0], gocHstem=JSON.stringify(p.hstem);
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  const r={id:'S28-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'5070070926',nv:'T',daGui:1}; nk.push(r);
+
+  // 1) trangTem() ở khổ 50×70: gắn đúng class, không grid, không đổi temHTML — và KHÔNG lẫn với khổ 65×65
+  temKho='nhiet5070';
+  const mot=temHTML(r,p), html5070=trangTem(r,p);
+  kq.trangTem5070=html5070.includes('to-nhiet5070')&&!html5070.includes('grid-template-columns');
+  temKho='nhiet'; kq.trangTem65KhongDoi=trangTem(r,p).includes('to-nhiet"')&&!trangTem(r,p).includes('to-nhiet5070');
+
+  // 2) CSS: @page nhiet5070 đúng 50×70mm, .to.to-nhiet5070 đúng vùng in 46×66mm (lề 2mm)
+  const cssTrang=[...document.styleSheets].flatMap(ss=>{try{return [...ss.cssRules].map(x=>x.cssText)}catch(e){return []}}).join('\n');
+  kq.cssPage5070=/@page nhiet5070\s*\{[^}]*size:\s*50mm 70mm/.test(cssTrang)&&/\.to-nhiet5070\s*\{[^}]*page:\s*nhiet5070/i.test(cssTrang.replace(/\s+/g,' '));
+  kq.cssSize5070=/\.to\.to-nhiet5070\{width:46mm;height:66mm\}/.test(cssBanIn().replace(/\s+/g,''));
+  kq.fileInCoKho5070=cssBanIn().includes('@page nhiet5070')&&cssBanIn().includes('size:50mm 70mm');
+
+  // 3) coChuVua đo đúng khung riêng cho từng khổ nhiệt — 3 khung (a4 1×1, nhiệt 65, nhiệt 50×70) không lẫn cache nhau
+  const k5070=coChuVua(mot,1,1,'nhiet5070'), k65=coChuVua(mot,1,1,'nhiet'), kA4=coChuVua(mot,1,1);
+  kq.doKhungRieng=(k5070.co!==k65.co||k5070.tran!==k65.tran)&&(k5070.co!==kA4.co||k5070.tran!==kA4.tran);
+
+  // 4) hồ sơ tem ĐẦY ĐỦ trường thật — cũng phải vừa khổ 50×70mm (không cắt bớt trường)
+  p.hstem=JSON.parse(gocHstem);
+  const motDay=temHTML(r,p), kqDay=coChuVua(motDay,1,1,'nhiet5070');
+  kq.noiDungDayDuVua5070=kqDay.tran===false;
+
+  // 5) bảng Dàn trang: đủ 3 nút khổ (A4 + 2 khổ nhiệt), chuyển sang 50×70 đúng, không đụng chọn 65×65
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  temKho='a4';
+  const pr=inTem('S28-T',false,true); await cho(200);
+  kq.co3NutKho=document.querySelectorAll('.dt-kho button').length===1+khoNhietDS.length;
+  document.querySelector('[data-dt="kho-nhiet5070"]').click(); await cho(60);
+  kq.chuyenSang5070=document.querySelector('[data-dt="kho-nhiet5070"]').classList.contains('on')&&document.getElementById('dtOCot').hidden
+    &&/50 × 70 mm/.test(document.getElementById('dtCap').textContent)&&document.getElementById('dtVung').innerHTML.includes('to-nhiet5070');
+  document.querySelector('[data-dt="kho-nhiet"]').click(); await cho(60);
+  kq.chuyenSang65VanDung=document.querySelector('[data-dt="kho-nhiet"]').classList.contains('on')&&/65 × 65 mm/.test(document.getElementById('dtCap').textContent);
+  document.querySelector('[data-dt="kho-nhiet5070"]').click(); await cho(60);
+  document.getElementById('dtIn').click(); await pr; await cho(150);
+  kq.bamInMoiLuu5070=temKho==='nhiet5070';
+
+  // 6) khổ nhớ theo máy: lưu xuống store, nạp lại đúng
+  await luuNgay(); const daLuu=await store.get(); kq.luuXuongMay5070=daLuu.temKho==='nhiet5070';
+
+  // 7) khu cài đặt (tab Báo cáo): nút 50×70 hiển thị đúng chú thích khổ
+  nk.splice(nk.findIndex(z=>z.id==='S28-T'),1); p.hstem=JSON.parse(gocHstem); temKho=goc.khoCu; temCot=goc.cot; temHang=goc.hang;
+  window.print=inCu; window.__tatTuDongKhoTem=false; await luuNgay();
+  chuyenTab('bc'); await cho(40);
+  document.querySelector('[data-temkho="nhiet5070"]').click(); await cho(40);
+  kq.caiDatChuyen5070Duoc=temKho==='nhiet5070'&&/50 × 70 mm/.test($('viewBC').innerHTML);
+  document.querySelector('[data-temkho="a4"]').click(); await cho(40);
+  chuyenTab('tq');
+  return kq;});
+ok('S28: trangTem() khổ 50×70mm = 1 tem/trang, không lưới cột×hàng, không đổi nội dung tem', s28.trangTem5070);
+ok('S28: thêm khổ 50×70mm KHÔNG đụng hành vi khổ 65×65mm cũ (S26)', s28.trangTem65KhongDoi);
+ok('S28: CSS @page nhiet5070 đúng 50×70mm, gắn đúng vào phần tử qua thuộc tính page', s28.cssPage5070);
+ok('S28: khối TEM-CSS có kích thước .to-nhiet5070 (46×66mm vùng in, lề 2mm)', s28.cssSize5070);
+ok('S28: file in mang máy khác (taiFileIn) mang theo đúng khổ 50×70mm', s28.fileInCoKho5070);
+ok('S28: coChuVua() đo riêng từng khung — A4 / nhiệt 65×65 / nhiệt 50×70 không lẫn cache nhau', s28.doKhungRieng);
+ok('S28: hồ sơ tem đầy đủ trường (không cắt bớt) VỪA khổ 50×70mm nhờ CSS nén chung cho khổ nhiệt', s28.noiDungDayDuVua5070);
+ok('S28: bảng Dàn trang có đủ 3 nút khổ (A4 + 65×65 + 50×70), chuyển đúng, không đụng lẫn nhau', s28.co3NutKho&&s28.chuyenSang5070&&s28.chuyenSang65VanDung);
+ok('S28: bấm In mới thật sự lưu khổ 50×70mm đã chọn xuống máy, nhớ theo máy khi nạp lại', s28.bamInMoiLuu5070&&s28.luuXuongMay5070);
+ok('S28: khu cài đặt (tab Báo cáo) chuyển sang khổ 50×70mm đúng, hiện chú thích đúng kích thước', s28.caiDatChuyen5070Duoc);
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);
