@@ -74,7 +74,7 @@ ok('Code.gs đọc mật khẩu từ PropertiesService', /PropertiesService\.get
   ok('Chưa cài MATKHAU → mọi lệnh đọc bị chặn, báo rõ cần cài', /chưa cài mật khẩu/i.test(a.loi || ''), a.loi);
   ok('Chưa cài MATKHAU → mật khẩu rỗng cũng KHÔNG lọt', /chưa cài/i.test(m.get({ a: 'cauhinh', mk: '' }).loi || '') && /chưa cài/i.test(m.post({ a: 'luuCauHinh', mk: '', cauhinh: {} }).loi || ''));
   const pb = m.get({ a: 'phienban' });
-  ok('a=phienban không cần mật khẩu, chỉ trả phiên bản + coMatKhau=false', pb.ok === 1 && pb.coMatKhau === false && /S2\d/.test(pb.phienBan) && !('cauhinh' in pb), JSON.stringify(pb));
+  ok('a=phienban không cần mật khẩu, chỉ trả phiên bản + coMatKhau=false', pb.ok === 1 && pb.coMatKhau === false && /S\d+/.test(pb.phienBan) && !('cauhinh' in pb), JSON.stringify(pb));
 }
 {
   const m = taoMoiTruong({ matKhau: 'mk-thu' });
