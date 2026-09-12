@@ -337,14 +337,22 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   const q2=dr.find(x=>x!==q); const sel=[...document.querySelectorAll('[data-bbthem]')].find(x=>x.dataset.bbthem==='qc|||'+q2);
   sel.value='bb-pa-3040'; sel.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
   kq.ganQC=Array.isArray(baoBiQC[q2])&&baoBiQC[q2][0].id==='bb-pa-3040'&&baoBiQC[q2][0].sl===1;
-  // 10) Công thức → Sản xuất & đóng gói: đổi riêng / về mặc định
+  // 10) Công thức → Sản xuất & đóng gói (S29: dropdown "túi chính" + "Bao bì phụ" gập lại — thay
+  //     cho nút "đổi riêng" cũ; xem veBaoBiSP()/data-bbchinh)
   delete P().baoBiRieng; mo.clear(); mo.add(0); chuyenTab('ct'); await cho(30);
   const sx=document.querySelector('.ctsec[data-sec="sx"][data-si="0"]');
   kq.ctCo=!!sx&&/Bao bì mỗi bao thành phẩm/.test(sx.innerText)&&/mặc định/.test(sx.innerText);
-  sx.querySelector('[data-bbrieng]').click(); await cho(30);
-  kq.ctRieng=laRiengBB(P(),P().dauRa[0])&&P().baoBiRieng[P().dauRa[0]][0].id==='bb-pa-1525';
+  // S29: thêm bao bì PHỤ trong lúc còn ở mặc định phải tự tách riêng NHƯNG giữ đúng túi chính đang
+  // mặc định (bb-pa-1525) ở slot 0 — đây là đúng lỗi đã sửa ở danhSachBB() (S29), không phải suy đoán.
+  const bbPhuSel=[...sx.querySelectorAll('.bbphu [data-bbthem]')][0]; bbPhuSel.value='bb-pe-3040'; bbPhuSel.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  const q0=P().dauRa[0];
+  kq.ctRieng=laRiengBB(P(),q0)&&P().baoBiRieng[q0][0].id==='bb-pa-1525'&&P().baoBiRieng[q0][1].id==='bb-pe-3040';
   document.querySelector('.ctsec[data-sec="sx"][data-si="0"] [data-bbmacdinh]').click(); await cho(30);
   kq.ctMacDinh=!laRiengBB(P(),P().dauRa[0]);
+  // S29: đổi thẳng túi chính bằng dropdown → tự tách riêng với ĐÚNG túi vừa chọn (không cần bấm gì thêm)
+  const selChinh=document.querySelector('.ctsec[data-sec="sx"][data-si="0"] [data-bbchinh]'); selChinh.value='bb-pe-2030'; selChinh.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.ctChinhDoi=laRiengBB(P(),P().dauRa[0])&&P().baoBiRieng[P().dauRa[0]][0].id==='bb-pe-2030';
+  document.querySelector('.ctsec[data-sec="sx"][data-si="0"] [data-bbmacdinh]').click(); await cho(30);
   // 11) tab Giá vốn: hương (Không mùi = 0) + nguyên liệu + bao bì, đúng số
   const p=P(); p.huongs=['Không mùi']; p.congThucNL=[{ten:'NL-S21',kg:num(p.kg)}];
   nguonNguyenLieu['NL-S21']=[{ncc:'A',gia:1000000,soKg:1000}];
@@ -385,7 +393,8 @@ ok('S21: bao bì được lưu xuống máy và có trong file sao lưu', s21.lu
 ok('S21: Danh mục có khu Bao bì — sửa giá "70.000" lưu đúng 70000 đ/kg, giữ số cái/kg', s21.coKhu&&s21.suaGia);
 ok('S21: khai VAT ở Danh mục → giá túi quy về chưa VAT; nhập 0 cái/kg bị chặn', s21.suaVAT&&s21.chanSai);
 ok('S21: gán bao bì cho quy cách bằng ô chọn ở Danh mục', s21.ganQC);
-ok('S21: Công thức → Sản xuất & đóng gói có bao bì; "đổi riêng" / "về mặc định" chạy đúng', s21.ctCo&&s21.ctRieng&&s21.ctMacDinh);
+ok('S21: Công thức → Sản xuất & đóng gói có bao bì; thêm bao bì phụ / về mặc định chạy đúng', s21.ctCo&&s21.ctRieng&&s21.ctMacDinh);
+ok('S29: đổi túi chính bằng dropdown tự tách riêng đúng túi vừa chọn', s21.ctChinhDoi);
 ok('S21: Giá vốn / bao = hương + nguyên liệu + bao bì (đúng số, Không mùi = 0)', s21.gvSo);
 ok('S21: tab Giá vốn hiện thẻ từng quy cách + bảng nhanh mọi mặt hàng', s21.gvHien&&s21.gvTong);
 ok('S21: tab Giá vốn chỉ đọc — không ghi đè dữ liệu', s21.gvKhongGhi);
@@ -649,6 +658,92 @@ ok('S28: hồ sơ tem đầy đủ trường (không cắt bớt) VỪA khổ 50
 ok('S28: bảng Dàn trang có đủ 3 nút khổ (A4 + 65×65 + 50×70), chuyển đúng, không đụng lẫn nhau', s28.co3NutKho&&s28.chuyenSang5070&&s28.chuyenSang65VanDung);
 ok('S28: bấm In mới thật sự lưu khổ 50×70mm đã chọn xuống máy, nhớ theo máy khi nạp lại', s28.bamInMoiLuu5070&&s28.luuXuongMay5070);
 ok('S28: khu cài đặt (tab Báo cáo) chuyển sang khổ 50×70mm đúng, hiện chú thích đúng kích thước', s28.caiDatChuyen5070Duoc);
+
+console.log('\n── S29 (12/09/2026) — VAT riêng Hương/Nguyên liệu/Bao bì (8% khác 10%) + Giá vốn 2 cột + màu cụm ──');
+/* Khách: "chia giá vốn thành 2 cột chưa VAT/đã VAT, mỗi loại VAT khác nhau (8% và 10%) nên phải phân
+   rõ trong Danh mục". Dùng quy cách/nguyên liệu/hương RIÊNG (tên "__S29…__", không đụng "1 kg" hay dữ
+   liệu mặt hàng thật) để không ảnh hưởng các phép kiểm trước/sau — chỉ mượn tạm sp[0] rồi trả nguyên. */
+const s29=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  // 1) quyVAT(): chưa khai → tạm coi giá gộp là giá tính (đánh dấu chưa quy); có khai → quy đúng
+  kq.quyVATChuaKhai=quyVAT(110,null).gia===110&&quyVAT(110,null).daQuy===false;
+  kq.quyVATCoKhai=Math.abs(quyVAT(110,10).gia-100)<1e-9&&quyVAT(110,10).daQuy===true&&quyVAT(110,10).vat===10;
+
+  // 2) giaHuongHienTaiCT()/giaNLHienTaiCT(): áp đúng % VAT riêng từng loại; hàm cũ vẫn trả về SỐ như trước
+  const hTen='__S29_HUONG__', nlTen='__S29_NL__', q='__S29QC__';
+  kho.push(hTen); nlDM.push(nlTen); dr.push(q); kgQC[q]=1;
+  nguonHuong[hTen]=[{ncc:'NCC H',gia:518400,soKg:1,vat:8,ngay:'12/09/2026'}]; huongDangDung[hTen]='NCC H'; // 518.400đ/kg gồm VAT 8% → 480 đ/g chưa VAT
+  nguonNguyenLieu[nlTen]=[{ncc:'NCC NL',gia:35200,soKg:10,vat:10,ngay:'12/09/2026'}]; nlDangDung[nlTen]='NCC NL'; // 3.520đ/kg gồm VAT 10% → 3.200 đ/kg chưa VAT
+  const ctH=giaHuongHienTaiCT(hTen), ctNl=giaNLHienTaiCT(nlTen);
+  kq.huongCT=Math.abs(ctH.gia-480)<1e-6&&ctH.vat===8&&ctH.daQuy===true;
+  kq.nlCT=Math.abs(ctNl.gia-3200)<1e-6&&ctNl.vat===10&&ctNl.daQuy===true;
+  kq.huongPlainKhongDoi=Math.abs(giaHuongHienTai(hTen)-480)<1e-6;
+
+  // 3) giaVonBao(): mỗi dòng có vat/ttVAT đúng (thành tiền đã VAT = chưa VAT × (1+vat%)); tổng có tongVAT/dKgVAT
+  const p=sp[0], goc={huongs:p.huongs,congThucNL:p.congThucNL,kg:p.kg,ml:p.ml,dauRa:p.dauRa,baoBiRieng:p.baoBiRieng};
+  p.huongs=[hTen]; p.kg=100; p.ml=1000; p.congThucNL=[{ten:nlTen,kg:98}]; p.dauRa=[q]; delete p.baoBiRieng;
+  const bbId=baoBi[0].id; baoBiQC[q]=[{id:bbId,sl:1}];
+  const gv=giaVonBao(p,q,hTen);
+  const dH=gv.dong.find(x=>x.loai==='h'&&x.khoa===hTen), dNl=gv.dong.find(x=>x.loai==='nl'&&x.khoa===nlTen);
+  kq.dongHuongVAT=!!dH&&dH.vat===8&&Math.abs(dH.ttVAT-dH.tt*1.08)<1e-6;
+  kq.dongNlVAT=!!dNl&&dNl.vat===10&&Math.abs(dNl.ttVAT-dNl.tt*1.10)<1e-6;
+  kq.tongVATDung=Math.abs(gv.tongVAT-gv.dong.reduce((a,x)=>a+(x.ttVAT||0),0))<1e-6&&gv.tongVAT>gv.tong;
+  kq.dKgVATDung=Math.abs(gv.dKgVAT-gv.tongVAT/gv.kgBao)<1e-6;
+
+  // 4) tab Giá vốn hiện cả 2 cột (chưa/đã VAT), đúng % từng dòng, và tô màu đúng cụm
+  gvSP=0; gvHuong=hTen; chuyenTab('gv'); await cho(60);
+  const vHtml=$('viewGV').innerHTML;
+  kq.gvHienVAT=/Đã VAT/.test(vHtml)&&/VAT 8%/.test(vHtml)&&/VAT 10%/.test(vHtml);
+  kq.gvMauCum=vHtml.includes('gv2-ing h')&&vHtml.includes('gv2-ing nl')&&vHtml.includes('gv2-ing bb');
+  chuyenTab('tq');
+
+  // dọn sạch — trả nguyên trạng sp[0]/dr/kgQC/baoBiQC, không để sót ảnh hưởng phép kiểm khác
+  p.huongs=goc.huongs; p.congThucNL=goc.congThucNL; p.kg=goc.kg; p.ml=goc.ml; p.dauRa=goc.dauRa;
+  if(goc.baoBiRieng)p.baoBiRieng=goc.baoBiRieng; else delete p.baoBiRieng;
+  delete baoBiQC[q]; delete kgQC[q]; dr.splice(dr.indexOf(q),1);
+  kho.splice(kho.indexOf(hTen),1); nlDM.splice(nlDM.indexOf(nlTen),1);
+  delete nguonHuong[hTen]; delete huongDangDung[hTen]; delete nguonNguyenLieu[nlTen]; delete nlDangDung[nlTen];
+  return kq;
+});
+ok('S29: quyVAT() — chưa khai thì tạm coi giá gộp là giá tính (đánh dấu chưa quy), có khai thì quy đúng chưa VAT', s29.quyVATChuaKhai&&s29.quyVATCoKhai, JSON.stringify(s29));
+ok('S29: giaHuongHienTaiCT()/giaNLHienTaiCT() quy đúng theo % VAT đã khai riêng từng loại; hàm cũ vẫn trả về số như trước (không phá API)', s29.huongCT&&s29.nlCT&&s29.huongPlainKhongDoi);
+ok('S29: giaVonBao() — mỗi dòng có vat/ttVAT đúng (thành tiền đã VAT = chưa VAT × (1+vat%))', s29.dongHuongVAT&&s29.dongNlVAT);
+ok('S29: giaVonBao() cộng đúng tongVAT/dKgVAT (tổng đã VAT luôn ≥ tổng chưa VAT)', s29.tongVATDung&&s29.dKgVATDung);
+ok('S29: tab Giá vốn hiện cả chưa VAT lẫn đã VAT, đúng mức thuế 8%/10% từng dòng', s29.gvHienVAT);
+ok('S29: tab Giá vốn tô đúng màu cụm (Hương/Nguyên liệu/Bao bì) trong dải thành phần', s29.gvMauCum);
+
+// 5) Danh mục: khai VAT cho NGUỒN HƯƠNG LIỆU qua đúng UI (không gán thẳng biến) — cùng luồng người dùng thật
+const s29uiH=await E(()=>{tab='ma';const t='__S29UI_H__';kho.push(t);moTra.add('ncc-h-'+t);ve();return t});
+await p.click(`[data-themnguon="h:${s29uiH}"]`); await p.waitForTimeout(150);
+await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="ncc"]`,'NCC UI H');
+await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="gia"]`,'518400');
+await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="soKg"]`,'1');
+await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="vat"]`,'8');
+await p.click(`[data-luunguon="h:${s29uiH}"]`); await p.waitForTimeout(200);
+const s29resH=await Ea(h=>({vat:nguonHuong[h][0].vat,gia:giaHuongHienTaiCT(h).gia}),s29uiH);
+ok('S29: form khai nguồn hương liệu có ô "Thuế suất VAT", lưu đúng và quy đổi đúng giá chưa VAT', s29resH.vat===8&&Math.abs(s29resH.gia-480)<1e-6, JSON.stringify(s29resH));
+await Ea(h=>{kho.splice(kho.indexOf(h),1);delete nguonHuong[h];delete huongDangDung[h]},s29uiH);
+
+// 6) Danh mục: khai VAT cho NGUỒN NGUYÊN LIỆU qua UI
+const s29uiNl=await E(()=>{const t='__S29UI_NL__';nlDM.push(t);moTra.add('ncc-nl-'+t);ve();return t});
+await p.click(`[data-themnguon="nl:${s29uiNl}"]`); await p.waitForTimeout(150);
+await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="ncc"]`,'NCC UI NL');
+await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="gia"]`,'35200');
+await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="soKg"]`,'10');
+await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="vat"]`,'10');
+await p.click(`[data-luunguon="nl:${s29uiNl}"]`); await p.waitForTimeout(200);
+const s29resNl=await Ea(v=>({vat:nguonNguyenLieu[v][0].vat,gia:giaNLHienTaiCT(v).gia}),s29uiNl);
+ok('S29: form khai nguồn nguyên liệu có ô "Thuế suất VAT", lưu đúng và quy đổi đúng giá chưa VAT', s29resNl.vat===10&&Math.abs(s29resNl.gia-3200)<1e-6, JSON.stringify(s29resNl));
+await Ea(v=>{nlDM.splice(nlDM.indexOf(v),1);delete nguonNguyenLieu[v];delete nlDangDung[v]},s29uiNl);
+
+// 7) Công thức: công tắc "Có/Không dùng hương liệu?" — mượn tạm sp[0], trả nguyên tam sau khi xong
+await E(()=>{tab='ct';mo.clear();mo.add(0);ve()});
+await p.click('.ctsec[data-sec="h"][data-si="0"] [data-hkhonghuong]'); await p.waitForTimeout(80);
+const s29Khong=await E(()=>({tam:JSON.stringify(sp[0].tam),luoi:!!document.querySelector('.ctsec[data-sec="h"][data-si="0"] .hset'),chip:!!document.querySelector('.ctsec[data-sec="h"][data-si="0"] .hnhchip')}));
+ok('S29: bấm "Không" ở công tắc dùng hương liệu → gán thẳng "Không mùi", ẩn lưới chọn hương, hiện nhãn trung tính', s29Khong.tam==='["Không mùi"]'&&!s29Khong.luoi&&s29Khong.chip, JSON.stringify(s29Khong));
+await p.click('.ctsec[data-sec="h"][data-si="0"] [data-hcohuong]'); await p.waitForTimeout(80);
+const s29Co=await E(()=>({tam:JSON.stringify(sp[0].tam),luoi:!!document.querySelector('.ctsec[data-sec="h"][data-si="0"] .hset')}));
+ok('S29: bấm lại "Có" → bỏ "Không mùi" (về rỗng để chọn hương thật), hiện lại lưới chọn hương', s29Co.tam==='[]'&&s29Co.luoi, JSON.stringify(s29Co));
+await E(()=>{sp[0].tam=[...(sp[0].huongs||[])];chuyenTab('tq');ve()}); // huỷ nháp, trả nguyên trạng mặt hàng thật
 ok('S19: sửa nội dung tem lần cuối → xem trước cập nhật, bản in dùng nội dung sửa', s19.xemTruoc&&s19.inNoiDungSua&&s19.daIn);
 ok('S19: không tick "Lưu luôn" → hồ sơ tem của mặt hàng KHÔNG đổi', s19.hoSoKhongDoi&&s19.coOLuu);
 ok('S19: tick "Lưu luôn" → lưu nội dung sửa vào hồ sơ tem', s19.luuVaoHoSo);
