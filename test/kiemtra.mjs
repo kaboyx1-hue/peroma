@@ -963,7 +963,7 @@ const mR=await E(()=>{
 });
 ok('apTCCSKhoa() báo thành công cho mã 32', mR.ok===true, mR.ly_do);
 ok('apTCCSKhoa() GHI ĐÈ hoàn toàn (khác apTCCS() chỉ điền ô trống)',
-  mR.tenVN==='CÁT LÓT NỀN CHO CHUỘT HAMSTER – HAMBII LITTLE MARS');
+  mR.tenVN==='CÁT LÓT NỀN CHO CHUỘT HAMSTER – LITTLE MARS'); // 12/09/2026: khách bỏ "HAMBII" khỏi tên, soTCCS giữ nguyên
 ok('lấy đúng số hiệu TCCS thật từ file .docx', mR.soTCCS==='02:2026/HAMBII');
 ok('lấy đúng HDSD nguyên văn từ TCCS (không dùng nhóm chung)', /Trải một lớp cát/.test(mR.hdsd||''));
 ok('lấy đúng xuất xứ nguyên văn từ TCCS', mR.xuatXu==='Sản xuất tại Việt Nam từ nguyên liệu nhập khẩu');
@@ -983,7 +983,7 @@ const mDongBo=await E(()=>{
   return p2.hstem.tenVN;
 });
 ok('mỗi lần khởi động lại app, mặt hàng khoá luôn bị áp lại đúng theo TCCS_DATA trong code',
-  mDongBo==='CÁT LÓT NỀN CHO CHUỘT HAMSTER – HAMBII LITTLE MARS');
+  mDongBo==='CÁT LÓT NỀN CHO CHUỘT HAMSTER – LITTLE MARS');
 
 const mHtml=await E(()=>{
   const p=sp.find(x=>x.ten==='Cát ăn (Hambi)');
