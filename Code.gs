@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-09-12-S31';
+const PHIEN_BAN_MAYCHU = '2026-09-13-S32';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -39,9 +39,16 @@ const COT_BC = ['ID','Ngày','Số lô','Sản phẩm','Quy cách','Kế hoạch
 /* 12/09/2026: hồ sơ kế toán theo lô cho trang riêng hoso.html (số hoá đơn NCC, số biên bản/
    quyết định khi huỷ lô) — khách cần nối số lô sản xuất với chứng từ kế toán để đối chiếu sổ
    sách. Sheet ĐỘC LẬP, không đụng NHATKY/BAOCAO/CAUHINH. Khác NHATKY/BAOCAO (append-only): mỗi
-   số lô CHỈ 1 dòng, ghi lại là CẬP NHẬT đúng dòng đó (sửa được nhiều lần khi có thêm hoá đơn). */
+   số lô CHỈ 1 dòng, ghi lại là CẬP NHẬT đúng dòng đó (sửa được nhiều lần khi có thêm hoá đơn).
+   13/09/2026 — S32: bỏ trang riêng hoso.html (khách: "hồ sơ này không nên công khai" — link
+   GitHub Pages vẫn public dù có mật khẩu). Thay bằng: chính SHEET này là nơi kế toán làm việc
+   trực tiếp — chia sẻ tab HOSOLO cho đúng tài khoản Google của kế toán (Chia sẻ → chỉ người có
+   link được chọn, không "Bất kỳ ai có link"). Cột SẢN XUẤT (B-E) tự đổ mỗi khi có mẻ mới (xem
+   dongBoHoSoLoTuMe() gọi từ themMe()); cột KẾ TOÁN (F-I) kế toán tự gõ thẳng trong Sheet — máy
+   chủ KHÔNG BAO GIỜ ghi đè lên 4 cột này khi tự đồng bộ lại cột sản xuất. */
 const S_HOSOLO = 'HOSOLO';
-const COT_HS = ['Số lô','Số hoá đơn NCC nguyên liệu','Số hoá đơn NCC hương liệu',
+const COT_HS = ['Số lô','Ngày SX','Mặt hàng','Quy cách','KG',
+                'Số hoá đơn NCC nguyên liệu','Số hoá đơn NCC hương liệu',
                 'Số biên bản/QĐ huỷ lô','Ghi chú','Cập nhật lúc'];
 
 /* 26/08/2026 — PATCH V1.1 mục P1-D (an toàn, không cần server sống): schemaVersion +
@@ -52,7 +59,7 @@ const COT_HS = ['Số lô','Số hoá đơn NCC nguyên liệu','Số hoá đơn
    không kiểm được đầu kia thì rủi ro hơn là để nguyên. Xem PATCH-REPORT.md — mục này đánh dấu
    BLOCKED FOR SERVER VERIFICATION. Toàn bộ log lỗi vẫn KHÔNG in ra token/mật khẩu. */
 const SCHEMA_VERSION = 1;
-const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','hosoLo','luuHosoLo'];
+const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong'];
 
 /* ── Đọc ── */
 /* 29/08/2026 — bản S6 (khách yêu cầu: mở Admin từ BẤT KỲ máy nào, ở bất kỳ đâu, không cần đã
@@ -85,7 +92,6 @@ function doGet(e){
     if(p.a === 'cauhinh') return ra({ok:1, cauhinh: docCauHinh(), ts: tsCauHinh(), xoaMocTs: xoaMocTs()});
     if(p.a === 'nhatky')  return ra({ok:1, nk: docNhatKy()});
     if(p.a === 'baocao')  return ra({ok:1, bc: docBaoCao()});
-    if(p.a === 'hosoLo')  return ra({ok:1, hosoLo: docHoSoLo()});
     if(p.a === 'tomtat')  return ra({ok:1, ts: tsCauHinh(), soMe: soDong()});
     return ra({ok:1, ten:'Peroma'});
   }catch(err){ return ra({loi:String(err)}) }
@@ -103,7 +109,6 @@ function doPost(e){
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'xoaDLMoPhong'){ xoaDLMoPhong(); return ra({ok:1}) }
-    if(d.a === 'luuHosoLo'){ const r = luuHoSoLoMotDong(d.dong || {}); return r.loi ? ra({loi:r.loi}) : ra({ok:1, lot:r.lot}) }
     return ra({loi:'Không rõ lệnh'});
   }catch(err){ return ra({loi:String(err)}) }
   finally{ try{ khoa.releaseLock() }catch(x){} }
@@ -250,6 +255,7 @@ function themMe(ds){
   const n = sh.getLastRow();
   if(n > 1) sh.getRange(2,1,n-1,1).getValues().forEach(r=>{ if(r[0]) daCo[r[0]] = 1 });
   const them = [];
+  const moiThem = []; // bản ghi GỐC (không phải hàng Sheet) của các lô thực sự vừa ghi — dùng đồng bộ HOSOLO
   const idDaNhan = []; // PATCH V1.1 mục P1-D: danh sách id THỰC SỰ vừa ghi — chuẩn bị sẵn cho
   // sau này client có thể chỉ set daGui=1 khi thấy đúng id trong danh sách này (ACK thật sự),
   // thay vì tin tưởng mù quáng ngay khi request trả về 200 OK. Client HIỆN TẠI chưa đọc field
@@ -262,9 +268,11 @@ function themMe(ds){
                r.huong||'', r.quyCach||'', Number(r.sl)||0, r.soBao===''?'':Number(r.soBao)||0,
                Number(r.mlDung)||0, r.nv||'', String(r.ts||'').replace('T',' ').slice(0,19),
                JSON.stringify(r)]);
+    moiThem.push(r);
     idDaNhan.push(r.id);
   });
   if(them.length) sh.getRange(sh.getLastRow()+1, 1, them.length, COT.length).setValues(them);
+  if(moiThem.length) dongBoHoSoLoTuMe(moiThem);
   return { them: them.length, boQua: ds.length - them.length, idDaNhan: idDaNhan };
 }
 function soDong(){ const n = lay(S_NHATKY).getLastRow(); return n>1 ? n-1 : 0 }
@@ -303,32 +311,35 @@ function themBaoCao(ds){
   return { them: them.length, boQua: ds.length - them.length, idDaNhan: idDaNhan };
 }
 
-/* ── Hồ sơ kế toán theo lô (trang riêng hoso.html) ── */
-function docHoSoLo(){
-  const sh = lay(S_HOSOLO);
-  const n = sh.getLastRow();
-  if(n < 2) return [];
-  const v = sh.getRange(2, 1, n-1, COT_HS.length).getValues();
-  return v.filter(function(r){ return r[0] }).map(function(r){
-    return { lot:String(r[0]), hoaDonNL:String(r[1]||''), hoaDonHuong:String(r[2]||''),
-             bienBanHuy:String(r[3]||''), ghiChu:String(r[4]||''), capNhat:String(r[5]||'') };
-  });
-}
-function luuHoSoLoMotDong(d){
-  d = d || {};
-  const lot = String(d.lot || '').trim();
-  if(!lot) return { loi: 'Thiếu số lô' };
+/* ── Hồ sơ kế toán theo lô — tab Sheet "HOSOLO", kế toán làm việc TRỰC TIẾP trong Sheet (S32) ──
+   Chỉ tự đổ 4 cột SẢN XUẤT (Ngày SX/Mặt hàng/Quy cách/KG) mỗi khi có mẻ mới, gọi từ themMe().
+   4 cột KẾ TOÁN (Số hoá đơn NL/hương, Số biên bản/QĐ huỷ, Ghi chú) do kế toán tự gõ thẳng
+   trong Sheet — hàm này KHÔNG BAO GIỜ đụng tới 4 cột đó, kể cả khi lô đã có sẵn dòng. */
+function dongBoHoSoLoTuMe(ds){
+  const rows = (ds || []).filter(function(r){ return r && r.lot });
+  if(!rows.length) return;
   const sh = lay(S_HOSOLO);
   if(sh.getLastRow() < 1){ sh.appendRow(COT_HS); sh.setFrozenRows(1); sh.getRange(1,1,1,COT_HS.length).setFontWeight('bold') }
   const n = sh.getLastRow();
-  let hang = -1;
+  const viTri = {};
   if(n > 1){
     const cotLo = sh.getRange(2, 1, n-1, 1).getValues();
-    for(let i=0;i<cotLo.length;i++){ if(String(cotLo[i][0]) === lot){ hang = i+2; break } }
+    for(let i=0;i<cotLo.length;i++){ if(cotLo[i][0]) viTri[String(cotLo[i][0])] = i+2 }
   }
-  const dong = ["'"+lot, d.hoaDonNL||'', d.hoaDonHuong||'', d.bienBanHuy||'', d.ghiChu||'', new Date().toISOString()];
-  if(hang === -1){ sh.appendRow(dong) } else { sh.getRange(hang, 1, 1, COT_HS.length).setValues([dong]) }
-  return { ok:1, lot:lot };
+  const daXep = {}; // lô đã xử lý trong đợt gọi này — tránh thêm trùng nếu ds có 2 dòng cùng lô
+  const themMoi = [];
+  rows.forEach(function(r){
+    const lot = String(r.lot);
+    if(daXep[lot]) return;
+    daXep[lot] = 1;
+    const hang = viTri[lot];
+    if(hang){
+      sh.getRange(hang, 2, 1, 4).setValues([[r.ngaysx||'', r.sp||'', r.quyCach||'', Number(r.sl)||0]]);
+    }else{
+      themMoi.push(["'"+lot, r.ngaysx||'', r.sp||'', r.quyCach||'', Number(r.sl)||0, '', '', '', '', new Date().toISOString()]);
+    }
+  });
+  if(themMoi.length) sh.getRange(sh.getLastRow()+1, 1, themMoi.length, COT_HS.length).setValues(themMoi);
 }
 
 /* 27/08/2026-R2: bên Admin bấm "Xoá dữ liệu mô phỏng" trước đây chỉ xoá CỤC BỘ (máy admin) —

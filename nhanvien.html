@@ -374,7 +374,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 12/09/2026-R21</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 13/09/2026-R24</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -456,7 +456,7 @@ function dbVeTT(t,ghiChu){
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
 async function dbGoi(url,tuychon){
-  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),12000);
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),25000);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
     clearTimeout(to);
@@ -557,6 +557,8 @@ async function dbKeoCauHinh(){
       if(Array.isArray(c.kho))kho=c.kho;
       if(Array.isArray(c.cp))cp=c.cp;
       if(Array.isArray(c.dr))dr=c.dr;
+      if(Array.isArray(c.baoBi))baoBi=c.baoBi;
+      if(c.baoBiQC&&typeof c.baoBiQC==='object')baoBiQC=c.baoBiQC;
       if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
       if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
       if(c.kgQC&&typeof c.kgQC==='object')kgQC=c.kgQC;
@@ -579,12 +581,23 @@ function dbBatDauVongLap(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('dbDen');
-  if(el)el.addEventListener('click',()=>{dbKeoCauHinh();
-    const cho=nk.filter(r=>!r.daGui);if(cho.length)dbDayMe(cho);
-    const choBc=bcNgay.filter(r=>!r.daGui);if(choBc.length)dbDayBaoCao(choBc)});
+  /* 12/09/2026: gọi lần lượt (không đồng thời) — tránh 3 request tranh nhau 1 lượt thực thi
+     Apps Script rồi request chậm bị abort đè mất trạng thái 🟢 vừa hiện (xem bang-tra-huong-lieu.html). */
+  if(el)el.addEventListener('click',async()=>{
+    await dbKeoCauHinh();
+    const cho=nk.filter(r=>!r.daGui);if(cho.length)await dbDayMe(cho);
+    const choBc=bcNgay.filter(r=>!r.daGui);if(choBc.length)await dbDayBaoCao(choBc);
+  });
 });
 
-let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='';
+let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='',baoBi=[],baoBiQC={};
+/* 13/09/2026: nhân viên hỏi "chọn quy cách rồi mà không biết cần túi nào" — bao bì (loại +
+   số cái) trước đây chỉ đồng bộ trong app Admin, máy NV không nhận trường này nên không có
+   gì để hiện. baoBiCho() giống hệt hàm cùng tên bên Admin (chỉ ĐỌC, không sửa gì ở đây). */
+function baoBiCho(p,q){
+  const r=p&&p.baoBiRieng&&Array.isArray(p.baoBiRieng[q])?p.baoBiRieng[q]:null;
+  return (r||(Array.isArray(baoBiQC[q])?baoBiQC[q]:[])).filter(d=>d&&baoBi.some(b=>b.id===d.id));
+}
 // 27/08/2026-R3: mốc "lần Admin xoá dữ liệu mô phỏng" gần nhất máy này ĐÃ áp — xem dbKeoCauHinh()
 let xoaMocApDung='';
 /* 25/08/2026-J: "Báo cáo tiến độ" — gắn với ĐÚNG LÔ đã ghi trong ngày (chọn từ nk[]), không
@@ -875,7 +888,7 @@ function veMe(){
       <div class="nllog log" style="margin-top:2px"></div></div>`;
   }
 
-  const hs=p.huongs||[];
+  const hs=(p.huongs||[]).filter(h=>h&&String(h).trim());
   o+=`<div class="fld"><label>Hương của mẻ này — chọn một</label>`;
   o+= hs.length
     ? `<div class="chips">`+hs.map(h=>`<button data-h="${esc(h)}" class="${p.huongMe===h?'on':''}">${esc(h)}</button>`).join('')+`</div>`
@@ -900,6 +913,12 @@ function veMe(){
     if(cb)o+=`${fmt(num(d.kg))} kg ÷ ${fmt(cb.dv)} kg = <b>${cb.so}</b> ${donVi(d.qc)}`+(cb.du>0?` <span class="du">· dư ${fmt(cb.du)} kg</span>`:` · vừa chẵn`);
     o+=rl.thieu.length?`<br><span class="no">Chưa ra số lô: ${rl.thieu.map(esc).join(' · ')}</span>`
       :`<br>Số lô <b>${lotDep(rl.lot)}</b>`;
+    if(d.qc){
+      const dsBB=baoBiCho(p,d.qc);
+      o+=dsBB.length
+        ?`<br>Túi/bao bì: <b>${dsBB.map(x=>{const b=baoBi.find(y=>y.id===x.id);return b?esc(b.ten)+(num(x.sl)>1?' × '+num(x.sl):''):''}).filter(Boolean).join(', ')}</b>`
+        :`<br><span class="no">Chưa gán bao bì cho quy cách "${esc(d.qc)}" — báo quản lý</span>`;
+    }
     o+=`</div>`;
   });
   if(ds.length)o+=`<button class="add" data-pbadd="1">+ Thêm quy cách</button>`;
@@ -1617,12 +1636,13 @@ async function kiemRoiGhi(){
   ghiAudit('batch',goc,'RECORD_BATCH',null,
     {sp:p.ten,huong:p.huongMe,soDong:kq.length,quyCach:kq.map(x=>x.d.qc),tongKg:kg,lot:kq.map(x=>x.r.lot)});
   p.sl='';p.pb=[];p.huongMe='';p.daInPhieu=false;p.xacNhanCT=false;p.xacNhanCTBoi='';p.xacNhanCTSnap='';p.xacNhanCTLuc=''; pbTuDong(p);
+  // 13/09/2026: khách hỏi lại "thiếu chỗ kiểm tra/sửa tem phụ lần cuối" — bỏ hộp thoại (27/08)
+  // vẫn đúng (khách từng yêu cầu), nhưng phải tự đưa NV tới đúng lô vừa ghi ở tab Tra lô, không
+  // bắt tự tìm trong dropdown — "Dàn trang & sửa tem lần cuối" đã có sẵn ở đó (xem veLo()).
+  tab='lo'; traLot=kq[0].r.lot;
   await luu(); dangGhi=false; ve();
   dbDayMe(nk.filter(r=>r.id.startsWith(goc)));
-  // 27/08/2026 (phản hồi lần 4): khách yêu cầu bỏ luôn hộp thoại "Đã ghi xong" — ghi xong báo
-  // nhanh 1 dòng (toast bao(), tự biến mất) thay vì hộp thoại phải bấm mới đóng được. Muốn in
-  // tem thì qua tab Tra lô (đã có sẵn nút "In tem phụ cho lô này").
-  bao(`Đã lưu ${kq.length} lô: `+kq.map(x=>lotDep(x.r.lot)).join(', '));
+  bao(`Đã lưu ${kq.length} lô: `+kq.map(x=>lotDep(x.r.lot)).join(', ')+' — sang tab Tra lô để in/sửa tem.');
 }
 
 /* ═══ Sự kiện ═══ */

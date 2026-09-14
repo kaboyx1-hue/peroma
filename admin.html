@@ -76,6 +76,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 .tbtn{font:inherit;font-size:12.5px;font-weight:700;background:transparent;color:var(--txt-2);
   border:1px solid var(--line-2);border-radius:7px;padding:8px 13px;cursor:pointer;white-space:nowrap}
 .tbtn.on{background:var(--amber);border-color:var(--amber);color:var(--onAcc)}
+.verFoot{display:none} /* chỉ hiện ở góc dưới thanh menu máy tính — trên di động, bản đã có sẵn trong H1 */
 
 .tabs{display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .tab{flex:1;font:inherit;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
@@ -567,6 +568,10 @@ html,body{background:var(--bg);min-height:100%}
   #btnSangToi{position:absolute;left:12px;right:12px;bottom:14px;display:flex;align-items:center;gap:10px;
     padding:10px 12px;border-radius:12px;font-size:15px;text-align:left}
   #btnSangToi::after{content:attr(data-nhan);font-size:13.5px;font-weight:600}
+  /* 13/09/2026: dòng phiên bản — cùng góc dưới với nút sáng/tối, khách hỏi khi không chắc bản
+     đang mở đã cập nhật hay chưa (VD sau khi vừa đẩy bản mới lên GitHub Pages). */
+  .verFoot{display:block;position:absolute;left:12px;right:12px;bottom:54px;font-size:10.5px;
+    text-align:center;color:var(--txt-3);letter-spacing:.04em}
 }
 .tab{font-size:12px;padding:10px 2px 9px}
 .adm{background:var(--accSoft);color:var(--accTx);border-radius:6px}
@@ -1088,8 +1093,10 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/09/2026-S30</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 13/09/2026-S32</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
+      <div class="verFoot">BẢN 13/09/2026-S32</div>
+      <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
     <div class="tabs">
@@ -1246,7 +1253,7 @@ async function dbGoi(url,tuychon){
   // 10/09/2026: lưới an toàn cho chế độ chỉ xem — chặn MỌI lệnh ghi (POST), kể cả đường ghi thêm sau này
   if(adminChiXem&&tuychon&&String(tuychon.method||'').toUpperCase()==='POST')
     throw new Error('Admin trên điện thoại đang ở chế độ chỉ xem — không gửi thay đổi lên hệ thống');
-  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),12000);
+  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),25000);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
     clearTimeout(to);
@@ -1475,7 +1482,12 @@ function dbBatDauVongLap(){
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('dbDen');
-  if(el)el.addEventListener('click',()=>{dbDayCauHinh();dbKeoNhatKy();dbKeoBaoCao();dbKeoCauHinhNeuMoiHon()});
+  /* 12/09/2026: trước đây 4 lệnh này bắn đồng thời khi bấm — tranh nhau 1 lượt thực thi Apps
+     Script, request nào chậm (sau khi vừa redeploy hoặc mạng yếu) dễ vượt 12s bị abort, rồi đè
+     mất trạng thái 🟢 mà request nhanh hơn vừa hiện. Gọi lần lượt để không tranh chấp + không đè. */
+  if(el)el.addEventListener('click',async()=>{
+    await dbDayCauHinh(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoCauHinhNeuMoiHon();
+  });
 });
 
 const KHO_GOC=['Hương phấn baby (CITYCAT)','Hương phấn Mooncat','Hương Chanh',
@@ -2403,6 +2415,7 @@ function veNguonHuongMatHang(p,i){
     }
     return `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <span style="min-width:110px;font-weight:700">${esc(h)}</span>${ctrl}
+      <button type="button" class="lnk gt-di" data-gtdi="h" data-gti="${i}" title="Tới Danh mục — sửa nhà cung cấp/giá hương liệu">sửa sâu hơn →</button>
     </div>`;
   }).join('');
   o+='</div>';
@@ -3581,7 +3594,7 @@ async function suKienBaoBi(e){
       if(!id){if(l.length)l.shift()} else if(l.length){l[0]={...l[0],id}} else {l.push({id,sl:1})}
       luuNgay();ve();return true}
     if(t.dataset.bbthem!==undefined){if(!t.value)return true;const l=danhSachBB(t.dataset.bbthem,true);if(l&&!l.some(d=>d.id===t.value))l.push({id:t.value,sl:1});luuNgay();ve();return true}
-    if(t.dataset.bbsl!==undefined){const k=t.dataset.bbsl.lastIndexOf('|||'),l=danhSachBB(t.dataset.bbsl.slice(0,k)),j=+t.dataset.bbsl.slice(k+3);
+    if(t.dataset.bbsl!==undefined){const k=t.dataset.bbsl.lastIndexOf('|||'),l=danhSachBB(t.dataset.bbsl.slice(0,k),true),j=+t.dataset.bbsl.slice(k+3);
       if(l&&l[j]){l[j].sl=Math.max(1,Math.round(num(t.value))||1);luuNgay();ve()}return true}
     if(t.dataset.bbten!==undefined){const b=baoBi.find(x=>x.id===t.dataset.bbten),v=String(t.value).trim();
       if(b&&v){if(baoBi.some(x=>x!==b&&x.ten.toLowerCase()===v.toLowerCase())){bao('Đã có bao bì tên này');ve();return true}b.ten=v;luuNgay();ve()}else ve();return true}
@@ -3598,7 +3611,7 @@ async function suKienBaoBi(e){
   }
   const g=k=>t.closest('['+k+']');
   let x;
-  if((x=g('data-bbbo'))){const s=x.dataset.bbbo,k=s.lastIndexOf('|||'),l=danhSachBB(s.slice(0,k));if(l){l.splice(+s.slice(k+3),1);luuNgay();ve()}return true}
+  if((x=g('data-bbbo'))){const s=x.dataset.bbbo,k=s.lastIndexOf('|||'),l=danhSachBB(s.slice(0,k),true);if(l){l.splice(+s.slice(k+3),1);luuNgay();ve()}return true}
   if((x=g('data-bbrieng'))){const [i,q]=x.dataset.bbrieng.split('|||'),p=sp[+i];if(p){p.baoBiRieng=p.baoBiRieng||{};p.baoBiRieng[q]=(baoBiQC[q]||[]).map(d=>({...d}));luuNgay();ve()}return true}
   if((x=g('data-bbmacdinh'))){const [i,q]=x.dataset.bbmacdinh.split('|||'),p=sp[+i];if(p&&p.baoBiRieng){delete p.baoBiRieng[q];luuNgay();ve()}return true}
   if((x=g('data-bbdenma'))){chuyenTab('ma');requestAnimationFrame(()=>{const s=document.getElementById('secBaoBi');if(s)s.scrollIntoView({block:'start',behavior:'smooth'})});return true}
@@ -5047,7 +5060,7 @@ $('rows').addEventListener('click',async e=>{
     sp[i].tam=[...(sp[i].huongs||[])];luu();ve();bao('Đã hủy thay đổi');return}
 
   const sv=e.target.closest('[data-savh]');
-  if(sv){e.stopPropagation();const i=+sv.dataset.savh,p=sp[i],tam=[...(p.tam||[])];
+  if(sv){e.stopPropagation();const i=+sv.dataset.savh,p=sp[i],tam=[...(p.tam||[])].filter(h=>h&&String(h).trim());
     if(nhuNhau(p.huongs,tam)){bao('Không có thay đổi');return}
     const cu=(p.huongs||[]).join(' + ')||'chưa có', mm=tam.join(' + ')||'không có hương nào';
     const c=await hoi('Lưu thay đổi hương',
