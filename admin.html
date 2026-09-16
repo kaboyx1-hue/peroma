@@ -295,17 +295,18 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 :is(#temIn,#temDo,.xemTem) .to{display:grid;gap:1.5mm;page-break-after:always;width:197mm;height:284mm;box-sizing:border-box;overflow:hidden}
 :is(#temIn,#temDo,.xemTem) .to.to-nhiet{width:61mm;height:61mm}
 :is(#temIn,#temDo,.xemTem) .to.to-nhiet5070{width:46mm;height:66mm}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem{padding:.22em .32em;line-height:1.08}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem .t1{margin:0 0 .1em}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem .t2{margin:0 0 .03em;font-size:1.22em}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem .t3{margin:0 0 .14em}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem td{padding:.03em .14em}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem td.k{width:30%}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem .kh{padding:.1em}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
+:is(#temIn,#temDo,.xemTem) .to.to-nhiet7050{width:68mm;height:48mm}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem{padding:.22em .32em;line-height:1.08}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t1{margin:0 0 .1em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t2{margin:0 0 .03em;font-size:1.22em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t3{margin:0 0 .14em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td{padding:.03em .14em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td.k{width:30%}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
 :is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
-:is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co);color:var(--temChu,#000);border-color:var(--temVien,#000)}
+:is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co);color:var(--temChu,#000);border-color:var(--temVien,#000);font-weight:var(--temDam,400);font-style:var(--temNghieng,normal)}
 :is(#temIn,#temDo,.xemTem) .t1{color:var(--temTieuDe,#000);text-align:center;font-weight:bold;letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
 :is(#temIn,#temDo,.xemTem) .t2{color:var(--temTieuDe,#000);text-align:center;font-weight:bold;margin:0 0 .1em;line-height:1.15;font-size:1.65em}
 :is(#temIn,#temDo,.xemTem) .t3{text-align:center;margin:0 0 .35em;font-size:1.06em}
@@ -319,8 +320,10 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
   @page{size:A4;margin:6mm}
   @page nhiet{size:65mm 65mm;margin:2mm}
   @page nhiet5070{size:50mm 70mm;margin:2mm}
+  @page nhiet7050{size:70mm 50mm;margin:1mm}
   #temIn .to-nhiet{page:nhiet}
   #temIn .to-nhiet5070{page:nhiet5070}
+  #temIn .to-nhiet7050{page:nhiet7050}
   /* S16/R10: bỏ lề trong của trang app khi in (khoảng chừa thanh trạng thái / thanh menu trái trên máy tính)
      — không bỏ thì tờ tem 284 mm bị đẩy xuống + lệch phải, tràn sang trang 2 */
   html,body{background:#fff!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
@@ -1093,9 +1096,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 13/09/2026-S32</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/09/2026-S33</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 13/09/2026-S32</div>
+      <div class="verFoot">BẢN 15/09/2026-S33</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1106,6 +1109,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
       <button class="tab" data-tab="bc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18"/><path d="M7 17v-6M12 17V5M17 17v-9"/></svg><span>Báo cáo</span></button>
       <button class="tab" data-tab="gv"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Giá vốn</span></button>
       <button class="tab" data-tab="sl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6"/></svg><span>Sao lưu</span></button>
+      <button class="tab" data-tab="ho"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h9l3 3h4v13H4z"/><path d="M4 9h16"/></svg><span>Tủ hồ sơ</span></button>
     </div>
     <div class="apply" id="applyBox">
       <div class="arow">
@@ -1135,6 +1139,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
   <div id="viewBC" class="pg" style="display:none"></div>
   <div id="viewGV" class="pg" style="display:none"></div>
   <div id="viewSL" class="pg" style="display:none"></div>
+  <div id="viewHO" class="pg" style="display:none"></div>
 </div>
 
 <div class="status">
@@ -1302,7 +1307,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo}})});
     if(j&&j.ts)dongBoCauHinhTs=j.ts;
     dbVeTT('ok');
   }catch(e){ dbVeTT('loi', e.message); }
@@ -1351,6 +1356,7 @@ function apDungCauHinhTuServer(c){
   // S21: Code.gs chưa triển khai bản mới thì server không có 2 trường này → giữ nguyên bản trên máy
   if(Array.isArray(c.baoBi))baoBi=c.baoBi;
   if(c.baoBiQC&&typeof c.baoBiQC==='object'&&!Array.isArray(c.baoBiQC))baoBiQC=c.baoBiQC;
+  if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -2025,6 +2031,25 @@ function temMauCSS(m){m=napTemMau(m||temMau);return '--temTieuDe:'+m.tieuDe+';--
 function mauNhat(v){const n=parseInt(String(v).slice(1),16),f=c=>(c/=255)<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4);
   const L=.2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);return 1.05/(L+.05)<4.5}
 let temMau={...TEM_MAU_GOC};
+/* ═══ KIỂU CHỮ TEM — 15/09/2026 (Admin S32 / Nhân viên R25) ═══
+   Khách: "chỉnh độ dày font nhỏ lại, muốn có tính năng tuỳ chỉnh font chữ, nghiêng, bold" — sau khi
+   bàn về chữ in nhòe, khách muốn thêm 1 lớp điều chỉnh PHẦN MỀM bên cạnh driver máy in. Cùng cơ chế
+   với MÀU IN TEM ở trên: lưu theo MÁY (không đồng bộ), đi vào bản in qua biến CSS trên .to nên file
+   in mang sang máy khác vẫn giữ đúng kiểu chữ. Chỉ áp cho CHỮ NỘI DUNG (bảng, giá trị) — tiêu đề
+   (t1/t2 — tên sản phẩm) giữ nguyên luôn đậm để dễ nhận diện, không cho chỉnh (tránh tem không còn
+   nổi bật tên sản phẩm).
+   LƯU Ý: coChuVua() (đo cỡ chữ vừa ô, xem bên dưới) CỐ Ý đo ở đúng cỡ "Thường" (400) — không đo
+   theo độ đậm đang chọn. Chữ đậm hơn chiếm ngang nhiều hơn 1 chút so với thường, nên nếu chọn
+   "Đậm"/"Đậm vừa" mà tem đã sát chữ (⚠ chữ nhỏ), có thể tràn thêm chút so với cảnh báo hiện — không
+   phải lỗi, chỉ là đo/đậm không cùng lúc để tránh phải sửa lại cỡ chữ vừa ô + toàn bộ cache cỡ chữ. */
+const TEM_KIEU_GOC={dam:'400',nghieng:false};
+const TEM_DAM_O=[['300','Mảnh'],['400','Thường'],['600','Đậm vừa'],['700','Đậm']];
+function napTemKieu(d){const o={...TEM_KIEU_GOC};if(d&&typeof d==='object'){
+  if(TEM_DAM_O.some(x=>x[0]===String(d.dam)))o.dam=String(d.dam);
+  o.nghieng=!!d.nghieng}
+  return o}
+function temKieuCSS(k){k=napTemKieu(k||temKieu);return '--temDam:'+k.dam+';--temNghieng:'+(k.nghieng?'italic':'normal')}
+let temKieu={...TEM_KIEU_GOC};
 let temKho='a4'; // S26/R19: khổ giấy in tem — 'a4' (dàn nhiều tem/tờ) hoặc 'nhiet' (cuộn nhiệt 65×65mm, 1 tem/trang), theo máy
 /* 25/08/2026 — nguồn hương liệu: nhà cung cấp + giá theo từng hương, lưu lịch sử (khách chốt).
    nguonHuong[huongTen] = [{ncc,gia,soKg,ngay,daDungKg}], nối thêm mỗi lần khai/đổi, KHÔNG
@@ -2058,6 +2083,13 @@ let ngayNhacInTem=3; // ghi mẻ quá N ngày mà chưa in tem lần nào thì n
    daDungKg — không tự trừ). */
 let nguonNguyenLieu={}, nlDangDung={}, tonKhoNguyenLieu={};
 let baoBi=[], baoBiQC={};   // S21: bao bì (xem khối BAO BÌ & GIÁ VỐN)
+/* S32 — 14/09/2026: "Tủ hồ sơ chung" — khách: có những hồ sơ/tem phụ KHÔNG CHÍNH THỨC dùng nội
+   bộ (VD tem phụ bản cáo mỏng A4 6 tem), cần chỗ lưu trữ nhanh để lấy ra đưa nhân viên in, không
+   phải gửi qua Zalo mỗi lần. File thật lưu ở Google Drive (khách tự upload) — app chỉ giữ DANH
+   SÁCH LINK có tên/mô tả, không tự lưu nội dung file (đúng nguyên tắc 1 file HTML tự chứa, không
+   server lưu file). Đồng bộ qua đúng kênh cấu hình sẵn có (luuCauHinh/cauhinh), NV chỉ xem/mở
+   link, không sửa được — xem veHoSo() (Admin) và veTuHoSo() (NV, tab "ho"). */
+let tuHoSo=[];
 /* 25/08/2026 — tiến độ nguyên liệu đầu vào: admin khai báo tổng kg của 1 lô nguyên liệu thô
    chung (VD lô cát/đậu nành 27000kg), app cộng dồn kg đã sản xuất (mọi mặt hàng, mọi mẻ, từ
    mốc khai báo) để biết đã dùng bao nhiêu / còn lại bao nhiêu — giúp canh đặt hàng tiếp. */
@@ -2187,10 +2219,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -2734,7 +2766,11 @@ function temHTML(r,p){
    trong khung ẩn #temDo (cùng kiểu với lúc in) và chọn cỡ chữ LỚN NHẤT vừa ô (tìm nhị phân).
    Chữ phải co dưới TEM_CO_DOC (khó đọc) thì hỏi trước khi in và đề xuất khổ ít tem/tờ hơn cho chữ
    đủ lớn. KHÔNG đổi nội dung tem (temHTML giữ nguyên), chỉ đổi cách dàn lên giấy. */
-const TEM_CO_MIN=4, TEM_CO_MAX=14, TEM_CO_DOC=6; // pt
+// 14/09/2026: TEM_CO_MIN từng =4pt — máy in nhiệt in ra mờ/nhoè ở cỡ này dù máy tốt cỡ nào (không
+// phải lỗi máy in, do app cho co quá nhỏ). Nâng sàn lên đúng bằng TEM_CO_DOC (6pt, ngưỡng app đã
+// tự coi là "khó đọc") — không bao giờ co xuống dưới mức tự app cho là khó đọc nữa. Nội dung nào
+// không vừa ở 6pt thì rơi vào nhánh tran:true (đã có sẵn hộp thoại hỏi trước khi in, gợi ý khổ khác).
+const TEM_CO_MIN=6, TEM_CO_MAX=14, TEM_CO_DOC=6; // pt
 const temCoCache=new Map();
 function khungDoTem(){let d=document.getElementById('temDo');
   if(!d){d=document.createElement('div');d.id='temDo';d.setAttribute('aria-hidden','true');document.body.appendChild(d)}return d}
@@ -2777,10 +2813,20 @@ function khoTemGoiY(mot,cot,hang){
 const TEM_VUNG_W=197, TEM_VUNG_H=284, TEM_KHE=1.5; // mm — khớp CSS .to
 const TEM_NHIET_KHO={ // mm — các khổ cuộn nhiệt hỗ trợ, lề 2mm mỗi cạnh qua @page cùng khoá (S26 thêm 65×65, S28 thêm 50×70)
   nhiet:{w:65,h:65,le:2,ten:'Cuộn nhiệt vuông 65×65mm'},
-  nhiet5070:{w:50,h:70,le:2,ten:'Cuộn nhiệt 50×70mm'}
+  nhiet5070:{w:50,h:70,le:2,ten:'Cuộn nhiệt 50×70mm'},
+  /* 14/09/2026 — S32: giấy cuộn 70×50mm (70mm = chiều ngang cuộn, 50mm = chiều giấy chạy vào
+     máy). CỐ Ý KHÔNG tự xoay nội dung bằng CSS ở đây — khai đúng khổ vật lý 70×50 bình thường
+     (giống hệt cách khai nhiet/nhiet5070), để DRIVER máy in tự xoay nếu cần (driver "Gap Label"
+     đã có sẵn tuỳ chọn xoay 90°, làm đúng việc này ổn định hơn CSS transform mà không cách nào
+     kiểm bằng máy in thật ở đây). Nếu tem in ra bị lệch/xoay sai chiều, chỉnh ở driver, không
+     phải sửa file này. */
+  // 15/09/2026: lề riêng 1mm (thay vì 2mm chung) — khách chọn giữ nguyên nội dung tem dài, cần
+  // thêm chút diện tích in thay vì rút gọn chữ. LƯU Ý: nếu đầu in không in sát mép được 1mm,
+  // mép tem có thể bị cắt — nếu gặp, tăng lại "le" ở đây (không sửa @page/CSS box riêng lẻ).
+  nhiet7050:{w:70,h:50,le:1,ten:'Cuộn nhiệt 70×50mm'}
 };
 const khoNhietDS=Object.keys(TEM_NHIET_KHO);
-const nhietTT=khoa=>{const k=TEM_NHIET_KHO[khoa];return k?{...k,vungW:k.w-2*k.le,vungH:k.h-2*k.le}:null};
+const nhietTT=khoa=>{const k=TEM_NHIET_KHO[khoa];return k?{...k,vungW:k.w-2*k.le,vungH:k.h-2*k.le,wHien:k.wHien||k.w,hHien:k.hHien||k.h}:null};
 const laKhoNhiet=khoa=>khoNhietDS.includes(khoa);
 const TEM_KHO_NHANH=[[2,2],[3,2],[2,3],[3,3],[4,3],[3,4],[4,4],[5,4]];
 const TEM_KHO_DUYET_KEY='peroma:temKhoDuyet'; // khổ chữ-nhỏ người dùng đã chủ động chọn trên máy này (tuỳ chọn hiển thị, không đồng bộ)
@@ -2807,6 +2853,7 @@ function xetKhoTem(r,p){
 function moDanTem(r,p,quaFile){
   return new Promise(xong=>{
     let mau=napTemMau(temMau); // S22/R15: màu đang chọn trong bảng — chỉ lưu khi bấm In/Lưu file
+    let kieu=napTemKieu(temKieu); // S32/R25: kiểu chữ đang chọn trong bảng — chỉ lưu khi bấm In/Lưu file
     const suaTam={}; // S19: nội dung sửa lần cuối (chỉ cho lần in này, trừ khi Admin chọn lưu)
     const pSua=()=>Object.keys(suaTam).length?{...p,hstem:{...(p.hstem||{}),...suaTam}}:p;
     let mot=temHTML(r,p);
@@ -2829,6 +2876,7 @@ function moDanTem(r,p,quaFile){
       +'<div class="dt-kq" id="dtKq"></div><div class="dt-tt" id="dtTT"></div><div class="dt-goiy" id="dtGoiY"></div>'
       +'</div></div>'
       +'<details class="dt-sua dt-mau" id="dtMau"><summary>Màu in <span class="dt-mau-tom" id="dtMauTom"></span> <small>(xem trước cập nhật ngay)</small></summary><div class="dt-mau-than" id="dtMauThan"></div></details>'
+      +'<details class="dt-sua dt-mau" id="dtKieu"><summary>Kiểu chữ nội dung <span class="dt-mau-tom" id="dtKieuTom"></span> <small>(xem trước cập nhật ngay)</small></summary><div class="dt-mau-than" id="dtKieuThan"></div></details>'
       +'<details class="dt-sua"><summary>Sửa nội dung tem lần cuối trước khi in <small>(xem trước cập nhật ngay)</small></summary>'
       +'<div class="dt-sua-ten">Tên trên tem: <b>'+esc(p.ten||r.sp||'')+'</b> — là tên mặt hàng trong Danh mục của Admin; muốn đổi thì đổi tên mặt hàng ở đó (đổi một lần, áp cho mọi chỗ).</div>'
       +'<div class="dt-sua-luoi">'+TEM_SUA_O.map(([k,nhan,dai])=>'<label class="dt-f'+(dai?' dai':'')+'"><span>'+esc(nhan)+'</span>'+(dai?'<textarea data-dtsua="'+k+'">'+esc(giaTri(k))+'</textarea>':'<input data-dtsua="'+k+'" value="'+esc(giaTri(k))+'">')+'</label>').join('')+'</div>'
@@ -2847,6 +2895,14 @@ function moDanTem(r,p,quaFile){
         +'<label class="dt-mau-tu" title="Chọn màu khác"><input type="color" data-dtmau="'+k+'" value="'+mau[k]+'"><span>Màu khác…</span></label></div></div>').join('')
         +'<div class="dt-mau-cuoi"><button type="button" data-dt="mauden">Về đen hết (mặc định)</button><span id="dtMauCB"></span></div>';
       apMau()};
+    const apKieu=()=>{vung.style.setProperty('--temDam',kieu.dam);vung.style.setProperty('--temNghieng',kieu.nghieng?'italic':'normal');
+      const nhan=(TEM_DAM_O.find(x=>x[0]===kieu.dam)||[])[1]||'';
+      el.querySelector('#dtKieuTom').textContent=nhan+(kieu.nghieng?' · nghiêng':'')};
+    const veKieu=()=>{el.querySelector('#dtKieuThan').innerHTML='<div class="dt-mau-r"><span>Độ đậm</span><div class="dt-mau-ds">'
+        +TEM_DAM_O.map(([v,t])=>'<button type="button" class="dt-mau-o'+(kieu.dam===v?' on':'')+'" data-dt="dam" data-v="'+v+'" style="font-weight:'+v+'" title="'+t+'">Aa</button>').join('')+'</div></div>'
+        +'<div class="dt-mau-r"><span>Nghiêng</span><label class="dt-luu" style="margin:0"><input type="checkbox" id="dtNghieng"'+(kieu.nghieng?' checked':'')+'> In chữ nghiêng</label></div>'
+        +'<div class="dt-mau-cuoi"><button type="button" data-dt="kieumd">Về mặc định (Thường, không nghiêng)</button></div>';
+      apKieu()};
     const ve2=()=>{
       const ocNhiet=el.querySelector('#dtOCot'), ohNhiet=el.querySelector('#dtOHang'), ntNhiet=el.querySelector('#dtNhanhT');
       if(laKhoNhiet(kho)){
@@ -2900,11 +2956,13 @@ function moDanTem(r,p,quaFile){
       if(t==='khoA4'||t.startsWith('kho-')){kho=t==='khoA4'?'a4':t.slice(4);el.querySelectorAll('.dt-kho button').forEach(x=>x.classList.toggle('on',x.dataset.dt===t));ve2();return}
       if(t==='mau'){const v=mauHop(b.dataset.v);if(v&&TEM_MAU_O.some(o=>o[0]===b.dataset.k)){mau[b.dataset.k]=v;veMau()}return}
       if(t==='mauden'){mau={...TEM_MAU_GOC};veMau();return}
+      if(t==='dam'){if(TEM_DAM_O.some(x=>x[0]===b.dataset.v)){kieu.dam=b.dataset.v;veKieu()}return}
+      if(t==='kieumd'){kieu={...TEM_KIEU_GOC};veKieu();return}
       if(t==='c-')ic.value=Math.max(1,cot-1); else if(t==='c+')ic.value=Math.min(10,cot+1);
       else if(t==='h-')ih.value=Math.max(1,hang-1); else if(t==='h+')ih.value=Math.min(10,hang+1);
       else if(t==='kho'||t==='goiy'){ic.value=b.dataset.c;ih.value=b.dataset.h}
       else if(t==='in'){if(b.disabled)return;
-        const kq=laKhoNhiet(kho)?coChuVua(mot,1,1,kho):coChuVua(mot,cot,hang); temKho=kho;temCot=cot;temHang=hang;temMau=napTemMau(mau);luu();
+        const kq=laKhoNhiet(kho)?coChuVua(mot,1,1,kho):coChuVua(mot,cot,hang); temKho=kho;temCot=cot;temHang=hang;temMau=napTemMau(mau);temKieu=napTemKieu(kieu);luu();
         try{if(kq.co<TEM_CO_DOC)localStorage.setItem(TEM_KHO_DUYET_KEY,laKhoNhiet(kho)?kho:cot+'x'+hang)}catch(e){}
         const coSua=Object.keys(suaTam).length>0, luuLuon=coSua&&choLuu&&!khoaTCCS&&!!(el.querySelector('#dtLuu')||{}).checked;
         if(luuLuon){p.hstem={...temMoi(),...(p.hstem||{}),...suaTam};luuNgay();ve()}
@@ -2914,9 +2972,10 @@ function moDanTem(r,p,quaFile){
     let henSua=0;
     el.addEventListener('input',e=>{if(e.target.id==='dtCot'||e.target.id==='dtHang'){if(String(e.target.value).trim())ve2();return}
       const km=e.target.dataset.dtmau; if(km){const v=mauHop(e.target.value);if(v){mau[km]=v;apMau();el.querySelectorAll('.dt-mau-o[data-k="'+km+'"]').forEach(o=>o.classList.toggle('on',o.dataset.v===v))}return}
+      if(e.target.id==='dtNghieng'){kieu.nghieng=e.target.checked;apKieu();return}
       const k=e.target.dataset.dtsua; if(!k)return;
       suaTam[k]=e.target.value; clearTimeout(henSua); henSua=setTimeout(()=>{mot=temHTML(r,pSua());ve2()},180)});
-    veMau(); requestAnimationFrame(ve2); ve2();
+    veMau(); veKieu(); requestAnimationFrame(ve2); ve2();
     setTimeout(()=>{const b=el.querySelector('#dtIn');if(b&&!b.disabled)b.focus()},30);
   });
 }
@@ -2931,13 +2990,13 @@ function trangTem(r,p){
   const mot=temHTML(r,p);
   if(laKhoNhiet(temKho)){ // 1 tem/trang, khớp @page cùng tên khổ (xem CSS)
     const vua=coChuVua(mot,1,1,temKho);
-    return `<div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="--co:${vua.co}pt;${temMauCSS()}">${mot}</div>`;
+    return `<div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">${mot}</div>`;
   }
   const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
   const moiTo=cot*hang;
   const cls=moiTo<=2?'to-lon':(moiTo<=6?'to-vua':'to-nho');
   const vua=coChuVua(mot,cot,hang); // S16/R10: cỡ chữ lớn nhất vừa ô (đo thật), thay 3 mức cố định
-  return `<div class="to ${cls}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="grid-template-columns:repeat(${cot},1fr);grid-template-rows:repeat(${hang},1fr);--co:${vua.co}pt;${temMauCSS()}">`
+  return `<div class="to ${cls}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="grid-template-columns:repeat(${cot},1fr);grid-template-rows:repeat(${hang},1fr);--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">`
     +Array.from({length:moiTo}).map(()=>mot).join('')+`</div>`;
 }
 
@@ -4023,15 +4082,16 @@ function veBC(){
   o+=`<div class="sec">Khổ in tem phụ</div>
    <div class="tk-kho" role="group" aria-label="Khổ giấy in tem">
      <button type="button" class="${temKho==='a4'?'on':''}" data-temkho="a4">Tờ A4 (nhiều tem/tờ)</button>
-     ${khoNhietDS.map(k=>`<button type="button" class="${temKho===k?'on':''}" data-temkho="${k}">${nhietTT(k).w}×${nhietTT(k).h}mm (1 tem/trang)</button>`).join('')}
+     ${khoNhietDS.map(k=>`<button type="button" class="${temKho===k?'on':''}" data-temkho="${k}">${nhietTT(k).wHien}×${nhietTT(k).hHien}mm (1 tem/trang)</button>`).join('')}
    </div>
-   ${laKhoNhiet(temKho)?`<div class="hint">Mỗi tem là 1 trang riêng, đúng khổ ${nhietTT(temKho).w} × ${nhietTT(temKho).h} mm (vùng in ${mmTxt(nhietTT(temKho).vungW)} × ${mmTxt(nhietTT(temKho).vungH)} mm, lề ${nhietTT(temKho).le} mm). Cỡ chữ tự co cho vừa — bấm <b>"Dàn trang tem"</b> ở thẻ lô để xem trước.</div>`:`
+   ${laKhoNhiet(temKho)?`<div class="hint">Mỗi tem là 1 trang riêng, đúng khổ ${nhietTT(temKho).wHien} × ${nhietTT(temKho).hHien} mm (vùng in ${mmTxt(nhietTT(temKho).vungW)} × ${mmTxt(nhietTT(temKho).vungH)} mm, lề ${nhietTT(temKho).le} mm). Cỡ chữ tự co cho vừa — bấm <b>"Dàn trang tem"</b> ở thẻ lô để xem trước. Nếu tem in ra bị xoay/lệch chiều, chỉnh hướng xoay ở driver máy in (mục "Rotate"/"Orientation"), không phải ở đây.</div>`:`
    <div class="dates">
      <div class="fld"><label>Số tem mỗi hàng (ngang)</label><input type="number" min="1" max="10" id="temCotIn" value="${temCot}"></div>
      <div class="fld"><label>Số hàng (dọc)</label><input type="number" min="1" max="10" id="temHangIn" value="${temHang}"></div>
    </div>
    <div class="hint">→ ${temCot*temHang} tem/tờ, mỗi tem <b>${mmTxt(kichThuocTem(temCot,temHang).w)} × ${mmTxt(kichThuocTem(temCot,temHang).h)} mm</b> (chia đều tờ A4). Cỡ chữ tự co cho vừa ô — bấm <b>"Dàn trang tem"</b> ở thẻ lô để xem trước đúng tờ sẽ in.</div>`}
    <div class="hint temmau-tt">Màu in tem trên máy này: ${TEM_MAU_O.map(([k,n])=>`<i style="background:${napTemMau(temMau)[k]}"></i>`).join('')} — đổi trong bảng <b>"Dàn trang tem"</b> (mục Màu in), xem trước ngay.</div>
+   <div class="hint">Kiểu chữ nội dung tem trên máy này: <b>${(TEM_DAM_O.find(x=>x[0]===napTemKieu(temKieu).dam)||[])[1]||''}</b>${napTemKieu(temKieu).nghieng?' · nghiêng':''} — đổi trong bảng "Dàn trang tem" (mục Kiểu chữ nội dung).</div>
    ${laKhoNhiet(temKho)?'':`<div class="hint">Mỗi lần bấm "In tem phụ" sẽ tự in đủ tờ để ra đúng <b>số bao/túi</b> của lô đó (tối thiểu 1 tờ đầy ${temCot*temHang} tem). Cột×hàng càng nhiều thì chữ trên tem càng nhỏ — in thử 1 tờ trước khi in hàng loạt.</div>`}`;
 
   o+=`<div class="sec">Tra cứu số lot</div>
@@ -4147,6 +4207,38 @@ function xuatQuyUoc(){
   const ok=taiVe(`quy-uoc-so-lo-va-thong-so-${isoNay()}.txt`,o,'text/plain;charset=utf-8');
   bao(ok?'Đã tạo file quy ước':'Trình duyệt chặn tải file');
 }
+/* ── Tủ hồ sơ chung — danh sách link Google Drive (hồ sơ/tem phụ không chính thức, tài liệu dùng
+   chung...), xem chú thích đầy đủ ở khai báo `let tuHoSo=[]`. */
+function veHoSo(){
+  let o=`<div class="cthead"><div class="cth-t"><h2>Tủ hồ sơ chung</h2><p>Lưu link Google Drive các hồ sơ/tem phụ không chính thức, tài liệu dùng chung... để lấy ra nhanh đưa nhân viên in. File thật nằm trên Drive — ở đây chỉ giữ đường link, không lưu nội dung file.</p></div></div>`;
+  o+=`<div class="card"><div class="fld"><label>Thêm hồ sơ mới</label>
+    <input id="hsTen" type="text" placeholder="Tên hồ sơ (VD: Tem phụ bản cáo mỏng A4 6 tem)">
+    <input id="hsMoTa" type="text" placeholder="Mô tả ngắn (không bắt buộc)" style="margin-top:6px">
+    <input id="hsLink" type="text" placeholder="Link Google Drive (dán link chia sẻ)" style="margin-top:6px"></div>
+    <button type="button" class="add" data-hsthem="1">+ Thêm vào tủ hồ sơ</button></div>`;
+  if(!tuHoSo.length){o+='<div class="none">Chưa có hồ sơ nào.</div>';return $('viewHO').innerHTML=o}
+  o+='<div class="card">'+tuHoSo.slice().reverse().map(h=>`<div class="hsr" data-hsr="${esc(h.id)}" style="padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:start">
+        <div><a href="${esc(h.link)}" target="_blank" rel="noopener" style="font-weight:700">${esc(h.ten)}</a>
+        ${h.moTa?`<div class="log" style="margin-top:2px">${esc(h.moTa)}</div>`:''}
+        <div class="log" style="margin-top:2px">Thêm lúc ${esc(h.luc||'')}</div></div>
+        <button type="button" class="lnk" data-hsxoa="${esc(h.id)}" style="color:var(--red,#c00)">Xoá</button>
+      </div></div>`).join('')+'</div>';
+  $('viewHO').innerHTML=o;
+}
+$('viewHO').addEventListener('click',async e=>{
+  const t=e.target.closest('[data-hsthem]');
+  if(t){
+    const ten=String($('hsTen').value||'').trim(), moTa=String($('hsMoTa').value||'').trim(), link=String($('hsLink').value||'').trim();
+    if(!ten||!link){bao('Cần nhập tên và link');return}
+    tuHoSo.push({id:'HS'+Date.now()+'-'+Math.floor(Math.random()*100000),ten,moTa,link,luc:new Date().toLocaleString('vi-VN')});
+    luuNgay();veHoSo();bao('Đã thêm vào tủ hồ sơ');return}
+  const x=e.target.closest('[data-hsxoa]');
+  if(x){
+    const c=await hoi('Xoá khỏi tủ hồ sơ?','Chỉ xoá khỏi danh sách trong app — file trên Google Drive không bị xoá.',{nutOK:'Xoá',nguyHiem:true});
+    if(!c)return;
+    tuHoSo=tuHoSo.filter(h=>h.id!==x.dataset.hsxoa);luuNgay();veHoSo();return}
+});
 function veSL(){
   let cx=0;try{cx=JSON.stringify({sp,kho,cp,dr,nk,maHuong,maQC}).length}catch(e){}
   $('viewSL').innerHTML=`
@@ -4350,6 +4442,7 @@ function ve(){
   $('viewBC').style.display = tab==='bc'?'':'none';
   $('viewSL').style.display = tab==='sl'?'':'none';
   $('viewGV').style.display = tab==='gv'?'':'none';
+  $('viewHO').style.display = tab==='ho'?'':'none';
   $('applyBox').style.display = tab==='ct'?'':'none';
   $('editBtn').style.display = tab==='ct'?'':'none';
   const thieu=sp.filter(p=>!(p.huongs||[]).length).length;
@@ -4364,8 +4457,8 @@ function ve(){
     : tab==='ct'
     ? `<b>${sp.length}</b> mặt hàng${chan?` · <b>${chan}</b> đình chỉ`:''}${thieu?` · <b>${thieu}</b> chưa hương`:''}${chuaLuu?` · <b>${chuaLuu}</b> chưa lưu`:''} · <b>${nk.length}</b> mẻ${sua?' · HIỆN NÚT XOÁ':''}`
     : `<b>${nk.length}</b> mẻ · <b>${fmt(tKg)}</b> kg thành phẩm`;
-  if(tab==='tq')veTQ(); else if(tab==='ct')veCT(); else if(tab==='ma')veMa(); else if(tab==='bc')veBC(); else if(tab==='gv')veGV(); else veSL();
-  if(tab!==hvTab){hvTab=tab;hieuUngVao({tq:'viewTQ',ct:'viewCT',ma:'viewMA',bc:'viewBC',gv:'viewGV',sl:'viewSL'}[tab])} // S23: chỉ khi ĐỔI tab, không phải mỗi lần vẽ lại
+  if(tab==='tq')veTQ(); else if(tab==='ct')veCT(); else if(tab==='ma')veMa(); else if(tab==='bc')veBC(); else if(tab==='gv')veGV(); else if(tab==='ho')veHoSo(); else veSL();
+  if(tab!==hvTab){hvTab=tab;hieuUngVao({tq:'viewTQ',ct:'viewCT',ma:'viewMA',bc:'viewBC',gv:'viewGV',sl:'viewSL',ho:'viewHO'}[tab])} // S23: chỉ khi ĐỔI tab, không phải mỗi lần vẽ lại
 }
 
 /* ═══ Sự kiện ═══ */
@@ -4833,7 +4926,7 @@ $('viewSL').addEventListener('click',async e=>{
        (xem khối "Phục hồi từ bản sao"), nhưng export ở đây trước giờ chưa từng ghi ra, nên
        "Bản sao đầy đủ" thực ra KHÔNG đầy đủ — phục hồi từ file .json cũ sẽ làm MẤT sạch nguồn
        hương liệu/giá/tồn kho/danh mục nguyên liệu. Bổ sung đủ vào đây, không đổi field nào cũ. */
-    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
+    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
     const ok=taiVe(`huonglieu_backup_${isoNay()}.json`,s,'application/json');
     if(!ok){const d=$('dump');d.style.display='block';d.value=s;d.select();bao('Không tải được — hãy sao chép nội dung bên dưới')}
     else bao('Đã tạo bản sao');
@@ -4869,6 +4962,7 @@ $('viewSL').addEventListener('click',async e=>{
       tonKhoNguyenLieu=(d.tonKhoNguyenLieu&&typeof d.tonKhoNguyenLieu==='object')?d.tonKhoNguyenLieu:{};
       if(Array.isArray(d.baoBi))baoBi=d.baoBi;
       if(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))baoBiQC=d.baoBiQC;
+      if(Array.isArray(d.tuHoSo))tuHoSo=d.tuHoSo;
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong; else nlTong=0;
@@ -5350,6 +5444,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
     if(d&&Number.isFinite(+d.temCot)&&+d.temCot>=1)temCot=Math.min(10,Math.round(+d.temCot));
     if(d&&Number.isFinite(+d.temHang)&&+d.temHang>=1)temHang=Math.min(10,Math.round(+d.temHang));
     if(d&&d.temMau)temMau=napTemMau(d.temMau);
+    if(d&&d.temKieu)temKieu=napTemKieu(d.temKieu);
     if(d&&(d.temKho==='a4'||laKhoNhiet(d.temKho)))temKho=d.temKho;
     if(d&&Array.isArray(d.sp)&&d.sp.length){
       sp=napSP(d.sp);
@@ -5384,6 +5479,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       tonKhoNguyenLieu=(d.tonKhoNguyenLieu&&typeof d.tonKhoNguyenLieu==='object')?d.tonKhoNguyenLieu:{};
       baoBi=Array.isArray(d.baoBi)?d.baoBi:BAOBI_GOC();
       baoBiQC=(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))?d.baoBiQC:{};
+      tuHoSo=Array.isArray(d.tuHoSo)?d.tuHoSo:[];
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;

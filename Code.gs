@@ -59,7 +59,7 @@ const COT_HS = ['Số lô','Ngày SX','Mặt hàng','Quy cách','KG',
    không kiểm được đầu kia thì rủi ro hơn là để nguyên. Xem PATCH-REPORT.md — mục này đánh dấu
    BLOCKED FOR SERVER VERIFICATION. Toàn bộ log lỗi vẫn KHÔNG in ra token/mật khẩu. */
 const SCHEMA_VERSION = 1;
-const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong'];
+const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo'];
 
 /* ── Đọc ── */
 /* 29/08/2026 — bản S6 (khách yêu cầu: mở Admin từ BẤT KỲ máy nào, ở bất kỳ đâu, không cần đã
@@ -92,6 +92,10 @@ function doGet(e){
     if(p.a === 'cauhinh') return ra({ok:1, cauhinh: docCauHinh(), ts: tsCauHinh(), xoaMocTs: xoaMocTs()});
     if(p.a === 'nhatky')  return ra({ok:1, nk: docNhatKy()});
     if(p.a === 'baocao')  return ra({ok:1, bc: docBaoCao()});
+    // 14/09/2026: chạy 1 lần để đưa các lô ghi TRƯỚC bản S32 vào tab HOSOLO (lô ghi từ S32 trở
+    // đi đã tự có sẵn qua themMe()). Dán link kèm đúng mk vào trình duyệt 1 lần là xong, chạy
+    // lại nhiều lần vẫn an toàn (xem dongBoHoSoLoTuMe — không đụng cột kế toán, không trùng dòng).
+    if(p.a === 'backfillHosoLo') return ra(Object.assign({ok:1}, backfillHosoLoTuNhatKy()));
     if(p.a === 'tomtat')  return ra({ok:1, ts: tsCauHinh(), soMe: soDong()});
     return ra({ok:1, ten:'Peroma'});
   }catch(err){ return ra({loi:String(err)}) }
@@ -340,6 +344,15 @@ function dongBoHoSoLoTuMe(ds){
     }
   });
   if(themMoi.length) sh.getRange(sh.getLastRow()+1, 1, themMoi.length, COT_HS.length).setValues(themMoi);
+}
+/* 14/09/2026: chạy MỘT LẦN qua Apps Script editor (hoặc `clasp run backfillHosoLoTuNhatKy`)
+   để đưa các lô ĐÃ GHI TỪ TRƯỚC (trước khi có S32) vào tab HOSOLO — không phải hàm phục vụ
+   app, không có action HTTP nào gọi tới, không cần mật khẩu. An toàn chạy lại nhiều lần: dùng
+   đúng dongBoHoSoLoTuMe() ở trên nên không đụng cột kế toán, không thêm dòng trùng lô. */
+function backfillHosoLoTuNhatKy(){
+  const ds = docNhatKy();
+  dongBoHoSoLoTuMe(ds);
+  return { tongLoTrongNhatKy: ds.length };
 }
 
 /* 27/08/2026-R2: bên Admin bấm "Xoá dữ liệu mô phỏng" trước đây chỉ xoá CỤC BỘ (máy admin) —
