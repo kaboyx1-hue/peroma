@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-09-13-S32';
+const PHIEN_BAN_MAYCHU = '2026-09-15-S33';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -181,7 +181,11 @@ function sachCauHinhServer(c, cu){
     // Bản Admin cũ không gửi 2 trường này → GIỮ bản đang lưu (cu), không ghi đè thành rỗng.
     baoBi: Array.isArray(c.baoBi) ? c.baoBi : ((cu && Array.isArray(cu.baoBi)) ? cu.baoBi : []),
     baoBiQC: (c.baoBiQC && typeof c.baoBiQC === 'object' && !Array.isArray(c.baoBiQC)) ? c.baoBiQC
-           : ((cu && cu.baoBiQC && typeof cu.baoBiQC === 'object' && !Array.isArray(cu.baoBiQC)) ? cu.baoBiQC : {})
+           : ((cu && cu.baoBiQC && typeof cu.baoBiQC === 'object' && !Array.isArray(cu.baoBiQC)) ? cu.baoBiQC : {}),
+    // 14/09/2026 — S32: "Tủ hồ sơ chung" — danh sách link Google Drive (tên/mô tả/link), không
+    // phải trạng thái ghi mẻ dở — cùng whitelist pattern với baoBi ở trên (bản Admin cũ chưa có
+    // trường này thì giữ nguyên bản đang lưu, không ghi đè thành rỗng).
+    tuHoSo: Array.isArray(c.tuHoSo) ? c.tuHoSo : ((cu && Array.isArray(cu.tuHoSo)) ? cu.tuHoSo : [])
   };
 }
 
