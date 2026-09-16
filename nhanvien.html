@@ -188,9 +188,9 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
 :is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
-:is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co);color:var(--temChu,#000);border-color:var(--temVien,#000);font-weight:var(--temDam,400);font-style:var(--temNghieng,normal)}
-:is(#temIn,#temDo,.xemTem) .t1{color:var(--temTieuDe,#000);text-align:center;font-weight:bold;letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
-:is(#temIn,#temDo,.xemTem) .t2{color:var(--temTieuDe,#000);text-align:center;font-weight:bold;margin:0 0 .1em;line-height:1.15;font-size:1.65em}
+:is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co);color:var(--temChu,#000);border-color:var(--temVien,#000);font-weight:var(--temDamChu,400);font-style:var(--temNghiengChu,normal)}
+:is(#temIn,#temDo,.xemTem) .t1{color:var(--temTieuDe,#000);text-align:center;font-weight:var(--temDamTieuDe,700);font-style:var(--temNghiengTieuDe,normal);letter-spacing:.05em;margin:0 0 .25em;font-size:1.06em}
+:is(#temIn,#temDo,.xemTem) .t2{color:var(--temTieuDe,#000);text-align:center;font-weight:var(--temDamTieuDe,700);font-style:var(--temNghiengTieuDe,normal);margin:0 0 .1em;line-height:1.15;font-size:1.65em}
 :is(#temIn,#temDo,.xemTem) .t3{text-align:center;margin:0 0 .35em;font-size:1.06em}
 :is(#temIn,#temDo,.xemTem) table{width:100%;border-collapse:collapse;font-size:1em}
 :is(#temIn,#temDo,.xemTem) td{border:.5pt solid var(--temVien,#000);padding:.18em .3em;vertical-align:top}
@@ -655,15 +655,22 @@ function temMauCSS(m){m=napTemMau(m||temMau);return '--temTieuDe:'+m.tieuDe+';--
 function mauNhat(v){const n=parseInt(String(v).slice(1),16),f=c=>(c/=255)<=.03928?c/12.92:Math.pow((c+.055)/1.055,2.4);
   const L=.2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255);return 1.05/(L+.05)<4.5}
 let temMau={...TEM_MAU_GOC};
-// 15/09/2026 — S32/R25: kiểu chữ tem (độ đậm/nghiêng), xem chú thích đầy đủ ở bản Admin.
-const TEM_KIEU_GOC={dam:'400',nghieng:false};
+// 15/09/2026 — S32/R25: kiểu chữ tem — 2 nhóm (tieuDe/chu) như Màu in, xem chú thích đầy đủ ở bản Admin.
+const TEM_KIEU_GOC={tieuDe:{dam:'700',nghieng:false},chu:{dam:'400',nghieng:false}};
+const TEM_KIEU_O=[['tieuDe','Tên sản phẩm & tiêu đề'],['chu','Chữ nội dung']];
 const TEM_DAM_O=[['300','Mảnh'],['400','Thường'],['600','Đậm vừa'],['700','Đậm']];
-function napTemKieu(d){const o={...TEM_KIEU_GOC};if(d&&typeof d==='object'){
+function napTemKieuMotNhom(d,mdDam){const o={dam:mdDam,nghieng:false};if(d&&typeof d==='object'){
   if(TEM_DAM_O.some(x=>x[0]===String(d.dam)))o.dam=String(d.dam);
   o.nghieng=!!d.nghieng}
   return o}
-function temKieuCSS(k){k=napTemKieu(k||temKieu);return '--temDam:'+k.dam+';--temNghieng:'+(k.nghieng?'italic':'normal')}
-let temKieu={...TEM_KIEU_GOC};
+function napTemKieu(d){const o={...TEM_KIEU_GOC};
+  o.tieuDe=napTemKieuMotNhom(d&&d.tieuDe,TEM_KIEU_GOC.tieuDe.dam);
+  o.chu=napTemKieuMotNhom(d&&d.chu,TEM_KIEU_GOC.chu.dam);
+  return o}
+function temKieuCSS(k){k=napTemKieu(k||temKieu);
+  return '--temDamTieuDe:'+k.tieuDe.dam+';--temNghiengTieuDe:'+(k.tieuDe.nghieng?'italic':'normal')
+    +';--temDamChu:'+k.chu.dam+';--temNghiengChu:'+(k.chu.nghieng?'italic':'normal')}
+let temKieu=napTemKieu();
 let temKho='a4'; // S26/R19: khổ giấy in tem — 'a4' (dàn nhiều tem/tờ) hoặc 'nhiet' (cuộn nhiệt 65×65mm, 1 tem/trang), theo máy
 let tab='me', moSP=-1, traLot='', dangGhi=false;
 let loDong=new Set(); // 27/08/2026 (phản hồi lần 4): các thẻ lô ở tab Tra lô đã bấm THU GỌN (mặc định mở)
@@ -1001,7 +1008,7 @@ function veLo(){
     </div></div>
     <div class="ghichu">→ ${temCot*temHang} tem/tờ, mỗi tem <b>${mmTxt(kichThuocTem(temCot,temHang).w)} × ${mmTxt(kichThuocTem(temCot,temHang).h)} mm</b> (chia đều tờ A4). Chữ tự co cho vừa ô — bấm <b>"Dàn trang tem"</b> ở thẻ lô để xem trước.</div>`}
     <div class="ghichu temmau-tt">Màu in tem trên máy này: ${TEM_MAU_O.map(([k,n])=>`<i style="background:${napTemMau(temMau)[k]}"></i>`).join('')} — đổi trong bảng <b>"Dàn trang tem"</b> (mục Màu in).</div>
-    <div class="ghichu">Kiểu chữ nội dung: <b>${(TEM_DAM_O.find(x=>x[0]===napTemKieu(temKieu).dam)||[])[1]||''}</b>${napTemKieu(temKieu).nghieng?' · nghiêng':''} — đổi trong bảng "Dàn trang tem" (mục Kiểu chữ nội dung).</div>
+    <div class="ghichu">Kiểu chữ tem: <b>${TEM_KIEU_O.map(([k,n])=>n+': '+((TEM_DAM_O.find(x=>x[0]===napTemKieu(temKieu)[k].dam)||[])[1]||'')+(napTemKieu(temKieu)[k].nghieng?' · nghiêng':'')).join(' · ')}</b> — đổi trong bảng "Dàn trang tem" (mục Kiểu chữ).</div>
     ${laKhoNhiet(temKho)?'':`<div class="note">In đúng theo số bao/túi của lô đó. Không rõ số bao thì in đủ 1 tờ (${temCot*temHang} tem) để cắt dần.</div>`}</div>`;
   if(!traLot)return o+`<div class="none">Chọn 1 lô ở trên để xem thông tin.</div>`;
   const hit=nk.concat(nkHT).filter(r=>String(r.lot||'')===traLot).slice().reverse().slice(0,8);
@@ -1266,7 +1273,7 @@ function moDanTem(r,p,quaFile){
       +'<div class="dt-kq" id="dtKq"></div><div class="dt-tt" id="dtTT"></div><div class="dt-goiy" id="dtGoiY"></div>'
       +'</div></div>'
       +'<details class="dt-sua dt-mau" id="dtMau"><summary>Màu in <span class="dt-mau-tom" id="dtMauTom"></span> <small>(xem trước cập nhật ngay)</small></summary><div class="dt-mau-than" id="dtMauThan"></div></details>'
-      +'<details class="dt-sua dt-mau" id="dtKieu"><summary>Kiểu chữ nội dung <span class="dt-mau-tom" id="dtKieuTom"></span> <small>(xem trước cập nhật ngay)</small></summary><div class="dt-mau-than" id="dtKieuThan"></div></details>'
+      +'<details class="dt-sua dt-mau" id="dtKieu"><summary>Kiểu chữ (tiêu đề + nội dung) <span class="dt-mau-tom" id="dtKieuTom"></span> <small>(xem trước cập nhật ngay)</small></summary><div class="dt-mau-than" id="dtKieuThan"></div></details>'
       +'<details class="dt-sua"><summary>Sửa nội dung tem lần cuối trước khi in <small>(xem trước cập nhật ngay)</small></summary>'
       +'<div class="dt-sua-ten">Tên trên tem: <b>'+esc(p.ten||r.sp||'')+'</b> — là tên mặt hàng trong Danh mục của Admin; muốn đổi thì đổi tên mặt hàng ở đó (đổi một lần, áp cho mọi chỗ).</div>'
       +'<div class="dt-sua-luoi">'+TEM_SUA_O.map(([k,nhan,dai])=>'<label class="dt-f'+(dai?' dai':'')+'"><span>'+esc(nhan)+'</span>'+(dai?'<textarea data-dtsua="'+k+'">'+esc(giaTri(k))+'</textarea>':'<input data-dtsua="'+k+'" value="'+esc(giaTri(k))+'">')+'</label>').join('')+'</div>'
@@ -1285,13 +1292,15 @@ function moDanTem(r,p,quaFile){
         +'<label class="dt-mau-tu" title="Chọn màu khác"><input type="color" data-dtmau="'+k+'" value="'+mau[k]+'"><span>Màu khác…</span></label></div></div>').join('')
         +'<div class="dt-mau-cuoi"><button type="button" data-dt="mauden">Về đen hết (mặc định)</button><span id="dtMauCB"></span></div>';
       apMau()};
-    const apKieu=()=>{vung.style.setProperty('--temDam',kieu.dam);vung.style.setProperty('--temNghieng',kieu.nghieng?'italic':'normal');
-      const nhan=(TEM_DAM_O.find(x=>x[0]===kieu.dam)||[])[1]||'';
-      el.querySelector('#dtKieuTom').textContent=nhan+(kieu.nghieng?' · nghiêng':'')};
-    const veKieu=()=>{el.querySelector('#dtKieuThan').innerHTML='<div class="dt-mau-r"><span>Độ đậm</span><div class="dt-mau-ds">'
-        +TEM_DAM_O.map(([v,t])=>'<button type="button" class="dt-kieu-o'+(kieu.dam===v?' on':'')+'" data-dt="dam" data-v="'+v+'" style="font-weight:'+v+'" title="'+t+'">Aa</button>').join('')+'</div></div>'
-        +'<div class="dt-mau-r"><span>Nghiêng</span><label class="dt-luu" style="margin:0"><input type="checkbox" id="dtNghieng"'+(kieu.nghieng?' checked':'')+'> In chữ nghiêng</label></div>'
-        +'<div class="dt-mau-cuoi"><button type="button" data-dt="kieumd">Về mặc định (Thường, không nghiêng)</button></div>';
+    const apKieu=()=>{TEM_KIEU_O.forEach(([k])=>{const hoa=k.charAt(0).toUpperCase()+k.slice(1);
+        vung.style.setProperty('--temDam'+hoa,kieu[k].dam);vung.style.setProperty('--temNghieng'+hoa,kieu[k].nghieng?'italic':'normal')});
+      el.querySelector('#dtKieuTom').textContent=TEM_KIEU_O.map(([k,nhan])=>{
+        const t=(TEM_DAM_O.find(x=>x[0]===kieu[k].dam)||[])[1]||''; return nhan+': '+t+(kieu[k].nghieng?' · nghiêng':'')}).join(' · ')};
+    const veKieu=()=>{el.querySelector('#dtKieuThan').innerHTML=TEM_KIEU_O.map(([k,nhan])=>
+        '<div class="dt-mau-r"><span>'+nhan+' — độ đậm</span><div class="dt-mau-ds">'
+        +TEM_DAM_O.map(([v,t])=>'<button type="button" class="dt-kieu-o'+(kieu[k].dam===v?' on':'')+'" data-dt="dam" data-k="'+k+'" data-v="'+v+'" style="font-weight:'+v+'" title="'+t+'">Aa</button>').join('')+'</div></div>'
+        +'<div class="dt-mau-r"><span>'+nhan+' — nghiêng</span><label class="dt-luu" style="margin:0"><input type="checkbox" data-dtnghieng="'+k+'"'+(kieu[k].nghieng?' checked':'')+'> In nghiêng</label></div>').join('')
+        +'<div class="dt-mau-cuoi"><button type="button" data-dt="kieumd">Về mặc định (tiêu đề Đậm, nội dung Thường, không nghiêng)</button></div>';
       apKieu()};
     const ve2=()=>{
       const ocNhiet=el.querySelector('#dtOCot'), ohNhiet=el.querySelector('#dtOHang'), ntNhiet=el.querySelector('#dtNhanhT');
@@ -1346,8 +1355,8 @@ function moDanTem(r,p,quaFile){
       if(t==='khoA4'||t.startsWith('kho-')){kho=t==='khoA4'?'a4':t.slice(4);el.querySelectorAll('.dt-kho button').forEach(x=>x.classList.toggle('on',x.dataset.dt===t));ve2();return}
       if(t==='mau'){const v=mauHop(b.dataset.v);if(v&&TEM_MAU_O.some(o=>o[0]===b.dataset.k)){mau[b.dataset.k]=v;veMau()}return}
       if(t==='mauden'){mau={...TEM_MAU_GOC};veMau();return}
-      if(t==='dam'){if(TEM_DAM_O.some(x=>x[0]===b.dataset.v)){kieu.dam=b.dataset.v;veKieu()}return}
-      if(t==='kieumd'){kieu={...TEM_KIEU_GOC};veKieu();return}
+      if(t==='dam'){if(TEM_DAM_O.some(x=>x[0]===b.dataset.v)&&TEM_KIEU_O.some(x=>x[0]===b.dataset.k)){kieu[b.dataset.k].dam=b.dataset.v;veKieu()}return}
+      if(t==='kieumd'){kieu=napTemKieu();veKieu();return}
       if(t==='c-')ic.value=Math.max(1,cot-1); else if(t==='c+')ic.value=Math.min(10,cot+1);
       else if(t==='h-')ih.value=Math.max(1,hang-1); else if(t==='h+')ih.value=Math.min(10,hang+1);
       else if(t==='kho'||t==='goiy'){ic.value=b.dataset.c;ih.value=b.dataset.h}
@@ -1362,7 +1371,7 @@ function moDanTem(r,p,quaFile){
     let henSua=0;
     el.addEventListener('input',e=>{if(e.target.id==='dtCot'||e.target.id==='dtHang'){if(String(e.target.value).trim())ve2();return}
       const km=e.target.dataset.dtmau; if(km){const v=mauHop(e.target.value);if(v){mau[km]=v;apMau();el.querySelectorAll('.dt-mau-o[data-k="'+km+'"]').forEach(o=>o.classList.toggle('on',o.dataset.v===v))}return}
-      if(e.target.id==='dtNghieng'){kieu.nghieng=e.target.checked;apKieu();return}
+      const kn=e.target.dataset.dtnghieng; if(kn){if(TEM_KIEU_O.some(x=>x[0]===kn)){kieu[kn].nghieng=e.target.checked;apKieu()}return}
       const k=e.target.dataset.dtsua; if(!k)return;
       suaTam[k]=e.target.value; clearTimeout(henSua); henSua=setTimeout(()=>{mot=temHTML(r,pSua());ve2()},180)});
     veMau(); veKieu(); requestAnimationFrame(ve2); ve2();
