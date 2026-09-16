@@ -307,7 +307,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td{padding:.03em .14em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td.k{width:30%}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em;font-size:.8em;line-height:1.1}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.16em;font-size:.8em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
 :is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
 :is(#temIn,#temDo,.xemTem) .tem{border:1pt solid #000;padding:.55em .7em;box-sizing:border-box;overflow:hidden;width:100%;height:100%;min-width:0;min-height:0;font-size:var(--co);color:var(--temChu,#000);border-color:var(--temVien,#000);font-weight:var(--temDamChu,400);font-style:var(--temNghiengChu,normal)}
@@ -318,7 +318,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 :is(#temIn,#temDo,.xemTem) td{border:.5pt solid var(--temVien,#000);padding:.18em .3em;vertical-align:top}
 :is(#temIn,#temDo,.xemTem) td.k{width:34%;font-weight:bold}
 :is(#temIn,#temDo,.xemTem) .kh{border:.5pt solid var(--temVien,#000);border-top:none;padding:.3em;line-height:1.3;font-size:1em}
-:is(#temIn,#temDo,.xemTem) .cb{font-style:italic;margin-top:.25em;line-height:1.25;font-size:.88em}
+:is(#temIn,#temDo,.xemTem) .cb{font-style:italic;margin-top:.4em;line-height:1.25;font-size:1em}
 /* ══HẾT-TEM-CSS══ */
 @media print{
   @page{size:A4;margin:6mm}
@@ -1105,9 +1105,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S34</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S35</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/09/2026-S34</div>
+      <div class="verFoot">BẢN 16/09/2026-S35</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2731,7 +2731,7 @@ function veTemKhoa(p,i,ma){
 const TEM_MD={tieuDe:'NHÃN SẢN PHẨM',ctyVaiTro:'Sản xuất và chịu trách nhiệm về hàng hóa',
   ctyTen:'CÔNG TY TNHH ĐẦU TƯ - THƯƠNG MẠI - DỊCH VỤ - XUẤT NHẬP KHẨU KHÁNH HOÀNG',
   ctyDiaChi:'ĐỊA CHỈ TRỤ SỞ: 134/28 ĐÀO DUY ANH, PHƯỜNG ĐỨC NHUẬN, TPHCM\nĐỊA CHỈ SẢN XUẤT: 8A AN DƯƠNG VƯƠNG, PHƯỜNG PHÚ ĐỊNH, TPHCM\nMÃ SỐ THUẾ : 0318698788 - ĐIỆN THOẠI 0987-456-401', // 16/09/2026: khách fix cứng lại nội dung + thứ tự dòng
-  canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.'};
+  canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm sử dụng 1 lần.'}; // 16/09/2026: khách đổi câu cảnh báo
 const TEM_KHOI_CTY=['tieuDe','canhBao']; // 16/09/2026: bỏ ctyVaiTro/ctyTen/ctyDiaChi — khối công ty đã fix cứng, không còn theo từng mặt hàng
 const temGT=(t,k)=>(t&&typeof t[k]==='string')?t[k]:(TEM_MD[k]||'');
 const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.test(s)?s:'TCCS '+s)};
