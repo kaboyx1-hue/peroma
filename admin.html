@@ -1105,9 +1105,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S35</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S36</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/09/2026-S35</div>
+      <div class="verFoot">BẢN 16/09/2026-S36</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1714,6 +1714,26 @@ function dongBoTCCSKhoaLucNap(){
    nhập khẩu) — chỉ backfill ô đang rỗng thật. */
 function khoaXuatXu(){
   sp.forEach(p=>{p.hstem=p.hstem||temMoi(); if(!String(p.hstem.xuatXu||'').trim())p.hstem.xuatXu=XUATXU_MD});
+}
+/* 16/09/2026: khách đổi 4 câu mặc định (bảo quản/HDSD nhóm "Lót chuồng"/xuất xứ/cảnh báo) nhưng
+   mặt hàng ĐÃ CÓ SẴN hstem từ trước thì hstem giữ nguyên câu CŨ (đúng thiết kế — hstem là nội dung
+   RIÊNG từng mặt hàng, không tự động đổi theo mặc định). Khách phản hồi lại: những mặt hàng nào
+   trước giờ chưa hề sửa tay (đang dùng ĐÚNG NGUYÊN VĂN câu mặc định cũ) thì cũng phải đổi theo câu
+   mới — chỉ khi khác nguyên văn (đã tự sửa tay) mới giữ nguyên, không đụng vào. Chạy MỘT LẦN lúc mở
+   app, tự vô hại nếu chạy lại (câu mới không khớp câu cũ nữa nên không đổi thêm lần hai). */
+function capNhatMacDinhTemCu(){
+  const BAOQUAN_CU='Để nơi khô ráo, thoáng mát. Tránh ẩm ướt và ánh nắng trực tiếp. Kê cao cách nền tối thiểu 10 cm. Đóng kín miệng bao sau khi mở.';
+  const HDSD_LOT_CU='Rải đều lên đáy chuồng đã vệ sinh, độ dày tùy thói quen đào của thú. Hốt bỏ phần ẩm bẩn hằng ngày. Thay toàn bộ lớp lót định kỳ và vệ sinh đáy chuồng.';
+  const XUATXU_CU='Sản xuất tại Việt Nam';
+  const CANHBAO_CU='Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.';
+  const HDSD_LOT_MOI=HDSD_NHOM[2][1];
+  let doi=false;
+  sp.forEach(p=>{const t=p.hstem; if(!t)return;
+    if(t.baoQuan===BAOQUAN_CU){t.baoQuan=BAOQUAN_MD;doi=true}
+    if(t.hdsd===HDSD_LOT_CU){t.hdsd=HDSD_LOT_MOI;doi=true}
+    if(t.xuatXu===XUATXU_CU){t.xuatXu=XUATXU_MD;doi=true}
+    if(t.canhBao===CANHBAO_CU){t.canhBao=TEM_MD.canhBao;doi=true}});
+  return doi;
 }
 
 
@@ -5004,6 +5024,7 @@ $('viewSL').addEventListener('click',async e=>{
       dataUnitVersion=2;
       buMa();
       khoaXuatXu();
+      capNhatMacDinhTemCu();
       mo.clear(); moCT.clear(); luuNgay(); ve(); bao('Đã phục hồi');
     }catch(err){bao('File không đọc được')}
   }
@@ -5531,6 +5552,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
   buMa();
   dongBoTCCSKhoaLucNap();
   khoaXuatXu();
+  if(capNhatMacDinhTemCu())luuNgay();
   ve();docao();
   dbBatDauVongLap();
   /* 27/08/2026 — bản S2: hiện dữ liệu cục bộ NGAY (không chờ mạng), rồi mới thử lấy cấu hình

@@ -2476,6 +2476,36 @@ ok('AX: Sheet trả lại đúng mẻ đó → KHÔNG trừ tồn kho lần 2', 
 ok('AX: không nhân đôi bản ghi mẻ', axKq.soBanGhi1===1&&axKq.soBanGhi2===1, `${axKq.soBanGhi1} → ${axKq.soBanGhi2}`);
 ok('AX: giá NCC đổi sau → chi phí mẻ cũ giữ nguyên lịch sử (không tính lại)', axKq.chiPhiSauKhiDoiGia===125000, axKq.chiPhiSauKhiDoiGia);
 
+console.log('\n── AY. MẶT HÀNG CŨ ĐANG DÙNG ĐÚNG CÂU MẶC ĐỊNH CŨ → TỰ ĐỔI SANG CÂU MẶC ĐỊNH MỚI (16/09/2026) ──');
+/* Khách: đổi 4 câu mặc định (bảo quản/HDSD "Lót chuồng"/xuất xứ/cảnh báo) nhưng mặt hàng ĐÃ CÓ SẴN
+   hstem trước đó thì tem vẫn in câu CŨ (đúng thiết kế — hstem riêng từng mặt hàng, không tự theo
+   mặc định mới). Khách phản hồi: mặt hàng nào ĐANG DÙNG ĐÚNG NGUYÊN VĂN câu mặc định cũ (chưa hề tự
+   sửa tay) thì cũng phải đổi theo câu mới; mặt hàng đã tự sửa khác đi thì GIỮ NGUYÊN, không đụng. */
+const ayKq=await E(()=>{
+  const goc=JSON.stringify(sp.map(x=>x.hstem));
+  const p1=sp[0], p2=sp[1]||sp[0];
+  p1.hstem={...temMoi(),
+    baoQuan:'Để nơi khô ráo, thoáng mát. Tránh ẩm ướt và ánh nắng trực tiếp. Kê cao cách nền tối thiểu 10 cm. Đóng kín miệng bao sau khi mở.',
+    hdsd:'Rải đều lên đáy chuồng đã vệ sinh, độ dày tùy thói quen đào của thú. Hốt bỏ phần ẩm bẩn hằng ngày. Thay toàn bộ lớp lót định kỳ và vệ sinh đáy chuồng.',
+    xuatXu:'Sản xuất tại Việt Nam',
+    canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.'};
+  p2.hstem={...temMoi(),baoQuan:'Câu bảo quản tự viết tay, khác mặc định',hdsd:'Câu HDSD tự viết tay',xuatXu:'Trung Quốc',canhBao:'Câu cảnh báo tự viết tay'};
+  const doi1=capNhatMacDinhTemCu();
+  const kq1={baoQuan:p1.hstem.baoQuan===BAOQUAN_MD,hdsd:p1.hstem.hdsd===HDSD_NHOM[2][1],xuatXu:p1.hstem.xuatXu===XUATXU_MD,canhBao:p1.hstem.canhBao===TEM_MD.canhBao,doi:doi1,
+    thuc:{baoQuan:p1.hstem.baoQuan,hdsd:p1.hstem.hdsd,xuatXu:p1.hstem.xuatXu,canhBao:p1.hstem.canhBao}};
+  const kq2={baoQuan:p2.hstem.baoQuan,hdsd:p2.hstem.hdsd,xuatXu:p2.hstem.xuatXu,canhBao:p2.hstem.canhBao};
+  const doi2=capNhatMacDinhTemCu(); // chạy lại lần 2 — phải vô hại (câu mới không khớp câu cũ nữa)
+  const g=JSON.parse(goc); sp.forEach((x,k)=>x.hstem=g[k]); luuNgay();
+  return {kq1,kq2,doi2};
+});
+ok('AY: mặt hàng đang dùng ĐÚNG câu mặc định cũ → tự đổi sang câu mặc định mới', ayKq.kq1.doi===true, JSON.stringify(ayKq.kq1.thuc));
+ok('AY: bảo quản đổi đúng câu mới (bỏ "kê cao cách nền...")', ayKq.kq1.baoQuan, ayKq.kq1.thuc.baoQuan);
+ok('AY: HDSD nhóm "Lót chuồng" đổi đúng câu rút gọn mới', ayKq.kq1.hdsd, ayKq.kq1.thuc.hdsd);
+ok('AY: xuất xứ đổi "Sản xuất tại Việt Nam" → "Việt Nam"', ayKq.kq1.xuatXu, ayKq.kq1.thuc.xuatXu);
+ok('AY: cảnh báo đổi đúng câu mới ("sử dụng 1 lần")', ayKq.kq1.canhBao, ayKq.kq1.thuc.canhBao);
+ok('AY: mặt hàng đã TỰ SỬA TAY khác câu mặc định → GIỮ NGUYÊN, không bị đụng vào', ayKq.kq2.baoQuan==='Câu bảo quản tự viết tay, khác mặc định'&&ayKq.kq2.hdsd==='Câu HDSD tự viết tay'&&ayKq.kq2.xuatXu==='Trung Quốc'&&ayKq.kq2.canhBao==='Câu cảnh báo tự viết tay', JSON.stringify(ayKq.kq2));
+ok('AY: chạy lại lần 2 vô hại (không đổi thêm, không lỗi)', ayKq.doi2===false);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
