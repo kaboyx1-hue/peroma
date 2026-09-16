@@ -1105,9 +1105,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S36</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S37</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/09/2026-S36</div>
+      <div class="verFoot">BẢN 16/09/2026-S37</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2794,7 +2794,7 @@ function temHTML(r,p){
       ${kv('Số lô',lotDep(r.lot))}
     </table>
     ${veKhoiCty()}
-    ${temGT(t,'canhBao').trim()?`<div class="cb">${esc(temGT(t,'canhBao'))}</div>`:''}
+    ${temGT(t,'canhBao').trim()?`<div class="cb"><b>Thông tin, Cảnh báo:</b> ${esc(temGT(t,'canhBao'))}</div>`:''}
   </div>`;
 }
 

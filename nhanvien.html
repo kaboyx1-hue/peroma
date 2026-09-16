@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/09/2026-R27</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/09/2026-R28</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -1160,7 +1160,7 @@ function temHTML(r,p){
     ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
     ${kv('Số lô',lotDep(r.lot))}</table>
     ${veKhoiCty()}
-    ${temGT(t,'canhBao').trim()?`<div class="cb">${esc(temGT(t,'canhBao'))}</div>`:''}
+    ${temGT(t,'canhBao').trim()?`<div class="cb"><b>Thông tin, Cảnh báo:</b> ${esc(temGT(t,'canhBao'))}</div>`:''}
     </div>`;
 }
 /* ── TỰ DÀN CHỮ TEM CHO VỪA Ô — 10/09/2026 (Admin S16 / Nhân viên R10) ──
