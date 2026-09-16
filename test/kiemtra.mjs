@@ -26,7 +26,7 @@ await p.goto(FILE); await p.waitForTimeout(900);
 const E=f=>p.evaluate(f), Ea=(f,a)=>p.evaluate(f,a);
 
 console.log('\n── A. KHỞI ĐỘNG ──');
-ok('6 tab hiện đủ (S10 thêm Tổng quan, S21 thêm Giá vốn)', (await E(()=>document.querySelectorAll('.tab').length))===6);
+ok('7 tab hiện đủ (S10 thêm Tổng quan, S21 thêm Giá vốn, S32 thêm Tủ hồ sơ)', (await E(()=>document.querySelectorAll('.tab').length))===7);
 /* S10 (10/09/2026) — trang Tổng quan: mở app vào đây, CHỈ ĐỌC, số khớp dữ liệu, bấm mẻ mở đúng lô */
 ok('TQ: mở app vào trang Tổng quan', (await E(()=>tab==='tq'&&document.getElementById('viewTQ').style.display===''&&document.getElementById('viewCT').style.display==='none'&&document.querySelector('.tab.on').dataset.tab==='tq')));
 const tqKq=await E(()=>{
@@ -315,7 +315,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -324,7 +324,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   kq.serverMoi=baoBi.length===1&&baoBi[0].id==='bb-x'&&baoBiQC[q][0].id==='bb-x'&&!laRiengBB(P(),q);
   sp=napSP(JSON.parse(spT)); baoBi=JSON.parse(bbT); baoBiQC=JSON.parse(qcT);
   await luuNgay(); const kho1=await store.get(); kq.luuMay=Array.isArray(kho1.baoBi)&&kho1.baoBi.length===6&&!!kho1.baoBiQC&&!!kho1.baoBiQC[q];
-  kq.saoLuu=document.documentElement.innerHTML.includes('nlGhiChu,baoBi,baoBiQC,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1)');
+  kq.saoLuu=document.documentElement.innerHTML.includes('nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1)');
   // 9) Danh mục: sửa giá kiểu "70.000" → lưu lịch sử; gán thêm túi cho quy cách bằng ô chọn
   chuyenTab('ma'); await cho(30);
   kq.coKhu=!!document.getElementById('secBaoBi')&&document.querySelectorAll('.bbrow').length===6;
@@ -523,7 +523,7 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   const p=sp.find(x=>x.maSP==='32')||sp.find(x=>/Little Mars/i.test(x.ten))||sp[0], gocHstem=JSON.stringify(p.hstem);
   kq.macDinhA4=temKho==='a4';
   // đóng gói cực ngắn để đo được cả trạng thái "vừa" (nội dung thật đủ trường sẽ tràn ở 65×65 — xem bên dưới)
-  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1',tieuDe:'T',ctyVaiTro:'V',ctyTen:'N',ctyDiaChi:'DC',canhBao:'CB'};
   const r={id:'S26-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'4101070926',nv:'T',daGui:1}; nk.push(r);
 
   // 1) trangTem() ở khổ nhiệt: gắn class to-nhiet, không có grid cột×hàng, không đổi temHTML (nội dung tem)
@@ -549,7 +549,7 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   kq.noiDungDayDuVua=kqDay.tran===false; // đã fix bằng CSS nén riêng cho khổ nhiệt, giữ nguyên mọi trường
 
   // 5) bảng "Dàn trang tem": nút chuyển khổ, chuyển đúng, ẩn/hiện cột×hàng đúng, không đổi temKho tới khi bấm In
-  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'}; // lại bản ngắn để bảng đo "vừa" được
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1',tieuDe:'T',ctyVaiTro:'V',ctyTen:'N',ctyDiaChi:'DC',canhBao:'CB'}; // lại bản ngắn để bảng đo "vừa" được
   temKho='a4';
   const pr=inTem('S26-T',false,true); await cho(200);
   kq.moBangMacDinhA4=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
@@ -598,7 +598,7 @@ ok('S26: khu cài đặt (tab Báo cáo) có đủ nút chuyển khổ (A4 + m�
 const s28=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
   const goc={khoCu:temKho,cot:temCot,hang:temHang}, inCu=window.print; window.print=()=>{};
   const p=sp.find(x=>x.maSP==='32')||sp.find(x=>/Little Mars/i.test(x.ten))||sp[0], gocHstem=JSON.stringify(p.hstem);
-  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1',tieuDe:'T',ctyVaiTro:'V',ctyTen:'N',ctyDiaChi:'DC',canhBao:'CB'};
   const r={id:'S28-T',sp:p.ten,huong:'H',quyCach:'1 kg',sl:10,soBao:10,kgBao:1,ngaysx:'2026-09-10',lot:'5070070926',nv:'T',daGui:1}; nk.push(r);
 
   // 1) trangTem() ở khổ 50×70: gắn đúng class, không grid, không đổi temHTML — và KHÔNG lẫn với khổ 65×65
@@ -623,7 +623,7 @@ const s28=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   kq.noiDungDayDuVua5070=kqDay.tran===false;
 
   // 5) bảng Dàn trang: đủ 3 nút khổ (A4 + 2 khổ nhiệt), chuyển sang 50×70 đúng, không đụng chọn 65×65
-  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1'};
+  p.hstem={tenVN:'X',thanhPhan:'B',congDung:'C',doAm:'D',hdsd:'E',baoQuan:'F',xuatXu:'G',soTCCS:'01:2026/KH',hsdNam:'1',tieuDe:'T',ctyVaiTro:'V',ctyTen:'N',ctyDiaChi:'DC',canhBao:'CB'};
   temKho='a4';
   const pr=inTem('S28-T',false,true); await cho(200);
   kq.co3NutKho=document.querySelectorAll('.dt-kho button').length===1+khoNhietDS.length;

@@ -1003,6 +1003,11 @@ td.gvthieu i,.gvtong td i{font-style:normal;color:var(--badTx);margin-left:2px}
 .dt-mau-ds{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .dt-mau-o{width:28px;height:28px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line2);cursor:pointer;padding:0}
 .dt-mau-o.on{box-shadow:0 0 0 2px var(--acc)}
+/* 15/09/2026: nút chọn ĐỘ ĐẬM tem — CỐ Ý dùng class riêng (không dùng lại .dt-mau-o) dù nhìn
+   giống, vì bộ kiemtra.mjs đếm số phần tử .dt-mau-o (18 = 3 nhóm màu × 6 màu sẵn) — dùng
+   chung sẽ làm sai phép đếm đó. */
+.dt-kieu-o{min-width:38px;height:28px;padding:0 10px;border-radius:8px;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line2);cursor:pointer;background:var(--card2);color:var(--tx)}
+.dt-kieu-o.on{box-shadow:0 0 0 2px var(--acc);color:var(--acc)}
 .dt-mau-tu{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:var(--tx2);cursor:pointer;border:1px dashed var(--line2);border-radius:999px;padding:2px 10px 2px 3px}
 .dt-mau-tu input{width:24px;height:24px;border:0;padding:0;background:none;cursor:pointer}
 .dt-mau-cuoi{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--tx2)}
@@ -2766,11 +2771,17 @@ function temHTML(r,p){
    trong khung ẩn #temDo (cùng kiểu với lúc in) và chọn cỡ chữ LỚN NHẤT vừa ô (tìm nhị phân).
    Chữ phải co dưới TEM_CO_DOC (khó đọc) thì hỏi trước khi in và đề xuất khổ ít tem/tờ hơn cho chữ
    đủ lớn. KHÔNG đổi nội dung tem (temHTML giữ nguyên), chỉ đổi cách dàn lên giấy. */
-// 14/09/2026: TEM_CO_MIN từng =4pt — máy in nhiệt in ra mờ/nhoè ở cỡ này dù máy tốt cỡ nào (không
-// phải lỗi máy in, do app cho co quá nhỏ). Nâng sàn lên đúng bằng TEM_CO_DOC (6pt, ngưỡng app đã
-// tự coi là "khó đọc") — không bao giờ co xuống dưới mức tự app cho là khó đọc nữa. Nội dung nào
-// không vừa ở 6pt thì rơi vào nhánh tran:true (đã có sẵn hộp thoại hỏi trước khi in, gợi ý khổ khác).
-const TEM_CO_MIN=6, TEM_CO_MAX=14, TEM_CO_DOC=6; // pt
+// 14-15/09/2026: THỬ nâng TEM_CO_MIN 4pt→6pt rồi →5pt để hết nhòe, nhưng ĐO THẬT cho thấy ngay
+// cả 5pt cũng đã khoá được (tran:true, nút In bị disable) hồ sơ tem TCCS đầy đủ (dài) của mặt
+// hàng thật (VD Little Mars — Hương Kem) ở khổ A4 4×3 (mỗi tem 48×94mm, không hề nhỏ) — tức là
+// bất kỳ mốc nào cao hơn 4pt cũng có nguy cơ chặn in nội dung TCCS thật, không chỉ ảnh hưởng khổ
+// nhiệt nhỏ. QUAN TRỌNG HƠN: khách tự kiểm chứng cùng máy in/cùng cài đặt, in TỪ WORD thì nét vẫn
+// đậm rõ — nghĩa là 4pt tự nó KHÔNG PHẢI nguyên nhân gây nhoè, mà do đường in của Chrome (co giãn/
+// scale trang khi in) khác Word. TRẢ VỀ 4pt — không chặn in nội dung thật vì lý do sai. Xử lý nhoè
+// đúng chỗ: driver máy in (Darkness/Speed, tab Parameters) + kiểm tra Scale=100% trong hộp thoại in
+// Chrome + thử in qua PDF trung gian (đã trao đổi với khách). TEM_CO_DOC=6pt vẫn dùng làm ngưỡng
+// CẢNH BÁO "khó đọc" (không chặn in) như trước — không đổi.
+const TEM_CO_MIN=4, TEM_CO_MAX=14, TEM_CO_DOC=6; // pt
 const temCoCache=new Map();
 function khungDoTem(){let d=document.getElementById('temDo');
   if(!d){d=document.createElement('div');d.id='temDo';d.setAttribute('aria-hidden','true');document.body.appendChild(d)}return d}
@@ -2899,7 +2910,7 @@ function moDanTem(r,p,quaFile){
       const nhan=(TEM_DAM_O.find(x=>x[0]===kieu.dam)||[])[1]||'';
       el.querySelector('#dtKieuTom').textContent=nhan+(kieu.nghieng?' · nghiêng':'')};
     const veKieu=()=>{el.querySelector('#dtKieuThan').innerHTML='<div class="dt-mau-r"><span>Độ đậm</span><div class="dt-mau-ds">'
-        +TEM_DAM_O.map(([v,t])=>'<button type="button" class="dt-mau-o'+(kieu.dam===v?' on':'')+'" data-dt="dam" data-v="'+v+'" style="font-weight:'+v+'" title="'+t+'">Aa</button>').join('')+'</div></div>'
+        +TEM_DAM_O.map(([v,t])=>'<button type="button" class="dt-kieu-o'+(kieu.dam===v?' on':'')+'" data-dt="dam" data-v="'+v+'" style="font-weight:'+v+'" title="'+t+'">Aa</button>').join('')+'</div></div>'
         +'<div class="dt-mau-r"><span>Nghiêng</span><label class="dt-luu" style="margin:0"><input type="checkbox" id="dtNghieng"'+(kieu.nghieng?' checked':'')+'> In chữ nghiêng</label></div>'
         +'<div class="dt-mau-cuoi"><button type="button" data-dt="kieumd">Về mặc định (Thường, không nghiêng)</button></div>';
       apKieu()};
