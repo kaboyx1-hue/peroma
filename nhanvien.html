@@ -184,7 +184,8 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t3{margin:0 0 .14em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td{padding:.03em .14em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td.k{width:30%}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em}
+/* 16/09/2026: nén khối công ty (.kh) riêng ở khổ nhiệt — xem chú thích đầy đủ ở bản Admin. */
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em;font-size:.8em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
 :is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
@@ -379,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 15/09/2026-R25</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/09/2026-R26</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -1125,17 +1126,18 @@ function veDL(){
    trắng ('') thì bỏ dòng đó khỏi tem. "Tiêu chuẩn áp dụng": số hiệu bắt đầu bằng chữ (TCVN, QCVN, TCCS…)
    thì in nguyên văn, còn lại tự thêm "TCCS " như cũ. HAI APP PHẢI GIỐNG HỆT NHAU (xem cả 2 file). */
 const TEM_MD={tieuDe:'NHÃN SẢN PHẨM',ctyVaiTro:'Sản xuất và chịu trách nhiệm về hàng hóa',
-  ctyTen:'CÔNG TY TNHH ĐẦU TƯ – THƯƠNG MẠI – DỊCH VỤ – XUẤT NHẬP KHẨU KHÁNH HOÀNG',
-  ctyDiaChi:'Địa chỉ chịu trách nhiệm và sản xuất: Số 8A An Dương Vương, Phường Phú Định, TP. Hồ Chí Minh, Việt Nam\nTrụ sở: 134/28 Đào Duy Anh, Phường Đức Nhuận, TP. Hồ Chí Minh, Việt Nam\nMã số thuế: 0318698788   Điện thoại: 0987 456 401', // 11/09/2026: khách xác nhận số điện thoại mới
+  ctyTen:'CÔNG TY TNHH ĐẦU TƯ - THƯƠNG MẠI - DỊCH VỤ - XUẤT NHẬP KHẨU KHÁNH HOÀNG',
+  ctyDiaChi:'ĐỊA CHỈ TRỤ SỞ: 134/28 ĐÀO DUY ANH, PHƯỜNG ĐỨC NHUẬN, TPHCM\nĐỊA CHỈ SẢN XUẤT: 8A AN DƯƠNG VƯƠNG, PHƯỜNG PHÚ ĐỊNH, TPHCM\nMÃ SỐ THUẾ : 0318698788 - ĐIỆN THOẠI 0987-456-401', // 16/09/2026: khách fix cứng lại nội dung + thứ tự dòng
   canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.'};
-const TEM_KHOI_CTY=['tieuDe','ctyVaiTro','ctyTen','ctyDiaChi','canhBao'];
+const TEM_KHOI_CTY=['tieuDe','canhBao']; // 16/09/2026: bỏ ctyVaiTro/ctyTen/ctyDiaChi — khối công ty đã fix cứng, không còn theo từng mặt hàng
 const temGT=(t,k)=>(t&&typeof t[k]==='string')?t[k]:(TEM_MD[k]||'');
 const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.test(s)?s:'TCCS '+s)};
 const dongTem=s=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>esc(x).replace(/ {2,}/g,m=>'&nbsp;'.repeat(m.length)));
-function veKhoiCty(t){
-  const vt=temGT(t,'ctyVaiTro').trim(), ten=temGT(t,'ctyTen').trim(), dc=dongTem(temGT(t,'ctyDiaChi'));
-  const ds=[vt?esc(vt):'',ten?'<b>'+esc(ten)+'</b>':'',...dc].filter(Boolean);
-  return ds.length?'<div class="kh">'+ds.join('<br>')+'</div>':'';
+// 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — luôn in đúng TEM_MD,
+// không còn lấy theo từng mặt hàng (mọi tem cùng một công ty chịu trách nhiệm, không có lý do khác nhau).
+function veKhoiCty(){
+  const ds=[esc(TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(TEM_MD.ctyDiaChi)];
+  return '<div class="kh">'+ds.join('<br>')+'</div>';
 }
 
 
@@ -1143,21 +1145,21 @@ function veKhoiCty(t){
    số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ nên KHÔNG sửa ở đây (truy xuất). */
 const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phần'],['congDung','Công dụng',1],
   ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
-  ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],['ctyVaiTro','Dòng trách nhiệm'],
-  ['ctyTen','Tên công ty'],['ctyDiaChi','Địa chỉ · trụ sở · MST · điện thoại',1],['canhBao','Dòng cảnh báo',1]];
+  ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],
+  ['canhBao','Dòng cảnh báo',1]]; // 16/09/2026: bỏ 3 ô khối công ty khỏi đây — đã fix cứng, xem veKhoiCty()
 function temHTML(r,p){
   const t=p.hstem||{}, kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
   const hd=hanDung(r.ngaysx,t.hsdNam);
   return `<div class="tem">${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
     <div class="t2">${esc((p&&p.ten)||r.sp)}</div><!-- S20/R14: tên mặt hàng trong Danh mục (khách chốt 10/09/2026), không lấy tenVN theo TCCS -->${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
-    <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
+    <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương liệu',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
     ${kv('Công dụng',t.congDung)}
-    ${kv('Thông số kỹ thuật',[t.doAm?'Độ ẩm '+t.doAm:'',t.kichThuoc?'Kích thước hạt '+t.kichThuoc:''].filter(Boolean).join(' · '))}
+    ${kv('Độ ẩm',t.doAm||'dưới 10%')}${kv('Kích thước hạt',t.kichThuoc)}
     ${kv('Hướng dẫn sử dụng',t.hdsd)}${kv('Hướng dẫn bảo quản',t.baoQuan)}${kv('Xuất xứ',t.xuatXu)}
     ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}${kv('Ngày sản xuất',vnNgay(r.ngaysx))}
     ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
     ${kv('Số lô',lotDep(r.lot))}</table>
-    ${veKhoiCty(t)}
+    ${veKhoiCty()}
     ${temGT(t,'canhBao').trim()?`<div class="cb">${esc(temGT(t,'canhBao'))}</div>`:''}
     </div>`;
 }

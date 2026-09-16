@@ -296,13 +296,17 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 :is(#temIn,#temDo,.xemTem) .to.to-nhiet{width:61mm;height:61mm}
 :is(#temIn,#temDo,.xemTem) .to.to-nhiet5070{width:46mm;height:66mm}
 :is(#temIn,#temDo,.xemTem) .to.to-nhiet7050{width:68mm;height:48mm}
+/* 16/09/2026: khối công ty (.kh — địa chỉ/MST/ĐT, CỐ ĐỊNH cho mọi tem, không phải nội dung riêng
+   từng sản phẩm) nén nhỏ hơn (thêm font-size/line-height dưới) RIÊNG ở khổ nhiệt — đo thật: chỉ
+   cần nén đúng khối này (không đụng bất kỳ ô nội dung sản phẩm nào) là đủ cho hồ sơ TCCS đầy đủ
+   (VD Little Mars) vừa khít cả 3 khổ nhiệt ở 4pt — trước đây phải rút gọn tay từng ô mới vừa. */
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem{padding:.22em .32em;line-height:1.08}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t1{margin:0 0 .1em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t2{margin:0 0 .03em;font-size:1.22em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .t3{margin:0 0 .14em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td{padding:.03em .14em}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem td.k{width:30%}
-:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em}
+:is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .kh{padding:.1em;font-size:.8em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) :is(.to-nhiet,.to-nhiet5070,.to-nhiet7050) .tem .cb{margin-top:.06em;font-size:.76em;line-height:1.1}
 :is(#temIn,#temDo,.xemTem) .to:last-child{page-break-after:auto}
 :is(#temIn,#temDo,.xemTem) .to-lon{--co:8.5pt} :is(#temIn,#temDo,.xemTem) .to-vua{--co:6.8pt} :is(#temIn,#temDo,.xemTem) .to-nho{--co:5.3pt}
@@ -1101,9 +1105,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/09/2026-S33</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S34</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 15/09/2026-S33</div>
+      <div class="verFoot">BẢN 16/09/2026-S34</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1603,17 +1607,17 @@ const TCCS_DATA={
   '11':{tenVN:'THE CITYCAT',thanhPhan:'Bentonite, hương liệu',
     congDung:'Dùng để đổ vào khay vệ sinh, giúp mèo che lấp và xử lý chất thải theo bản năng. Cát vón cục nhanh khi tiếp xúc chất thải, khoanh gọn chất thải để hốt riêng, hạn chế mùi hôi phát tán, giữ khay vệ sinh khô ráo, sạch sẽ.',
     kichThuoc:'0,5 – 3,5 mm',doAm:'≤ 10%',hdsdNhom:0,
-    xuatXu:'Sản xuất tại Việt Nam',soTCCS:'01:2026/KH',hsdNam:'10'},
+    xuatXu:'Việt Nam',soTCCS:'01:2026/KH',hsdNam:'10'},
   '41':{tenVN:'ZAKA',thanhPhan:'Cao lanh, hương liệu',
     congDung:'Dùng để đổ vào khay vệ sinh, giúp mèo che lấp và xử lý chất thải theo bản năng. Cát vón cục nhanh khi tiếp xúc chất thải, khoanh gọn chất thải để hốt riêng, hạn chế mùi hôi phát tán, giữ khay vệ sinh khô ráo, sạch sẽ.',hdsdNhom:0,
-    xuatXu:'Sản xuất tại Việt Nam',soTCCS:'01:2026/ZAKA',hsdNam:'10'},
+    xuatXu:'Việt Nam',soTCCS:'01:2026/ZAKA',hsdNam:'10'},
   '42':{tenVN:'ZAKA PRO',thanhPhan:'Bentonite, cao lanh, hương liệu',
     congDung:'Dùng để đổ vào khay vệ sinh, giúp mèo che lấp và xử lý chất thải theo bản năng. Cát vón cục nhanh khi tiếp xúc chất thải, khoanh gọn chất thải để hốt riêng, hạn chế mùi hôi phát tán, giữ khay vệ sinh khô ráo, sạch sẽ.',hdsdNhom:0,
     xuatXu:'Sản xuất tại Việt Nam từ nguyên liệu trong nước và nguyên liệu nhập khẩu',
     soTCCS:'02:2026/ZAKA',hsdNam:'10'},
   '31':{tenVN:'Cát tắm dành cho hamster — HAMBII',thanhPhan:'Bột đá, hương liệu',
     congDung:'Dùng để hamster tắm khô, tự làm sạch lông và loại bỏ dầu thừa trên da mà không cần dùng nước. Đổ một lớp vào khay tắm riêng cho thú cưng vùi mình.',hdsdNhom:1,
-    xuatXu:'Sản xuất tại Việt Nam',soTCCS:'01:2026/HAMBII',hsdNam:'10'},
+    xuatXu:'Việt Nam',soTCCS:'01:2026/HAMBII',hsdNam:'10'},
   /* '32' — chép ĐÚNG NGUYÊN VĂN từ file gốc TCCS_02_2026_HAMBII_CatLotNen.docx (khách gửi
      24/08/2026), không phải suy đoán từ ghi chú .md nữa. Đây là mặt hàng THỬ NGHIỆM đầu
      tiên cho cơ chế "khoá theo TCCS" — xem TCCS_KHOA bên dưới. doAm CỐ Ý không có: bản TCCS
@@ -1650,7 +1654,7 @@ const TCCS_DATA={
   '34':{tenVN:'CÁT LÓT CHUỒNG CHO HAMSTER (HẠT TO) – HAMBII',
     thanhPhan:'Zeolite, hương liệu',
     congDung:'Dùng để lót nền chuồng nuôi hamster và thú nhỏ, thấm hút ẩm và chất thải, tạo bề mặt êm cho thú đào hang, giữ chuồng khô thoáng, hạn chế mùi hôi. Các sản phẩm trong nhóm khác nhau về loại khoáng và kích cỡ hạt, cùng một công dụng chính.',hdsdNhom:2,
-    xuatXu:'Sản xuất tại Việt Nam',soTCCS:'04:2026/HAMBII',hsdNam:'10'},
+    xuatXu:'Việt Nam',soTCCS:'04:2026/HAMBII',hsdNam:'10'},
   '35':{tenVN:'VIÊN GỖ NÉN LÓT CHUỒNG THÚ NHỎ – HAMBII (8MM)',
     thanhPhan:'Gỗ tự nhiên',
     congDung:'Dùng để lót nền chuồng nuôi thú nhỏ, thấm hút tốt, ít bụi, tạo lớp lót êm và khô thoáng, hạn chế mùi hôi. Hai kích cỡ viên khác nhau, cùng một công dụng.',
@@ -1666,11 +1670,11 @@ const TCCS_DATA={
   '37':{tenVN:'MÙN CƯA NÉN LÓT CHUỒNG THÚ NHỎ – HAMBII',
     thanhPhan:'Mùn cưa gỗ tự nhiên',
     congDung:'Dùng để lót nền chuồng nuôi thú nhỏ; sản phẩm ở dạng nén chặt, khi tách ra sẽ bung nở thành lớp lót mềm, thấm hút tốt, ít bụi hơn dạng rời thông thường.',
-    hdsdNhom:2,xuatXu:'Sản xuất tại Việt Nam',soTCCS:'07:2026/HAMBII',hsdNam:'3'},
+    hdsdNhom:2,xuatXu:'Việt Nam',soTCCS:'07:2026/HAMBII',hsdNam:'3'},
   '39':{tenVN:'CÁT LÓT CHUỒNG CHO HAMSTER (HẠT NHỎ) – HAMBII',
     thanhPhan:'Cao lanh, hương liệu',
     congDung:'Dùng để lót nền chuồng nuôi hamster và thú nhỏ, thấm hút ẩm và chất thải, tạo bề mặt êm cho thú đào hang, giữ chuồng khô thoáng, hạn chế mùi hôi. Các sản phẩm trong nhóm khác nhau về loại khoáng và kích cỡ hạt, cùng một công dụng chính.',
-    hdsdNhom:2,xuatXu:'Sản xuất tại Việt Nam',soTCCS:'09:2026/HAMBII',hsdNam:'10'}
+    hdsdNhom:2,xuatXu:'Việt Nam',soTCCS:'09:2026/HAMBII',hsdNam:'10'}
 };
 /* Mặt hàng KHÔNG có trong TCCS_DATA vì lý do đã biết — hiện trong UI thay vì im lặng:
    - Bigpaw: KHÔNG CÓ TCCS (rủi ro pháp lý) — chặn hẳn, không cho lấy/không cho in.
@@ -1715,13 +1719,13 @@ function khoaXuatXu(){
 
 /* HỒ SƠ TEM — 9 ô nhóm C, nhập một lần cho mỗi mặt hàng rồi dùng mãi.
    4 ô nhóm A (khối lượng · ngày SX · số lô · hạn dùng) lấy thẳng từ bản ghi mẻ. */
-const BAOQUAN_MD='Để nơi khô ráo, thoáng mát. Tránh ẩm ướt và ánh nắng trực tiếp. Kê cao cách nền tối thiểu 10 cm. Đóng kín miệng bao sau khi mở.';
-const XUATXU_MD='Sản xuất tại Việt Nam';
+const BAOQUAN_MD='Để nơi khô ráo, thoáng mát. Tránh ẩm ướt và ánh nắng trực tiếp.'; // 16/09/2026: khách bỏ câu "kê cao cách nền..." theo yêu cầu
+const XUATXU_MD='Việt Nam'; // 16/09/2026: khách yêu cầu fix "Việt Nam", không thêm "Sản xuất tại"
 const XUATXU_CHON=[XUATXU_MD,'Sản xuất tại Việt Nam từ nguyên liệu nhập khẩu']; // S18: câu chọn nhanh cho ô Xuất xứ
 const HDSD_NHOM=[
  ['Cát vệ sinh cho mèo','Đổ cát vào khay dày 5–7 cm. Xúc bỏ phần vón cục hằng ngày. Châm thêm cát cho đủ độ dày. Thay toàn bộ và vệ sinh khay định kỳ.'],
  ['Cát tắm hamster','Đổ một lớp mỏng vào khay tắm riêng. Đặt vào chuồng cho thú tự lăn tắm. Lấy khay ra sau khi tắm, không để thường trực trong chuồng. Sàng bỏ phần bẩn, thay mới khi cát đóng bết.'],
- ['Lót chuồng / lót nền','Rải đều lên đáy chuồng đã vệ sinh, độ dày tùy thói quen đào của thú. Hốt bỏ phần ẩm bẩn hằng ngày. Thay toàn bộ lớp lót định kỳ và vệ sinh đáy chuồng.'],
+ ['Lót chuồng / lót nền','Rải sản phẩm vào chuồng sau khi đã vệ sinh, dọn phần ẩm bẩn hằng ngày, thay lót chuồng định kỳ.'],
  ['Hạt khử mùi — tạo hương','KHÔNG dùng thay cát. Rắc một lượng nhỏ trộn đều vào lớp cát đang dùng. Rắc bổ sung khi thấy mùi trở lại. Không đổ trực tiếp lên chỗ thú đi vệ sinh.']];
 /* 25/08/2026-J: khách yêu cầu áp dụng đúng cơ chế nút-chọn-nhanh của HDSD_NHOM cho cả
    "Công dụng" — CÙNG 4 nhóm/CÙNG thứ tự với HDSD_NHOM (nội dung công dụng đã có sẵn, thống
@@ -1756,13 +1760,13 @@ const TEM_O=[
  ['xuatXu','Xuất xứ','Bấm chọn câu có sẵn bên dưới hoặc gõ tay. CITYCAT / ZAKA PRO / Little Mars dùng câu có "nguyên liệu nhập khẩu"',1],
  ['soTCCS','Số hiệu TCCS','VD: 01:2026/HAMBII — tem in "TCCS 01:2026/HAMBII". Tiêu chuẩn khác thì ghi cả chữ đầu (VD: TCVN 1234:2020). Chưa có thì KHÔNG in tem',1],
  ['hsdNam','Hạn sử dụng (số năm)','Khoáng vô cơ 10 · hữu cơ & gỗ 3',1],
- /* S18: phần chung cuối tem — trước đây viết cứng trong temHTML (xem TEM_MD) */
+ /* S18: phần chung cuối tem — trước đây viết cứng trong temHTML (xem TEM_MD).
+    16/09/2026: khối công ty (ctyVaiTro/ctyTen/ctyDiaChi) khách yêu cầu FIX CỨNG lại — không còn
+    là ô sửa theo từng mặt hàng nữa (mọi tem cùng một công ty, không có lý do khác nhau), xem
+    veKhoiCty() nay in thẳng TEM_MD, bỏ 3 ô sửa khỏi bảng này. */
  ['tieuDe','Tiêu đề trên cùng tem','Xoá trắng thì bỏ dòng tiêu đề',0],
- ['ctyVaiTro','Dòng trách nhiệm','VD: Sản xuất và chịu trách nhiệm về hàng hóa',0],
- ['ctyTen','Tên công ty (in đậm)','',0],
- ['ctyDiaChi','Địa chỉ · trụ sở · mã số thuế · điện thoại','Mỗi dòng một ý — xuống dòng bằng Enter',0],
  ['canhBao','Dòng cảnh báo cuối tem','Xoá trắng thì bỏ dòng cảnh báo',0]];
-const temMoi=()=>({tenVN:'',tenEN:'',thanhPhan:'',congDung:'',kichThuoc:'',doAm:'< 10%',
+const temMoi=()=>({tenVN:'',tenEN:'',thanhPhan:'',congDung:'',kichThuoc:'',doAm:'dưới 10%',
   hdsd:'',baoQuan:BAOQUAN_MD,xuatXu:XUATXU_MD,soTCCS:'',hsdNam:''});
 /* Hồ sơ tem RỖNG THẬT — không có giá trị mặc định nào (khác temMoi() có sẵn "< 10%"/địa chỉ
    chuẩn). Dùng cho mặt hàng "khoá theo TCCS": ô nào TCCS không ghi thì phải hiện RỖNG, không
@@ -2656,7 +2660,7 @@ function veTem(p,i){
   TEM_O.forEach(([k,nhan,hint,bb])=>{
     const v=TEM_KHOI_CTY.includes(k)?temGT(t,k):(t[k]||''), thieuO=bb&&!String(v).trim();
     const dai=(k==='thanhPhan'||k==='congDung'||k==='hdsd'||k==='baoQuan'||k==='xuatXu'||k==='ctyTen'||k==='ctyDiaChi'||k==='canhBao');
-    if(k==='tieuDe')o+=`<div class="tem-chung"><b>Phần chung cuối tem</b> — tiêu đề, công ty, cảnh báo. Mỗi mặt hàng có bản riêng; sửa xong bấm nút dưới để dùng cho mọi mặt hàng.<button type="button" class="tccsbtn" data-temctyall="${i}">Áp phần chung này cho mọi mặt hàng</button></div>`;
+    if(k==='tieuDe')o+=`<div class="tem-chung"><b>Phần chung cuối tem</b> — tiêu đề, dòng cảnh báo (khối công ty đã fix cứng, xem trên mọi tem). Mỗi mặt hàng có bản riêng; sửa xong bấm nút dưới để dùng cho mọi mặt hàng.<button type="button" class="tccsbtn" data-temctyall="${i}">Áp phần chung này cho mọi mặt hàng</button></div>`;
     o+=`<div class="tf"><label>${esc(nhan)}${bb?'<i>*</i>':''}</label>`;
     if(false){ // S18: bỏ khoá Xuất xứ (khách yêu cầu 10/09/2026) — nay là ô sửa được như các ô khác
       /* 25/08/2026: khoá "Xuất xứ" — không cho gõ tay nữa (chép nhầm là gian lận xuất xứ, công
@@ -2725,17 +2729,18 @@ function veTemKhoa(p,i,ma){
    trắng ('') thì bỏ dòng đó khỏi tem. "Tiêu chuẩn áp dụng": số hiệu bắt đầu bằng chữ (TCVN, QCVN, TCCS…)
    thì in nguyên văn, còn lại tự thêm "TCCS " như cũ. HAI APP PHẢI GIỐNG HỆT NHAU (xem cả 2 file). */
 const TEM_MD={tieuDe:'NHÃN SẢN PHẨM',ctyVaiTro:'Sản xuất và chịu trách nhiệm về hàng hóa',
-  ctyTen:'CÔNG TY TNHH ĐẦU TƯ – THƯƠNG MẠI – DỊCH VỤ – XUẤT NHẬP KHẨU KHÁNH HOÀNG',
-  ctyDiaChi:'Địa chỉ chịu trách nhiệm và sản xuất: Số 8A An Dương Vương, Phường Phú Định, TP. Hồ Chí Minh, Việt Nam\nTrụ sở: 134/28 Đào Duy Anh, Phường Đức Nhuận, TP. Hồ Chí Minh, Việt Nam\nMã số thuế: 0318698788   Điện thoại: 0987 456 401', // 11/09/2026: khách xác nhận số điện thoại mới
+  ctyTen:'CÔNG TY TNHH ĐẦU TƯ - THƯƠNG MẠI - DỊCH VỤ - XUẤT NHẬP KHẨU KHÁNH HOÀNG',
+  ctyDiaChi:'ĐỊA CHỈ TRỤ SỞ: 134/28 ĐÀO DUY ANH, PHƯỜNG ĐỨC NHUẬN, TPHCM\nĐỊA CHỈ SẢN XUẤT: 8A AN DƯƠNG VƯƠNG, PHƯỜNG PHÚ ĐỊNH, TPHCM\nMÃ SỐ THUẾ : 0318698788 - ĐIỆN THOẠI 0987-456-401', // 16/09/2026: khách fix cứng lại nội dung + thứ tự dòng
   canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm không dùng cho mục đích ăn uống.'};
-const TEM_KHOI_CTY=['tieuDe','ctyVaiTro','ctyTen','ctyDiaChi','canhBao'];
+const TEM_KHOI_CTY=['tieuDe','canhBao']; // 16/09/2026: bỏ ctyVaiTro/ctyTen/ctyDiaChi — khối công ty đã fix cứng, không còn theo từng mặt hàng
 const temGT=(t,k)=>(t&&typeof t[k]==='string')?t[k]:(TEM_MD[k]||'');
 const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.test(s)?s:'TCCS '+s)};
 const dongTem=s=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>esc(x).replace(/ {2,}/g,m=>'&nbsp;'.repeat(m.length)));
-function veKhoiCty(t){
-  const vt=temGT(t,'ctyVaiTro').trim(), ten=temGT(t,'ctyTen').trim(), dc=dongTem(temGT(t,'ctyDiaChi'));
-  const ds=[vt?esc(vt):'',ten?'<b>'+esc(ten)+'</b>':'',...dc].filter(Boolean);
-  return ds.length?'<div class="kh">'+ds.join('<br>')+'</div>':'';
+// 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — luôn in đúng TEM_MD,
+// không còn lấy theo từng mặt hàng (mọi tem cùng một công ty chịu trách nhiệm, không có lý do khác nhau).
+function veKhoiCty(){
+  const ds=[esc(TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(TEM_MD.ctyDiaChi)];
+  return '<div class="kh">'+ds.join('<br>')+'</div>';
 }
 
 
@@ -2743,8 +2748,8 @@ function veKhoiCty(t){
    số lô, ngày sản xuất, hạn dùng, hương, khối lượng tịnh lấy từ bản ghi mẻ nên KHÔNG sửa ở đây (truy xuất). */
 const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phần'],['congDung','Công dụng',1],
   ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
-  ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],['ctyVaiTro','Dòng trách nhiệm'],
-  ['ctyTen','Tên công ty'],['ctyDiaChi','Địa chỉ · trụ sở · MST · điện thoại',1],['canhBao','Dòng cảnh báo',1]];
+  ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],
+  ['canhBao','Dòng cảnh báo',1]]; // 16/09/2026: bỏ 3 ô khối công ty khỏi đây — đã fix cứng, xem veKhoiCty()
 function temHTML(r,p){
   const t=p.hstem||temMoi();
   const kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
@@ -2755,10 +2760,11 @@ function temHTML(r,p){
     ${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>
       ${kv('Thành phần',t.thanhPhan)}
-      ${kv('Hương',r.huong)}
+      ${kv('Hương liệu',r.huong)}
       ${kv('Khối lượng tịnh',r.quyCach)}
       ${kv('Công dụng',t.congDung)}
-      ${kv('Thông số kỹ thuật',[t.doAm?'Độ ẩm '+t.doAm:'',t.kichThuoc?'Kích thước hạt '+t.kichThuoc:''].filter(Boolean).join(' · '))}
+      ${kv('Độ ẩm',t.doAm||'dưới 10%')}
+      ${kv('Kích thước hạt',t.kichThuoc)}
       ${kv('Hướng dẫn sử dụng',t.hdsd)}
       ${kv('Hướng dẫn bảo quản',t.baoQuan)}
       ${kv('Xuất xứ',t.xuatXu)}
@@ -2767,7 +2773,7 @@ function temHTML(r,p){
       ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
       ${kv('Số lô',lotDep(r.lot))}
     </table>
-    ${veKhoiCty(t)}
+    ${veKhoiCty()}
     ${temGT(t,'canhBao').trim()?`<div class="cb">${esc(temGT(t,'canhBao'))}</div>`:''}
   </div>`;
 }
@@ -5105,7 +5111,7 @@ $('rows').addEventListener('click',async e=>{
     luuNgay();ve();bao('Đã điền xuất xứ');return}
   const tca=e.target.closest('[data-temctyall]');
   if(tca){e.stopPropagation();const i=+tca.dataset.temctyall,p=sp[i];
-    const ok=await hoi('Áp phần chung cho mọi mặt hàng?','Tiêu đề, khối công ty và dòng cảnh báo của <b>'+esc(p.ten)+'</b> sẽ được chép sang hồ sơ tem của <b>tất cả '+sp.length+' mặt hàng</b> (kể cả mặt hàng khoá theo TCCS). Các ô khác không đổi.',{nutOK:'Áp cho mọi mặt hàng'});
+    const ok=await hoi('Áp phần chung cho mọi mặt hàng?','Tiêu đề và dòng cảnh báo của <b>'+esc(p.ten)+'</b> sẽ được chép sang hồ sơ tem của <b>tất cả '+sp.length+' mặt hàng</b> (kể cả mặt hàng khoá theo TCCS). Các ô khác không đổi.',{nutOK:'Áp cho mọi mặt hàng'});
     if(!ok)return;
     const nguon={};TEM_KHOI_CTY.forEach(k=>nguon[k]=temGT(p.hstem,k));
     sp.forEach(x=>{x.hstem={...temMoi(),...(x.hstem||{}),...nguon}});

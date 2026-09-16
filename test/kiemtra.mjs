@@ -219,31 +219,37 @@ const s18=await E(async()=>{ window.__tatTuDongKhoTem=true;
   p.hstem={tenVN:'A',thanhPhan:'B',congDung:'C',doAm:'< 10%',hdsd:'D',baoQuan:'E',xuatXu:'F',soTCCS:'01:2026/KH',hsdNam:'10'};
   const txt=h=>{const d=document.createElement('div');d.innerHTML=h;document.body.appendChild(d);const t=d.innerText.replace(/\s+/g,' ');d.remove();return t};
   const kq={};
-  kq.macDinhGiongCu=/NHÃN SẢN PHẨM/.test(txt(temHTML(r,p)))&&/KHÁNH HOÀNG/.test(txt(temHTML(r,p)))&&/Mã số thuế: 0318698788/.test(txt(temHTML(r,p)))&&/Đọc kỹ hướng dẫn/.test(txt(temHTML(r,p)));
-  p.hstem.ctyTen='CÔNG TY THỬ S18'; p.hstem.ctyDiaChi='Địa chỉ: 1 Đường A\nMST: 999'; p.hstem.canhBao=''; p.hstem.tenEN='Test EN'; p.hstem.soTCCS='TCVN 1234:2020';
+  kq.macDinhGiongCu=/NHÃN SẢN PHẨM/.test(txt(temHTML(r,p)))&&/KHÁNH HOÀNG/.test(txt(temHTML(r,p)))&&/0318698788/.test(txt(temHTML(r,p)))&&/Đọc kỹ hướng dẫn/.test(txt(temHTML(r,p)));
+  // 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — dù hstem còn dữ liệu cũ
+  // (di trú từ trước khi khoá lại, hoặc cố tình gán tay) thì tem vẫn PHẢI luôn in đúng TEM_MD.
+  p.hstem.ctyTen='CÔNG TY CŨ (dữ liệu di trú)'; p.hstem.ctyDiaChi='Địa chỉ cũ, MST cũ'; p.hstem.canhBao=''; p.hstem.tenEN='Test EN'; p.hstem.soTCCS='TCVN 1234:2020';
   const t=txt(temHTML(r,p));
-  kq.inTheoSua=/CÔNG TY THỬ S18/.test(t)&&/Địa chỉ: 1 Đường A/.test(t)&&/MST: 999/.test(t)&&!/KHÁNH HOÀNG/.test(t)&&/Test EN/.test(t);
+  kq.khoiCtyLuonFixCung=/KHÁNH HOÀNG/.test(t)&&!/CÔNG TY CŨ/.test(t)&&!/Địa chỉ cũ/.test(t);
+  kq.inTheoSua=/Test EN/.test(t); // các ô nội dung khác (tên phụ…) vẫn sửa được bình thường, chỉ khối công ty bị khoá
   kq.xoaTrangBoDong=!/Đọc kỹ hướng dẫn/.test(t);
   kq.tieuChuanKhac=/TCVN 1234:2020/.test(t)&&!/TCCS TCVN/.test(t);
   p.hstem.soTCCS='01:2026/KH'; kq.tieuChuanCu=/TCCS 01:2026\/KH/.test(txt(temHTML(r,p)));
   mo.clear(); mo.add(i); chuyenTab('ct');
-  kq.coOSua=['tenEN','xuatXu','ctyTen','ctyDiaChi','canhBao','tieuDe'].every(k=>!!document.querySelector('[data-tem="'+k+'"][data-i="'+i+'"]'));
+  kq.coOSua=['tenEN','xuatXu','canhBao','tieuDe'].every(k=>!!document.querySelector('[data-tem="'+k+'"][data-i="'+i+'"]'));
+  kq.khongCoOSuaCty=['ctyVaiTro','ctyTen','ctyDiaChi'].every(k=>!document.querySelector('[data-tem="'+k+'"][data-i="'+i+'"]'));
   document.querySelector('[data-xx="1"][data-i="'+i+'"]').click(); await cho(80);
   kq.cauXuatXu=sp[i].hstem.xuatXu==='Sản xuất tại Việt Nam từ nguyên liệu nhập khẩu';
+  p.hstem.canhBao='Test canh bao S18';
   document.querySelector('[data-temctyall="'+i+'"]').click(); await cho(150); $('dlgO').click(); await cho(150);
-  kq.apMoi=sp.every(x=>x.hstem&&x.hstem.ctyTen==='CÔNG TY THỬ S18'&&x.hstem.canhBao==='');
+  kq.apMoi=sp.every(x=>x.hstem&&x.hstem.canhBao==='Test canh bao S18');
   const k32=sp.findIndex(x=>x.ten==='Cát ăn (Hambi)'); sp[k32].maSP='32'; sp[k32].temMoKhoa=false; dongBoTCCSKhoaLucNap();
-  kq.khoaTCCSGiuCty=sp[k32].hstem.ctyTen==='CÔNG TY THỬ S18'&&sp[k32].hstem.tenVN===TCCS_DATA['32'].tenVN;
-  kq.dongBoNguyenKhoi=sachCauHinh(sp)[i].hstem.ctyTen==='CÔNG TY THỬ S18';
+  kq.khoaTCCSGiuCty=sp[k32].hstem.canhBao==='Test canh bao S18'&&sp[k32].hstem.tenVN===TCCS_DATA['32'].tenVN;
+  kq.dongBoNguyenKhoi=sachCauHinh(sp)[i].hstem.canhBao==='Test canh bao S18';
   const g=JSON.parse(goc); sp.forEach((x,k)=>x.hstem=g[k]); mo.clear(); luuNgay(); chuyenTab('tq'); window.__tatTuDongKhoTem=false;
   return kq;});
 ok('S18: chưa sửa gì → tem in đúng tiêu đề, khối công ty, cảnh báo như cũ', s18.macDinhGiongCu, JSON.stringify(s18));
-ok('S18: sửa tên công ty / địa chỉ (nhiều dòng) / tên phụ → tem in theo nội dung đã sửa', s18.inTheoSua);
+ok('S18/16-09: khối công ty (vai trò/tên/địa chỉ) đã FIX CỨNG — dù hstem có dữ liệu cũ vẫn luôn in đúng TEM_MD', s18.khoiCtyLuonFixCung);
+ok('S18: tên phụ (tenEN) vẫn sửa được bình thường', s18.inTheoSua);
 ok('S18: xoá trắng dòng cảnh báo → tem bỏ hẳn dòng đó', s18.xoaTrangBoDong);
 ok('S18: tiêu chuẩn khác (TCVN …) in nguyên văn; số hiệu thường vẫn tự thêm "TCCS "', s18.tieuChuanKhac&&s18.tieuChuanCu);
-ok('S18: hồ sơ tem có ô sửa cho tên phụ, xuất xứ, tiêu đề, công ty, địa chỉ, cảnh báo', s18.coOSua);
+ok('S18: hồ sơ tem có ô sửa cho tên phụ, xuất xứ, tiêu đề, cảnh báo (không còn ô sửa khối công ty)', s18.coOSua&&s18.khongCoOSuaCty);
 ok('S18: bấm câu chọn nhanh → điền đúng xuất xứ', s18.cauXuatXu);
-ok('S18: "Áp phần chung cho mọi mặt hàng" → mọi mặt hàng nhận đúng khối công ty/cảnh báo', s18.apMoi);
+ok('S18: "Áp phần chung cho mọi mặt hàng" → mọi mặt hàng nhận đúng tiêu đề/cảnh báo (khối công ty đã fix cứng, không cần áp)', s18.apMoi);
 ok('S18: mặt hàng khoá TCCS tự áp lại TCCS nhưng GIỮ phần chung cuối tem', s18.khoaTCCSGiuCty);
 ok('S18: phần chung nằm trong hồ sơ tem → đồng bộ nguyên khối (không cần sửa Code.gs)', s18.dongBoNguyenKhoi);
 /* S19 (10/09/2026) — tên trên tem hiện kèm ở ô chọn lô/thẻ lô; sửa nội dung tem lần cuối trong bảng Dàn trang */
@@ -561,7 +567,9 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   kq.doiQuaLaiDuoc=document.querySelector('[data-dt="khoA4"]').classList.contains('on')&&!document.getElementById('dtOCot').hidden;
   document.querySelector('[data-dt="kho-nhiet"]').click(); await cho(60);
   document.getElementById('dtIn').click(); await pr; await cho(150);
-  kq.bamInMoiLuu=temKho==='nhiet'&&(()=>{try{return localStorage.getItem('peroma:temKhoDuyet')!=null}catch(e){return true}})();
+  kq.bamInMoiLuu=temKho==='nhiet'; // cờ "đã duyệt chữ nhỏ" (peroma:temKhoDuyet) chỉ set khi kq.co<TEM_CO_DOC — không còn đúng
+    // luôn kể từ khi nén CSS .kh (16/09/2026) giúp hồ sơ ngắn này vừa khít ở cỡ chữ >= TEM_CO_DOC; việc lưu khổ xuống máy
+    // đã được xác nhận riêng ở luuXuongMay bên dưới nên bỏ điều kiện localStorage thừa này.
 
   // 6) khổ nhớ theo máy: lưu xuống store, nạp lại đúng
   await luuNgay(); const daLuu=await store.get(); kq.luuXuongMay=daLuu.temKho==='nhiet';
@@ -823,7 +831,7 @@ ok('in được khi hồ sơ đủ', (await E(()=>window.__in===1)));
 const tem=await E(()=>$('temIn').innerText);
 ok('tem có ngày SX đầy đủ', /22\/08\/2026/.test(tem));
 ok('tem có số lô', /11 01 07 0826|11 01 04 0826/.test(tem));
-ok('tem có địa chỉ sản xuất', /8A An Dương Vương/.test(tem));
+ok('tem có địa chỉ sản xuất', /8A AN DƯƠNG VƯƠNG/i.test(tem)); // 16/09/2026: khối công ty đổi sang chữ hoa (khách yêu cầu fix cứng)
 ok('tem tính hạn dùng', /đến 22\/08\/2036/.test(tem));
 ok('#temIn là con trực tiếp của body', (await E(()=>$('temIn').parentElement.tagName))==='BODY');
 
@@ -1361,9 +1369,9 @@ const aeXX=await E(()=>{
   return {i:sp.indexOf(c), html:$('rows').innerHTML};
 });
 ok('S18: ô Xuất xứ là ô sửa được, có câu chọn nhanh', /data-tem="xuatXu"/.test(aeXX.html)&&/data-xx="1"/.test(aeXX.html));
-ok('ô Xuất xứ rỗng thì hiện mặc định "Sản xuất tại Việt Nam"', /Sản xuất tại Việt Nam/.test(aeXX.html));
+ok('ô Xuất xứ rỗng thì hiện mặc định "Việt Nam" (16/09/2026: bỏ tiền tố "Sản xuất tại")', new RegExp('data-xx="0"[^<]*>Việt Nam<').test(aeXX.html));
 const aeXXCty=await E(()=>{const c=sp.find(x=>x.ten.includes('ZAKA')||x.ten.includes('Little Mars')); return c?c.hstem&&c.hstem.xuatXu:'—'});
-ok('mặt hàng có xuất xứ câu dài hơn (nguyên liệu nhập khẩu) vẫn giữ nguyên nội dung riêng, không bị đồng nhất', aeXXCty==='—'||/nhập khẩu|Sản xuất tại Việt Nam/.test(aeXXCty), aeXXCty);
+ok('mặt hàng có xuất xứ câu dài hơn (nguyên liệu nhập khẩu) vẫn giữ nguyên nội dung riêng, không bị đồng nhất', aeXXCty==='—'||/nhập khẩu|Việt Nam/.test(aeXXCty), aeXXCty);
 
 const aeCT=await E(()=>{
   const c=sp.find(x=>x.ten==='THE CITYCAT'); c.huongMe='';

@@ -229,7 +229,7 @@ await p.click('[data-intem]'); await p.waitForTimeout(500);
 ok('in được tem', (await E(()=>window.__in===1)));
 const tem=await E(()=>$('temIn').innerText);
 ok('tem có số lô', tem.replace(/s+/g,' ').includes(LOT_UI_CACH), 'mong đợi: '+LOT_UI_CACH);
-ok('tem có địa chỉ sản xuất', /8A An Dương Vương/.test(tem));
+ok('tem có địa chỉ sản xuất', /8A AN DƯƠNG VƯƠNG/i.test(tem)); // 16/09/2026: khối công ty đổi sang chữ hoa (khách yêu cầu fix cứng)
 ok('tem có hạn dùng', /đến 22\/08\/2036|đến \d{2}\/\d{2}\/20\d{2}/.test(tem));
 ok('#temIn là con trực tiếp của body', (await E(()=>$('temIn').parentElement.tagName))==='BODY');
 
