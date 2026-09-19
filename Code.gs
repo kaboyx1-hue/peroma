@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-09-15-S33';
+const PHIEN_BAN_MAYCHU = '2026-09-19-S38';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -26,6 +26,7 @@ function loiMatKhau(){ return matKhauMayChu() ? 'Sai mật khẩu' : LOI_CHUA_CA
 const S_CAUHINH = 'CAUHINH';
 const S_NHATKY  = 'NHATKY';
 const S_BAOCAO  = 'BAOCAO';
+const S_LENHTIENDO = 'LENHTIENDO';
 const COT = ['ID','Ngày SX','Số lô','Lệnh SX','Mã SP','Sản phẩm','Hương','Quy cách',
              'KG','Số bao','ML hương','Nhân viên','Thời điểm ghi','DỮ LIỆU'];
 /* 27/08/2026 (phản hồi lần 3): khách phản hồi "chốt thực tế sản xuất" (bcNgay) sau khi nhân
@@ -36,6 +37,14 @@ const COT = ['ID','Ngày SX','Số lô','Lệnh SX','Mã SP','Sản phẩm','Hư
    ghi mẻ dở), không phạm invariant H1. */
 const COT_BC = ['ID','Ngày','Số lô','Sản phẩm','Quy cách','Kế hoạch (kg)','Thực tế (kg)',
                 'Lý do','Nhân viên','Thời điểm ghi','DỮ LIỆU'];
+/* 19/09/2026 — "Lệnh sản xuất theo lô": Admin đặt lenhSX (mục tiêu kg cho 1 mặt hàng) — đi qua
+   kênh CAUHINH sẵn có (xem sachCauHinhServer bên dưới), giống tuHoSo/baoBi, KHÔNG cần sheet
+   riêng. lenhTienDo (nhật ký tiến độ nhân viên ghi vào lệnh) thì CẦN sheet + action riêng, ĐÚNG
+   MẪU với BAOCAO/themBaoCao ở trên — append-only, dedupe theo id, nhiều nhân viên cùng ghi vào 1
+   lệnh không đè lên nhau vì không ai SỬA dòng cũ, chỉ THÊM dòng mới; thucTe của lệnh luôn được 2
+   app TÍNH LẠI từ tổng các dòng lenhTienDo, không lưu số tổng ở đâu cả (xem thucTeLenh() ở cả 2
+   app) — nên cũng không có chuyện ghi đè mất tiến độ khi 2 máy đồng bộ lệch nhịp. */
+const COT_LT = ['ID','Lệnh SX (id)','Mặt hàng','KG','Nhân viên','Thời điểm ghi','DỮ LIỆU'];
 /* 12/09/2026: hồ sơ kế toán theo lô cho trang riêng hoso.html (số hoá đơn NCC, số biên bản/
    quyết định khi huỷ lô) — khách cần nối số lô sản xuất với chứng từ kế toán để đối chiếu sổ
    sách. Sheet ĐỘC LẬP, không đụng NHATKY/BAOCAO/CAUHINH. Khác NHATKY/BAOCAO (append-only): mỗi
@@ -59,7 +68,7 @@ const COT_HS = ['Số lô','Ngày SX','Mặt hàng','Quy cách','KG',
    không kiểm được đầu kia thì rủi ro hơn là để nguyên. Xem PATCH-REPORT.md — mục này đánh dấu
    BLOCKED FOR SERVER VERIFICATION. Toàn bộ log lỗi vẫn KHÔNG in ra token/mật khẩu. */
 const SCHEMA_VERSION = 1;
-const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo'];
+const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo','lenhtiendo','themLenhTienDo'];
 
 /* ── Đọc ── */
 /* 29/08/2026 — bản S6 (khách yêu cầu: mở Admin từ BẤT KỲ máy nào, ở bất kỳ đâu, không cần đã
@@ -92,6 +101,7 @@ function doGet(e){
     if(p.a === 'cauhinh') return ra({ok:1, cauhinh: docCauHinh(), ts: tsCauHinh(), xoaMocTs: xoaMocTs()});
     if(p.a === 'nhatky')  return ra({ok:1, nk: docNhatKy()});
     if(p.a === 'baocao')  return ra({ok:1, bc: docBaoCao()});
+    if(p.a === 'lenhtiendo') return ra({ok:1, lt: docLenhTienDo()});
     // 14/09/2026: chạy 1 lần để đưa các lô ghi TRƯỚC bản S32 vào tab HOSOLO (lô ghi từ S32 trở
     // đi đã tự có sẵn qua themMe()). Dán link kèm đúng mk vào trình duyệt 1 lần là xong, chạy
     // lại nhiều lần vẫn an toàn (xem dongBoHoSoLoTuMe — không đụng cột kế toán, không trùng dòng).
@@ -112,6 +122,7 @@ function doPost(e){
     if(d.a === 'luuCauHinh'){ ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
+    if(d.a === 'themLenhTienDo'){ const r = themLenhTienDo(d.lt || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'xoaDLMoPhong'){ xoaDLMoPhong(); return ra({ok:1}) }
     return ra({loi:'Không rõ lệnh'});
   }catch(err){ return ra({loi:String(err)}) }
@@ -185,7 +196,10 @@ function sachCauHinhServer(c, cu){
     // 14/09/2026 — S32: "Tủ hồ sơ chung" — danh sách link Google Drive (tên/mô tả/link), không
     // phải trạng thái ghi mẻ dở — cùng whitelist pattern với baoBi ở trên (bản Admin cũ chưa có
     // trường này thì giữ nguyên bản đang lưu, không ghi đè thành rỗng).
-    tuHoSo: Array.isArray(c.tuHoSo) ? c.tuHoSo : ((cu && Array.isArray(cu.tuHoSo)) ? cu.tuHoSo : [])
+    tuHoSo: Array.isArray(c.tuHoSo) ? c.tuHoSo : ((cu && Array.isArray(cu.tuHoSo)) ? cu.tuHoSo : []),
+    // 19/09/2026 — "Lệnh sản xuất theo lô" (mục tiêu kg Admin đặt cho 1 mặt hàng) — cùng whitelist
+    // pattern với tuHoSo ở trên. Tiến độ (lenhTienDo) KHÔNG đi qua đây — xem docLenhTienDo()/themLenhTienDo().
+    lenhSX: Array.isArray(c.lenhSX) ? c.lenhSX : ((cu && Array.isArray(cu.lenhSX)) ? cu.lenhSX : [])
   };
 }
 
@@ -316,6 +330,39 @@ function themBaoCao(ds){
     idDaNhan.push(r.id);
   });
   if(them.length) sh.getRange(sh.getLastRow()+1, 1, them.length, COT_BC.length).setValues(them);
+  return { them: them.length, boQua: ds.length - them.length, idDaNhan: idDaNhan };
+}
+
+/* ── Tiến độ lệnh sản xuất: mỗi lần nhân viên ghi MỘT DÒNG (giống BAOCAO/NHATKY) ── */
+function docLenhTienDo(){
+  const sh = lay(S_LENHTIENDO);
+  const n = sh.getLastRow();
+  if(n < 2) return [];
+  const v = sh.getRange(2, COT_LT.length, n-1, 1).getValues();
+  const ra_ = [];
+  for(let i=0;i<v.length;i++){
+    if(!v[i][0]) continue;
+    try{ ra_.push(JSON.parse(v[i][0])) }catch(e){}
+  }
+  return ra_;
+}
+function themLenhTienDo(ds){
+  const sh = lay(S_LENHTIENDO);
+  if(sh.getLastRow() < 1){ sh.appendRow(COT_LT); sh.setFrozenRows(1); sh.getRange(1,1,1,COT_LT.length).setFontWeight('bold') }
+  const daCo = {};
+  const n = sh.getLastRow();
+  if(n > 1) sh.getRange(2,1,n-1,1).getValues().forEach(r=>{ if(r[0]) daCo[r[0]] = 1 });
+  const them = [];
+  const idDaNhan = [];
+  ds.forEach(r=>{
+    if(!r || !r.id || daCo[r.id]){ if(r&&r.id&&daCo[r.id])idDaNhan.push(r.id); return }
+    daCo[r.id] = 1;
+    delete r.daGui;
+    them.push([r.id, r.lenhId||'', r.sp||'', Number(r.kg)||0, r.nv||'',
+               String(r.ts||'').replace('T',' ').slice(0,19), JSON.stringify(r)]);
+    idDaNhan.push(r.id);
+  });
+  if(them.length) sh.getRange(sh.getLastRow()+1, 1, them.length, COT_LT.length).setValues(them);
   return { them: them.length, boQua: ds.length - them.length, idDaNhan: idDaNhan };
 }
 

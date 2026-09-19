@@ -883,6 +883,60 @@ ok('R20: bấm In mới lưu khổ 50×70mm đã chọn', r20.bamInMoiLuu5070);
 ok('R20: khu cài đặt (tab Tra lô) có nút khổ 50×70mm, chuyển qua lại đúng', r20.caiDatCoNutKho5070&&r20.caiDatChuyenVeA4);
 await E(()=>{const i=nk.findIndex(r=>r.id==='R9-A1');if(i>=0)nk.splice(i,1);luu();ve()});
 
+console.log('\n── S21. LỆNH SẢN XUẤT THEO LÔ (19/09/2026) ──');
+/* Khách: ô "chốt thực tế" (chưa ghi được lô nào) liệt kê TOÀN BỘ mặt hàng đã khai báo — thêm
+   khái niệm "lệnh sản xuất" CÓ MỤC TIÊU do Admin tạo (lenhSX, đồng bộ qua cấu hình), nhân viên
+   chỉ thấy lệnh ĐANG MỞ và ghi tiến độ (lenhTienDo, nhiều người cùng ghi 1 lệnh) cho tới khi đạt
+   thì tự chốt — KHÔNG đụng gì tới form bcSpIn/bcKeHoachIn/bcGuiBtn cũ (vẫn của riêng nó, xem S26 test). */
+const s21=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const gocLenhSX=JSON.stringify(lenhSX), gocLenhTienDo=JSON.stringify(lenhTienDo);
+  lenhSX=[]; lenhTienDo=[]; toi='Toàn';
+  tab='bc'; ve(); await cho(60);
+  const kq={};
+  kq.chuaCoLenh=/Chưa có lệnh sản xuất nào đang mở/.test(document.getElementById('view').innerHTML);
+  kq.formCuVanCon=!!document.getElementById('bcSpIn')&&!!document.getElementById('bcKeHoachIn')&&!!document.getElementById('bcGuiBtn');
+  // Admin đã tạo 1 lệnh (mô phỏng dữ liệu kéo về qua cauhinh)
+  lenhSX.push({id:'LSX-T1',sp:sp[0].ten,keHoach:1000,ghiChu:'Ưu tiên hoàn thành trước cuối tuần',ngayTao:'2026-09-19',huy:false});
+  ve(); await cho(60);
+  const optT1=document.querySelector('#lsxChonIn option[value="LSX-T1"]');
+  kq.hienDungODropdown=!!optT1&&/còn thiếu/.test(optT1.textContent)&&optT1.textContent.includes(fmt(1000));
+  kq.hienGhiChu=/Ưu tiên hoàn thành trước cuối tuần/.test(document.getElementById('view').innerHTML);
+  // Chưa chọn lệnh, chưa nhập kg — bấm gửi phải báo lỗi, không ghi gì
+  document.getElementById('lsxGuiBtn').click(); await cho(80);
+  kq.chuaChonBaoLoi=lenhTienDo.length===0;
+  // Ghi tiến độ lần 1 — CHƯA đủ kế hoạch
+  document.getElementById('lsxChonIn').value='LSX-T1';
+  document.getElementById('lsxKgIn').value='600';
+  document.getElementById('lsxGuiBtn').click(); await cho(150);
+  kq.ghiLan1Dung=lenhTienDo.length===1&&lenhTienDo[0].kg===600&&lenhTienDo[0].nv==='Toàn'&&lenhTienDo[0].lenhId==='LSX-T1';
+  kq.vanConMoSauLan1=lenhDangMo().some(l=>l.id==='LSX-T1');
+  const html2=document.getElementById('view').innerHTML;
+  kq.hienTienDoSauLan1=html2.includes(fmt(600))&&html2.includes(fmt(1000));
+  // Ghi tiến độ lần 2 (nhân viên KHÁC) — ĐỦ kế hoạch → tự chốt, biến mất khỏi dropdown chọn
+  toi='Bình';
+  document.getElementById('lsxChonIn').value='LSX-T1';
+  document.getElementById('lsxKgIn').value='400';
+  document.getElementById('lsxGuiBtn').click(); await cho(150);
+  kq.congDonHaiNguoiDung=thucTeLenh('LSX-T1')===1000;
+  kq.tuChotSauKhiDu=trangThaiLenh(lenhSX[0])==='xong'&&!lenhDangMo().some(l=>l.id==='LSX-T1');
+  const html3=document.getElementById('view').innerHTML;
+  kq.bienMatKhoiDropdownSauKhiXong=!/id="lsxChonIn"/.test(html3)||!/LSX-T1/.test((document.getElementById('lsxChonIn')||{innerHTML:''}).innerHTML);
+  lenhSX=JSON.parse(gocLenhSX); lenhTienDo=JSON.parse(gocLenhTienDo); toi=''; await luu(); ve();
+  return kq;
+});
+ok('S21: chưa có lệnh nào đang mở → hiện đúng thông báo', s21.chuaCoLenh, JSON.stringify(s21));
+ok('S21: form "Chốt thực tế sản xuất" cũ (bcSpIn/bcKeHoachIn/bcGuiBtn) vẫn còn nguyên, không bị đụng vào', s21.formCuVanCon);
+ok('S21: lệnh Admin tạo hiện đúng trong dropdown, kèm số kg còn thiếu', s21.hienDungODropdown);
+ok('S21: hiện đúng ghi chú của lệnh', s21.hienGhiChu);
+ok('S21: chưa chọn lệnh/chưa nhập kg thì báo lỗi, không ghi gì', s21.chuaChonBaoLoi);
+ok('S21: ghi tiến độ lần 1 (600/1000) — lưu đúng nội dung, đúng người ghi', s21.ghiLan1Dung);
+ok('S21: 600/1000 vẫn ĐANG MỞ (chưa đạt kế hoạch)', s21.vanConMoSauLan1);
+ok('S21: hiện đúng tiến độ cộng dồn trên màn hình', s21.hienTienDoSauLan1);
+ok('S21: 2 nhân viên KHÁC NHAU cùng ghi vào 1 lệnh → cộng dồn đúng (600+400=1000), không đè lên nhau', s21.congDonHaiNguoiDung);
+ok('S21: đủ kế hoạch → tự động chốt (trangThaiLenh=xong)', s21.tuChotSauKhiDu);
+ok('S21: lệnh đã chốt biến mất khỏi dropdown chọn (không còn hiện cho nhân viên ghi thêm)', s21.bienMatKhoiDropdownSauKhiXong);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

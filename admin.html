@@ -1105,9 +1105,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/09/2026-S37</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/09/2026-S38</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/09/2026-S37</div>
+      <div class="verFoot">BẢN 19/09/2026-S38</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1256,7 +1256,7 @@ function laDienThoai(){
 }
 function daChoPhepSuaTrenMayNay(){try{return localStorage.getItem(ADMIN_SUA_KEY)==='1'}catch(e){return false}}
 let adminChiXem=laDienThoai()&&!daChoPhepSuaTrenMayNay();
-let dbTT='tat', dbHen2=null, dbDangKeo=false, dbDangKeoBc=false, dongBoCauHinhTs='';
+let dbTT='tat', dbHen2=null, dbDangKeo=false, dbDangKeoBc=false, dbDangKeoLt=false, dongBoCauHinhTs='';
 function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function dbVeTT(t,ghiChu){
   dbTT=t; const el=document.getElementById('dbDen'); if(!el)return;
@@ -1316,7 +1316,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX}})});
     if(j&&j.ts)dongBoCauHinhTs=j.ts;
     dbVeTT('ok');
   }catch(e){ dbVeTT('loi', e.message); }
@@ -1366,6 +1366,7 @@ function apDungCauHinhTuServer(c){
   if(Array.isArray(c.baoBi))baoBi=c.baoBi;
   if(c.baoBiQC&&typeof c.baoBiQC==='object'&&!Array.isArray(c.baoBiQC))baoBiQC=c.baoBiQC;
   if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
+  if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -1479,6 +1480,24 @@ async function dbKeoBaoCao(){
   }catch(e){ dbVeTT('loi', e.message); }
   dbDangKeoBc=false;
 }
+/* 19/09/2026 — kéo nhật ký tiến độ "lệnh sản xuất" (lenhTienDo) — ĐÚNG MẪU dbKeoBaoCao() ở trên,
+   chỉ đổi action/mảng (a=lenhtiendo, lenhTienDo thay vì bcNgay). Admin cần kéo kênh này (không
+   chỉ NV) vì tiến độ do NHIỀU nhân viên cùng ghi vào 1 lệnh — Admin phải thấy đủ để tính đúng
+   thucTeLenh(), không chỉ thấy phần lenhSX (mục tiêu) tự mình tạo ra. */
+async function dbKeoTienDoLenh(){
+  if(!DONGBO_URL||dbDangKeoLt)return;
+  dbDangKeoLt=true;
+  try{
+    const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=lenhtiendo');
+    if(j.ok && Array.isArray(j.lt)){
+      let them=0;
+      j.lt.forEach(r=>{ if(!lenhTienDo.some(x=>x.id===r.id)){ lenhTienDo.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
+      if(them){ lenhTienDo.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); if(typeof ve==='function')ve(); }
+      dbVeTT('ok');
+    }
+  }catch(e){ dbVeTT('loi', e.message); }
+  dbDangKeoLt=false;
+}
 /* 29/08/2026 — bản S6: vòng lặp kéo cấu hình định kỳ cho Admin (trước đây Admin không có, chỉ
    Nhân viên có) — 9 giây/lần, CHỈ chạy khi tab đang mở & đang xem (document.hidden===false), để
    không tốn thêm hạn ngạch chạy của Apps Script (gói miễn phí ~90 phút/ngày) khi máy để tab ẩn
@@ -1490,9 +1509,10 @@ function dbBatDauVongLapCauHinh(){
 }
 function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
-  dbKeoNhatKy();dbKeoBaoCao();
+  dbKeoNhatKy();dbKeoBaoCao();dbKeoTienDoLenh();
   setInterval(dbKeoNhatKy,20000);
   setInterval(dbKeoBaoCao,20000);
+  setInterval(dbKeoTienDoLenh,20000);
   dbBatDauVongLapCauHinh();
 }
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1501,7 +1521,7 @@ document.addEventListener('DOMContentLoaded',()=>{
      Script, request nào chậm (sau khi vừa redeploy hoặc mạng yếu) dễ vượt 12s bị abort, rồi đè
      mất trạng thái 🟢 mà request nhanh hơn vừa hiện. Gọi lần lượt để không tranh chấp + không đè. */
   if(el)el.addEventListener('click',async()=>{
-    await dbDayCauHinh(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoCauHinhNeuMoiHon();
+    await dbDayCauHinh(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh(); await dbKeoCauHinhNeuMoiHon();
   });
 });
 
@@ -2129,6 +2149,25 @@ let baoBi=[], baoBiQC={};   // S21: bao bì (xem khối BAO BÌ & GIÁ VỐN)
    server lưu file). Đồng bộ qua đúng kênh cấu hình sẵn có (luuCauHinh/cauhinh), NV chỉ xem/mở
    link, không sửa được — xem veHoSo() (Admin) và veTuHoSo() (NV, tab "ho"). */
 let tuHoSo=[];
+/* 19/09/2026 — "Lệnh sản xuất theo lô": khách phản hồi ô "chốt thực tế" (chưa ghi được lô nào)
+   liệt kê TOÀN BỘ mặt hàng đã khai báo, kể cả mặt hàng chưa hề đang sản xuất — muốn thay bằng
+   khái niệm "lệnh sản xuất" CÓ MỤC TIÊU: Admin đặt kế hoạch (kg) cho 1 mặt hàng, nhân viên (bất
+   kỳ ai) ghi tiến độ nhiều lần cho tới khi đạt thì tự chốt — chỉ lệnh ĐANG MỞ mới hiện cho NV chọn.
+   Kiến trúc theo ĐÚNG 2 kênh sẵn có (không phát minh kênh mới):
+   - lenhSX[] = {id,sp,keHoach,ghiChu,ngayTao,huy} — Admin là NGUỒN DUY NHẤT, đi theo kênh cấu
+     hình đầy đủ hiện có (luuCauHinh/cauhinh), giống hệt tuHoSo/baoBi ở trên.
+   - lenhTienDo[] = {id,lenhId,kg,nv,ts,daGui} — nhật ký APPEND-ONLY, nhiều nhân viên cùng ghi vào
+     1 lệnh, đi theo ĐÚNG mẫu bcNgay/nk (mỗi máy chỉ ĐẨY bản ghi mới, không sửa/xoá bản ghi cũ) —
+     xem dbDayTienDoLenh()/dbKeoTienDoLenh() bên dưới và themTienDoLenh()/docTienDoLenh() ở Code.gs.
+   thucTe/trangThai của 1 lệnh KHÔNG lưu trực tiếp — luôn TÍNH LẠI từ lenhTienDo (thucTeLenh()),
+   nên 2 nhân viên cùng ghi vào 1 lệnh không bao giờ đè mất tiến độ của nhau (khác hẳn nếu lưu
+   thẳng "thucTe" trên chính lenhSX rồi để NV ghi đè — sẽ mất tiến độ người ghi trước khi 2 máy
+   đồng bộ lệch nhịp). HAI APP PHẢI GIỐNG HỆT NHAU (xem cả 2 file + Code.gs). */
+let lenhSX=[], lenhTienDo=[];
+function thucTeLenh(id){return lenhTienDo.filter(t=>t.lenhId===id).reduce((s,t)=>s+num(t.kg),0)}
+function trangThaiLenh(l){const kh=num(l&&l.keHoach);return kh>0&&thucTeLenh(l.id)>=kh?'xong':'mo'}
+function lenhDangMo(){return lenhSX.filter(l=>!l.huy&&trangThaiLenh(l)==='mo')}
+function lenhDaXong(){return lenhSX.filter(l=>!l.huy&&trangThaiLenh(l)==='xong')}
 /* 25/08/2026 — tiến độ nguyên liệu đầu vào: admin khai báo tổng kg của 1 lô nguyên liệu thô
    chung (VD lô cát/đậu nành 27000kg), app cộng dồn kg đã sản xuất (mọi mặt hàng, mọi mẻ, từ
    mốc khai báo) để biết đã dùng bao nhiêu / còn lại bao nhiêu — giúp canh đặt hàng tiếp. */
@@ -2258,10 +2297,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -4109,10 +4148,46 @@ function veBaoCaoNgay(){
       <div class="kv"><span>Lúc</span><b>${esc(String(r.ts||'').replace('T',' ').slice(0,19))}</b></div>
       </div>`}).join('');
 }
+/* 19/09/2026 — "Lệnh sản xuất theo lô": xem chú thích đầy đủ ở khai báo `let lenhSX=[]`. */
+function veTheLenh(l,hoanThanh){
+  const tt=thucTeLenh(l.id), kh=num(l.keHoach), pct=kh>0?Math.min(100,tt/kh*100):0;
+  const mau=hoanThanh?'var(--cyan)':(pct>=50?'var(--amber)':'var(--red)');
+  const con=Math.max(0,kh-tt);
+  const ls=lenhTienDo.filter(t=>t.lenhId===l.id).slice().reverse();
+  return `<div class="lot">
+    <h5>${esc(l.sp)}${hoanThanh?' <span style="font-size:12px;font-weight:800;color:var(--cyan);letter-spacing:.06em">· ĐÃ HOÀN THÀNH</span>':''}</h5>
+    <div class="kv"><span>Tiến độ</span><b style="color:${mau}">${fmt(tt)} / ${fmt(kh)} kg (${Math.round(pct)}%)</b></div>
+    <div style="height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:2px 0 8px"><div style="height:100%;width:${pct}%;background:${mau};border-radius:99px"></div></div>
+    ${!hoanThanh?`<div class="kv"><span>Còn thiếu</span><b>${fmt(con)} kg</b></div>`:''}
+    <div class="fld"><label>Kế hoạch (kg)</label><input data-lsxkh="${esc(l.id)}" type="text" inputmode="decimal" value="${esc(l.keHoach)}"></div>
+    <div class="fld"><label>Ghi chú</label><input data-lsxgc="${esc(l.id)}" type="text" value="${esc(l.ghiChu||'')}" placeholder="Không bắt buộc"></div>
+    ${ls.length?`<details><summary style="cursor:pointer;color:var(--txt-2);font-size:13px;margin-top:6px">Lịch sử ghi (${ls.length})</summary>`
+      +ls.map(t=>`<div class="kv" style="font-size:12px"><span>${esc(String(t.ts||'').replace('T',' ').slice(0,19))} · ${esc(t.nv||'?')}</span><b>${fmt(num(t.kg))} kg</b></div>`).join('')
+      +`</details>`:''}
+    <button class="abtn" style="margin-top:8px;color:var(--red)" data-lsxhuy="${esc(l.id)}">Huỷ lệnh</button>
+  </div>`;
+}
+function veLenhSX(){
+  const dm=lenhDangMo(), dx=lenhDaXong();
+  let o=`<div class="sec">Lệnh sản xuất theo lô</div><div class="card">
+    <div class="hint">Đặt mục tiêu (kg) cho 1 mặt hàng — nhân viên sẽ thấy lệnh này trong tab Báo cáo và ghi tiến độ vào cho tới khi đủ, tự động chốt khi đạt. Chỉ lệnh ĐANG MỞ mới hiện cho nhân viên chọn.</div>
+    <div class="dates">
+      <div class="fld"><label>Mặt hàng</label><select id="lsxSpIn"><option value="">— chọn mặt hàng —</option>${sp.map(p=>`<option value="${esc(p.ten)}">${esc(p.ten)}</option>`).join('')}</select></div>
+      <div class="fld"><label>Kế hoạch (kg)</label><input id="lsxKhIn" type="text" inputmode="decimal" placeholder="VD: 2000"></div>
+    </div>
+    <input id="lsxGcIn" type="text" placeholder="Ghi chú (không bắt buộc)" style="margin-top:8px">
+    <button class="abtn" id="lsxTaoBtn" style="margin-top:8px">Tạo lệnh sản xuất</button>
+  </div>`;
+  o+=`<div class="sec">Đang mở <span style="color:var(--txt-2);font-weight:500">(${dm.length})</span></div>`;
+  o+= dm.length? dm.map(l=>veTheLenh(l,false)).join('') : `<div class="card"><div class="hint">Không có lệnh nào đang mở.</div></div>`;
+  o+=`<div class="sec">Đã hoàn thành <span style="color:var(--txt-2);font-weight:500">(${dx.length})</span></div>`;
+  o+= dx.length? dx.slice().reverse().slice(0,10).map(l=>veTheLenh(l,true)).join('') : `<div class="card"><div class="hint">Chưa có lệnh nào hoàn thành.</div></div>`;
+  return o;
+}
 function veBC(){
   const ls=locNK();
   const tKg=ls.reduce((a,r)=>a+num(r.sl),0), tMl=ls.reduce((a,r)=>a+num(r.mlDung),0);
-  let o=veBaoCaoNgay();
+  let o=veLenhSX()+veBaoCaoNgay();
   o+=`<div class="sec">Khoảng thời gian</div>
    <div class="dates">
      <div class="fld"><label>Từ ngày</label><input type="date" id="tuNgay" value="${esc(tuNgay)}"></div>
@@ -4787,6 +4862,26 @@ $('viewBC').addEventListener('input',e=>{
       luu();veBC();const el=$('ngayNhacIT');if(el)el.focus()
     },500);
   }
+  const lk=e.target.closest('[data-lsxkh]');
+  if(lk){
+    const id=lk.dataset.lsxkh;
+    clearTimeout(henBC);
+    henBC=setTimeout(()=>{
+      const l=lenhSX.find(x=>x.id===id); if(!l)return;
+      l.keHoach=num(lk.value); luuNgay(); veBC();
+      const el=document.querySelector('[data-lsxkh="'+id+'"]'); if(el)el.focus();
+    },500);
+  }
+  const lg=e.target.closest('[data-lsxgc]');
+  if(lg){
+    const id=lg.dataset.lsxgc;
+    clearTimeout(henBC);
+    henBC=setTimeout(()=>{
+      const l=lenhSX.find(x=>x.id===id); if(!l)return;
+      l.ghiChu=lg.value; luuNgay(); veBC();
+      const el=document.querySelector('[data-lsxgc="'+id+'"]'); if(el)el.focus();
+    },500);
+  }
 });
 $('viewBC').addEventListener('click',async e=>{
   if(e.target.id==='clearNgay'){tuNgay='';denNgay='';veBC();return}
@@ -4797,6 +4892,19 @@ $('viewBC').addEventListener('click',async e=>{
   if(hl){await huyLo(hl.dataset.huylo);return}
   const ngl=e.target.closest('[data-ngunglo]');
   if(ngl){await ngungLo(ngl.dataset.ngunglo);return}
+  if(e.target.id==='lsxTaoBtn'){
+    const spEl=$('lsxSpIn'), khEl=$('lsxKhIn'), gcEl=$('lsxGcIn');
+    if(!spEl.value){bao('Chọn mặt hàng trước');return}
+    const kh=num(khEl.value);
+    if(!(kh>0)){bao('Nhập kế hoạch (kg) lớn hơn 0');return}
+    lenhSX.push({id:'LSX'+Date.now()+'-'+Math.floor(Math.random()*100000),sp:spEl.value,keHoach:kh,ghiChu:String(gcEl.value||'').trim(),ngayTao:isoNay(),huy:false});
+    luuNgay(); veBC(); bao('Đã tạo lệnh sản xuất'); return}
+  const lh=e.target.closest('[data-lsxhuy]');
+  if(lh){
+    const l=lenhSX.find(x=>x.id===lh.dataset.lsxhuy); if(!l)return;
+    const ok=await hoi('Huỷ lệnh sản xuất?','Lệnh <b>'+esc(l.sp)+'</b> sẽ bị huỷ, không còn hiện cho nhân viên chọn nữa. Lịch sử tiến độ đã ghi vẫn được giữ lại.',{nutOK:'Huỷ lệnh',nguyHiem:true});
+    if(!ok)return;
+    l.huy=true; luuNgay(); veBC(); bao('Đã huỷ lệnh sản xuất'); return}
 });
 
 $('viewSL').addEventListener('change',async e=>{
@@ -4975,7 +5083,7 @@ $('viewSL').addEventListener('click',async e=>{
        (xem khối "Phục hồi từ bản sao"), nhưng export ở đây trước giờ chưa từng ghi ra, nên
        "Bản sao đầy đủ" thực ra KHÔNG đầy đủ — phục hồi từ file .json cũ sẽ làm MẤT sạch nguồn
        hương liệu/giá/tồn kho/danh mục nguyên liệu. Bổ sung đủ vào đây, không đổi field nào cũ. */
-    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
+    const s=JSON.stringify({v:10,ngay:isoNay(),sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1);
     const ok=taiVe(`huonglieu_backup_${isoNay()}.json`,s,'application/json');
     if(!ok){const d=$('dump');d.style.display='block';d.value=s;d.select();bao('Không tải được — hãy sao chép nội dung bên dưới')}
     else bao('Đã tạo bản sao');
@@ -5012,6 +5120,8 @@ $('viewSL').addEventListener('click',async e=>{
       if(Array.isArray(d.baoBi))baoBi=d.baoBi;
       if(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))baoBiQC=d.baoBiQC;
       if(Array.isArray(d.tuHoSo))tuHoSo=d.tuHoSo;
+      if(Array.isArray(d.lenhSX))lenhSX=d.lenhSX;
+      if(Array.isArray(d.lenhTienDo))lenhTienDo=d.lenhTienDo;
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong; else nlTong=0;
@@ -5530,6 +5640,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       baoBi=Array.isArray(d.baoBi)?d.baoBi:BAOBI_GOC();
       baoBiQC=(d.baoBiQC&&typeof d.baoBiQC==='object'&&!Array.isArray(d.baoBiQC))?d.baoBiQC:{};
       tuHoSo=Array.isArray(d.tuHoSo)?d.tuHoSo:[];
+      lenhSX=Array.isArray(d.lenhSX)?d.lenhSX:[];
+      lenhTienDo=Array.isArray(d.lenhTienDo)?d.lenhTienDo:[];
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;

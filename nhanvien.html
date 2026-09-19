@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/09/2026-R28</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 19/09/2026-R29</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -498,6 +498,34 @@ async function dbDayBaoCao(banGhi){
     dbVeTT('ok');
   }catch(e){ dbVeTT('loi', e.message); }
 }
+/* 19/09/2026 — tiến độ "lệnh sản xuất" (lenhTienDo) — ĐÚNG MẪU dbDayBaoCao()/dbKeoBaoCao() ở
+   trên, chỉ khác: NV vừa ĐẨY (ghi tiến độ của mình) vừa KÉO (xem tiến độ nhân viên khác vừa ghi
+   vào cùng 1 lệnh) — bcNgay chỉ đẩy 1 chiều vì không cần NV khác thấy. */
+async function dbDayTienDoLenh(banGhi){
+  if(!DONGBO_URL||!banGhi||!banGhi.length)return;
+  dbVeTT('dang');
+  try{
+    await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themLenhTienDo',lt:banGhi})});
+    banGhi.forEach(r=>{const x=lenhTienDo.find(y=>y.id===r.id); if(x)x.daGui=1});
+    luu(); if(typeof ve==='function')ve();
+    dbVeTT('ok');
+  }catch(e){ dbVeTT('loi', e.message); }
+}
+let dbDangKeoLt=false;
+async function dbKeoTienDoLenh(){
+  if(!DONGBO_URL||dbDangKeoLt)return;
+  dbDangKeoLt=true;
+  try{
+    const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=lenhtiendo');
+    if(j.ok && Array.isArray(j.lt)){
+      let them=0;
+      j.lt.forEach(r=>{ if(!lenhTienDo.some(x=>x.id===r.id)){ lenhTienDo.push(r); them++; } });
+      if(them){ lenhTienDo.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luu(); if(typeof ve==='function')ve(); }
+      dbVeTT('ok');
+    }
+  }catch(e){ dbVeTT('loi', e.message); }
+  dbDangKeoLt=false;
+}
 /* Ghép cấu hình mới về (catalog: kg/ml/hương/mã/hồ sơ tem…) nhưng GIỮ NGUYÊN
    trạng thái đang nhập dở trên chính máy này (sl,pb,huongMe,ngaysx,lot,nv) —
    khớp theo TÊN sản phẩm. Không làm vậy thì mỗi 20 giây, mẻ đang gõ dở trên máy
@@ -567,6 +595,7 @@ async function dbKeoCauHinh(){
       if(Array.isArray(c.baoBi))baoBi=c.baoBi;
       if(c.baoBiQC&&typeof c.baoBiQC==='object')baoBiQC=c.baoBiQC;
       if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
+      if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
       if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
       if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
       if(c.kgQC&&typeof c.kgQC==='object')kgQC=c.kgQC;
@@ -582,23 +611,33 @@ async function dbKeoCauHinh(){
 }
 function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
-  dbKeoCauHinh();
+  dbKeoCauHinh();dbKeoTienDoLenh();
   setInterval(dbKeoCauHinh,20000);
+  setInterval(dbKeoTienDoLenh,20000);
   setInterval(()=>{ const cho=nk.filter(r=>!r.daGui); if(cho.length)dbDayMe(cho);
-    const choBc=bcNgay.filter(r=>!r.daGui); if(choBc.length)dbDayBaoCao(choBc); },15000);
+    const choBc=bcNgay.filter(r=>!r.daGui); if(choBc.length)dbDayBaoCao(choBc);
+    const choLt=lenhTienDo.filter(r=>!r.daGui); if(choLt.length)dbDayTienDoLenh(choLt); },15000);
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('dbDen');
   /* 12/09/2026: gọi lần lượt (không đồng thời) — tránh 3 request tranh nhau 1 lượt thực thi
      Apps Script rồi request chậm bị abort đè mất trạng thái 🟢 vừa hiện (xem bang-tra-huong-lieu.html). */
   if(el)el.addEventListener('click',async()=>{
-    await dbKeoCauHinh();
+    await dbKeoCauHinh(); await dbKeoTienDoLenh();
     const cho=nk.filter(r=>!r.daGui);if(cho.length)await dbDayMe(cho);
     const choBc=bcNgay.filter(r=>!r.daGui);if(choBc.length)await dbDayBaoCao(choBc);
+    const choLt=lenhTienDo.filter(r=>!r.daGui);if(choLt.length)await dbDayTienDoLenh(choLt);
   });
 });
 
-let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='',baoBi=[],baoBiQC={},tuHoSo=[];
+let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='',baoBi=[],baoBiQC={},tuHoSo=[],lenhSX=[],lenhTienDo=[];
+/* 19/09/2026 — "Lệnh sản xuất theo lô": xem chú thích đầy đủ ở bản Admin (bang-tra-huong-lieu.html,
+   khai báo `let lenhSX=[]`). NV chỉ ĐỌC lenhSX (Admin tạo), còn lenhTienDo NV vừa đọc vừa ghi
+   (nhiều nhân viên cùng ghi vào 1 lệnh) — đi qua kênh riêng themLenhTienDo/lenhtiendo ở Code.gs,
+   không phải kênh cauhinh. HAI APP PHẢI GIỐNG HỆT NHAU (xem cả 2 file + Code.gs). */
+function thucTeLenh(id){return lenhTienDo.filter(t=>t.lenhId===id).reduce((s,t)=>s+num(t.kg),0)}
+function trangThaiLenh(l){const kh=num(l&&l.keHoach);return kh>0&&thucTeLenh(l.id)>=kh?'xong':'mo'}
+function lenhDangMo(){return lenhSX.filter(l=>!l.huy&&trangThaiLenh(l)==='mo')}
 /* 13/09/2026: nhân viên hỏi "chọn quy cách rồi mà không biết cần túi nào" — bao bì (loại +
    số cái) trước đây chỉ đồng bộ trong app Admin, máy NV không nhận trường này nên không có
    gì để hiện. baoBiCho() giống hệt hàm cùng tên bên Admin (chỉ ĐỌC, không sửa gì ở đây). */
@@ -754,7 +793,7 @@ function tongDaSanXuat(tuISO){
 /* 27/08/2026 (phản hồi lần 3): BỎ "Tiến độ nguyên liệu đầu vào" — xem lý do ở bản Admin (đổi
    sang tồn kho + giá riêng từng nguyên liệu). nlTong/nlNgayKhai/nlGhiChu vẫn giữ trong dữ
    liệu lưu/nạp để không phá máy cũ, chỉ không còn hiển thị. */
-const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo});
+const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo});
 addEventListener('pagehide',()=>luu());
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luu()});
 
@@ -826,6 +865,35 @@ function bcSpOptions(){
   const dong=({p,i,r})=>`<option value="${i}">${esc(p.ten)}${r?` — ${esc(r.huong||'?')} — Mẻ chuẩn ${fmt(num(p.kg))} kg — gần nhất ${esc(vnNgay(r.ngaysx))}`:` — Mẻ chuẩn ${fmt(num(p.kg))} kg — chưa từng ghi mẻ`}</option>`;
   return co.map(dong).join('')+chua.map(dong).join('');
 }
+/* 19/09/2026 — "Lệnh sản xuất theo lô": xem chú thích đầy đủ ở bản Admin. Chỉ hiện lệnh Admin
+   đã tạo và ĐANG MỞ — khác hẳn bcSpOptions() ở trên (liệt kê TOÀN BỘ mặt hàng đã khai báo, kể cả
+   chưa hề đang sản xuất) — đây là danh sách đúng những gì Admin thật sự đang chờ. */
+function veLenhSXNv(){
+  const mo=lenhDangMo();
+  let o=`<div class="card">
+    <div class="fld"><label>Ghi tiến độ vào lệnh sản xuất</label>
+    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Chỉ hiện lệnh Quản lý đã tạo và đang mở — chọn đúng lệnh, nhập số kg vừa làm xong, có thể ghi nhiều lần trong ngày cho tới khi đủ. Bất kỳ ai cũng ghi được vào cùng 1 lệnh.</div>`;
+  if(mo.length){
+    o+=`<select id="lsxChonIn"><option value="">— chọn lệnh sản xuất đang mở —</option>
+      ${mo.map(l=>{const tt=thucTeLenh(l.id),kh=num(l.keHoach);return `<option value="${esc(l.id)}">${esc(l.sp)} — còn thiếu ${fmt(kh-tt)} / ${fmt(kh)} kg</option>`}).join('')}
+    </select>
+    <input id="lsxKgIn" type="text" inputmode="decimal" placeholder="Số kg vừa làm xong" style="margin-top:8px">
+    <button class="add" id="lsxGuiBtn" style="margin-top:8px">Ghi tiến độ</button>`;
+  }else o+=`<div class="log">Chưa có lệnh sản xuất nào đang mở.</div>`;
+  o+=`</div></div>`;
+  if(mo.length){
+    o+=`<div class="sec">Lệnh sản xuất đang mở</div>`;
+    o+=mo.map(l=>{
+      const tt=thucTeLenh(l.id),kh=num(l.keHoach),pct=kh>0?Math.min(100,tt/kh*100):0;
+      const mau=pct>=50?'var(--am)':'var(--red)';
+      return `<div class="card lot"><h5>${esc(l.sp)}</h5>
+      <div class="kv"><span>Tiến độ</span><b style="color:${mau}">${fmt(tt)} / ${fmt(kh)} kg (${Math.round(pct)}%)</b></div>
+      <div style="height:8px;border-radius:99px;background:var(--row);overflow:hidden;margin:2px 0 4px"><div style="height:100%;width:${pct}%;background:${mau};border-radius:99px"></div></div>
+      ${l.ghiChu?`<div class="kv"><span>Ghi chú</span><b>${esc(l.ghiChu)}</b></div>`:''}
+      </div>`}).join('');
+  }
+  return o;
+}
 function veBaoCao(){
   const hn=isoNay();
   const dsLo=nk.filter(r=>!r.huy&&r.ngaysx===hn);
@@ -847,6 +915,7 @@ function veBaoCao(){
     <div class="log" style="margin:6px 0 0;font-size:12.5px;color:var(--txt3)">Chênh lệch trong khoảng ±${NGUONG_VARIANCE_PCT}% là bình thường, không bắt buộc ghi lý do. Chênh lệch nhiều hơn thì nên ghi rõ lý do để quản lý dễ đối chiếu.</div>
     <button class="add" id="bcGuiBtn" style="margin-top:8px">Xác nhận số thực tế</button>
   </div></div>`;
+  o+=veLenhSXNv();
   const dsHomNay=bcNgay.filter(r=>r.ngay===hn).slice().reverse();
   o+=`<div class="sec">Đã chốt hôm nay (${vnNgay(hn)})</div>`;
   if(!dsHomNay.length)o+=`<div class="card"><div class="log">Chưa chốt thực tế lần nào hôm nay.</div></div>`;
@@ -1783,6 +1852,21 @@ $('view').addEventListener('click',async e=>{
       ?`Đã xác nhận số thực tế — chênh lệch ${variPctStr(pct)}, đang tự gửi cho quản lý. Nên bổ sung lý do lần sau.`
       :'Đã xác nhận số thực tế — đang tự gửi cho quản lý (xem tab Báo cáo bên máy quản lý).');
     return}
+  if(e.target.id==='lsxGuiBtn'){
+    if(!toi){bao('Bấm nút tên ở góc trên bên phải để chọn tên bạn trước khi ghi tiến độ');return}
+    const chonEl=$('lsxChonIn'), kgEl=$('lsxKgIn');
+    if(!chonEl||!chonEl.value){bao('Chọn lệnh sản xuất trước');return}
+    const kg=num(kgEl.value);
+    if(kgEl.value===''||!(kg>0)){bao('Nhập số kg vừa làm xong (lớn hơn 0)');return}
+    const l=lenhSX.find(x=>x.id===chonEl.value);
+    if(!l||trangThaiLenh(l)!=='mo'){bao('Lệnh này không còn mở — mở lại tab Báo cáo và chọn lại');return}
+    const ltMoi={id:'LT'+Date.now()+'-'+Math.floor(Math.random()*1000),lenhId:l.id,sp:l.sp,kg,nv:toi,ts:new Date().toISOString()};
+    lenhTienDo.push(ltMoi);
+    await luu(); ve();
+    dbDayTienDoLenh([ltMoi]);
+    const tt=thucTeLenh(l.id), kh=num(l.keHoach);
+    bao(tt>=kh?`Đã ghi tiến độ — lệnh "${l.sp}" ĐỦ kế hoạch, tự động chốt.`:`Đã ghi tiến độ — lệnh "${l.sp}" còn thiếu ${fmt(kh-tt)} kg.`);
+    return}
   const back=e.target.closest('[data-back]'); if(back){moSP=-1;ve();return}
   const r=e.target.closest('[data-sp]'); if(r){moSP=+r.dataset.sp;
     const p=sp[moSP]; if(!p.ngaysx)p.ngaysx=isoNay(); ngaysxTuSua(p); pbTuDong(p); ve(); scrollTo(0,0); return}
@@ -1925,6 +2009,8 @@ function xuatMe(){
       if(Array.isArray(d.baoBi))baoBi=d.baoBi;
       if(d.baoBiQC&&typeof d.baoBiQC==='object')baoBiQC=d.baoBiQC;
       if(Array.isArray(d.tuHoSo))tuHoSo=d.tuHoSo;
+      if(Array.isArray(d.lenhSX))lenhSX=d.lenhSX;
+      if(Array.isArray(d.lenhTienDo))lenhTienDo=d.lenhTienDo;
       if(Number.isFinite(+d.temCot)&&+d.temCot>=1)temCot=Math.min(10,Math.round(+d.temCot));
       if(Number.isFinite(+d.temHang)&&+d.temHang>=1)temHang=Math.min(10,Math.round(+d.temHang));
       if(d.temMau)temMau=napTemMau(d.temMau);

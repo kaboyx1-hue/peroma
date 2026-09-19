@@ -321,7 +321,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -330,7 +330,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   kq.serverMoi=baoBi.length===1&&baoBi[0].id==='bb-x'&&baoBiQC[q][0].id==='bb-x'&&!laRiengBB(P(),q);
   sp=napSP(JSON.parse(spT)); baoBi=JSON.parse(bbT); baoBiQC=JSON.parse(qcT);
   await luuNgay(); const kho1=await store.get(); kq.luuMay=Array.isArray(kho1.baoBi)&&kho1.baoBi.length===6&&!!kho1.baoBiQC&&!!kho1.baoBiQC[q];
-  kq.saoLuu=document.documentElement.innerHTML.includes('nlGhiChu,baoBi,baoBiQC,tuHoSo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1)');
+  kq.saoLuu=document.documentElement.innerHTML.includes('nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents},null,1)');
   // 9) Danh mục: sửa giá kiểu "70.000" → lưu lịch sử; gán thêm túi cho quy cách bằng ô chọn
   chuyenTab('ma'); await cho(30);
   kq.coKhu=!!document.getElementById('secBaoBi')&&document.querySelectorAll('.bbrow').length===6;
@@ -2505,6 +2505,60 @@ ok('AY: xuất xứ đổi "Sản xuất tại Việt Nam" → "Việt Nam"', ay
 ok('AY: cảnh báo đổi đúng câu mới ("sử dụng 1 lần")', ayKq.kq1.canhBao, ayKq.kq1.thuc.canhBao);
 ok('AY: mặt hàng đã TỰ SỬA TAY khác câu mặc định → GIỮ NGUYÊN, không bị đụng vào', ayKq.kq2.baoQuan==='Câu bảo quản tự viết tay, khác mặc định'&&ayKq.kq2.hdsd==='Câu HDSD tự viết tay'&&ayKq.kq2.xuatXu==='Trung Quốc'&&ayKq.kq2.canhBao==='Câu cảnh báo tự viết tay', JSON.stringify(ayKq.kq2));
 ok('AY: chạy lại lần 2 vô hại (không đổi thêm, không lỗi)', ayKq.doi2===false);
+
+console.log('\n── AZ. LỆNH SẢN XUẤT THEO LÔ (19/09/2026) ──');
+/* Khách: ô "chốt thực tế" (chưa ghi được lô nào) liệt kê TOÀN BỘ mặt hàng đã khai báo, kể cả
+   chưa hề đang sản xuất — muốn có khái niệm "lệnh sản xuất" CÓ MỤC TIÊU: Admin đặt kế hoạch
+   (kg), nhân viên (nhiều người, không chỉ 1) ghi tiến độ nhiều lần cho tới khi đạt thì tự chốt.
+   thucTe/trangThai KHÔNG lưu trực tiếp — luôn tính lại từ lenhTienDo (xem thucTeLenh()). */
+const azKq=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const gocLenhSX=JSON.stringify(lenhSX), gocLenhTienDo=JSON.stringify(lenhTienDo);
+  lenhSX=[]; lenhTienDo=[];
+  chuyenTab('bc'); await cho(80);
+  const kq={};
+  // 1) Tạo lệnh sản xuất qua UI
+  document.getElementById('lsxSpIn').value=sp[0].ten;
+  document.getElementById('lsxKhIn').value='2000';
+  document.getElementById('lsxTaoBtn').click(); await cho(80);
+  kq.taoDung=lenhSX.length===1&&lenhSX[0].sp===sp[0].ten&&lenhSX[0].keHoach===2000&&!lenhSX[0].huy;
+  const id=lenhSX[0].id;
+  kq.moLucDau=lenhDangMo().some(l=>l.id===id)&&!lenhDaXong().some(l=>l.id===id);
+  // 2) Nhiều nhân viên cùng ghi tiến độ vào 1 lệnh (mô phỏng dữ liệu kéo từ Sheet)
+  lenhTienDo.push({id:'LT-A',lenhId:id,sp:sp[0].ten,kg:500,nv:'Toàn',ts:'2026-09-19T08:00:00.000Z'});
+  lenhTienDo.push({id:'LT-B',lenhId:id,sp:sp[0].ten,kg:300,nv:'Bình',ts:'2026-09-19T09:00:00.000Z'});
+  kq.congDonDung=thucTeLenh(id)===800;
+  kq.vanConMo=trangThaiLenh(lenhSX[0])==='mo';
+  ve(); await cho(80);
+  const htmlDangMo=document.getElementById('viewBC').innerHTML;
+  kq.hienDungTienDoTrenThe=/800/.test(htmlDangMo)&&/2000/.test(htmlDangMo);
+  // 3) Sửa kế hoạch qua UI (ô input trên thẻ lệnh) — hạ xuống 700, THẤP HƠN 800 đã cộng dồn → phải tự chốt ngay
+  const khInput=document.querySelector('[data-lsxkh="'+id+'"]');
+  khInput.value='700'; khInput.dispatchEvent(new Event('input',{bubbles:true})); await cho(650);
+  kq.suaKeHoachDung=num(lenhSX[0].keHoach)===700;
+  kq.tuChotKhiDuKeHoach=trangThaiLenh(lenhSX[0])==='xong'&&lenhDaXong().some(l=>l.id===id)&&!lenhDangMo().some(l=>l.id===id);
+  // 4) Ghi chú qua UI
+  const gcInput=document.querySelector('[data-lsxgc="'+id+'"]');
+  gcInput.value='Ghi chú thử'; gcInput.dispatchEvent(new Event('input',{bubbles:true})); await cho(650);
+  kq.ghiChuDung=lenhSX[0].ghiChu==='Ghi chú thử';
+  // 5) Huỷ lệnh — có hỏi xác nhận, đồng ý mới huỷ
+  const hoiCu=window.hoi; window.hoi=async()=>true; // đồng ý luôn để test tự động chạy được
+  const huyBtn=document.querySelector('[data-lsxhuy="'+id+'"]');
+  huyBtn.click(); await cho(120);
+  window.hoi=hoiCu;
+  kq.huyDung=lenhSX[0].huy===true&&!lenhDangMo().some(l=>l.id===id)&&!lenhDaXong().some(l=>l.id===id);
+  lenhSX=JSON.parse(gocLenhSX); lenhTienDo=JSON.parse(gocLenhTienDo); luuNgay(); ve(); chuyenTab('tq');
+  return kq;
+});
+ok('AZ: tạo lệnh sản xuất qua UI (chọn mặt hàng + kế hoạch kg)', azKq.taoDung, JSON.stringify(azKq));
+ok('AZ: lệnh mới tạo ở trạng thái ĐANG MỞ (chưa có tiến độ)', azKq.moLucDau);
+ok('AZ: nhiều nhân viên khác nhau cùng ghi vào 1 lệnh → cộng dồn đúng (500+300=800), không đè lên nhau', azKq.congDonDung);
+ok('AZ: cộng dồn 800/2000 vẫn ĐANG MỞ (chưa đạt kế hoạch)', azKq.vanConMo);
+ok('AZ: thẻ lệnh hiện đúng tiến độ cộng dồn', azKq.hienDungTienDoTrenThe);
+ok('AZ: Admin sửa kế hoạch (kg) qua UI ngay trên thẻ lệnh', azKq.suaKeHoachDung);
+ok('AZ: hạ kế hoạch xuống dưới mức đã cộng dồn → trạng thái TỰ TÍNH LẠI, chuyển thẳng sang "Đã hoàn thành" không cần thao tác gì thêm', azKq.tuChotKhiDuKeHoach);
+ok('AZ: sửa ghi chú qua UI ngay trên thẻ lệnh', azKq.ghiChuDung);
+ok('AZ: huỷ lệnh (có hỏi xác nhận) → biến mất khỏi cả 2 danh sách, lịch sử tiến độ vẫn giữ nguyên trong lenhTienDo', azKq.huyDung);
 
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));

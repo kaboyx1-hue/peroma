@@ -143,5 +143,24 @@ console.log('\n── C. KHÔNG ĐỔI HÀNH VI CŨ ──');
   m.post({ a: 'xoaDLMoPhong', mk: 'k' });
   ok('Xoá dữ liệu mô phỏng: xoá mẻ, KHÔNG đụng cấu hình', m.get({ a: 'nhatky', mk: 'k' }).nk.length === 0 && m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.sp[0].ten === 'A' && !!m.get({ a: 'cauhinh', mk: 'k' }).xoaMocTs);
 }
+
+console.log('\n── D. LỆNH SẢN XUẤT THEO LÔ (19/09/2026) — lenhSX qua cauhinh, lenhTienDo qua kênh riêng ──');
+{
+  const m = taoMoiTruong({ matKhau: 'k' });
+  m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'A' }], lenhSX: [{ id: 'LSX1', sp: 'A', keHoach: 2000, ghiChu: '', ngayTao: '2026-09-19', huy: false }] } });
+  const c1 = m.get({ a: 'cauhinh', mk: 'k' }).cauhinh;
+  ok('lenhSX đi qua đúng kênh cauhinh (giống tuHoSo/baoBi), lưu đúng nội dung', Array.isArray(c1.lenhSX) && c1.lenhSX.length === 1 && c1.lenhSX[0].sp === 'A' && c1.lenhSX[0].keHoach === 2000, JSON.stringify(c1.lenhSX));
+  m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'A' }] } });
+  ok('Admin cũ không gửi lenhSX → server GIỮ bản đang lưu (không ghi đè thành rỗng, giống baoBi/tuHoSo)', m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.lenhSX.length === 1);
+
+  ok('a=lenhtiendo chưa có dòng nào → trả mảng rỗng', Array.isArray(m.get({ a: 'lenhtiendo', mk: 'k' }).lt) && m.get({ a: 'lenhtiendo', mk: 'k' }).lt.length === 0);
+  const r1 = m.post({ a: 'themLenhTienDo', mk: 'k', lt: [{ id: 'LT1', lenhId: 'LSX1', sp: 'A', kg: 500, nv: 'Toàn', ts: '2026-09-19T08:00:00.000Z' }] });
+  ok('Ghi tiến độ lần 1: thêm đúng 1 dòng', r1.them === 1 && r1.boQua === 0, JSON.stringify(r1));
+  const r2 = m.post({ a: 'themLenhTienDo', mk: 'k', lt: [{ id: 'LT1', lenhId: 'LSX1', sp: 'A', kg: 999, nv: 'Ai đó khác', ts: '2026-09-19T09:00:00.000Z' }, { id: 'LT2', lenhId: 'LSX1', sp: 'A', kg: 300, nv: 'Bình', ts: '2026-09-19T09:05:00.000Z' }] });
+  ok('Ghi trùng id (LT1) bị bỏ qua — append-only, không ai ghi đè dòng người khác (khác nhau nhân viên cùng ghi vào 1 lệnh)', r2.them === 1 && r2.boQua === 1, JSON.stringify(r2));
+  const dsLt = m.get({ a: 'lenhtiendo', mk: 'k' }).lt;
+  ok('Đọc lại đủ 2 dòng, giữ đúng nội dung dòng đầu (không bị dòng trùng id ghi đè)', dsLt.length === 2 && dsLt.find(x => x.id === 'LT1').kg === 500 && dsLt.find(x => x.id === 'LT1').nv === 'Toàn', JSON.stringify(dsLt));
+  ok('Nhiều nhân viên khác nhau cùng ghi vào 1 lệnh (LSX1) đều được giữ lại riêng biệt', dsLt.every(x => x.lenhId === 'LSX1') && new Set(dsLt.map(x => x.nv)).size === 2);
+}
 console.log(`\nKẾT QUẢ MÁY CHỦ:  ${dat} đạt · ${hong} hỏng${hong ? '\nCẦN SỬA:\n  - ' + loi.join('\n  - ') : ''}`);
 process.exit(hong ? 1 : 0);
