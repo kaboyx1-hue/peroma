@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 23/09/2026-R31</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 23/09/2026-R32</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -1200,6 +1200,8 @@ const TEM_MD={tieuDe:'NHÃN SẢN PHẨM',ctyVaiTro:'Sản xuất và chịu tr�
   canhBao:'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Để xa tầm tay trẻ em. Sản phẩm sử dụng 1 lần.'}; // 16/09/2026: khách đổi câu cảnh báo
 const TEM_KHOI_CTY=['tieuDe','canhBao']; // 16/09/2026: bỏ ctyVaiTro/ctyTen/ctyDiaChi — khối công ty đã fix cứng, không còn theo từng mặt hàng
 const temGT=(t,k)=>(t&&typeof t[k]==='string')?t[k]:(TEM_MD[k]||'');
+// 23/09/2026: tem đã có dòng "Hạn sử dụng" riêng — câu "Hạn sử dụng: …" lẫn trong HDSD/bảo quản (dán từ TCCS) là thừa, bỏ khi IN (không sửa dữ liệu đã lưu).
+const boHSD=s=>String(s||'').replace(/(^|\s*[–—]\s*|\s+-\s+)Hạn sử dụng\s*:[^–—]*/giu,'').replace(/^\s*[–—]?\s*$/,'').trim();
 const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.test(s)?s:'TCCS '+s)};
 const dongTem=s=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>esc(x).replace(/ {2,}/g,m=>'&nbsp;'.repeat(m.length)));
 // 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — luôn in đúng TEM_MD,
@@ -1224,7 +1226,7 @@ function temHTML(r,p){
     <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương liệu',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
     ${kv('Công dụng',t.congDung)}
     ${kv('Độ ẩm',t.doAm||'dưới 10%')}${kv('Kích thước hạt',t.kichThuoc)}
-    ${kv('Hướng dẫn sử dụng',t.hdsd)}${kv('Hướng dẫn bảo quản',t.baoQuan)}${kv('Xuất xứ',t.xuatXu)}
+    ${kv('Hướng dẫn sử dụng',boHSD(t.hdsd))}${kv('Hướng dẫn bảo quản',boHSD(t.baoQuan))}${kv('Xuất xứ',t.xuatXu)}
     ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}${kv('Ngày sản xuất',vnNgay(r.ngaysx))}
     ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
     ${kv('Số lô',lotDep(r.lot))}</table>

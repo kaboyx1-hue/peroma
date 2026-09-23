@@ -2679,6 +2679,21 @@ ok('BB: xoá NCC khác không đụng NCC "đang dùng"', bb.giuDangDung);
 ok('BB: xoá đúng NCC mặt hàng đang chọn/đang dùng → bỏ chọn, không trỏ nhầm sang NCC khác', bb.xoaDongDangChon);
 ok('BB: xoá được cả dòng NCC của nguyên liệu; hết dòng thì dọn sạch', bb.xoaHetNL);
 
+console.log('\n── BC. TEM BỎ CÂU "HẠN SỬ DỤNG" LẪN TRONG HƯỚNG DẪN (23/09/2026) ──');
+const bc=await E(()=>{
+  const p={ten:'BC-T',hstem:{...temMoi(),baoQuan:'– Bảo quản nơi khô ráo. – Hạn sử dụng: 3 năm kể từ ngày sản xuất, trong điều kiện bảo quản đúng quy định nêu trên.',hdsd:'Rải đều. – Hạn sử dụng: 3 năm',hsdNam:'3',soTCCS:'01:2026/KH'}};
+  const r={sp:'BC-T',huong:'H',quyCach:'1 kg',ngaysx:'2026-09-23',lot:'0101010926'};
+  const d=document.createElement('div');d.innerHTML=temHTML(r,p);const t=d.innerText;
+  return {boTrongBaoQuan:!/Hạn sử dụng: 3 năm kể từ ngày sản xuất, trong điều kiện/.test(t)&&/Bảo quản nơi khô ráo/.test(t),
+    boTrongHDSD:/Rải đều\./.test(t)&&!/Rải đều\. – Hạn/.test(t),
+    vanCoDongRieng:/3 năm kể từ ngày sản xuất — đến/.test(t),
+    khongSuaDuLieu:/Hạn sử dụng: 3 năm/.test(p.hstem.baoQuan)};
+});
+ok('BC: tem bỏ câu "Hạn sử dụng: …" lẫn trong Hướng dẫn bảo quản', bc.boTrongBaoQuan, JSON.stringify(bc));
+ok('BC: tem bỏ câu "Hạn sử dụng: …" lẫn trong Hướng dẫn sử dụng', bc.boTrongHDSD);
+ok('BC: dòng "Hạn sử dụng" riêng của tem vẫn in đúng', bc.vanCoDongRieng);
+ok('BC: chỉ bỏ khi in — dữ liệu hồ sơ tem đã lưu không bị sửa', bc.khongSuaDuLieu);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
