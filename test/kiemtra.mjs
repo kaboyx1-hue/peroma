@@ -2560,6 +2560,70 @@ ok('AZ: hạ kế hoạch xuống dưới mức đã cộng dồn → trạng th
 ok('AZ: sửa ghi chú qua UI ngay trên thẻ lệnh', azKq.ghiChuDung);
 ok('AZ: huỷ lệnh (có hỏi xác nhận) → biến mất khỏi cả 2 danh sách, lịch sử tiến độ vẫn giữ nguyên trong lenhTienDo', azKq.huyDung);
 
+console.log('\n── BA. BAO BÌ TÍNH THẲNG THEO CÁI (23/09/2026) ──');
+/* Khách: một số loại bao (VD bao dệt/bao đóng gỗ cỡ lớn) NCC báo giá thẳng theo cái, không có
+   kiểu cân theo kg như túi nhựa PA/PE — trước đây bắt buộc nhập Giá/kg + Cái/kg mới ra được giá
+   1 cái. Thêm nút chuyển "Theo kg" / "Theo cái" cho từng loại bao bì; chọn "Theo cái" thì chỉ
+   cần nhập 1 ô Giá/cái. Không đụng gì tới các loại bao bì cũ (mặc định vẫn "Theo kg" như trước). */
+const ba=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const gocBB=JSON.stringify(baoBi);
+  baoBi.push({id:'bb-goT1',ten:'Bao đóng gỗ 30kg',lichSu:[]});
+  chuyenTab('ma'); await cho(60);
+  const kq={};
+  // 1) Mặc định "Theo kg" (không kieuGia) — giống hệt bao bì cũ
+  kq.macDinhTheoKg=document.querySelector('[data-bbkieu="bb-goT1"][data-v="kg"]').classList.contains('on');
+  kq.hienGiaKgCaiKg=!!document.querySelector('[data-bbf="giaKg"][data-bbid="bb-goT1"]')&&!!document.querySelector('[data-bbf="caiKg"][data-bbid="bb-goT1"]');
+  // 2) Chuyển sang "Theo cái"
+  document.querySelector('[data-bbkieu="bb-goT1"][data-v="cai"]').click(); await cho(60);
+  kq.doiKieuDung=baoBi.find(b=>b.id==='bb-goT1').kieuGia==='cai';
+  kq.hienGiaCaiRieng=!!document.querySelector('[data-bbf="giaCai"][data-bbid="bb-goT1"]')&&!document.querySelector('[data-bbf="caiKg"][data-bbid="bb-goT1"]');
+  // 3) Nhập giá/cái — chặn 0, nhận số hợp lệ (kiểu gõ "5k")
+  // ve() vẽ lại DOM sau MỖI lần dispatch (kể cả khi bị chặn) — phải truy vấn lại ô input mỗi lần,
+  // không giữ tham chiếu cũ (node cũ bị thay, set .value/dispatch trên node cũ không có tác dụng gì).
+  document.querySelector('[data-bbf="giaCai"][data-bbid="bb-goT1"]').value='0';
+  document.querySelector('[data-bbf="giaCai"][data-bbid="bb-goT1"]').dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  kq.chanGiaCaiBangKhong=giaCaiBB(baoBi.find(b=>b.id==='bb-goT1'))===null;
+  document.querySelector('[data-bbf="giaCai"][data-bbid="bb-goT1"]').value='5k';
+  document.querySelector('[data-bbf="giaCai"][data-bbid="bb-goT1"]').dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  const b1=baoBi.find(b=>b.id==='bb-goT1');
+  kq.docTienDung=giaBBHienTai(b1).giaCai===5000;
+  // 4) giaCaiBB() tính đúng — chưa khai VAT thì tạm coi giá gồm VAT là giá tính
+  const g1=giaCaiBB(b1);
+  kq.giaCaiBBDung=!!g1&&g1.gomVAT===5000&&g1.daQuy===false&&g1.gia===5000;
+  // 5) Khai VAT 8% → quy đúng về chưa VAT
+  const vatIn=document.querySelector('[data-bbf="vat"][data-bbid="bb-goT1"]');
+  vatIn.value='8'; vatIn.dispatchEvent(new Event('change',{bubbles:true})); await cho(30);
+  const g2=giaCaiBB(baoBi.find(b=>b.id==='bb-goT1'));
+  kq.vatDung=!!g2&&g2.daQuy===true&&Math.abs(g2.gia-5000/1.08)<1e-6;
+  // 6) Dùng được ngay trong tinhBaoBiMe() — không phải sửa gì thêm nơi khác
+  const p=sp[0], qOld=(p.dauRa||[])[0];
+  const gocQC=JSON.parse(JSON.stringify(baoBiQC)), gocRieng=p.baoBiRieng?JSON.parse(JSON.stringify(p.baoBiRieng)):null;
+  if(p.baoBiRieng)delete p.baoBiRieng[qOld];
+  baoBiQC[qOld]=[{id:'bb-goT1',sl:2}];
+  const r={id:'BA-T1',sp:p.ten,quyCach:qOld,soBao:3,ngaysx:homNay()};
+  const t=tinhBaoBiMe(r);
+  kq.tinhBaoBiMeDung=t.chiPhi===Math.round(3*2*g2.gia);
+  baoBiQC=gocQC; if(gocRieng)p.baoBiRieng=gocRieng; else delete p.baoBiRieng;
+  // 7) Đổi lại "Theo kg" bất cứ lúc nào
+  document.querySelector('[data-bbkieu="bb-goT1"][data-v="kg"]').click(); await cho(60);
+  kq.doiVeKgDung=baoBi.find(b=>b.id==='bb-goT1').kieuGia==='kg';
+  // 8) Bao bì cũ (PA/PE mặc định) hoàn toàn không đổi hành vi
+  const pa=baoBi.find(b=>b.id==='bb-pa-1525');
+  kq.baoBiCuKhongDoi=!pa.kieuGia&&!!giaCaiBB(pa)&&Math.abs(giaCaiBB(pa).gomVAT-68000/140)<1e-6;
+  baoBi=JSON.parse(gocBB); await luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BA: loại bao bì mới mặc định "Theo kg" — giống hệt hành vi cũ', ba.macDinhTheoKg&&ba.hienGiaKgCaiKg, JSON.stringify(ba));
+ok('BA: bấm "Theo cái" → đổi kieuGia, đổi sang hiện đúng 1 ô "Giá/cái"', ba.doiKieuDung&&ba.hienGiaCaiRieng);
+ok('BA: giá/cái phải lớn hơn 0, chặn nhập 0', ba.chanGiaCaiBangKhong);
+ok('BA: đọc tiền kiểu Việt cho ô giá/cái ("5k" → 5000)', ba.docTienDung);
+ok('BA: giaCaiBB() tính đúng ở chế độ "theo cái" (chưa khai VAT → tạm coi giá gồm VAT là giá tính)', ba.giaCaiBBDung);
+ok('BA: khai VAT 8% → quy đúng về giá chưa VAT', ba.vatDung);
+ok('BA: dùng được ngay trong tinhBaoBiMe() — không cần sửa gì thêm nơi khác', ba.tinhBaoBiMeDung);
+ok('BA: đổi lại "Theo kg" bất cứ lúc nào', ba.doiVeKgDung);
+ok('BA: bao bì "theo kg" có sẵn từ trước hoàn toàn không đổi hành vi', ba.baoBiCuKhongDoi);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

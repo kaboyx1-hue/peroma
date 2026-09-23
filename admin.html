@@ -904,11 +904,14 @@ html,body{background:var(--bg);min-height:100%}
 .dt-sua-ten{margin:0 14px 10px;padding:9px 12px;border-radius:10px;background:var(--infoBg);color:var(--infoTx);font-size:12.5px;line-height:1.5}
 /* ══ S21: bao bì (Danh mục/Công thức) + tab Giá vốn ══ */
 .bbbang{display:flex;flex-direction:column;gap:8px;margin:0 12px}
-.bbrow{display:grid;grid-template-columns:minmax(150px,1.3fr) repeat(3,minmax(84px,.6fr)) minmax(170px,1.4fr) auto;gap:10px;align-items:end;
+.bbrow{display:grid;grid-template-columns:minmax(130px,1.1fr) minmax(112px,.7fr) repeat(3,minmax(84px,.6fr)) minmax(170px,1.4fr) auto;gap:10px;align-items:end;
   padding:11px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
 .bbrow label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;margin:0}
 .bbrow input{width:100%;font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line2);border-radius:10px;background:var(--c2);color:var(--tx);min-width:0}
 .bbrow .bb-ten{font-weight:700;align-self:center}
+.bbkieu{display:flex;gap:4px;align-self:center}
+.bbkieu button{flex:1;font:inherit;font-size:11.5px;font-weight:700;border:1px solid var(--line2);background:var(--c2);color:var(--tx2);border-radius:9px;padding:8px 6px;cursor:pointer}
+.bbkieu button.on{background:var(--acc);color:var(--onAcc);border-color:var(--acc)}
 .bb-kq{font-size:12.5px;line-height:1.45;color:var(--tx2);align-self:center}
 .bb-kq b{color:var(--tx)}
 .bb-kq small{display:block;margin-top:3px;font-size:11px;color:var(--tx3)}
@@ -1105,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/09/2026-S38</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/09/2026-S39</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 19/09/2026-S38</div>
+      <div class="verFoot">BẢN 23/09/2026-S39</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3638,8 +3641,14 @@ function quyVAT(gomVAT,vat){
   const co=vat!==null&&vat!==undefined&&vat!==''&&isFinite(+vat);
   return {gia:co?gomVAT/(1+(+vat)/100):gomVAT, gomVAT, vat:co?+vat:null, daQuy:co};
 }
+/* 23/09/2026: khách phản hồi "1 số loại bao phải tính cái, không tính theo kg" — VD bao dệt/bao
+   đóng gỗ cỡ lớn, NCC báo giá thẳng theo cái, không có kiểu cân theo kg như túi nhựa PA/PE.
+   Thêm b.kieuGia ('kg' mặc định — không đổi hành vi cũ, hoặc 'cai') + trường giaCai trong lichSu.
+   Chỉ đổi CHỖ NÀY: tinhBaoBiMe/giaVonBao/chiPhiBaoBiRecord đều gọi qua giaCaiBB() nên không cần
+   sửa gì thêm (xem chú thích đầu khối "Danh mục: bảng bao bì"). */
 function giaCaiBB(b){
   const e=giaBBHienTai(b); if(!e)return null;
+  if(b&&b.kieuGia==='cai'){const gc=num(e.giaCai); if(!(gc>0))return null; return quyVAT(gc,e.vat)}
   const gk=num(e.giaKg), ck=num(e.caiKg); if(!(gk>0&&ck>0))return null;
   return quyVAT(gk/ck,e.vat);
 }
@@ -3682,13 +3691,19 @@ function veBBList(ctx,list,chiXem,boDauTien){
 function veBaoBi(){
   let o=`<div class="sec" id="secBaoBi">Bao bì — ${baoBi.length} loại</div>
    <div class="log" style="margin:0 12px 8px">Giá mua theo kg và số cái mỗi kg như nhà cung cấp báo — app tự ra giá 1 cái. Giá hương/nguyên liệu trong app là <b>chưa VAT</b> nên giá túi được quy về chưa VAT theo thuế suất khai ở cột VAT (chưa khai thì tạm tính theo giá gồm VAT, có đánh dấu ⚠). Đổi giá thì app lưu lịch sử, mẻ đã ghi giữ nguyên giá lúc sản xuất.</div>`;
-  o+=`<div class="bbbang">`+baoBi.map(b=>{const e=giaBBHienTai(b)||{}, g=giaCaiBB(b);
+  o+=`<div class="bbbang">`+baoBi.map(b=>{const e=giaBBHienTai(b)||{}, g=giaCaiBB(b), theoCai=b.kieuGia==='cai';
     return `<div class="bbrow">
       <input class="bb-ten" data-bbten="${esc(b.id)}" value="${esc(b.ten)}" aria-label="Tên bao bì">
-      <label>Giá/kg (gồm VAT)<input data-bbf="giaKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.giaKg?num(e.giaKg).toLocaleString('vi-VN'):''}" placeholder="VD 68k"></label>
-      <label>Cái/kg<input data-bbf="caiKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.caiKg||''}"></label>
+      <div class="bbkieu" role="group" aria-label="Kiểu tính giá">
+        <button type="button" class="${theoCai?'':'on'}" data-bbkieu="${esc(b.id)}" data-v="kg">Theo kg</button>
+        <button type="button" class="${theoCai?'on':''}" data-bbkieu="${esc(b.id)}" data-v="cai">Theo cái</button>
+      </div>
+      ${theoCai
+        ?`<label style="grid-column:span 2">Giá/cái (gồm VAT)<input data-bbf="giaCai" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.giaCai?num(e.giaCai).toLocaleString('vi-VN'):''}" placeholder="VD 5k"></label>`
+        :`<label>Giá/kg (gồm VAT)<input data-bbf="giaKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.giaKg?num(e.giaKg).toLocaleString('vi-VN'):''}" placeholder="VD 68k"></label>
+      <label>Cái/kg<input data-bbf="caiKg" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.caiKg||''}"></label>`}
       <label>VAT %<input data-bbf="vat" data-bbid="${esc(b.id)}" inputmode="decimal" value="${e.vat!==null&&e.vat!==undefined?e.vat:''}" placeholder="chưa khai"></label>
-      <div class="bb-kq">${g?`${fmt(g.gomVAT)} đ/cái gồm VAT → <b>${g.daQuy?fmt(g.gia)+' đ/cái chưa VAT':'⚠ chưa khai VAT'}</b>`:'<span class="bbtrong">chưa đủ giá</span>'}${e.ngay?`<small>cập nhật ${esc(e.ngay)}${(b.lichSu||[]).length>1?` · <details class="bbls"><summary>lịch sử ${b.lichSu.length}</summary>${b.lichSu.slice().reverse().map(x=>`<div>${esc(x.ngay||'')}: ${fmt(num(x.giaKg))} đ/kg · ${x.caiKg} cái/kg${x.vat!==null&&x.vat!==undefined&&x.vat!==''?' · VAT '+x.vat+'%':''}</div>`).join('')}</details>`:''}</small>`:''}</div>
+      <div class="bb-kq">${g?`${fmt(g.gomVAT)} đ/cái gồm VAT → <b>${g.daQuy?fmt(g.gia)+' đ/cái chưa VAT':'⚠ chưa khai VAT'}</b>`:'<span class="bbtrong">chưa đủ giá</span>'}${e.ngay?`<small>cập nhật ${esc(e.ngay)}${(b.lichSu||[]).length>1?` · <details class="bbls"><summary>lịch sử ${b.lichSu.length}</summary>${b.lichSu.slice().reverse().map(x=>`<div>${esc(x.ngay||'')}: ${theoCai?fmt(num(x.giaCai))+' đ/cái':fmt(num(x.giaKg))+' đ/kg · '+x.caiKg+' cái/kg'}${x.vat!==null&&x.vat!==undefined&&x.vat!==''?' · VAT '+x.vat+'%':''}</div>`).join('')}</details>`:''}</small>`:''}</div>
       <button type="button" class="xo" data-bbxoa="${esc(b.id)}" title="Xoá loại bao bì" aria-label="Xoá">×</button></div>`}).join('')+`</div>`;
   o+=`<button class="addbtn" data-bbthemmoi="1">+ Thêm loại bao bì</button>`;
   o+=`<div class="sec">Bao bì theo quy cách — mặc định cho mọi mặt hàng</div>
@@ -3747,10 +3762,10 @@ async function suKienBaoBi(e){
       if(b&&v){if(baoBi.some(x=>x!==b&&x.ten.toLowerCase()===v.toLowerCase())){bao('Đã có bao bì tên này');ve();return true}b.ten=v;luuNgay();ve()}else ve();return true}
     if(t.dataset.bbf!==undefined){const b=baoBi.find(x=>x.id===t.dataset.bbid);if(!b)return true;
       const f=t.dataset.bbf, raw=String(t.value).trim();
-      const v=f==='giaKg'?docTien(raw):(f==='vat'?(raw===''?null:num(raw)):num(raw));
-      if(f!=='vat'&&!(v>0)){bao(f==='giaKg'?'Giá/kg phải lớn hơn 0 (VD 68k hoặc 68.000)':'Số cái/kg phải lớn hơn 0');ve();return true}
+      const v=(f==='giaKg'||f==='giaCai')?docTien(raw):(f==='vat'?(raw===''?null:num(raw)):num(raw));
+      if(f!=='vat'&&!(v>0)){bao(f==='giaKg'?'Giá/kg phải lớn hơn 0 (VD 68k hoặc 68.000)':f==='giaCai'?'Giá/cái phải lớn hơn 0 (VD 5k hoặc 5.000)':'Số cái/kg phải lớn hơn 0');ve();return true}
       if(f==='vat'&&v!==null&&!(v>=0&&v<=100)){bao('Thuế suất VAT từ 0 đến 100 %');ve();return true}
-      const cu=giaBBHienTai(b)||{giaKg:0,caiKg:0,vat:null,ncc:''}, h=homNay(), moi={...cu,[f]:v,ngay:h};
+      const cu=giaBBHienTai(b)||{giaKg:0,caiKg:0,giaCai:0,vat:null,ncc:''}, h=homNay(), moi={...cu,[f]:v,ngay:h};
       b.lichSu=Array.isArray(b.lichSu)?b.lichSu:[];
       if(b.lichSu.length&&b.lichSu[b.lichSu.length-1].ngay===h)b.lichSu[b.lichSu.length-1]=moi; else b.lichSu.push(moi);
       luuNgay();ve();return true}
@@ -3758,6 +3773,7 @@ async function suKienBaoBi(e){
   }
   const g=k=>t.closest('['+k+']');
   let x;
+  if((x=g('data-bbkieu'))){const b=baoBi.find(y=>y.id===x.dataset.bbkieu);if(b){b.kieuGia=x.dataset.v==='cai'?'cai':'kg';luuNgay();ve()}return true}
   if((x=g('data-bbbo'))){const s=x.dataset.bbbo,k=s.lastIndexOf('|||'),l=danhSachBB(s.slice(0,k),true);if(l){l.splice(+s.slice(k+3),1);luuNgay();ve()}return true}
   if((x=g('data-bbrieng'))){const [i,q]=x.dataset.bbrieng.split('|||'),p=sp[+i];if(p){p.baoBiRieng=p.baoBiRieng||{};p.baoBiRieng[q]=(baoBiQC[q]||[]).map(d=>({...d}));luuNgay();ve()}return true}
   if((x=g('data-bbmacdinh'))){const [i,q]=x.dataset.bbmacdinh.split('|||'),p=sp[+i];if(p&&p.baoBiRieng){delete p.baoBiRieng[q];luuNgay();ve()}return true}
@@ -4628,7 +4644,7 @@ $('viewMA').addEventListener('input',e=>{
 /* S21: bao bì — dùng chung cho Danh mục và Công thức; chỉ bắt các phần tử data-bb*, không đụng listener cũ */
 ['viewMA','rows'].forEach(id=>{
   $(id).addEventListener('change',e=>{suKienBaoBi(e)});
-  $(id).addEventListener('click',e=>{if(e.target.closest('[data-bbbo],[data-bbrieng],[data-bbmacdinh],[data-bbdenma],[data-bbthemmoi],[data-bbxoa]'))suKienBaoBi(e)});
+  $(id).addEventListener('click',e=>{if(e.target.closest('[data-bbbo],[data-bbrieng],[data-bbmacdinh],[data-bbdenma],[data-bbthemmoi],[data-bbxoa],[data-bbkieu]'))suKienBaoBi(e)});
 });
 /* S23: khung Giá thành trong mặt hàng — chỉ bắt phần tử data-gt*, không đụng listener cũ của #rows */
 ['input','change','click'].forEach(ev=>$('rows').addEventListener(ev,e=>{suKienGiaThanh(e)}));
