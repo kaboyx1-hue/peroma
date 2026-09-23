@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/09/2026-S40</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/09/2026-S41</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 23/09/2026-S40</div>
+      <div class="verFoot">BẢN 23/09/2026-S41</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2627,11 +2627,13 @@ function veNL(p,i){
   }
   return o;
 }
+/* 23/09/2026: khách khai thêm quy cách (VD 10kg) ở Danh mục nhưng Công thức không hiện — trước đây
+   p.dauRa chỉ gán 1 lần từ danh sách cố định DR_CHUAN và hiện CHỈ ĐỌC. Nay hiện mọi quy cách trong
+   Danh mục (dr) thành nút bật/tắt cho từng mặt hàng; mặc định theo tên (drMacDinh) vẫn giữ nguyên. */
 function veDR(p,i){
   const ds=p.dauRa||[];
-  if(!ds.length)return `<div class="log">Chưa xác định — mở lại trang để tự động gán theo tên mặt hàng.</div>`;
-  return `<div class="hset" style="margin-top:0">`+ds.map(v=>`<span class="h" style="cursor:default">${esc(v)}</span>`).join('')+`</div>`
-    +`<div class="log">Tự động theo tên mặt hàng, không cần chọn tay. Chỉ mặt hàng tên có “Mùn cưa” mới chỉ đóng 500 g, còn lại luôn đủ 5 mức chuẩn (1/5/20/30/50 kg).</div>`;
+  return `<div class="hset" style="margin-top:0">`+dr.map(v=>`<button type="button" class="h${ds.includes(v)?' on':''}" data-drqc="${i}|||${esc(v)}">${esc(v)}</button>`).join('')+`</div>`
+    +`<div class="log">Bấm để bật/tắt quy cách mặt hàng này đóng gói. Danh sách lấy từ Danh mục → Quy cách (thêm quy cách mới ở đó).</div>`;
 }
 
 /* 25/08/2026: gỡ toàn bộ khối "Ghi nhận mẻ sản xuất" của ADMIN — trùng lặp với
@@ -5365,6 +5367,15 @@ $('rows').addEventListener('click',async e=>{
   if(kh){e.stopPropagation();const i=+kh.dataset.hkhonghuong,p=sp[i];p.tam=[UNSCENTED_LABEL];luu();ve();return}
   const ch=e.target.closest('[data-hcohuong]');
   if(ch){e.stopPropagation();const i=+ch.dataset.hcohuong,p=sp[i];if((p.tam||[]).length===1&&isUnscented(p.tam[0]))p.tam=[];luu();ve();return}
+  const dq=e.target.closest('[data-drqc]');
+  if(dq){e.stopPropagation();const k=dq.dataset.drqc.indexOf('|||'),p=sp[+dq.dataset.drqc.slice(0,k)],q=dq.dataset.drqc.slice(k+3);
+    if(!p)return;
+    const co=(p.dauRa||[]).includes(q);
+    if(co&&p.dauRa.length===1){bao('Mặt hàng phải có ít nhất 1 quy cách đóng gói');return}
+    const t=new Set(p.dauRa||[]); co?t.delete(q):t.add(q);
+    p.dauRa=dr.filter(x=>t.has(x));
+    if(co){p.pb=(p.pb||[]).filter(d=>d.qc!==q); if(p.qc===q)p.qc=''}
+    luu();ve();return}
   const h=e.target.closest('[data-h]');
   if(h){e.stopPropagation();const i=+h.dataset.i,v=h.dataset.h,p=sp[i];
     const t=new Set(p.tam||[]);t.has(v)?t.delete(v):t.add(v);
