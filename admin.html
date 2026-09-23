@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/09/2026-S39</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/09/2026-S40</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 23/09/2026-S39</div>
+      <div class="verFoot">BẢN 23/09/2026-S40</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3492,6 +3492,7 @@ function veKhoiNguon(loai,ten){
           <span class="ncc-gia">${fmt(e.gia)} đ / ${fmt(e.soKg||0)} kg${e.soKg?' · '+fmt(Math.round(giaTrenDonVi(loai,e)*100)/100)+' đ/'+dvGiaHT+' (đã VAT)':''}${e.soKg?(()=>{const q=quyVAT(giaTrenDonVi(loai,e),e.vat);return q.daQuy?' · chưa VAT <b>'+fmt(Math.round(q.gia*100)/100)+' đ/'+dvGiaHT+'</b> (VAT '+q.vat+'%)':' · <span class="gvvat">⚠ chưa khai VAT — đang tính giá gồm VAT</span>'})():''}</span>
           <span class="ncc-ngay">${esc(e.ngay)}${loai==='h'?(hetHang?' · <b style="color:var(--red)">hết tồn kho — không còn chọn được cho mặt hàng mới</b>':` · còn <b>${conLai}</b>kg${e.daDungKg?' (đã dùng '+e.daDungKg+'kg trong sản xuất)':''}`):''}</span>
           <button class="xosua" data-suanguon="${loai}:${esc(ten)}:${ix}" title="Sửa nếu lỡ nhập nhầm giá/kg">Sửa</button>
+          <button class="xosua" data-xoanguon="${loai}:${esc(ten)}:${ix}" title="Xoá dòng nhà cung cấp · giá này" style="color:var(--red)">Xoá</button>
         </div>`+veThemNguonPanel(loai,ten,ix)}).join('')+`</div>`;
       r+=`<select data-nguondung="${loai}:${esc(ten)}">
         <option value=""${dung?'':' selected'}>— chưa chọn ${loai==='h'?'hương':'nguyên liệu'} đang dùng —</option>
@@ -4755,6 +4756,23 @@ $('viewMA').addEventListener('click',async e=>{
     return}
   const hn=e.target.closest('[data-huynguon]');
   if(hn){moThemNguon.delete(hn.dataset.huynguon);veMa();return}
+  /* 23/09/2026: xoá 1 dòng NCC · giá (trước chỉ có Sửa). sp[].nguonHuongChon lưu CHỈ SỐ dòng trong
+     nguonHuong[ten] → xoá dòng thì phải dời chỉ số các dòng phía sau, không thì mặt hàng trỏ nhầm
+     sang NCC khác. Mẻ đã ghi giữ giá lúc sản xuất (giaHuongTheoGLucSX) nên không ảnh hưởng lịch sử. */
+  const xn=e.target.closest('[data-xoanguon]');
+  if(xn){
+    const {loai,ten,ix}=parseNguonKey(xn.dataset.xoanguon);
+    const nguonM=nguonMapCua(loai), dungM=dangDungMapCua(loai), ds=nguonM[ten]||[], e0=ds[ix];
+    if(!e0){bao('Không tìm thấy dòng này');return}
+    const ok=await hoi('Xoá nhà cung cấp · giá?',`Xoá dòng <b>${esc(e0.ncc)}</b> · ${fmt(e0.gia)} đ / ${fmt(e0.soKg||0)} kg (${esc(e0.ngay||'')}) của <b>${esc(ten)}</b>? Mẻ đã ghi vẫn giữ giá lúc sản xuất.`,{nutOK:'Xoá',nguyHiem:true});
+    if(!ok)return;
+    ds.splice(ix,1);
+    if(!ds.length)delete nguonM[ten];
+    if(dungM[ten]===e0.ncc&&!ds.some(x=>x.ncc===e0.ncc))delete dungM[ten];
+    if(loai==='h')sp.forEach(p=>{const c=p.nguonHuongChon; if(!c||c[ten]===undefined)return;
+      if(c[ten]===ix)delete c[ten]; else if(c[ten]>ix)c[ten]--});
+    [...moThemNguon].forEach(k=>{if(k===loai+':'+ten||k.startsWith(loai+':'+ten+':'))moThemNguon.delete(k)});
+    luuNgay();ve();bao('Đã xoá dòng nhà cung cấp · giá');return}
 
   /* Lưu panel — chế độ THÊM (không có ix): thêm dòng mới, coi như đang dùng, tồn kho tuỳ chọn.
      Chế độ SỬA (có ix): chỉ sửa lại đúng dòng đó (gõ nhầm), không đụng tồn kho/lịch sử. */

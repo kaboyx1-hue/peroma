@@ -2624,6 +2624,46 @@ ok('BA: dùng được ngay trong tinhBaoBiMe() — không cần sửa gì thêm
 ok('BA: đổi lại "Theo kg" bất cứ lúc nào', ba.doiVeKgDung);
 ok('BA: bao bì "theo kg" có sẵn từ trước hoàn toàn không đổi hành vi', ba.baoBiCuKhongDoi);
 
+console.log('\n── BB. XOÁ DÒNG NHÀ CUNG CẤP · GIÁ (23/09/2026) ──');
+/* Khách: thẻ NCC của hương/nguyên liệu chỉ có "Sửa", không xoá được dòng đã thêm. nguonHuongChon
+   của mặt hàng lưu CHỈ SỐ dòng → xoá dòng giữa phải dời chỉ số, không thì trỏ nhầm NCC. */
+const bb=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  const goc=JSON.stringify({kho,nguonHuong,huongDangDung,nguonNguyenLieu,nlDangDung,nlDM,chon:sp[0].nguonHuongChon||null});
+  const H='H-BB';
+  if(!kho.includes(H))kho.push(H);
+  nguonHuong[H]=[{ncc:'A',gia:100,soKg:1,ngay:'1',daDungKg:0},{ncc:'B',gia:200,soKg:1,ngay:'2',daDungKg:0},{ncc:'C',gia:300,soKg:1,ngay:'3',daDungKg:0}];
+  huongDangDung[H]='C'; sp[0].nguonHuongChon={[H]:2};
+  const hoiCu=window.hoi; window.hoi=async()=>true;
+  moTra.add('ncc-h-'+H); chuyenTab('ma'); await cho(60);
+  const kq={};
+  kq.coNut=!!document.querySelector('[data-xoanguon="h:'+H+':1"]');
+  document.querySelector('[data-xoanguon="h:'+H+':1"]').click(); await cho(80);
+  kq.xoaDungDong=nguonHuong[H].map(x=>x.ncc).join(',')==='A,C';
+  kq.doiChiSo=sp[0].nguonHuongChon[H]===1&&nguonHuong[H][sp[0].nguonHuongChon[H]].ncc==='C';
+  kq.giuDangDung=huongDangDung[H]==='C';
+  document.querySelector('[data-xoanguon="h:'+H+':1"]').click(); await cho(80);
+  kq.xoaDongDangChon=nguonHuong[H].map(x=>x.ncc).join(',')==='A'&&sp[0].nguonHuongChon[H]===undefined&&huongDangDung[H]===undefined;
+  // nguyên liệu
+  const N='NL-BB'; if(!nlDM.includes(N))nlDM.push(N);
+  nguonNguyenLieu[N]=[{ncc:'X',gia:1000,soKg:1,ngay:'1'}]; nlDangDung[N]='X';
+  moTra.add('ncc-nl-'+N); ve(); await cho(60);
+  const nutNL=document.querySelector('[data-xoanguon="nl:'+N+':0"]');
+  kq.coNutNL=!!nutNL; if(nutNL){nutNL.click(); await cho(80)}
+  kq.xoaHetNL=nguonNguyenLieu[N]===undefined&&nlDangDung[N]===undefined;
+  window.hoi=hoiCu;
+  const g=JSON.parse(goc); kho=g.kho; nguonHuong=g.nguonHuong; huongDangDung=g.huongDangDung; nguonNguyenLieu=g.nguonNguyenLieu; nlDangDung=g.nlDangDung; nlDM=g.nlDM;
+  if(g.chon)sp[0].nguonHuongChon=g.chon; else delete sp[0].nguonHuongChon;
+  moTra.delete('ncc-h-'+H); moTra.delete('ncc-nl-'+N); await luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BB: mỗi dòng NCC · giá có nút Xoá', bb.coNut&&bb.coNutNL, JSON.stringify(bb));
+ok('BB: xoá đúng dòng đã chọn', bb.xoaDungDong);
+ok('BB: mặt hàng đang chọn NCC phía sau vẫn trỏ ĐÚNG NCC (chỉ số được dời)', bb.doiChiSo);
+ok('BB: xoá NCC khác không đụng NCC "đang dùng"', bb.giuDangDung);
+ok('BB: xoá đúng NCC mặt hàng đang chọn/đang dùng → bỏ chọn, không trỏ nhầm sang NCC khác', bb.xoaDongDangChon);
+ok('BB: xoá được cả dòng NCC của nguyên liệu; hết dòng thì dọn sạch', bb.xoaHetNL);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
