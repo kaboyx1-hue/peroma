@@ -2694,6 +2694,25 @@ ok('BC: tem bỏ câu "Hạn sử dụng: …" lẫn trong Hướng dẫn sử d
 ok('BC: dòng "Hạn sử dụng" riêng của tem vẫn in đúng', bc.vanCoDongRieng);
 ok('BC: chỉ bỏ khi in — dữ liệu hồ sơ tem đã lưu không bị sửa', bc.khongSuaDuLieu);
 
+console.log('\n── BD. BÁO CÓ PHIÊN BẢN MỚI (24/09/2026) ──');
+const bd=await E(()=>{
+  const kq={coBanHienTai:/^\d{2}\/\d{2}\/\d{4}-[SR]\d+$/.test(BAN_HIEN_TAI)};
+  kq.docTuH1=banTrongHTML('<style>/* 01/01/2020-S1 */</style><h1>X <i>BẢN 31/12/2099-S99</i></h1>')==='31/12/2099-S99';
+  kq.cungBanKhongBao=baoBanMoi(BAN_HIEN_TAI)===false&&!document.getElementById('banMoi');
+  kq.khacBanThiBao=baoBanMoi('31/12/2099-S99')===true&&!!document.getElementById('banMoi')&&/phiên bản mới/.test(document.getElementById('banMoi').textContent)&&!!document.getElementById('banMoiOK');
+  document.getElementById('banMoiSau').click();
+  kq.deSauAnDi=!document.getElementById('banMoi');
+  kq.deSauKhongHoiLai=baoBanMoi('31/12/2099-S99')===false;
+  kq.banKhacVanBao=baoBanMoi('01/01/2100-S100')===true; const x=document.getElementById('banMoi'); if(x)x.remove();
+  return kq;
+});
+ok('BD: đọc được phiên bản đang chạy từ tiêu đề', bd.coBanHienTai, JSON.stringify(bd));
+ok('BD: đọc phiên bản trong <h1> của file tải về (không nhầm chuỗi ngày trong chú thích)', bd.docTuH1);
+ok('BD: cùng phiên bản → không báo', bd.cungBanKhongBao);
+ok('BD: phiên bản khác → hiện thanh báo có nút Tải lại', bd.khacBanThiBao);
+ok('BD: bấm "Để sau" → ẩn, không hỏi lại đúng bản đó', bd.deSauAnDi&&bd.deSauKhongHoiLai);
+ok('BD: có bản mới hơn nữa → vẫn báo', bd.banKhacVanBao);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

@@ -937,6 +937,25 @@ ok('S21: 2 nhân viên KHÁC NHAU cùng ghi vào 1 lệnh → cộng dồn đún
 ok('S21: đủ kế hoạch → tự động chốt (trangThaiLenh=xong)', s21.tuChotSauKhiDu);
 ok('S21: lệnh đã chốt biến mất khỏi dropdown chọn (không còn hiện cho nhân viên ghi thêm)', s21.bienMatKhoiDropdownSauKhiXong);
 
+console.log('\n── S22. BÁO CÓ PHIÊN BẢN MỚI (24/09/2026) ──');
+const bd=await E(()=>{
+  const kq={coBanHienTai:/^\d{2}\/\d{2}\/\d{4}-[SR]\d+$/.test(BAN_HIEN_TAI)};
+  kq.docTuH1=banTrongHTML('<style>/* 01/01/2020-S1 */</style><h1>X <i>BẢN 31/12/2099-S99</i></h1>')==='31/12/2099-S99';
+  kq.cungBanKhongBao=baoBanMoi(BAN_HIEN_TAI)===false&&!document.getElementById('banMoi');
+  kq.khacBanThiBao=baoBanMoi('31/12/2099-S99')===true&&!!document.getElementById('banMoi')&&/phiên bản mới/.test(document.getElementById('banMoi').textContent)&&!!document.getElementById('banMoiOK');
+  document.getElementById('banMoiSau').click();
+  kq.deSauAnDi=!document.getElementById('banMoi');
+  kq.deSauKhongHoiLai=baoBanMoi('31/12/2099-S99')===false;
+  kq.banKhacVanBao=baoBanMoi('01/01/2100-S100')===true; const x=document.getElementById('banMoi'); if(x)x.remove();
+  return kq;
+});
+ok('S22: đọc được phiên bản đang chạy từ tiêu đề', bd.coBanHienTai, JSON.stringify(bd));
+ok('S22: đọc phiên bản trong <h1> của file tải về (không nhầm chuỗi ngày trong chú thích)', bd.docTuH1);
+ok('S22: cùng phiên bản → không báo', bd.cungBanKhongBao);
+ok('S22: phiên bản khác → hiện thanh báo có nút Tải lại', bd.khacBanThiBao);
+ok('S22: bấm "Để sau" → ẩn, không hỏi lại đúng bản đó', bd.deSauAnDi&&bd.deSauKhongHoiLai);
+ok('S22: có bản mới hơn nữa → vẫn báo', bd.banKhacVanBao);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

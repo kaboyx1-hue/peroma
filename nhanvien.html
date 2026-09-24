@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 23/09/2026-R32</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 24/09/2026-R33</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -2030,6 +2030,37 @@ function xuatMe(){
   const trongAppsScript=/googleusercontent\.com$|script\.google\.com$/.test(location.hostname);
   if(!('serviceWorker' in navigator)||!duocPhep||trongAppsScript)return;
   addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
+})();
+/* 24/09/2026 — báo có phiên bản mới (khách: "thêm popup thông báo có phiên bản mới cập nhật để tiện biết").
+   5 phút/lần, và mỗi lần quay lại tab — chỉ khi tab đang xem + có mạng — tải lại CHÍNH file HTML này
+   (không query → không làm phình bản lưu của sw.js) và so chuỗi phiên bản "dd/mm/yyyy-Snn|Rnn" trong <h1>
+   với bản đang chạy. Khác → thanh báo + nút Tải lại. KHÔNG tự tải lại (có thể đang gõ dở). Chỉ chạy trên
+   web (github.io/localhost), không chạy trong Apps Script hay file:// (gửi qua Zalo). HAI APP GIỐNG NHAU. */
+const BAN_RE=/\d{2}\/\d{2}\/\d{4}-[SR]\d+/;
+function banTrongHTML(s){const h=/<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(String(s||''));const m=BAN_RE.exec(h?h[1]:String(s||''));return m?m[0]:''}
+const BAN_HIEN_TAI=(BAN_RE.exec((document.querySelector('h1')||{}).textContent||'')||[''])[0];
+let banDaBoQua='';
+function baoBanMoi(moi){
+  if(!moi||!BAN_HIEN_TAI||moi===BAN_HIEN_TAI||moi===banDaBoQua||document.getElementById('banMoi'))return false;
+  const d=document.createElement('div');d.id='banMoi';d.setAttribute('role','alert');
+  d.style.cssText='position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:9999;display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:max-content;max-width:calc(100% - 24px);padding:12px 14px;border-radius:14px;background:var(--card,#fff);color:var(--txt,var(--tx,#222));border:1.5px solid var(--acc,var(--am,#b8860b));box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:14px;line-height:1.4';
+  d.innerHTML='<span>Đã có <b>phiên bản mới</b> ('+esc(moi)+', đang dùng '+esc(BAN_HIEN_TAI)+'). Tải lại trang để dùng bản mới — dữ liệu đã lưu không mất.</span>'
+    +'<button type="button" id="banMoiOK" style="font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 14px;cursor:pointer;background:var(--acc,var(--am,#b8860b));color:var(--onAcc,#fff)">Tải lại</button>'
+    +'<button type="button" id="banMoiSau" style="font:inherit;border:1px solid currentColor;border-radius:10px;padding:8px 12px;cursor:pointer;background:transparent;color:inherit;opacity:.75">Để sau</button>';
+  document.body.appendChild(d);
+  d.querySelector('#banMoiOK').onclick=()=>location.reload();
+  d.querySelector('#banMoiSau').onclick=()=>{banDaBoQua=moi;d.remove()};
+  return true;
+}
+async function kiemTraBanMoi(){
+  if(document.hidden||!navigator.onLine)return;
+  try{const r=await fetch(location.pathname,{cache:'no-store'});if(r.ok)baoBanMoi(banTrongHTML(await r.text()))}catch(e){}
+}
+(function(){
+  const web=/^https?:$/.test(location.protocol)&&!/googleusercontent\.com$|script\.google\.com$/.test(location.hostname);
+  if(!web||!BAN_HIEN_TAI)return;
+  setInterval(kiemTraBanMoi,5*60*1000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)kiemTraBanMoi()});
 })();
 </script>
 </body>
