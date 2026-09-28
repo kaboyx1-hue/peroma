@@ -2713,6 +2713,39 @@ ok('BD: phiên bản khác → hiện thanh báo có nút Tải lại', bd.khacB
 ok('BD: bấm "Để sau" → ẩn, không hỏi lại đúng bản đó', bd.deSauAnDi&&bd.deSauKhongHoiLai);
 ok('BD: có bản mới hơn nữa → vẫn báo', bd.banKhacVanBao);
 
+console.log('\n── BE. BÁO CÁO SỐ LOT SẢN XUẤT (.xlsx) (28/09/2026) ──');
+const be=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms)), gocNk=nk.slice(), g={tu:tuNgay,den:denNgay}, taiCu=window.taiVe;
+  const p=sp[0]; const hsd=(p.hstem&&p.hstem.hsdNam)||'';
+  nk.push({id:'BE-1',sp:p.ten,maSP:'11',lot:'1101070926',ngaysx:'2026-09-15',sl:100,quyCach:'1 kg'},
+          {id:'BE-2',sp:p.ten,maSP:'11',lot:'1101070926',ngaysx:'2026-09-03',sl:50,quyCach:'1 kg'},
+          {id:'BE-3',sp:p.ten,maSP:'11',lot:'1102070926',ngaysx:'2026-09-10',sl:80,quyCach:'1 kg',huy:true},
+          {id:'BE-4',sp:p.ten,maSP:'11',lot:'1103070826',ngaysx:'2026-08-20',sl:80,quyCach:'1 kg'});
+  tuNgay='2026-09-01'; denNgay='2026-09-30';
+  let bat=null; window.taiVe=(n,d)=>{bat={n,d};return true};
+  chuyenTab('bc'); await cho(50);
+  const kq={coNut:!!document.getElementById('xuatSoLot')};
+  document.getElementById('xuatSoLot').click(); await cho(50);
+  kq.tenFile=!!bat&&/^bao-cao-so-lot_\d{4}-\d{2}-\d{2}\.xlsx$/.test(bat.n);
+  const f=bat?fflate.unzipSync(bat.d):{}, x=f['xl/worksheets/sheet1.xml']?new TextDecoder().decode(f['xl/worksheets/sheet1.xml']):'';
+  kq.tieuDe=/BÁO CÁO SỐ LOT SẢN XUẤT/.test(x)&&/KHÁNH HOÀNG/.test(x)&&/Kỳ báo cáo: Từ 01\/09\/2026 đến 30\/09\/2026/.test(x)&&/Người lập/.test(x);
+  kq.cot=['STT','Mã SP','Tên sản phẩm','Số LOT','NSX','HSD'].every(c=>x.includes('>'+c+'<'));
+  kq.moiLoMotDong=(x.match(/11 01 07 0926/g)||[]).length===1;
+  kq.nsxSomNhat=x.includes('>03/09/2026<')&&!x.includes('>15/09/2026<');
+  kq.hsd=!hsd||x.includes('>03/09/'+(2026+parseInt(hsd,10))+'<');
+  kq.boHuyVaNgoaiKy=!x.includes('11 01 02 0926')&&!x.includes('11 03 07 0826')&&!x.includes('1102070926');
+  nk.length=0; gocNk.forEach(r=>nk.push(r)); tuNgay=g.tu; denNgay=g.den; window.taiVe=taiCu; chuyenTab('tq');
+  return kq;
+});
+ok('BE: tab Báo cáo có nút xuất báo cáo số LOT', be.coNut, JSON.stringify(be));
+ok('BE: tên file bao-cao-so-lot_<ngày>.xlsx', be.tenFile);
+ok('BE: có thông tin chung (công ty, tên báo cáo, kỳ, ngày lập, người lập)', be.tieuDe);
+ok('BE: đúng 6 cột theo mẫu: STT · Mã SP · Tên sản phẩm · Số LOT · NSX · HSD', be.cot);
+ok('BE: mỗi số LOT một dòng (nhiều mẻ cùng lô gộp lại)', be.moiLoMotDong);
+ok('BE: NSX = ngày sản xuất sớm nhất của lô trong kỳ', be.nsxSomNhat);
+ok('BE: HSD tính theo số năm trong hồ sơ tem', be.hsd);
+ok('BE: bỏ lô đã huỷ và lô ngoài khoảng thời gian', be.boHuyVaNgoaiKy);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

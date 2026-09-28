@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/09/2026-S46</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/09/2026-S47</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 28/09/2026-S46</div>
+      <div class="verFoot">BẢN 28/09/2026-S47</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2321,8 +2321,9 @@ function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&0xF
 const U8=s=>new TextEncoder().encode(s);
 const XE=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function colL(n){let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-m-1)/26}return s}
-function sheetXml(rows){
-  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+function sheetXml(rows,cols){
+  let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +(cols&&cols.length?'<cols>'+cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>':'')+'<sheetData>';
   rows.forEach((row,r)=>{x+=`<row r="${r+1}">`;
     row.forEach((v,c)=>{const ref=colL(c)+(r+1);
       if(v===null||v===undefined||v==='')return;
@@ -2343,7 +2344,7 @@ function xlsxBytes(sheets){
   let wr='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
   sheets.forEach((s,i)=>wr+=`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`);
   push('xl/_rels/workbook.xml.rels',wr+'</Relationships>');
-  sheets.forEach((s,i)=>push(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows)));
+  sheets.forEach((s,i)=>push(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows,s.cols)));
   const parts=[],cen=[];let off=0;
   const w2=n=>[n&255,(n>>8)&255],w4=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];
   files.forEach(f=>{const nm=U8(f.name),c=crc32(f.data),n=f.data.length;
@@ -2367,6 +2368,30 @@ function taiVe(name,data,mime){
     setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);
     return true;
   }catch(e){return false}
+}
+
+/* 28/09/2026 — Báo cáo số LOT sản xuất (khách đưa mẫu, chốt "bỏ bớt, dùng theo bảng tôi đưa"):
+   thông tin chung + bảng STT · Mã SP · Tên sản phẩm · Số LOT · NSX · HSD. Không có tồn kho/xuất bán/
+   QC/vị trí kho (app không theo dõi). Mỗi số LOT MỘT dòng — 1 lô gồm nhiều mẻ cùng tháng/SP/hương/quy
+   cách, NSX lấy ngày sản xuất SỚM NHẤT trong kỳ; HSD tính theo số năm trong hồ sơ tem như trên tem.
+   Theo khoảng thời gian đang chọn ở tab Báo cáo (locNK — đã loại lô huỷ). */
+function bangSoLot(ds){
+  const gap=new Map();
+  ds.forEach(r=>{const l=String(r.lot||'');if(!l)return;const cu=gap.get(l);
+    if(!cu||String(r.ngaysx||'')<String(cu.ngaysx||''))gap.set(l,r)});
+  return [...gap.values()].sort((a,b)=>String(a.ngaysx||'').localeCompare(String(b.ngaysx||''))||String(a.lot).localeCompare(String(b.lot)))
+    .map((r,i)=>{const p=sp.find(x=>x.ten===r.sp),t=(p&&p.hstem)||{};
+      return [i+1,hai(r.maSP||(p&&p.maSP)),r.sp||'',lotDep(r.lot),vnNgay(r.ngaysx),hanDung(r.ngaysx,t.hsdNam)]});
+}
+function xuatBaoCaoSoLot(){
+  const bang=bangSoLot(locNK());
+  if(!bang.length){bao('Không có lô nào trong khoảng thời gian đang chọn');return false}
+  const ky=(tuNgay||denNgay)?`Từ ${tuNgay?vnNgay(tuNgay):'đầu'} đến ${denNgay?vnNgay(denNgay):'nay'}`:'Tất cả';
+  const rows=[[TEM_MD.ctyTen],['BÁO CÁO SỐ LOT SẢN XUẤT'],['Kỳ báo cáo: '+ky],['Ngày lập: '+vnNgay(isoNay())],['Người lập:'],[],
+    ['STT','Mã SP','Tên sản phẩm','Số LOT','NSX','HSD'],...bang];
+  const ok=taiVe(`bao-cao-so-lot_${isoNay()}.xlsx`,xlsxBytes([{name:'Số LOT',rows,cols:[6,8,38,18,12,12]}]));
+  bao(ok?'Đã xuất báo cáo số LOT ('+bang.length+' lô)':'Trình duyệt chặn tải file');
+  return ok;
 }
 
 /* ═══ Dữ liệu báo cáo ═══ */
@@ -4222,7 +4247,8 @@ function veBC(){
      <div class="kpi"><b>${ls.length}</b><span>Mẻ đã ghi</span></div>
      <div class="kpi"><b>${fmt(tKg)}</b><span>KG theo lệnh</span></div>
      <div class="kpi"><b>${fmt(tMl)}</b><span>G hương liệu</span></div>
-   </div>`;
+   </div>
+   <button class="addbtn" id="xuatSoLot" style="margin:8px 12px 0;width:calc(100% - 24px)">Xuất báo cáo số LOT sản xuất (.xlsx) — theo khoảng thời gian trên</button>`;
 
   const cIT=loChuaInTem();
   if(cIT.length)o+=`<div class="canh"><b>${cIT.length}</b> lô đã ghi từ <b>${ngayNhacInTem}</b> ngày trước mà CHƯA in tem lần nào: <b>${cIT.slice(0,6).map(r=>esc(lotDep(r.lot))).join(' · ')}</b>${cIT.length>6?' …':''}. Đừng quên in trước khi xuất hàng.<br>Ngưỡng nhắc: <input id="ngayNhacIT" type="number" min="1" style="width:46px;font:inherit;font-family:var(--mono);background:var(--bg);color:var(--txt);border:1px solid var(--line-2);border-radius:6px;padding:3px 5px" value="${ngayNhacInTem}"> ngày.</div>`;
@@ -4926,6 +4952,7 @@ $('viewBC').addEventListener('input',e=>{
 });
 $('viewBC').addEventListener('click',async e=>{
   if(e.target.id==='clearNgay'){tuNgay='';denNgay='';veBC();return}
+  if(e.target.id==='xuatSoLot'){xuatBaoCaoSoLot();return}
   const tk=e.target.closest('[data-temkho]'); if(tk){const kv=tk.dataset.temkho;temKho=kv==='a4'?'a4':(laKhoNhiet(kv)?kv:'a4');luuNgay();veBC();return}
   const it=e.target.closest('[data-intem]');
   if(it){await inTem(it.dataset.intem,!!it.dataset.quafile,!!it.dataset.dantem);return} // S17: sửa — nút "Lưu file tem" (S13) trước đây in như nút thường
