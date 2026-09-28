@@ -956,6 +956,35 @@ ok('S22: phiên bản khác → hiện thanh báo có nút Tải lại', bd.khac
 ok('S22: bấm "Để sau" → ẩn, không hỏi lại đúng bản đó', bd.deSauAnDi&&bd.deSauKhongHoiLai);
 ok('S22: có bản mới hơn nữa → vẫn báo', bd.banKhacVanBao);
 
+console.log('\n── S23. NỐI MÁY CHỦ: BÁO LỖI RÕ + TỰ THỬ LẠI KHI CHẬM (28/09/2026) ──');
+/* Khách báo "Không gọi được: signal is aborted without reason" khi dán link + mật khẩu (hết giờ chờ).
+   Giả lập fetch: hết giờ = reject AbortError (đúng lỗi trình duyệt ném khi abort). */
+const s23=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms)), fetchCu=window.fetch, KCu=localStorage.getItem(KETNOI_KEY), uCu=DONGBO_URL, mCu=LEGACY_SHARED_TOKEN;
+  const U='https://script.google.com/macros/s/TEST/exec', kq={};
+  const hetGio=()=>Promise.reject(new DOMException('signal is aborted without reason','AbortError'));
+  const tra=o=>Promise.resolve(new Response(JSON.stringify(o),{status:200}));
+  const bam=async()=>{tab='dl';ve();await cho(30);$('knUrl').value=U;$('knMk').value='mk';$('knLuu').click();await cho(150);return $('knKq').textContent};
+  // 1) dbGoi đổi lỗi hết giờ sang tiếng Việt
+  window.fetch=()=>hetGio();
+  try{await dbGoi(U,{},3000)}catch(e){kq.dbGoiTiengViet=/không trả lời sau 3 giây/.test(e.message)&&!/aborted/.test(e.message)}
+  // 2) không tới được máy chủ (phienban hết giờ) → báo lỗi mạng/địa chỉ, kèm hướng dẫn
+  const t1=await bam(); kq.loiMang=/Không tới được máy chủ/.test(t1)&&/4G/.test(t1)&&!/aborted/.test(t1);
+  // 3) tới được, cauhinh lần 1 hết giờ, lần 2 OK → tự thử lại và nối thành công
+  let lan=0; window.fetch=(u)=>{ if(/a=phienban/.test(u))return tra({ok:1,phienBan:'x'}); if(/a=cauhinh/.test(u)){lan++; return lan===1?hetGio():tra({ok:1,cauhinh:null})} return tra({ok:1}) };
+  const t2=await bam(); kq.thuLaiThanhCong=lan>=2&&/Đã nối/.test(t2); kq.t2=t2.slice(0,60);
+  // 4) sai mật khẩu vẫn báo đúng lời máy chủ
+  window.fetch=(u)=>/a=phienban/.test(u)?tra({ok:1}):tra({loi:'Sai mật khẩu'});
+  const t3=await bam(); kq.saiMatKhau=/Sai mật khẩu/.test(t3);
+  window.fetch=fetchCu; DONGBO_URL=uCu; LEGACY_SHARED_TOKEN=mCu;
+  if(KCu===null)localStorage.removeItem(KETNOI_KEY); else localStorage.setItem(KETNOI_KEY,KCu);
+  tab='me'; ve(); return kq;
+});
+ok('S23: hết giờ chờ → báo tiếng Việt "Máy chủ không trả lời sau N giây" (không còn "signal is aborted")', s23.dbGoiTiengViet, JSON.stringify(s23));
+ok('S23: không tới được máy chủ → báo rõ là lỗi mạng/địa chỉ, kèm cách kiểm tra', s23.loiMang);
+ok('S23: máy chủ chậm lần đầu → tự thử lại, nối được', s23.thuLaiThanhCong);
+ok('S23: sai mật khẩu vẫn báo đúng lời máy chủ', s23.saiMatKhau);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

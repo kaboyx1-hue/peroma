@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 24/09/2026-S45</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/09/2026-S46</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 24/09/2026-S45</div>
+      <div class="verFoot">BẢN 28/09/2026-S46</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1266,11 +1266,11 @@ function dbVeTT(t,ghiChu){
   const map={tat:['⚪','Đồng bộ tắt'],dang:['🟡','Đang gửi…'],ok:['🟢','Đã đồng bộ '+dbGio()],loi:['🔴','Mất mạng — đang giữ lại'+(ghiChu?' ('+ghiChu+')':'')]};
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
-async function dbGoi(url,tuychon){
+async function dbGoi(url,tuychon,ms){
   // 10/09/2026: lưới an toàn cho chế độ chỉ xem — chặn MỌI lệnh ghi (POST), kể cả đường ghi thêm sau này
   if(adminChiXem&&tuychon&&String(tuychon.method||'').toUpperCase()==='POST')
     throw new Error('Admin trên điện thoại đang ở chế độ chỉ xem — không gửi thay đổi lên hệ thống');
-  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),25000);
+  ms=ms||25000; const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),ms);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
     clearTimeout(to);
@@ -1278,7 +1278,10 @@ async function dbGoi(url,tuychon){
     const j=await r.json();
     if(j.loi) throw new Error(j.loi);
     return j;
-  }catch(e){ clearTimeout(to); throw e; }
+  }catch(e){ clearTimeout(to);
+    // 28/09/2026: trình duyệt báo 'signal is aborted without reason' khi hết giờ — khó hiểu với khách
+    if(e&&e.name==='AbortError') throw new Error('Máy chủ không trả lời sau '+Math.round(ms/1000)+' giây — mạng chậm hoặc bị chặn');
+    throw e; }
 }
 /* Chỉ giữ trường DANH MỤC/CÔNG THỨC khi gửi lên máy chủ làm "cấu hình" — bỏ mọi
    trường "đang ghi mẻ dở" (sl,pb,huongMe,lot,ngaysx,nv,me). Nếu không lọc, mỗi lần
@@ -5053,9 +5056,15 @@ $('viewSL').addEventListener('click',async e=>{
     if(!url){kq.innerHTML='<span style="color:var(--red)">Chưa nhập địa chỉ Apps Script.</span>';return}
     if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/.test(url)){
       kq.innerHTML='<span style="color:var(--red)">Địa chỉ không đúng dạng. Phải bắt đầu bằng https://script.google.com/macros/s/… và kết thúc bằng /exec</span>';return}
-    kq.textContent='Đang kiểm tra…';
+    /* 28/09/2026: tách 2 bước giống bản Nhân viên (xem chú thích bên đó) — phienban (nhẹ, không mật khẩu)
+       để phân biệt lỗi mạng/địa chỉ với máy chủ chậm; cauhinh chờ lâu hơn + tự thử lại 1 lần. */
+    kq.textContent='Đang kiểm tra đường tới máy chủ…';
+    try{ await dbGoi(url+'?a=phienban',{},20000) }
+    catch(err){ kq.innerHTML='<span style="color:var(--red)">Không tới được máy chủ: '+esc(err.message||String(err))+'<br>Kiểm tra: máy có mạng không; wifi có chặn script.google.com không — thử mạng khác; dán lại đúng link /exec.</span>';return}
+    kq.textContent='Đã tới máy chủ — đang kiểm tra mật khẩu và tải cấu hình (lần đầu có thể mất tới 30 giây)…';
     try{
-      const j=await dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh');
+      const goi=ms=>dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh',{},ms);
+      let j; try{ j=await goi(45000) }catch(e1){ if(!/không trả lời/.test(e1.message||''))throw e1; kq.textContent='Máy chủ đang chậm — thử lại lần nữa…'; j=await goi(60000) }
       if(j&&j.loi){kq.innerHTML='<span style="color:var(--red)">Máy chủ trả lời: '+esc(j.loi)+'</span>';return}
       if(!ghiKetNoi(url,mk)){kq.innerHTML='<span style="color:var(--red)">Trình duyệt không cho lưu (chế độ ẩn danh?).</span>';return}
       DONGBO_URL=url; LEGACY_SHARED_TOKEN=mk;

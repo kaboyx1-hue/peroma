@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 24/09/2026-R33</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 28/09/2026-R34</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -462,8 +462,8 @@ function dbVeTT(t,ghiChu){
   const map={tat:['⚪','Đồng bộ tắt'],dang:['🟡','Đang gửi…'],ok:['🟢','Đã đồng bộ '+dbGio()],loi:['🔴','Mất mạng — đang giữ lại'+(ghiChu?' ('+ghiChu+')':'')]};
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
-async function dbGoi(url,tuychon){
-  const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),25000);
+async function dbGoi(url,tuychon,ms){
+  ms=ms||25000; const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),ms);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
     clearTimeout(to);
@@ -471,7 +471,10 @@ async function dbGoi(url,tuychon){
     const j=await r.json();
     if(j.loi) throw new Error(j.loi);
     return j;
-  }catch(e){ clearTimeout(to); throw e; }
+  }catch(e){ clearTimeout(to);
+    // 28/09/2026: trình duyệt báo 'signal is aborted without reason' khi hết giờ — khó hiểu với khách
+    if(e&&e.name==='AbortError') throw new Error('Máy chủ không trả lời sau '+Math.round(ms/1000)+' giây — mạng chậm hoặc bị chặn');
+    throw e; }
 }
 async function dbDayMe(banGhi){
   if(!DONGBO_URL||!banGhi||!banGhi.length)return;
@@ -1807,9 +1810,16 @@ $('view').addEventListener('click',async e=>{
     const kq=$('knKq');
     if(!/^https:\/\/script\.google\.com\/macros\/s\/[^/]+\/exec/.test(url)){
       kq.innerHTML='<b style="color:var(--am)">Địa chỉ phải bắt đầu bằng https://script.google.com/macros/s/… và kết thúc bằng /exec</b>';return}
-    kq.textContent='Đang kiểm tra…';
+    /* 28/09/2026: khách báo "Không gọi được: signal is aborted without reason" (hết 25 giây chờ). Tách 2 bước
+       để biết lỗi nằm ở đâu: (1) a=phienban — không cần mật khẩu, rất nhẹ → không tới được = lỗi MẠNG/ĐỊA CHỈ;
+       (2) a=cauhinh — có mật khẩu, nặng hơn (đọc Sheet) → chờ lâu hơn, tự thử lại 1 lần khi máy chủ chậm. */
+    kq.textContent='Đang kiểm tra đường tới máy chủ…';
+    try{ await dbGoi(url+'?a=phienban',{},20000) }
+    catch(err){ kq.innerHTML='<b style="color:var(--am)">Không tới được máy chủ: '+esc(err.message||String(err))+'</b><br>Kiểm tra: máy có mạng không (mở thử google.com); wifi công ty có chặn script.google.com không — thử đổi sang 4G; dán lại đúng link /exec quản lý gửi (không thừa/thiếu ký tự).';return}
+    kq.textContent='Đã tới máy chủ — đang kiểm tra mật khẩu và tải cấu hình (lần đầu có thể mất tới 30 giây)…';
     try{
-      const j=await dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh');
+      const goi=ms=>dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh',{},ms);
+      let j; try{ j=await goi(45000) }catch(e1){ if(!/không trả lời/.test(e1.message||''))throw e1; kq.textContent='Máy chủ đang chậm — thử lại lần nữa…'; j=await goi(60000) }
       if(j&&j.loi){kq.innerHTML='<b style="color:var(--am)">Máy chủ trả lời: '+esc(j.loi)+'</b>';return}
       if(!ghiKetNoi(url,mk)){kq.innerHTML='<b style="color:var(--am)">Trình duyệt không cho lưu (chế độ ẩn danh?).</b>';return}
       DONGBO_URL=url; LEGACY_SHARED_TOKEN=mk;
