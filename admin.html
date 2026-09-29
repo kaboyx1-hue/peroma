@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/09/2026-S47</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S48</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 28/09/2026-S47</div>
+      <div class="verFoot">BẢN 29/09/2026-S48</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1453,6 +1453,18 @@ function ghiNhanMeLanDau(r){
     if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;
   }
 }
+/* 29/09/2026: khách mở Admin trên điện thoại thấy "rất nhiều dữ liệu cũ" không có trên PC. Gốc rễ: 3 kênh kéo
+   (mẻ / báo cáo / tiến độ lệnh) chỉ THÊM bản ghi mới, KHÔNG BAO GIỜ bỏ bản ghi đã hết trên Sheet — nên máy
+   khác (điện thoại) giữ mãi dữ liệu cũ kể cả sau khi PC "Xoá dữ liệu mô phỏng" (Sheet đã xoá sạch).
+   Máy Admin CHỈ XEM (điện thoại) không có dữ liệu riêng nào cần giữ → soi gương đúng Sheet: bỏ bản ghi
+   Sheet không còn. Máy Admin sửa được (PC) GIỮ nguyên hành vi cũ (có thể có mẻ nhận tay qua file .json). */
+function gonTheoMayChu(ten,dsSv){
+  if(!adminChiXem||!Array.isArray(dsSv))return 0;
+  const co=new Set(dsSv.map(r=>r&&r.id)), cu={nk,bcNgay,lenhTienDo}[ten], moi=cu.filter(r=>co.has(r.id)), bo=cu.length-moi.length;
+  if(!bo)return 0;
+  if(ten==='nk')nk=moi; else if(ten==='bcNgay')bcNgay=moi; else lenhTienDo=moi;
+  return bo;
+}
 async function dbKeoNhatKy(){
   if(!DONGBO_URL||dbDangKeo)return;
   dbDangKeo=true;
@@ -1461,7 +1473,8 @@ async function dbKeoNhatKy(){
     if(j.ok && Array.isArray(j.nk)){
       let them=0;
       j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ ghiNhanMeLanDau(r); nk.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
-      if(them){ luuNgay(); if(typeof ve==='function')ve(); bao('🟢 Nhận '+them+' mẻ mới từ máy nhân viên'); }
+      const bot=gonTheoMayChu('nk',j.nk);
+      if(them||bot){ luuNgay(); if(typeof ve==='function')ve(); bao(them?'🟢 Nhận '+them+' mẻ mới từ máy nhân viên':'Đã bỏ '+bot+' mẻ cũ không còn trên Google Sheet'); }
       dbVeTT('ok');
     }
   }catch(e){ dbVeTT('loi', e.message); }
@@ -1480,7 +1493,8 @@ async function dbKeoBaoCao(){
     if(j.ok && Array.isArray(j.bc)){
       let them=0;
       j.bc.forEach(r=>{ if(!bcNgay.some(x=>x.id===r.id)){ bcNgay.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
-      if(them){ bcNgay.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); if(typeof ve==='function')ve(); bao('🟢 Nhận '+them+' báo cáo chốt thực tế từ nhân viên'); }
+      const bot=gonTheoMayChu('bcNgay',j.bc);
+      if(them||bot){ bcNgay.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); if(typeof ve==='function')ve(); bao(them?'🟢 Nhận '+them+' báo cáo chốt thực tế từ nhân viên':'Đã bỏ '+bot+' báo cáo cũ không còn trên Google Sheet'); }
       dbVeTT('ok');
     }
   }catch(e){ dbVeTT('loi', e.message); }
@@ -1498,7 +1512,8 @@ async function dbKeoTienDoLenh(){
     if(j.ok && Array.isArray(j.lt)){
       let them=0;
       j.lt.forEach(r=>{ if(!lenhTienDo.some(x=>x.id===r.id)){ lenhTienDo.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
-      if(them){ lenhTienDo.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); if(typeof ve==='function')ve(); }
+      const bot=gonTheoMayChu('lenhTienDo',j.lt);
+      if(them||bot){ lenhTienDo.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); if(typeof ve==='function')ve(); }
       dbVeTT('ok');
     }
   }catch(e){ dbVeTT('loi', e.message); }

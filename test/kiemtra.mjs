@@ -2746,6 +2746,24 @@ ok('BE: NSX = ngày sản xuất sớm nhất của lô trong kỳ', be.nsxSomNh
 ok('BE: HSD tính theo số năm trong hồ sơ tem', be.hsd);
 ok('BE: bỏ lô đã huỷ và lô ngoài khoảng thời gian', be.boHuyVaNgoaiKy);
 
+console.log('\n── BF. ADMIN CHỈ XEM (ĐIỆN THOẠI) SOI GƯƠNG ĐÚNG GOOGLE SHEET (29/09/2026) ──');
+const bf=await E(async()=>{
+  const g={nk:nk.slice(),bc:bcNgay.slice(),lt:lenhTienDo.slice(),cx:adminChiXem,url:DONGBO_URL,dg:window.dbGoi};
+  DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
+  const sv={nk:[{id:'MIR-2',sp:sp[0].ten,lot:'1',ngaysx:'2026-09-20'}],bc:[],lt:[]};
+  window.dbGoi=async u=>/a=nhatky/.test(u)?{ok:1,nk:sv.nk}:/a=baocao/.test(u)?{ok:1,bc:sv.bc}:/a=lenhtiendo/.test(u)?{ok:1,lt:sv.lt}:{ok:0};
+  const cu=()=>{nk=[{id:'MIR-1',sp:sp[0].ten,lot:'1',ngaysx:'2026-08-01'},{id:'MIR-2',sp:sp[0].ten,lot:'1',ngaysx:'2026-09-20'}];bcNgay=[{id:'BCX'}];lenhTienDo=[{id:'LTX',lenhId:'x',kg:1}]};
+  const kq={};
+  adminChiXem=true; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
+  kq.dtBoCu=nk.map(r=>r.id).join()==='MIR-2'&&bcNgay.length===0&&lenhTienDo.length===0;
+  adminChiXem=false; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
+  kq.pcGiuNguyen=nk.length===2&&bcNgay.length===1&&lenhTienDo.length===1;
+  nk=g.nk; bcNgay=g.bc; lenhTienDo=g.lt; adminChiXem=g.cx; DONGBO_URL=g.url; window.dbGoi=g.dg; luuNgay();
+  return kq;
+});
+ok('BF: Admin chỉ xem (điện thoại) bỏ mẻ/báo cáo/tiến độ đã không còn trên Sheet', bf.dtBoCu, JSON.stringify(bf));
+ok('BF: Admin sửa được (PC) giữ nguyên dữ liệu riêng như cũ', bf.pcGiuNguyen);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
