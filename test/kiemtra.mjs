@@ -2786,6 +2786,24 @@ ok('BG: bao bì phụ có túi/bao → cảnh báo "mỗi gói đang tính N tú
 ok('BG: bấm "bỏ túi thừa" → giữ túi chính + nhãn + túi hút chân không, bỏ túi/bao thừa', bg.conDung);
 ok('BG: bỏ xong thì hết cảnh báo', bg.hetCanhBao);
 
+/* BH — 29/09/2026 S50: Giá thành có hàng nút hương (đã lưu + đang chọn chưa lưu), mỗi nút ghi giá vốn/gói, bấm để đổi */
+const bh=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const i=sp.findIndex(p=>(p.dauRa||[]).length), p=sp[i], g={h:JSON.stringify(p.huongs||[]),t:JSON.stringify(p.tam||[])};
+  const ds=kho.filter(h=>!isUnscented(h)).slice(0,2); p.huongs=[ds[0]]; p.tam=[ds[0],ds[1]];
+  mo.clear(); mo.add(i); chuyenTab('ct'); await cho(30);
+  const sec=()=>document.querySelector('.ctsec[data-sec="gt"][data-si="'+i+'"]'), nut=()=>[...sec().querySelectorAll('[data-gthc]')];
+  kq.haiNut=nut().length===2 && nut()[0].classList.contains('on');
+  const q=gtCua(p).q, t1=giaVonBao(p,q,ds[1]);
+  kq.coGia=nut()[1].querySelector('small').textContent===(t1.thieu.includes('giá hương '+ds[1])?'chưa có giá hương':fmtTien(t1.tong)+' đ');
+  nut()[1].click(); await cho(30);
+  kq.doi=gtCua(p).h===ds[1] && nut()[1].classList.contains('on') && sec().querySelector('.gt-sp').textContent.includes(ds[1]);
+  p.huongs=JSON.parse(g.h); p.tam=JSON.parse(g.t); for(const k in gtTT)delete gtTT[k]; mo.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BH: Giá thành hiện nút cho cả hương đang chọn chưa lưu', bh.haiNut, JSON.stringify(bh));
+ok('BH: mỗi nút ghi giá vốn/gói của hương đó', bh.coGia);
+ok('BH: bấm nút → bảng đổi sang hương đó', bh.doi);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

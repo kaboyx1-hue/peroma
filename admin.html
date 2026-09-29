@@ -1031,8 +1031,13 @@ td.gvthieu i,.gvtong td i{font-style:normal;color:var(--badTx);margin-left:2px}
 .gt-qc{display:flex;gap:3px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px}
 .gt-qc button{font:inherit;font-size:13px;font-weight:700;border:0;background:none;color:var(--tx2);border-radius:9px;padding:6px 11px;cursor:pointer}
 .gt-qc button.on{background:var(--acc);color:var(--onAcc)}
-.gt-hs{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--tx2);text-transform:none;letter-spacing:0;margin:0}
-.gt-hs select{font:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--line2);border-radius:10px;background:var(--card);color:var(--tx)}
+.gt-hs{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:10px 0 4px}
+.gt-hs>span{flex-basis:100%;font-size:12px;font-weight:600;color:var(--tx2)}
+.gt-hs button{font:inherit;display:flex;flex-direction:column;align-items:flex-start;gap:1px;border:1px solid var(--line2);background:var(--card);color:var(--tx);border-radius:10px;padding:6px 11px;cursor:pointer;text-align:left}
+.gt-hs button b{font-size:13px}
+.gt-hs button small{font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
+.gt-hs button.on{background:var(--acc);border-color:var(--acc);color:var(--onAcc)}
+.gt-hs button.on small{color:var(--onAcc)}
 .gt-thes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
 .gt-the{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:11px 13px;min-width:0}
 .gt-nhan{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1108,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S49</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S50</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 29/09/2026-S49</div>
+      <div class="verFoot">BẢN 29/09/2026-S50</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3908,12 +3913,14 @@ function giaVonBao(p,q,h,thu){
 const fmtTien=x=>!isFinite(x)?'—':Math.abs(x)<1000?(Math.round(x*100)/100).toLocaleString('vi-VN',{maximumFractionDigits:2}):Math.round(x).toLocaleString('vi-VN'); // như file đầu: 318,75 đ
 const gtTT={}; // trạng thái khung theo tên mặt hàng, chỉ trong phiên: {q, h, thu:{h, nl:{}, bb:{}}}
 function gtCua(p){return gtTT[p.ten]||(gtTT[p.ten]={q:'',h:'',thu:{nl:{},bb:{}}})}
-function gtChuan(p){const t=gtCua(p), qs=p.dauRa||[], hs=(p.huongs||[]).filter(Boolean);
+// 29/09/2026 — S50: hương để so giá = hương đã lưu + hương đang chọn (chưa lưu) — khách: "phải cho tôi một mục chọn theo mùi nào giá thành sẽ thay đổi ra sao"
+const gtHuongs=p=>[...new Set([...(p.huongs||[]),...(p.tam||[])].filter(Boolean))];
+function gtChuan(p){const t=gtCua(p), qs=p.dauRa||[], hs=gtHuongs(p);
   if(!qs.includes(t.q))t.q=qs[0]||''; if(!hs.includes(t.h))t.h=hs[0]||''; return t}
 function gtTomTat(p){const t=gtChuan(p); if(!t.q)return null; const g=giaVonBao(p,t.q,t.h); return {q:t.q,g}}
 const gtCoThu=t=>!!(t.thu.h||Object.keys(t.thu.nl).length||Object.keys(t.thu.bb).length);
 function veGiaThanh(p,i){
-  const t=gtChuan(p), qs=p.dauRa||[], hs=(p.huongs||[]).filter(Boolean);
+  const t=gtChuan(p), qs=p.dauRa||[], hs=gtHuongs(p);
   if(!t.q)return '<div class="log">Mặt hàng chưa có quy cách đóng gói — chọn ở nhóm "Sản xuất &amp; đóng gói" ở trên.</div>';
   const g=giaVonBao(p,t.q,t.h,t.thu), kgChuan=num(p.kg), soGoi=g.kgBao>0?Math.floor(kgChuan/g.kgBao+1e-9):0, thu=gtCoThu(t);
   const ml=num(p.ml), tiLe=ml>0&&kgChuan>0?kgChuan*1000/ml:0;
@@ -3921,7 +3928,9 @@ function veGiaThanh(p,i){
   let o=`<div class="gt-dau"><div class="gt-dau-t"><span class="gt-sp">${esc(p.ten)}${t.h?' · '+esc(t.h):''}</span>
       <div class="gt-to"><b>${esc(t.q)}</b><span>— định mức &amp; giá vốn cho mỗi gói thành phẩm</span></div></div>
     <div class="gt-chon">${qs.length>1?`<div class="gt-qc" role="group" aria-label="Chọn quy cách">${qs.map(q=>`<button type="button" class="${q===t.q?'on':''}" data-gtq="${i}|||${esc(q)}">${esc(q)}</button>`).join('')}</div>`:''}
-      ${hs.length>1?`<label class="gt-hs">Hương<select data-gth="${i}">${hs.map(h=>`<option${h===t.h?' selected':''}>${esc(h)}</option>`).join('')}</select></label>`:''}</div></div>`;
+      </div></div>`;
+  if(hs.length>1)o+=`<div class="gt-hs" role="group" aria-label="Chọn hương — giá vốn mỗi gói ${esc(t.q)}"><span>Chọn hương · giá vốn / gói ${esc(t.q)}</span>${hs.map(h=>{const gh=giaVonBao(p,t.q,h), coGia=isUnscented(h)||!gh.thieu.some(x=>x==='giá hương '+h);
+    return `<button type="button" class="${h===t.h?'on':''}" data-gthc="${i}|||${esc(h)}"><b>${esc(h)}</b><small>${gh.kgBao&&coGia?fmtTien(gh.tong)+' đ':'chưa có giá hương'}</small></button>`}).join('')}</div>`;
   if(!g.kgBao)return o+`<div class="canh">Quy cách "${esc(t.q)}" chưa có số kg mỗi bao — khai ở Danh mục → Quy cách.</div>`;
   const theDs=g.dong.filter(x=>x.khoa!==undefined);
   o+=`<div class="gt-thes">`+theDs.map(x=>`<div class="gt-the gt-${x.loai}"><span class="gt-nhan"><i></i>${esc(nhanThe(x))}</span><b>${x.dm==='—'?'0 g':x.dm}</b><small>${x.khong?'0 đ':x.tt===null?'chưa có giá':fmtTien(x.tt)+' đ'}</small>${(!x.khong&&x.ttVAT!==null)?`<em>đã VAT ${fmtTien(x.ttVAT)} đ</em>`:''}</div>`).join('')+`</div>`;
@@ -3958,10 +3967,11 @@ function suKienGiaThanh(e){
     if(loai==='h'){if(v>0)th.h=v/1000;else delete th.h}
     else{const m=loai==='nl'?th.nl:th.bb; if(v>0)m[khoa]=v;else delete m[khoa]}
     gtVeLai(+i,t.dataset.gtthu); return true}
-  if(e.type==='change'&&t.dataset.gth!==undefined){const p=sp[+t.dataset.gth];if(p){gtCua(p).h=t.value;gtVeLai(+t.dataset.gth)}return true}
   if(e.type==='click'){
     let x=t.closest('[data-gtq]');
     if(x){const [i,q]=x.dataset.gtq.split('|||'),p=sp[+i];if(p){gtCua(p).q=q;gtVeLai(+i)}return true}
+    x=t.closest('[data-gthc]');
+    if(x){const [i,h]=x.dataset.gthc.split('|||'),p=sp[+i];if(p){const c=gtCua(p);if(c.h!==h)delete c.thu.h;c.h=h;gtVeLai(+i)}return true}
     x=t.closest('[data-gtve]');
     if(x){const p=sp[+x.dataset.gtve];if(p){gtCua(p).thu={nl:{},bb:{}};gtVeLai(+x.dataset.gtve)}return true}
     x=t.closest('[data-gtdi]');
