@@ -1108,9 +1108,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S48</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S49</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 29/09/2026-S48</div>
+      <div class="verFoot">BẢN 29/09/2026-S49</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3765,6 +3765,15 @@ function veBaoBi(){
    tác trên danh sách nhiều dòng (dễ rối khi chỉ cần đổi đúng 1 túi). Giờ mỗi quy cách có 1 dropdown
    "Túi dùng" chọn thẳng — đổi dropdown là tự tách riêng cho mặt hàng đó (xem data-bbchinh ở suKienBaoBi).
    Bao bì phụ (nhãn, hút chân không…) vẫn thêm/xoá được, gập trong "Bao bì phụ" bên dưới. */
+/* 29/09/2026: khách xác nhận mỗi gói chỉ dùng MỘT túi (không lồng túi). Bảng Giá thành của 1 mặt hàng tính
+   3 túi/gói vì 2 túi bị thêm nhầm vào "Bao bì phụ" (dành cho nhãn, hút chân không…). Không tự xoá (tên bao bì
+   do khách đặt, có thể có "Túi hút chân không" là phụ thật) — chỉ CẢNH BÁO + nút bỏ túi thừa 1 lần bấm. */
+const laTuiBao=b=>!!b&&/^(túi|bao)(\s|$)/i.test(String(b.ten||'').trim())&&!/hút chân không/i.test(b.ten);
+function canhTuiThua(p,i,q,phu){
+  const thua=phu.map(d=>baoBi.find(x=>x.id===d.id)).filter(laTuiBao);
+  if(!thua.length)return '';
+  return `<div class="canh" style="margin:6px 0 0">Mỗi gói ${esc(q)} đang tính <b>${1+thua.length} túi/bao</b> (túi chính + ${thua.map(b=>esc(b.ten)).join(', ')} ở Bao bì phụ). Nếu mỗi gói chỉ dùng 1 túi: <button type="button" class="lnk" data-bbbotuithua="${i}|||${esc(q)}">bỏ ${thua.length} túi thừa</button></div>`;
+}
 function veBaoBiSP(p,i){
   const ds=(p.dauRa||[]);
   if(!ds.length)return '<div class="log">Mặt hàng chưa có quy cách đóng gói.</div>';
@@ -3778,6 +3787,7 @@ function veBaoBiSP(p,i){
         <span class="bbtag ${rieng?'rieng':''}">${rieng?'riêng mặt hàng này':'mặc định'}</span>
         ${rieng?`<button type="button" class="lnk" data-bbmacdinh="${i}|||${esc(q)}">về mặc định</button>`:''}
       </div>
+      ${canhTuiThua(p,i,q,phu)}
       <details class="bbphu"${phu.length?' open':''}><summary>Bao bì phụ (nhãn, hút chân không…)${phu.length?' — '+phu.length:''}</summary>
         <div class="bbds">${veBBList('sp|||'+i+'|||'+q,list,false,1)}</div>
       </details>
@@ -3821,6 +3831,10 @@ async function suKienBaoBi(e){
   }
   const g=k=>t.closest('['+k+']');
   let x;
+  if((x=g('data-bbbotuithua'))){const [i,q]=x.dataset.bbbotuithua.split('|||'),p=sp[+i];if(!p)return true;
+    const l=danhSachBB(laRiengBB(p,q)?'sp|||'+i+'|||'+q:'qc|||'+q,true);if(!l||!l.length)return true;
+    const giu=[l[0],...l.slice(1).filter(d=>!laTuiBao(baoBi.find(b=>b.id===d.id)))];l.length=0;giu.forEach(d=>l.push(d));
+    luuNgay();ve();bao('Đã bỏ túi thừa — mỗi gói '+q+' còn 1 túi');return true}
   if((x=g('data-bbkieu'))){const b=baoBi.find(y=>y.id===x.dataset.bbkieu);if(b){b.kieuGia=x.dataset.v==='cai'?'cai':'kg';luuNgay();ve()}return true}
   if((x=g('data-bbbo'))){const s=x.dataset.bbbo,k=s.lastIndexOf('|||'),l=danhSachBB(s.slice(0,k),true);if(l){l.splice(+s.slice(k+3),1);luuNgay();ve()}return true}
   if((x=g('data-bbrieng'))){const [i,q]=x.dataset.bbrieng.split('|||'),p=sp[+i];if(p){p.baoBiRieng=p.baoBiRieng||{};p.baoBiRieng[q]=(baoBiQC[q]||[]).map(d=>({...d}));luuNgay();ve()}return true}
@@ -4693,7 +4707,7 @@ $('viewMA').addEventListener('input',e=>{
 /* S21: bao bì — dùng chung cho Danh mục và Công thức; chỉ bắt các phần tử data-bb*, không đụng listener cũ */
 ['viewMA','rows'].forEach(id=>{
   $(id).addEventListener('change',e=>{suKienBaoBi(e)});
-  $(id).addEventListener('click',e=>{if(e.target.closest('[data-bbbo],[data-bbrieng],[data-bbmacdinh],[data-bbdenma],[data-bbthemmoi],[data-bbxoa],[data-bbkieu]'))suKienBaoBi(e)});
+  $(id).addEventListener('click',e=>{if(e.target.closest('[data-bbbo],[data-bbrieng],[data-bbmacdinh],[data-bbdenma],[data-bbthemmoi],[data-bbxoa],[data-bbkieu],[data-bbbotuithua]'))suKienBaoBi(e)});
 });
 /* S23: khung Giá thành trong mặt hàng — chỉ bắt phần tử data-gt*, không đụng listener cũ của #rows */
 ['input','change','click'].forEach(ev=>$('rows').addEventListener(ev,e=>{suKienGiaThanh(e)}));

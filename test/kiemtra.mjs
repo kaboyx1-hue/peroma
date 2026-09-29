@@ -2764,6 +2764,28 @@ const bf=await E(async()=>{
 ok('BF: Admin chỉ xem (điện thoại) bỏ mẻ/báo cáo/tiến độ đã không còn trên Sheet', bf.dtBoCu, JSON.stringify(bf));
 ok('BF: Admin sửa được (PC) giữ nguyên dữ liệu riêng như cũ', bf.pcGiuNguyen);
 
+console.log('\n── BG. CẢNH BÁO + BỎ TÚI THỪA Ở BAO BÌ PHỤ (29/09/2026) ──');
+const bg=await E(async()=>{
+  const cho=ms=>new Promise(z=>setTimeout(z,ms)), p=sp[0], q=(p.dauRa||[])[0];
+  const g={bb:JSON.stringify(baoBi),qc:JSON.stringify(baoBiQC),r:p.baoBiRieng?JSON.stringify(p.baoBiRieng):null};
+  if(!baoBi.some(b=>b.id==='bb-nhan'))baoBi.push({id:'bb-nhan',ten:'Nhãn phụ',lichSu:[]});
+  if(!baoBi.some(b=>b.id==='bb-hck'))baoBi.push({id:'bb-hck',ten:'Túi hút chân không',lichSu:[]});
+  p.baoBiRieng={[q]:[{id:'bb-pa-1525',sl:1},{id:'bb-pa-1828',sl:1},{id:'bb-pe-2030',sl:1},{id:'bb-nhan',sl:1},{id:'bb-hck',sl:1}]};
+  mo.clear(); mo.add(0); chuyenTab('ct'); await cho(60);
+  const kq={};
+  const nut=document.querySelector('[data-bbbotuithua="0|||'+q+'"]');
+  kq.coCanhBao=!!nut&&/3 túi\/bao/.test(nut.closest('.canh').textContent);
+  nut.click(); await cho(60);
+  kq.conDung=p.baoBiRieng[q].map(d=>d.id).join()==='bb-pa-1525,bb-nhan,bb-hck';
+  kq.hetCanhBao=!document.querySelector('[data-bbbotuithua="0|||'+q+'"]');
+  baoBi=JSON.parse(g.bb); Object.keys(baoBiQC).forEach(k=>delete baoBiQC[k]); Object.assign(baoBiQC,JSON.parse(g.qc));
+  if(g.r)p.baoBiRieng=JSON.parse(g.r); else delete p.baoBiRieng; mo.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BG: bao bì phụ có túi/bao → cảnh báo "mỗi gói đang tính N túi/bao"', bg.coCanhBao, JSON.stringify(bg));
+ok('BG: bấm "bỏ túi thừa" → giữ túi chính + nhãn + túi hút chân không, bỏ túi/bao thừa', bg.conDung);
+ok('BG: bỏ xong thì hết cảnh báo', bg.hetCanhBao);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
