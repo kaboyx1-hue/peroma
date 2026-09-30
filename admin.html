@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 29/09/2026-S50</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/09/2026-S51</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 29/09/2026-S50</div>
+      <div class="verFoot">BẢN 30/09/2026-S51</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1533,8 +1533,19 @@ function dbBatDauVongLapCauHinh(){
   if(!DONGBO_URL)return;
   setInterval(()=>{ if(!document.hidden) dbKeoCauHinhNeuMoiHon(); },9000);
 }
-function dbBatDauVongLap(){
+/* 30/09/2026: khách báo "đã khai báo (6 hương) nhưng không hiện bên nhân viên". Nguyên nhân tìm ra: còn 1 máy chủ
+   Apps Script CŨ (dự án khác, Google Sheet khác — link …8Rc/exec trong tài liệu bàn giao cũ) vẫn chạy song song máy
+   chủ thật; máy nào lỡ nối link cũ thì đọc/ghi một kho dữ liệu riêng, lệch hẳn với các máy khác. Máy chủ thật trả
+   a=phienban KHÔNG cần mật khẩu; máy chủ cũ đòi mật khẩu ({loi:…}) → nhận ra được. Gặp máy chủ cũ: dừng đồng bộ (không
+   ghi thêm vào kho sai) + dải đỏ cố định bảo nối lại. Lỗi mạng thì coi như không biết, chạy như cũ. */
+const MAYCHU_CU_BAO='Máy này đang nối MÁY CHỦ CŨ — dữ liệu không chung với các máy khác nên đã tạm ngừng đồng bộ. Mở phần Kết nối, dán link máy chủ MỚI (quản lý gửi) rồi bấm lưu.';
+async function laMayChuCu(url){try{await dbGoi(url+'?a=phienban',{},20000);return false}catch(e){return /mật khẩu/i.test(e&&e.message||'')}} // dbGoi ném lỗi khi máy chủ trả {loi}
+function baoMayChuCu(){if(document.getElementById('mayChuCu'))return;const d=document.createElement('div');d.id='mayChuCu';d.setAttribute('role','alert');
+  d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;background:#b3261e;color:#fff;padding:12px 14px;border-radius:12px;font-weight:600;line-height:1.35;box-shadow:0 4px 16px rgba(0,0,0,.25)';
+  d.textContent=MAYCHU_CU_BAO;document.body.appendChild(d)}
+async function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
+  if(await laMayChuCu(DONGBO_URL)){DONGBO_URL='';baoMayChuCu();dbVeTT('loi','máy chủ cũ');return}
   dbKeoNhatKy();dbKeoBaoCao();dbKeoTienDoLenh();
   setInterval(dbKeoNhatKy,20000);
   setInterval(dbKeoBaoCao,20000);
@@ -5126,7 +5137,8 @@ $('viewSL').addEventListener('click',async e=>{
        để phân biệt lỗi mạng/địa chỉ với máy chủ chậm; cauhinh chờ lâu hơn + tự thử lại 1 lần. */
     kq.textContent='Đang kiểm tra đường tới máy chủ…';
     try{ await dbGoi(url+'?a=phienban',{},20000) }
-    catch(err){ kq.innerHTML='<span style="color:var(--red)">Không tới được máy chủ: '+esc(err.message||String(err))+'<br>Kiểm tra: máy có mạng không; wifi có chặn script.google.com không — thử mạng khác; dán lại đúng link /exec.</span>';return}
+    catch(err){ if(/mật khẩu/i.test(err.message||'')){kq.innerHTML='<span style="color:var(--red)">Đây là link MÁY CHỦ CŨ (dữ liệu riêng, không chung với các máy khác). Xin quản lý link máy chủ mới rồi dán lại.</span>';return}
+      kq.innerHTML='<span style="color:var(--red)">Không tới được máy chủ: '+esc(err.message||String(err))+'<br>Kiểm tra: máy có mạng không; wifi có chặn script.google.com không — thử mạng khác; dán lại đúng link /exec.</span>';return}
     kq.textContent='Đã tới máy chủ — đang kiểm tra mật khẩu và tải cấu hình (lần đầu có thể mất tới 30 giây)…';
     try{
       const goi=ms=>dbGoi(url+'?mk='+encodeURIComponent(mk)+'&a=cauhinh',{},ms);
@@ -5134,6 +5146,7 @@ $('viewSL').addEventListener('click',async e=>{
       if(j&&j.loi){kq.innerHTML='<span style="color:var(--red)">Máy chủ trả lời: '+esc(j.loi)+'</span>';return}
       if(!ghiKetNoi(url,mk)){kq.innerHTML='<span style="color:var(--red)">Trình duyệt không cho lưu (chế độ ẩn danh?).</span>';return}
       DONGBO_URL=url; LEGACY_SHARED_TOKEN=mk;
+      { const cu=document.getElementById('mayChuCu'); if(cu){ cu.remove(); dbBatDauVongLap(); } } // 30/09: vừa bỏ máy chủ cũ → chạy lại vòng đồng bộ
       const coDL=j&&j.cauhinh&&Array.isArray(j.cauhinh.sp)&&j.cauhinh.sp.length;
       kq.innerHTML='<span style="color:var(--cyan)">Đã nối. '+(coDL
         ? 'Trên Sheet đang có '+j.cauhinh.sp.length+' mặt hàng — app sẽ tự kéo về nếu bản trên Sheet mới hơn.'
@@ -5788,11 +5801,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
   khoaXuatXu();
   if(capNhatMacDinhTemCu())luuNgay();
   ve();docao();
-  dbBatDauVongLap();
+  const vongLap=dbBatDauVongLap(); // 30/09: chờ kiểm tra máy chủ cũ xong mới kéo cấu hình
   /* 27/08/2026 — bản S2: hiện dữ liệu cục bộ NGAY (không chờ mạng), rồi mới thử lấy cấu hình
      mới hơn từ Sheet ở nền — nếu có bản mới sẽ tự vẽ lại. Không await ở đây, để mở app không
      bị treo khi mất mạng hoặc máy chủ chậm. */
-  dbKeoCauHinhNeuMoiHon();
+  vongLap.then(dbKeoCauHinhNeuMoiHon);
 })();
 /* 10/09/2026 — banner cho chế độ chỉ xem trên điện thoại (xem chú thích adminChiXem ở đầu phần đồng
    bộ). Dựng bằng JS lúc mở app để HTML tĩnh không đổi; dùng lại class .canh có sẵn. Nút gỡ có hộp

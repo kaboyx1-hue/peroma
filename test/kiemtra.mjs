@@ -2804,6 +2804,19 @@ ok('BH: Giá thành hiện nút cho cả hương đang chọn chưa lưu', bh.ha
 ok('BH: mỗi nút ghi giá vốn/gói của hương đó', bh.coGia);
 ok('BH: bấm nút → bảng đổi sang hương đó', bh.doi);
 
+/* BI — 30/09/2026: máy đang nối link máy chủ CŨ (phienban đòi mật khẩu) → ngừng đồng bộ + dải đỏ */
+const bi=await E(async()=>{ const fCu=window.fetch, uCu=DONGBO_URL, kq={}; let goi=0;
+  const tra=o=>Promise.resolve(new Response(JSON.stringify(o),{status:200}));
+  window.fetch=u=>{goi++;return /a=phienban/.test(u)?tra({loi:'Sai mật khẩu'}):tra({ok:1})};
+  DONGBO_URL='https://script.google.com/macros/s/CU/exec'; await dbBatDauVongLap();
+  kq.dung=DONGBO_URL===''&&goi===1&&!!document.getElementById('mayChuCu');
+  window.fetch=()=>Promise.reject(new TypeError('Failed to fetch'));
+  kq.matMangKhongBao=(await laMayChuCu('https://x/exec'))===false;
+  document.getElementById('mayChuCu').remove(); window.fetch=fCu; DONGBO_URL=uCu; return kq;
+});
+ok('BI: nối máy chủ cũ → ngừng đồng bộ + dải đỏ nhắc nối lại', bi.dung, JSON.stringify(bi));
+ok('BI: mất mạng thì không báo nhầm là máy chủ cũ', bi.matMangKhongBao);
+
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

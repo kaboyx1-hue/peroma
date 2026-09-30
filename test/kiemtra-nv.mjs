@@ -976,6 +976,14 @@ const s23=await E(async()=>{
   // 4) sai mật khẩu vẫn báo đúng lời máy chủ
   window.fetch=(u)=>/a=phienban/.test(u)?tra({ok:1}):tra({loi:'Sai mật khẩu'});
   const t3=await bam(); kq.saiMatKhau=/Sai mật khẩu/.test(t3);
+  // 5) 30/09: link máy chủ CŨ (phienban đòi mật khẩu) → không nối, báo rõ
+  let goiCH=0; window.fetch=(u)=>{ if(/a=cauhinh/.test(u))goiCH++; return tra({loi:'Sai mật khẩu'}) };
+  const t4=await bam(); kq.chanCu=/MÁY CHỦ CŨ/.test(t4)&&goiCH===0;
+  // 6) mở app đang nối sẵn link cũ → dừng đồng bộ + dải đỏ cố định; nối lại link mới thì dải đỏ biến mất
+  DONGBO_URL=U; goiCH=0; await dbBatDauVongLap(); await cho(20);
+  kq.moAppCu=DONGBO_URL===''&&!!document.getElementById('mayChuCu')&&goiCH===0;
+  window.fetch=(u)=>/a=phienban/.test(u)?tra({ok:1,phienBan:'x'}):tra({ok:1,cauhinh:null});
+  const t5=await bam(); kq.noiLai=/Đã nối/.test(t5)&&!document.getElementById('mayChuCu');
   window.fetch=fetchCu; DONGBO_URL=uCu; LEGACY_SHARED_TOKEN=mCu;
   if(KCu===null)localStorage.removeItem(KETNOI_KEY); else localStorage.setItem(KETNOI_KEY,KCu);
   tab='me'; ve(); return kq;
@@ -984,6 +992,9 @@ ok('S23: hết giờ chờ → báo tiếng Việt "Máy chủ không trả lờ
 ok('S23: không tới được máy chủ → báo rõ là lỗi mạng/địa chỉ, kèm cách kiểm tra', s23.loiMang);
 ok('S23: máy chủ chậm lần đầu → tự thử lại, nối được', s23.thuLaiThanhCong);
 ok('S23: sai mật khẩu vẫn báo đúng lời máy chủ', s23.saiMatKhau);
+ok('S24: dán link máy chủ CŨ → báo rõ, không nối', s23.chanCu);
+ok('S24: mở app đang nối máy chủ cũ → ngừng đồng bộ + dải đỏ nhắc nối lại', s23.moAppCu);
+ok('S24: nối lại link mới → dải đỏ biến mất', s23.noiLai);
 
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
