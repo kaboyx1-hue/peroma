@@ -181,8 +181,9 @@ const s16=await E(async()=>{ window.__tatTuDongKhoTem=true;
   const d=document.getElementById('danTem'); kq.moBang=!!d;
   kq.kichThuoc54=/38,2 × 69,9 mm/.test($('dtKq').textContent);
   kq.khongChoIn54=$('dtIn').disabled && /Không vừa/.test($('dtTT').textContent);
-  $('dtCot').value='4'; $('dtHang').value='3'; $('dtCot').dispatchEvent(new Event('input',{bubbles:true})); await cho(80);
-  kq.kichThuoc43=/12 tem/.test($('dtKq').textContent)&&/48,1 × 93,7 mm/.test($('dtKq').textContent);
+  $('dtCot').value='3'; $('dtHang').value='3'; $('dtCot').dispatchEvent(new Event('input',{bubbles:true})); await cho(80);
+  kq.dtKq33=$('dtKq').textContent; // 30/09: chừa dư 6% chiều cao chống cắt chữ → tem TCCS dài này không còn vừa 4×3, thử 3×3
+  kq.kichThuoc43=/9 tem/.test($('dtKq').textContent)&&/64,\d × 93,7 mm/.test($('dtKq').textContent);
   kq.nho43=!$('dtIn').disabled && /Chữ nhỏ/.test($('dtTT').textContent);
   document.querySelector('[data-dt="goiy"]').click(); await cho(80);
   kq.goiY=$('dtCot').value+'x'+$('dtHang').value; kq.goiYDe=/dễ đọc/.test($('dtTT').textContent);
@@ -204,7 +205,7 @@ const s16=await E(async()=>{ window.__tatTuDongKhoTem=true;
   return kq;});
 ok('S17: khổ đang lưu không vừa → bấm In mở bảng "Dàn trang tem", báo đúng kích thước mỗi tem (5×4: 38,2 × 69,9 mm)', s16.moBang&&s16.kichThuoc54, JSON.stringify(s16));
 ok('S17: nội dung không vừa ô → KHÔNG cho bấm In (tránh mất chữ)', s16.khongChoIn54);
-ok('S17: chọn 4 tem mỗi hàng × 3 hàng → tự tính 12 tem, mỗi tem 48,1 × 93,7 mm; chữ nhỏ vẫn cho in (có cảnh báo)', s16.kichThuoc43&&s16.nho43);
+ok('S17: chọn 3 tem mỗi hàng × 3 hàng → tự tính 9 tem, mỗi tem 64,x × 93,7 mm; chữ nhỏ vẫn cho in (có cảnh báo)', s16.kichThuoc43&&s16.nho43);
 ok('S17: nút gợi ý chọn khổ nhiều tem nhất mà chữ vẫn dễ đọc', s16.goiYDe);
 ok('S17: bấm In → in đúng khổ đã chọn, máy nhớ khổ, chữ ≥ 6 pt, không tràn, bảng đóng lại', s16.daIn&&s16.luuKho&&s16.co>=6&&s16.khongTran&&s16.dongBang);
 ok('S17: mọi ô tem trong bản in đều vừa (không chữ nào tràn/đè sang ô khác)', s16.moiTemVua);
@@ -2816,6 +2817,18 @@ const bi=await E(async()=>{ const fCu=window.fetch, uCu=DONGBO_URL, kq={}; let g
 });
 ok('BI: nối máy chủ cũ → ngừng đồng bộ + dải đỏ nhắc nối lại', bi.dung, JSON.stringify(bi));
 ok('BI: mất mạng thì không báo nhầm là máy chủ cũ', bi.matMangKhongBao);
+
+/* BJ — 30/09/2026: tem tự co chữ phải chừa dư đáy (dòng "Thông tin, Cảnh báo" không sát mép, máy in khác phông không cắt) */
+const bj=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, cu={k:temKho,c:temCot,h:temHang};
+  const s=sp.find(x=>(x.dauRa||[]).length), r={id:'BJ',sp:s.ten,huong:'Hương Lài',quyCach:s.dauRa[0],sl:10,soBao:4,kgBao:1,ngaysx:'2026-09-16',lot:'3304030926',nv:'T'};
+  const mot=temHTML(r,s);
+  for(const k of ['nhiet','nhiet5070','nhiet7050','']){ temCoCache.clear(); const co=coChuVua(mot,3,3,k).co, d=khungDoTem();
+    d.innerHTML=k?'<div class="to to-'+k+'">'+mot+'</div>':'<div class="to" style="grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)">'+mot+'</div>';
+    const t=d.querySelector('.tem'); t.style.setProperty('--co',co+'pt'); const rt=t.getBoundingClientRect();
+    kq[k||'a4']=Math.round((t.lastElementChild.getBoundingClientRect().bottom-rt.top)/rt.height*100); d.innerHTML=''; }
+  temCoCache.clear(); return kq;
+});
+ok('BJ: mọi khổ tem — nội dung kết thúc trước 95% chiều cao (chừa dư đáy chống cắt chữ)', Object.values(bj).every(v=>v<=95), JSON.stringify(bj));
 
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));

@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/09/2026-S51</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/09/2026-S52</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 30/09/2026-S51</div>
+      <div class="verFoot">BẢN 30/09/2026-S52</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2934,7 +2934,12 @@ function coChuVua(mot,cot,hang,nhiet){
   const tem=d.querySelector('.tem'); let kq;
   if(!tem){kq={co:8.5,tran:false}}
   else{
-    const vua=co=>{tem.style.setProperty('--co',co+'pt');return tem.scrollHeight<=tem.clientHeight+1&&tem.scrollWidth<=tem.clientWidth+1};
+    /* 30/09/2026: khách "1 số bản in bị mất chữ ở góc dưới cùng" (dòng cuối "Thông tin, Cảnh báo" bị cắt). Đo trên máy chỉ
+       vừa khít (dư 2–9 px) — máy in/máy khác dựng phông rộng hơn chút là tràn. Chừa DƯ 6% chiều cao: nội dung phải kết
+       thúc trước 94% khung. ponytail: tỉ lệ cố định; tăng lên nếu vẫn còn máy in cắt chữ. */
+    const vua=co=>{tem.style.setProperty('--co',co+'pt');
+      const c=tem.lastElementChild, rt=tem.getBoundingClientRect(), cao=rt.height||1, day=c?(c.getBoundingClientRect().bottom-rt.top)/cao:0;
+      return tem.scrollHeight<=tem.clientHeight+1&&tem.scrollWidth<=tem.clientWidth+1&&day<=0.94};
     if(vua(TEM_CO_MAX))kq={co:TEM_CO_MAX,tran:false};
     else if(!vua(TEM_CO_MIN))kq={co:TEM_CO_MIN,tran:true};
     else{let lo=TEM_CO_MIN,hi=TEM_CO_MAX;for(let k=0;k<10;k++){const m=(lo+hi)/2;if(vua(m))lo=m;else hi=m}
