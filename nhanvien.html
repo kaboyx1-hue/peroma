@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 30/09/2026-R35</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 30/09/2026-R36</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -538,7 +538,7 @@ function apCauHinhVaoSP(spCu,spMoi){
   return (spMoi||[]).map(p=>{
     const c=cu[p.ten];
     const o={...p, sl:c?c.sl:'', pb:c?[...c.pb]:[], huongMe:c?c.huongMe:'',
-      ngaysx:c?c.ngaysx:'', lot:c?c.lot:'', nv:c?c.nv:'',
+      ngaysx:c?c.ngaysx:'', ngaysxChon:c?c.ngaysxChon||'':'', lot:c?c.lot:'', nv:c?c.nv:'',
       daInPhieu:c?!!c.daInPhieu:false, xacNhanCT:c?!!c.xacNhanCT:false,
       xacNhanCTBoi:c?c.xacNhanCTBoi||'':'', xacNhanCTSnap:c?c.xacNhanCTSnap||'':'',
       /* PATCH V1.1 mục P1-A: xacNhanCTLuc cũng là state đang nhập dở (mốc lúc bấm xác nhận
@@ -961,7 +961,11 @@ function veDS(){
    trên máy) dễ làm nhân viên ghi nhầm ngày. Tự sửa lại đúng NGÀY THỰC mỗi lần vào màn hình
    pha mặt hàng này — CHỈ khi mẻ CHƯA in phiếu (p.daInPhieu false): sau khi đã in phiếu, ngày
    trên phiếu và ngày ghi mẻ phải khớp nhau (snapPhieu() đã chốt), không được tự đổi ngầm. */
+/* 30/09/2026: khách "chỉnh ngày sản xuất dời 1 ngày là ngày mai nhưng nó vẫn nhảy về ngày hiện tại" — hàm này chạy
+   mỗi lần vẽ lại (gõ số kg, đồng bộ 20 giây…) nên đè mất ngày NV vừa CHỦ Ý chọn. Giữ mục đích gốc (chỉ sửa ngày BỎ QUÊN
+   từ hôm trước): NV tự chọn ngày trong hôm nay (ngaysxChon = hôm nay) thì không đụng tới; sang ngày khác mới tự sửa lại. */
 function ngaysxTuSua(p){
+  if(p&&p.ngaysxChon===isoNay())return;
   if(p&&!p.daInPhieu&&p.ngaysx&&p.ngaysx!==isoNay()){p.ngaysx=isoNay();luu()}
 }
 function veMe(){
@@ -1936,6 +1940,7 @@ $('view').addEventListener('input',e=>{
       if(el.value!==v)el.value=v; p.sl=v;
       const pb=p.pb||[]; if(pb.length===1&&!pb[0].tay)pb[0].kg=v;
     } else p[f]=el.value;
+    if(f==='ngaysx')p.ngaysxChon=isoNay(); // 30/09: ngày NV tự chọn — ngaysxTuSua() không đè trong hôm nay
     luu(); capNhat(); return}
   const k=el.dataset.pbk;
   if(k!==undefined){const p=sp[moSP], v=String(el.value||'').replace(/[^\d.,]/g,'').replace(',','.');

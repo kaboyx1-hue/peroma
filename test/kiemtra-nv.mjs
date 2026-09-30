@@ -633,6 +633,18 @@ await Ea(v=>{const p=sp[0]; p.ngaysx=v; p.daInPhieu=true; tab='me'; moSP=-1; ve(
 await p.click(`[data-sp="0"]`); await p.waitForTimeout(200);
 ok('mẻ ĐÃ in phiếu thì KHÔNG tự sửa ngày (giữ đúng ngày đã in cho NV, an toàn)', (await E(()=>sp[0].ngaysx))===aeNgayTruoc);
 await Ea(()=>{sp[0].daInPhieu=false;sp[0].ngaysx=isoNay();ve()}); // dọn lại trạng thái gốc cho các test sau
+/* AE3 — 30/09/2026: NV tự chọn ngày mai → gõ số kg / đồng bộ vẽ lại KHÔNG được nhảy về hôm nay; sang ngày khác mới tự sửa */
+const ae3=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), p=sp[0], kq={};
+  p.daInPhieu=false; p.ngaysxChon=''; moSP=0; tab='me'; ve(); await cho(20);
+  const d=new Date(); d.setDate(d.getDate()+1); const mai=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const o=document.querySelector('[data-f="ngaysx"]'); o.value=mai; o.dispatchEvent(new Event('input',{bubbles:true})); await cho(20);
+  ve(); await cho(20); ve(); await cho(20);
+  kq.giu=p.ngaysx===mai && document.querySelector('[data-f="ngaysx"]').value===mai;
+  p.ngaysxChon='2000-01-01'; ve(); await cho(20); kq.hetHan=p.ngaysx===isoNay();
+  p.ngaysxChon=''; moSP=-1; ve(); return kq;
+});
+ok('AE3: NV chọn ngày mai → vẽ lại vẫn giữ ngày mai (không nhảy về hôm nay)', ae3.giu, JSON.stringify(ae3));
+ok('AE3: sang ngày khác (ngày chọn đã cũ) thì vẫn tự sửa về hôm nay như trước', ae3.hetHan);
 
 /* AE3: bcSpOptions() — mục chọn mặt hàng ở tab Báo cáo (khi mẻ hôm nay chưa ghi được) giờ liệt
    kê kèm hương/mẻ chuẩn/lần gần nhất gần giống cách "tra số lô" (khách: "làm giống mục tra số
