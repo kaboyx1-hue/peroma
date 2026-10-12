@@ -1008,6 +1008,21 @@ ok('S24: dán link máy chủ CŨ → báo rõ, không nối', s23.chanCu);
 ok('S24: mở app đang nối máy chủ cũ → ngừng đồng bộ + dải đỏ nhắc nối lại', s23.moAppCu);
 ok('S24: nối lại link mới → dải đỏ biến mất', s23.noiLai);
 
+/* S25 — 12/10/2026: khớp bản Admin — mặt hàng "không in tem phụ" ra số lô 8 số (bỏ mã quy cách) + không in tem; tem in "Tên in trên tem" */
+const s25=await E(async()=>{ const kq={}, p=sp.find(x=>(x.dauRa||[]).length&&x.maSP), g={k:p.khongTemPhu,t:p.tenTem};
+  const H=Object.keys(maHuong).find(h=>maHuong[h]&&!isUnscented(h)), q=p.dauRa.find(x=>maQC[x])||p.dauRa[0];
+  p.khongTemPhu=false; const l10=sinhLot(p,H,q,'2026-10-12').lot;
+  p.khongTemPhu=true; const l8=sinhLot(p,H,q,'2026-10-12').lot;
+  kq.thieu=sinhLot(p,H,q,'2026-10-12').thieu; kq.l10=l10; kq.l8=l8; kq.lo=l10.length===10&&l8===l10.slice(0,4)+l10.slice(6)&&lotDep(l8).split(' ').length===3;
+  const r={id:'S25',sp:p.ten,huong:H,quyCach:q,sl:1,soBao:1,kgBao:1,ngaysx:'2026-10-12',lot:l8,nv:'T'};
+  const d=document.createElement('div'); p.tenTem='TÊN S25'; d.innerHTML=temHTML(r,p); kq.ten=d.querySelector('.t2').textContent==='TÊN S25';
+  const inCu=window.print; let n=0; window.print=()=>{n++}; nk.push(r);
+  const pr=inTem('S25'); await new Promise(z=>setTimeout(z,80)); const o=document.getElementById('dlgO'); if(o)o.click(); await pr; kq.khongIn=n===0;
+  nk.splice(nk.findIndex(x=>x.id==='S25'),1); window.print=inCu; p.khongTemPhu=g.k; p.tenTem=g.t; return kq;
+});
+ok('S25: không in tem phụ → số lô 8 số (bỏ mã quy cách), mặt hàng khác giữ 10 số', s25.lo, JSON.stringify(s25));
+ok('S25: tem in "Tên in trên tem" Admin đặt', s25.ten);
+ok('S25: mặt hàng không in tem phụ → bấm in không in', s25.khongIn);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

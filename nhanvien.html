@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 30/09/2026-R37</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 12/10/2026-R38</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -739,7 +739,8 @@ const isoNay=()=>{const d=new Date();return `${d.getFullYear()}-${z2(d.getMonth(
 const vnNgay=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?`${m[3]}/${m[2]}/${m[1]}`:(iso||'')};
 const hai=v=>{const t=String(v??'').replace(/\D/g,'');return t?t.slice(0,2).padStart(2,'0'):''};
 const mmyy=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-/);return m?m[2]+m[1].slice(2):''};
-const lotDep=l=>String(l||'').length===10?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4,6)} ${l.slice(6)}`:String(l||'');
+// 12/10/2026: lô 8 số (mặt hàng không in tem phụ, bỏ mã quy cách) = SP(2) HƯƠNG(2) THÁNG-NĂM(4)
+const lotDep=l=>{l=String(l||'');return l.length===10?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4,6)} ${l.slice(6)}`:l.length===8?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4)}`:l};
 const kgCua=q=>{const v=+kgQC[q];return isFinite(v)&&v>0?v:0};
 /* 26/08/2026 — PATCH KIẾN TRÚC V1 (bản O), mục A4/B1: đơn vị hương liệu ĐÚNG theo nghiệp vụ
    là GRAM (g), không phải mg như nhãn cũ. Công thức số học GIỮ NGUYÊN, chỉ đổi semantic:
@@ -772,9 +773,10 @@ function pbTuDong(p){
 function sinhLot(p,huong,qc,ngaysx){
   const t=[];const ss=hai(p&&p.maSP);if(!ss)t.push('mã sản phẩm');
   const hh=huong?hai(maHuong[huong]):'';if(!huong)t.push('chưa chọn hương');else if(!hh)t.push('mã hương');
-  const qq=qc?hai(maQC[qc]):'';if(!qc)t.push('chưa chọn quy cách');else if(!qq)t.push('mã quy cách');
+  // 12/10/2026: mặt hàng không in tem phụ (VD Citycat) → lô 8 số, BỎ mã quy cách: SP + HƯƠNG + THÁNG-NĂM (khớp bản Admin)
+  const rutGon=!!(p&&p.khongTemPhu), qq=qc&&!rutGon?hai(maQC[qc]):'';if(!qc)t.push('chưa chọn quy cách');else if(!rutGon&&!qq)t.push('mã quy cách');
   const my=mmyy(ngaysx);if(!my)t.push('ngày sản xuất');
-  return t.length?{lot:'',thieu:t}:{lot:ss+hh+qq+my,thieu:[]}}
+  return t.length?{lot:'',thieu:t}:{lot:ss+hh+(rutGon?'':qq)+my,thieu:[]}}
 const ctHL=p=>{const r=String(p&&p.pkbCT||'').trim();if(r)return{ct:r,rieng:true};
   const c=cp.find(x=>x.ten===(p&&p.pkbChat));return{ct:String(c&&c.ct||''),rieng:false}};
 const hanDung=(iso,nam)=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/),y=parseInt(nam,10);
@@ -1134,7 +1136,8 @@ function veLo(){
       return `<details><summary style="cursor:pointer;color:var(--txt2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`   /* 10/09/2026: --txt-2 → --txt2, cùng lỗi tên biến như trên */
         +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')}</span><b>${esc(a.action)}</b></div>`).join('')
         +`</details>`})()}
-    ${r.huy?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>
+    ${!r.huy&&(sp.find(x=>x.ten===r.sp)||{}).khongTemPhu?`<div class="kv"><span>Tem phụ</span><b>Không in — bao bì đã có đủ thông tin</b></div>`:''}
+    ${r.huy||(sp.find(x=>x.ten===r.sp)||{}).khongTemPhu?'':`<button class="add" data-intem="${esc(r.id)}" style="color:var(--txt);border-style:solid">In tem phụ cho lô này</button>
     <button class="add ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button>
     <button class="add ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
     ${r._heThong?'':`<button class="add" data-huylo="${esc(r.id)}" style="${r.huy?'color:var(--txt);border-style:solid':'color:var(--red);border-style:solid;border-color:var(--redd)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>`}
@@ -1240,7 +1243,7 @@ function temHTML(r,p){
   const t=p.hstem||{}, kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
   const hd=hanDung(r.ngaysx,t.hsdNam);
   return `<div class="tem">${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
-    <div class="t2">${esc((p&&p.ten)||r.sp)}</div><!-- S20/R14: tên mặt hàng trong Danh mục (khách chốt 10/09/2026), không lấy tenVN theo TCCS -->${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
+    <div class="t2">${esc(String((p&&p.tenTem)||'').trim()||(p&&p.ten)||r.sp)}</div><!-- 12/10/2026: tên in trên tem = ô "Tên in trên tem" khách TỰ GÕ (p.tenTem, không khoá theo TCCS); trống thì in tên Danh mục như từ 10/09 -->${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương liệu',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
     ${kv('Công dụng',t.congDung)}
     ${kv('Độ ẩm',t.doAm||'dưới 10%')}${kv('Kích thước hạt',t.kichThuoc)}
@@ -1703,6 +1706,7 @@ async function inTem(id,quaFile,luonHoi){
   if(r.huy){await hoi('Lô này đã huỷ','Lô đã được đánh dấu huỷ nên không in tem được. Bỏ huỷ trước nếu muốn in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   const p=sp.find(x=>x.ten===r.sp);
   if(!p){await hoi('Không in được',`Mặt hàng <b>${esc(r.sp)}</b> không có trong cấu hình máy này.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
+  if(p.khongTemPhu){await hoi('Mặt hàng không in tem phụ',`<b>${esc(p.ten)}</b> được cài <b>không in tem phụ</b> — bao bì đã có đủ thông tin, chỉ cần ghi số lô <b>${esc(lotDep(r.lot))}</b>.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   const th=temThieu(p);
   if(th.length){await hoi('Chưa in được tem',
     `<b>${esc(p.ten)}</b> chưa có đủ hồ sơ tem.<br><br>Còn thiếu <b>${th.length}</b> mục.<br>Báo quản lý bổ sung rồi nạp lại cấu hình.`,

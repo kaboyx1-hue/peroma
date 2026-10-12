@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-12-S53';
+const PHIEN_BAN_MAYCHU = '2026-10-12-S55';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -165,6 +165,8 @@ function sachCauHinhServer(c, cu){
       // tĩnh (không phải trạng thái ghi mẻ dở — không vi phạm H1). Thiếu dòng này thì server cắt mất
       // cờ, máy khác/bản mở lại tưởng mặt hàng còn khoá và ghi đè phần đã sửa tay bằng TCCS.
       temMoKhoa: !!p.temMoKhoa,
+      // 12/10/2026 — S55: tên in trên tem (khách tự đặt) + cờ không in tem phụ / lô 8 số (VD Citycat). Cấu hình tĩnh.
+      tenTem: String(p.tenTem || ''), khongTemPhu: !!p.khongTemPhu,
       // 10/09/2026 — bản S21: bao bì riêng của mặt hàng (khác mặc định theo quy cách). Cấu hình tĩnh, không vi phạm H1.
       baoBiRieng: (p.baoBiRieng && typeof p.baoBiRieng === 'object' && !Array.isArray(p.baoBiRieng)) ? p.baoBiRieng : {}
       // CỐ Ý KHÔNG copy: sl, pb, huongMe, lot, ngaysx, nv, daInPhieu, xacNhanCT, xacNhanCTBoi,

@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S54</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S55</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 12/10/2026-S54</div>
+      <div class="verFoot">BẢN 12/10/2026-S55</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1301,6 +1301,8 @@ function sachCauHinh(mang){
     /* S14: chủ mở khoá hồ sơ tem của mặt hàng khoá-theo-TCCS để sửa tay — cấu hình tĩnh, phải đồng bộ,
        nếu không máy Admin khác / bản mở lại sẽ tự khoá và ghi đè mất phần đã sửa. */
     temMoKhoa:!!p.temMoKhoa,
+    // 12/10/2026: tên in trên tem (khách tự đặt) + cờ không in tem phụ / lô 8 số — cấu hình tĩnh, không vi phạm H1
+    tenTem:String(p.tenTem||''), khongTemPhu:!!p.khongTemPhu,
     // 10/09/2026 — bản S21: bao bì riêng của mặt hàng (khác mặc định theo quy cách). Cấu hình tĩnh, không vi phạm H1.
     baoBiRieng:(p.baoBiRieng&&typeof p.baoBiRieng==='object'&&!Array.isArray(p.baoBiRieng))?p.baoBiRieng:{}
   }));
@@ -1352,7 +1354,7 @@ function apDungCauHinhTuServer(c){
        Code.gs (khi chủ chưa kịp triển khai lại Apps Script) → bản trên server thiếu hẳn trường đó.
        Thay nguyên sp bằng bản server sẽ xoá mất giá trị đang có trên máy. Nên: trường nào bản server
        KHÔNG CÓ KHOÁ (kiểm trên dữ liệu thô c.sp, không phải sau napSP) thì giữ giá trị trên máy. */
-    const giuLai=['temMoKhoa','baoBiRieng'], cu={};
+    const giuLai=['temMoKhoa','baoBiRieng','tenTem','khongTemPhu'], cu={};
     sp.forEach(x=>{if(x&&x.ten)cu[x.ten]=x});
     const tho=c.sp;
     sp=napSP(c.sp);
@@ -1847,7 +1849,7 @@ const THANHPHAN_CHUAN=[
    10/09/2026 (S18): MỞ LẠI ô này, KHÔNG bắt buộc — dữ liệu TCCS (VD Little Mars) vẫn tự in dòng tên phụ mà không
    có cách sửa/xoá, đúng loại "chi tiết khoá cứng" khách phản ánh. Xoá trắng thì tem bỏ dòng này. */
 const TEM_O=[
- ['tenVN','Tên theo hồ sơ TCCS (chỉ để đối chiếu)','KHÔNG in lên tem — tem in tên mặt hàng trong Danh mục (khách chốt 10/09/2026). Không bắt buộc',0],
+ ['tenVN','Tên theo hồ sơ TCCS (chỉ để đối chiếu)','KHÔNG in lên tem — tên in trên tem là ô "Tên in trên tem" ở đầu phần tem (khách tự đặt). Không bắt buộc',0],
  ['tenEN','Tên phụ / tiếng Anh (dòng nhỏ dưới tên)','Không bắt buộc — để trống thì không in dòng này',0],
  ['thanhPhan','Thành phần','Tên đại diện, KHÔNG ghi %',1],
  ['congDung','Công dụng','Ngắn, trung thực, không cam kết tuyệt đối',1],
@@ -1965,17 +1967,19 @@ function sinhLot(p,huong,quyCach,ngaysx){
   const ss=hai(p&&p.maSP); if(!ss)thieu.push('mã sản phẩm của '+ten);
   const hh=huong?hai(maHuong[huong]):'';
   if(!huong)thieu.push('chưa chọn hương'); else if(!hh)thieu.push('mã hương "'+huong+'"');
-  const qq=quyCach?hai(maQC[quyCach]):'';
-  if(!quyCach)thieu.push('chưa chọn quy cách'); else if(!qq)thieu.push('mã quy cách "'+quyCach+'"');
+  // 12/10/2026: mặt hàng không in tem phụ (VD Citycat) → lô 8 số, BỎ mã quy cách (khách chọn): SP + HƯƠNG + THÁNG-NĂM
+  const rutGon=!!(p&&p.khongTemPhu), qq=quyCach&&!rutGon?hai(maQC[quyCach]):'';
+  if(!quyCach)thieu.push('chưa chọn quy cách'); else if(!rutGon&&!qq)thieu.push('mã quy cách "'+quyCach+'"');
   const my=mmyy(ngaysx); if(!my)thieu.push('ngày sản xuất');
   // trùng mã = số lô trùng → chặn hẳn
   const g=(o,k)=>{const v=o[k];return v&&v.length>1?v:null};
   const a=ss?g(trungMaSP(),ss):null; if(a)thieu.push(`mã sản phẩm ${ss} trùng giữa ${a.join(' và ')}`);
   const b=hh?g(trungMaH(),hh):null;  if(b)thieu.push(`mã hương ${hh} trùng giữa ${b.join(' và ')}`);
   const c=qq?g(trungMaQ(),qq):null;  if(c)thieu.push(`mã quy cách ${qq} trùng giữa ${c.join(' và ')}`);
-  return thieu.length?{lot:'',thieu}:{lot:ss+hh+qq+my,thieu:[]};
+  return thieu.length?{lot:'',thieu}:{lot:ss+hh+(rutGon?'':qq)+my,thieu:[]};
 }
-const lotDep=l=>String(l||'').length===10?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4,6)} ${l.slice(6)}`:String(l||'');
+// 12/10/2026: lô 8 số (mặt hàng không in tem phụ, bỏ mã quy cách) = SP(2) HƯƠNG(2) THÁNG-NĂM(4)
+const lotDep=l=>{l=String(l||'');return l.length===10?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4,6)} ${l.slice(6)}`:l.length===8?`${l.slice(0,2)} ${l.slice(2,4)} ${l.slice(4)}`:l};
 
 /* Đoán khối lượng tịnh từ tên quy cách: "500 g" → 0.5 · "3,7 kg" → 3.7 · "20 kg" → 20
    Đoán được thì điền sẵn, admin sửa lại trong tab Danh mục nếu sai. */
@@ -2778,8 +2782,14 @@ function veTemBlock(p,i){
   // moTem lưu các mặt hàng đang bị ĐÓNG (mặc định MỞ, giống trước đây) — bấm "Thu gọn" mới
   // thêm vào set; đảo ngược logic để không phải mở lại tay mỗi lần xem/sửa hồ sơ tem như cũ.
   const th=temThieu(p), dong=moTem.has(i);
-  const tomTat=th.length?`Còn ${th.length} ô chưa điền`:'Đã đủ';
-  return `<button class="ncc-hd" data-tratem="${i}"><span class="ncc-ten">${dong?'▸ Xem / sửa hồ sơ tem':'▾ Thu gọn hồ sơ tem'}</span><span class="ncc-sum ${th.length?'tk-no':'tk-ok'}">${tomTat}</span></button>`
+  const tomTat=p.khongTemPhu?'Không in tem phụ':th.length?`Còn ${th.length} ô chưa điền`:'Đã đủ';
+  /* 12/10/2026: 2 cài đặt khách tự quyết, LUÔN sửa được (không khoá theo TCCS): tên in trên tem; và "không in tem
+     phụ" cho mặt hàng mà bao bì đã có đủ thông tin (VD Citycat) — khi đó số lô rút gọn 8 số, bỏ mã quy cách. */
+  const caiDat=`<div class="tf"><label>Tên in trên tem</label><input data-tentem="${i}" value="${esc(p.tenTem||'')}" placeholder="${esc(p.ten)}">
+    <div class="hint">Bạn tự đặt, sửa lúc nào cũng được. Để trống thì tem in tên mặt hàng: <b>${esc(p.ten)}</b>.</div></div>
+    <label class="hint" style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;margin:6px 0 10px"><input type="checkbox" data-khongtem="${i}"${p.khongTemPhu?' checked':''} style="margin-top:2px">
+    <span><b>Không in tem phụ</b> — bao bì đã có đủ thông tin. Số lô rút gọn <b>8 số</b>: mã SP + mã hương + tháng-năm (bỏ mã quy cách).</span></label>`;
+  return caiDat+`<button class="ncc-hd" data-tratem="${i}"><span class="ncc-ten">${dong?'▸ Xem / sửa hồ sơ tem':'▾ Thu gọn hồ sơ tem'}</span><span class="ncc-sum ${th.length?'tk-no':'tk-ok'}">${tomTat}</span></button>`
     +(dong?'':veTem(p,i));
 }
 function veTem(p,i){
@@ -2908,7 +2918,7 @@ function temHTML(r,p){
   const hd=hanDung(r.ngaysx,t.hsdNam);
   return `<div class="tem">
     ${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
-    <div class="t2">${esc((p&&p.ten)||r.sp)}</div><!-- S20/R14: tên mặt hàng trong Danh mục (khách chốt 10/09/2026), không lấy tenVN theo TCCS -->
+    <div class="t2">${esc(String((p&&p.tenTem)||'').trim()||(p&&p.ten)||r.sp)}</div><!-- 12/10/2026: tên in trên tem = ô "Tên in trên tem" khách TỰ GÕ (p.tenTem, không khoá theo TCCS); trống thì in tên Danh mục như từ 10/09 -->
     ${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>
       ${kv('Thành phần',t.thanhPhan)}
@@ -3244,6 +3254,7 @@ async function inTem(id,quaFile,luonHoi){
   if(!r){bao('Không tìm thấy bản ghi');return}
   if(r.huy){await hoi('Lô này đã huỷ','Lô đã được đánh dấu huỷ nên không in tem được. Bỏ huỷ trước nếu muốn in lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   const p=sp.find(x=>x.ten===r.sp);
+  if(p&&p.khongTemPhu){await hoi('Mặt hàng không in tem phụ',`<b>${esc(p.ten)}</b> được cài <b>không in tem phụ</b> — bao bì đã có đủ thông tin, chỉ cần ghi số lô <b>${esc(lotDep(r.lot))}</b>.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   if(!p){await hoi('Không in được',
     `Mặt hàng <b>${esc(r.sp)}</b> không còn trong danh mục nên không có hồ sơ tem.`,
     {nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
@@ -4372,7 +4383,7 @@ function veBC(){
       <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
       <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
       ${r.soLenh?`<div class="kv"><span>Lệnh sản xuất</span><b>${esc(r.soLenh)}</b></div>`:''}
-      ${String(r.lot||'').length===10?`<div class="kv"><span>Giải mã số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
+      ${[8,10].includes(String(r.lot||'').length)?`<div class="kv"><span>Giải mã số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
       <div class="kv"><span>Số lượng</span><b>${fmt(r.sl)} kg</b></div>
       ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:var(--pur)">${esc(r.soBao)} × ${fmt(num(r.kgBao))} kg${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
       <div class="kv"><span>Quy cách đóng gói</span><b style="color:var(--amber)">${esc(r.quyCach)||'—'}</b></div>
@@ -4400,7 +4411,8 @@ function veBC(){
       ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--amber)">${esc(r.ngungLyDo)||'—'}</b></div>
       <div class="kv"><span>Thực tế đã dùng (trước khi ngừng)</span><b>${fmt(num(r.slThucTe))} kg${r.kgVao!==undefined&&num(r.kgVao)>num(r.slThucTe)?` · còn dư <b style="color:var(--cyan)">${fmt(Math.round((num(r.kgVao)-num(r.slThucTe))*1000)/1000)}</b> kg đưa sang dự án khác`:''}</b></div>
       <div class="kv"><span>Ngừng lúc</span><b>${esc(String(r.ngungLuc||'').replace('T',' ').slice(0,19))}</b></div>`:''}
-      ${r.huy?'':`<button class="inbtn" data-intem="${esc(r.id)}">In tem phụ cho lô này</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
+      ${!r.huy&&(sp.find(x=>x.ten===r.sp)||{}).khongTemPhu?`<div class="kv"><span>Tem phụ</span><b>Không in — bao bì đã có đủ thông tin</b></div>`:''}
+      ${r.huy||(sp.find(x=>x.ten===r.sp)||{}).khongTemPhu?'':`<button class="inbtn" data-intem="${esc(r.id)}">In tem phụ cho lô này</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
       <button class="inbtn" data-huylo="${esc(r.id)}" style="${r.huy?'':'border-color:var(--red-dim);color:var(--red)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
       ${r.huy?'':`<button class="inbtn" data-ngunglo="${esc(r.id)}" style="${r.ngungSX?'':'border-color:var(--amber);color:var(--amber)'};margin-top:6px">${r.ngungSX?'Tiếp tục sản xuất lại':'Ngừng sản xuất — điều chỉnh'}</button>`}
       </div>`).join('');
@@ -5608,6 +5620,8 @@ $('rows').addEventListener('input',e=>{
     row.querySelector('.cd b').textContent=fmt(c);
     row.classList.toggle('zero',c<=0);
     luu();return}
+  if(el.dataset.tentem!==undefined){sp[+el.dataset.tentem].tenTem=el.value;luu();return}
+  if(el.dataset.khongtem!==undefined){sp[+el.dataset.khongtem].khongTemPhu=el.checked;luu();ve();return}
   const tk=el.dataset.tem;
   if(tk!==undefined){
     const i=+el.dataset.i, p=sp[i];
