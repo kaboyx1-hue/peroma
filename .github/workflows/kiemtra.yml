@@ -49,7 +49,7 @@ jobs:
       - name: Admin
         working-directory: peroma
         run: node huong/kiemtra.mjs
-      - name: Admin — chế độ chỉ xem trên điện thoại
+      - name: Admin — trên điện thoại (sửa được như máy tính)
         working-directory: peroma
         run: node huong/kiemtra-chixem.mjs
       - name: Nhân viên

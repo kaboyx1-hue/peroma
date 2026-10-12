@@ -162,5 +162,21 @@ console.log('\n── D. LỆNH SẢN XUẤT THEO LÔ (19/09/2026) — lenhSX qu
   ok('Đọc lại đủ 2 dòng, giữ đúng nội dung dòng đầu (không bị dòng trùng id ghi đè)', dsLt.length === 2 && dsLt.find(x => x.id === 'LT1').kg === 500 && dsLt.find(x => x.id === 'LT1').nv === 'Toàn', JSON.stringify(dsLt));
   ok('Nhiều nhân viên khác nhau cùng ghi vào 1 lệnh (LSX1) đều được giữ lại riêng biệt', dsLt.every(x => x.lenhId === 'LSX1') && new Set(dsLt.map(x => x.nv)).size === 2);
 }
+console.log('\n── E. NHIỀU MÁY ADMIN (12/10/2026 S53) — chống ghi đè mù + sổ trừ tồn kho ──');
+{
+  const m = taoMoiTruong({ matKhau: 'k' }), cho = () => { const t = Date.now(); while (Date.now() - t < 3); };
+  const r0 = m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'A' }], meDaTru: { tu: '2026-10-01', ids: ['m1'] } } }); cho();
+  const ts0 = m.get({ a: 'cauhinh', mk: 'k' }).ts;
+  ok('Bản Admin cũ (không gửi tsCu) vẫn ghi như trước', r0.ok === 1 && !!ts0);
+  const r1 = m.post({ a: 'luuCauHinh', mk: 'k', tsCu: ts0, cauhinh: { sp: [{ ten: 'PC' }], meDaTru: { tu: '2026-10-01', ids: ['m1', 'm2'] } } }); cho();
+  ok('Máy dựa đúng bản mới nhất (tsCu khớp) → ghi được, trả mốc mới', r1.ok === 1 && r1.ts && r1.ts !== ts0, JSON.stringify(r1));
+  const r2 = m.post({ a: 'luuCauHinh', mk: 'k', tsCu: ts0, cauhinh: { sp: [{ ten: 'DIEN THOAI CU' }] } });
+  ok('Máy dựa bản CŨ (tsCu lệch) → từ chối, báo xung đột + mốc hiện tại', r2.ok === 0 && r2.xungDot === 1 && r2.ts === r1.ts, JSON.stringify(r2));
+  const c = m.get({ a: 'cauhinh', mk: 'k' }).cauhinh;
+  ok('Bị từ chối thì dữ liệu trên Sheet giữ nguyên bản của máy ghi trước', c.sp[0].ten === 'PC');
+  ok('Sổ "mẻ đã trừ tồn kho" (meDaTru) được lưu', JSON.stringify(c.meDaTru.ids) === '["m1","m2"]');
+  m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'PC' }] } });
+  ok('Bản Admin cũ không gửi meDaTru → giữ sổ đang lưu (không xoá)', m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.meDaTru.ids.length === 2);
+}
 console.log(`\nKẾT QUẢ MÁY CHỦ:  ${dat} đạt · ${hong} hỏng${hong ? '\nCẦN SỬA:\n  - ' + loi.join('\n  - ') : ''}`);
 process.exit(hong ? 1 : 0);

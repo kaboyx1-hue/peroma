@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/09/2026-S52</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S53</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 30/09/2026-S52</div>
+      <div class="verFoot">BẢN 12/10/2026-S53</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1246,24 +1246,14 @@ function ghiKetNoi(url,mk){
 let DONGBO_URL=String(docKetNoi().url||'');
 let LEGACY_SHARED_TOKEN=String(docKetNoi().mk||'');
 
-/* 10/09/2026 — ADMIN TRÊN ĐIỆN THOẠI = CHẾ ĐỘ CHỈ XEM (khách quyết: "tạm thời admin mobile ngừng
-   hoạt động, sau khi cập nhật chuẩn admin pc thì sau này hãy dựng lại admin mobile").
-   Lý do kỹ thuật (lỗi H4 / D): mọi máy Admin đẩy-kéo NGUYÊN KHỐI cấu hình, ai gửi sau thắng. Hai máy
-   Admin cùng sửa → máy gửi sau đè mất thay đổi của máy kia. Nặng hơn, sau khi kênh Sheet được sửa để
-   trừ tồn kho (ghiNhanMeLanDau), rà đối kháng chỉ ra: nk[] lưu RIÊNG từng máy nhưng nguonHuong (có
-   daDungKg) lại đồng bộ chung — nên máy thứ hai nhận cùng một mẻ sẽ TRỪ TỒN KHO LẦN NỮA rồi đẩy lên.
-   Chỉ còn đúng MỘT máy được ghi thì cả hai vấn đề cùng biến mất.
-   Ở chế độ chỉ xem: vẫn kéo về và xem được mọi thứ; KHÔNG gửi bất cứ gì lên Sheet (chặn ở dbGoi cho
-   mọi POST, và dbDayCauHinh dừng êm để không báo "mất mạng" giả); KHÔNG trừ tồn kho khi nhận mẻ.
-   Nhận diện điện thoại = thiết bị cảm ứng làm con trỏ chính + cạnh ngắn màn hình < 900px. Máy tính
-   dùng chuột/touchpad không bị ảnh hưởng. Có nút gỡ phòng khi nhận nhầm (VD máy tính bảng dùng như PC).
-   Khi dựng lại Admin mobile chuẩn: bỏ khối này là quay về hành vi cũ. */
-const ADMIN_SUA_KEY='peroma:adminChoPhepSua';
+/* 12/10/2026 — S53: khách "đồng bộ sao cho mobile cũng có thể làm việc được như pc" → BỎ chế độ chỉ xem trên điện
+   thoại (10/09). Hai lý do từng khoá điện thoại nay được xử lý tận gốc thay vì cấm:
+   (1) 2 máy Admin ghi đè nhau → máy chủ từ chối lệnh ghi dựa trên bản cũ (tsCu, xem dbDayCauHinh + Code.gs S53);
+   (2) 2 máy cùng nhận 1 mẻ → trừ tồn kho 2 lần → sổ meDaTru dùng chung, mỗi mẻ chỉ trừ 1 lần (xem truTonKhoMe).
+   laDienThoai() còn dùng cho gonTheoMayChu (điện thoại soi gương đúng Sheet, không giữ mẻ cũ). */
 function laDienThoai(){
   try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<900}catch(e){return false}
 }
-function daChoPhepSuaTrenMayNay(){try{return localStorage.getItem(ADMIN_SUA_KEY)==='1'}catch(e){return false}}
-let adminChiXem=laDienThoai()&&!daChoPhepSuaTrenMayNay();
 let dbTT='tat', dbHen2=null, dbDangKeo=false, dbDangKeoBc=false, dbDangKeoLt=false, dongBoCauHinhTs='';
 function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function dbVeTT(t,ghiChu){
@@ -1272,9 +1262,6 @@ function dbVeTT(t,ghiChu){
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
 async function dbGoi(url,tuychon,ms){
-  // 10/09/2026: lưới an toàn cho chế độ chỉ xem — chặn MỌI lệnh ghi (POST), kể cả đường ghi thêm sau này
-  if(adminChiXem&&tuychon&&String(tuychon.method||'').toUpperCase()==='POST')
-    throw new Error('Admin trên điện thoại đang ở chế độ chỉ xem — không gửi thay đổi lên hệ thống');
   ms=ms||25000; const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),ms);
   try{
     const r=await fetch(url,Object.assign({signal:ctl.signal},tuychon||{}));
@@ -1319,20 +1306,37 @@ function sachCauHinh(mang){
   }));
 }
 async function dbDayCauHinh(){
-  if(!DONGBO_URL)return;
-  if(adminChiXem)return;   // 10/09/2026: chế độ chỉ xem — dừng êm, không báo "mất mạng" giả (dbGoi cũng chặn)
+  if(!DONGBO_URL){dbChoDay=false;return}
   dbVeTT('dang');
   try{
     /* 27/08/2026 — bản S2: trước đây thiếu nguonHuong/huongDangDung/tonKhoHuong trong gói gửi
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru}})});
+    dbChoDay=false;
+    if(j&&j.xungDot){
+      /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
+         (trừ tồn kho phần mẻ còn thiếu, đẩy lại nếu có) và BÁO RÕ: thay đổi vừa làm trên máy này chưa được lưu. */
+      dongBoCauHinhTs='';
+      await dbKeoCauHinhNeuMoiHon(true);
+      baoXungDot();
+      return;
+    }
     if(j&&j.ts)dongBoCauHinhTs=j.ts;
     dbVeTT('ok');
-  }catch(e){ dbVeTT('loi', e.message); }
+  }catch(e){ dbChoDay=false; dbVeTT('loi', e.message); }
 }
-function dbDayChoDL(){ clearTimeout(dbHen2); dbHen2=setTimeout(dbDayCauHinh,1500); }
+// S53: đang chờ đẩy (dbChoDay) thì vòng kéo định kỳ KHÔNG áp bản server — kẻo đè mất sửa đổi chưa kịp gửi
+let dbChoDay=false;
+function dbDayChoDL(){ clearTimeout(dbHen2); if(DONGBO_URL)dbChoDay=true; dbHen2=setTimeout(dbDayCauHinh,1500); }
+function baoXungDot(){
+  if(document.getElementById('xungDot'))return;
+  const d=document.createElement('div'); d.id='xungDot'; d.setAttribute('role','alert');
+  d.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:9999;background:#8a5300;color:#fff;padding:12px 14px;border-radius:12px;font-weight:600;line-height:1.35;box-shadow:0 4px 16px rgba(0,0,0,.25)';
+  d.innerHTML='Một máy Admin khác (máy tính hoặc điện thoại) vừa lưu trước. Máy này đã tải <u>bản mới nhất</u> về — thay đổi bạn vừa làm <u>chưa được lưu</u>, kiểm tra và làm lại giúp. <button type="button" style="margin-left:8px;font:inherit;padding:4px 10px;border-radius:8px;border:0">Đã hiểu</button>';
+  d.querySelector('button').onclick=()=>d.remove(); document.body.appendChild(d);
+}
 /* 27/08/2026 — bản S2: "lưu trữ trên Google Sheet, không mất khi đổi bản phần mềm" (khách
    yêu cầu). Mỗi lần mở app: so mốc thời gian cấu hình đã lưu trên Sheet (server) với mốc lần
    này ĐÃ ĐỒNG BỘ gần nhất mà máy đang mở biết (dongBoCauHinhTs, lưu cùng dữ liệu cục bộ) —
@@ -1378,6 +1382,7 @@ function apDungCauHinhTuServer(c){
   if(c.baoBiQC&&typeof c.baoBiQC==='object'&&!Array.isArray(c.baoBiQC))baoBiQC=c.baoBiQC;
   if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
   if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
+  if(c.meDaTru&&typeof c.meDaTru==='object'&&Array.isArray(c.meDaTru.ids))meDaTru=c.meDaTru;
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -1402,17 +1407,20 @@ function dbCoDangGoTiepXuc(){
   const tag=(a.tagName||'').toUpperCase();
   return (tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') && !a.readOnly && !a.disabled;
 }
-async function dbKeoCauHinhNeuMoiHon(){
+async function dbKeoCauHinhNeuMoiHon(epBuoc){
   if(!DONGBO_URL)return;
-  if(dbCoDangGoTiepXuc())return; // đang gõ dở — bỏ qua lượt này, đợi vòng kế tiếp
+  if(!epBuoc&&(dbCoDangGoTiepXuc()||dbChoDay))return; // đang gõ dở / có thay đổi chưa gửi — đợi vòng kế tiếp
   try{
     const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=cauhinh');
     if(!j.ok||!j.cauhinh||!j.ts)return;
     if(!dongBoCauHinhTs||j.ts>dongBoCauHinhTs){
-      if(dbCoDangGoTiepXuc())return; // vừa gõ vào giữa lúc chờ mạng trả về — vẫn phải chặn ở đây
+      if(!epBuoc&&(dbCoDangGoTiepXuc()||dbChoDay))return; // vừa gõ/sửa giữa lúc chờ mạng trả về — vẫn phải chặn ở đây
       apDungCauHinhTuServer(j.cauhinh);
       dongBoCauHinhTs=j.ts;
-      luuNgay();ve();docao();
+      // S53: bản server có thể chưa trừ tồn kho mẻ máy này đã nhận → trừ phần còn thiếu (mỗi mẻ 1 lần) và đẩy lại;
+      // không có gì để trừ thì chỉ lưu cục bộ, KHÔNG đẩy ngược bản vừa nhận lên máy chủ
+      if(truTonKhoConThieu())luuNgay(); else{ luuNgay(); clearTimeout(dbHen2); dbChoDay=false; }
+      ve();docao();
       bao('🟢 Đã tự động lấy cấu hình mới nhất từ Google Sheet');
     }else{
       dongBoCauHinhTs=j.ts;
@@ -1449,22 +1457,35 @@ function ghiNhanMeLanDau(r){
   const giaG=nguon?nguon.e.gia/(nguon.e.soKg*1000):0;
   r.giaHuongTheoGLucSX=giaG||null;
   r.chiPhiHuongLucSX=giaG>0?Math.round(num(r.mlDung)*giaG):null;
-  // trừ tồn kho ĐÚNG dòng NCC/giá vừa dùng — mlDung là GRAM, soKg/daDungKg tính bằng KG.
-  // Chế độ chỉ xem (Admin trên điện thoại) KHÔNG trừ: máy đó không phải nguồn sự thật, trừ ở đây là
-  // trừ chồng lên phần máy chính đã trừ (xem chú thích adminChiXem). Giá thì vẫn ghi để màn hình
-  // điện thoại hiện đúng chi phí — giá chỉ nằm trong bản ghi mẻ cục bộ, không bị đẩy lên.
-  if(nguon&&num(r.mlDung)>0&&!adminChiXem){
+  truTonKhoMe(r);
+}
+/* 12/10/2026 — S53: TRỪ TỒN KHO HƯƠNG — MỖI MẺ ĐÚNG MỘT LẦN dù nhiều máy Admin cùng nhận.
+   Trước đây mỗi máy nhận mẻ tự trừ daDungKg rồi đẩy nguyên cấu hình lên → 2 máy = trừ 2 lần (lý do cũ phải khoá
+   điện thoại chỉ xem). Nay sổ meDaTru = {tu, ids} đồng bộ CHUNG trong cấu hình: id đã có trong sổ thì không trừ
+   nữa. Mẻ ghi trước mốc tu (lúc bắt đầu dùng sổ) coi như đã trừ theo cách cũ — không trừ lại lịch sử khi một máy
+   mới tải toàn bộ mẻ về. Trừ ĐÚNG dòng NCC/giá đang dùng của mặt hàng; mlDung GRAM, soKg/daDungKg KG.
+   ponytail: ids chỉ tăng (vài chục byte/mẻ); cắt bớt id cũ hơn vài tháng nếu cấu hình phình quá. */
+let meDaTru=null;
+function truTonKhoMe(r){
+  if(!r||!r.id)return false;
+  if(!meDaTru)meDaTru={tu:new Date().toISOString(),ids:[]};
+  if(!(String(r.ts||'')>meDaTru.tu)||meDaTru.ids.includes(r.id))return false;
+  meDaTru.ids.push(r.id);
+  const pMh=sp.find(x=>x.ten===r.sp), nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
+  if(nguon&&num(r.mlDung)>0){
     const e=nguonHuong[r.huong]&&nguonHuong[r.huong][nguon.ix];
     if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;
   }
+  return true;
 }
+function truTonKhoConThieu(){let n=0;nk.forEach(r=>{if(truTonKhoMe(r))n++});return n}
 /* 29/09/2026: khách mở Admin trên điện thoại thấy "rất nhiều dữ liệu cũ" không có trên PC. Gốc rễ: 3 kênh kéo
    (mẻ / báo cáo / tiến độ lệnh) chỉ THÊM bản ghi mới, KHÔNG BAO GIỜ bỏ bản ghi đã hết trên Sheet — nên máy
    khác (điện thoại) giữ mãi dữ liệu cũ kể cả sau khi PC "Xoá dữ liệu mô phỏng" (Sheet đã xoá sạch).
    Máy Admin CHỈ XEM (điện thoại) không có dữ liệu riêng nào cần giữ → soi gương đúng Sheet: bỏ bản ghi
    Sheet không còn. Máy Admin sửa được (PC) GIỮ nguyên hành vi cũ (có thể có mẻ nhận tay qua file .json). */
 function gonTheoMayChu(ten,dsSv){
-  if(!adminChiXem||!Array.isArray(dsSv))return 0;
+  if(!laDienThoai()||!Array.isArray(dsSv))return 0;
   const co=new Set(dsSv.map(r=>r&&r.id)), cu={nk,bcNgay,lenhTienDo}[ten], moi=cu.filter(r=>co.has(r.id)), bo=cu.length-moi.length;
   if(!bo)return 0;
   if(ten==='nk')nk=moi; else if(ten==='bcNgay')bcNgay=moi; else lenhTienDo=moi;
@@ -2334,10 +2355,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -5154,9 +5175,10 @@ $('viewSL').addEventListener('click',async e=>{
       { const cu=document.getElementById('mayChuCu'); if(cu){ cu.remove(); dbBatDauVongLap(); } } // 30/09: vừa bỏ máy chủ cũ → chạy lại vòng đồng bộ
       const coDL=j&&j.cauhinh&&Array.isArray(j.cauhinh.sp)&&j.cauhinh.sp.length;
       kq.innerHTML='<span style="color:var(--cyan)">Đã nối. '+(coDL
-        ? 'Trên Sheet đang có '+j.cauhinh.sp.length+' mặt hàng — app sẽ tự kéo về nếu bản trên Sheet mới hơn.'
+        ? 'Trên Sheet đang có '+j.cauhinh.sp.length+' mặt hàng — đang tải về máy này.'
         : 'Sheet đang trống — dữ liệu máy này sẽ được đẩy lên.')+'</span>';
-      dbVeTT('ok'); luuNgay(); veSL();
+      // S53: Sheet đã có dữ liệu → TẢI về (không đẩy bản máy này đè lên); Sheet trống → đẩy dữ liệu máy này lên
+      dbVeTT('ok'); if(coDL){ dongBoCauHinhTs=''; dbKeoCauHinhNeuMoiHon(true); } else luuNgay(); veSL();
     }catch(err){ kq.innerHTML='<span style="color:var(--red)">Không gọi được: '+esc(err.message||String(err))+'</span>'; }
     return}
   if(e.target.id==='knXoa'){
@@ -5783,6 +5805,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       lenhSX=Array.isArray(d.lenhSX)?d.lenhSX:[];
       lenhTienDo=Array.isArray(d.lenhTienDo)?d.lenhTienDo:[];
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
+      meDaTru=(d.meDaTru&&typeof d.meDaTru==='object'&&Array.isArray(d.meDaTru.ids))?d.meDaTru:null;
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong;
@@ -5811,30 +5834,6 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
      mới hơn từ Sheet ở nền — nếu có bản mới sẽ tự vẽ lại. Không await ở đây, để mở app không
      bị treo khi mất mạng hoặc máy chủ chậm. */
   vongLap.then(dbKeoCauHinhNeuMoiHon);
-})();
-/* 10/09/2026 — banner cho chế độ chỉ xem trên điện thoại (xem chú thích adminChiXem ở đầu phần đồng
-   bộ). Dựng bằng JS lúc mở app để HTML tĩnh không đổi; dùng lại class .canh có sẵn. Nút gỡ có hộp
-   thoại xác nhận, vì bấm nhầm trên điện thoại là mở lại đúng lỗi 2 máy Admin ghi đè nhau. */
-(function(){
-  if(!adminChiXem)return;
-  const stick=document.querySelector('.stick'), bar=stick&&stick.querySelector('.bar');
-  if(!stick)return;
-  const d=document.createElement('div');
-  d.className='canh'; d.id='chiXemBanner';
-  d.innerHTML='<b>ĐIỆN THOẠI — CHỈ XEM</b><br>Admin tạm thời chỉ sửa trên <b>máy tính</b>. '
-    +'Thay đổi ở đây <b>không</b> được gửi lên hệ thống và <b>không</b> trừ tồn kho.'
-    +'<br><button class="sbtn" id="chiXemGo" style="margin-top:8px">Đây là máy tính — bật chỉnh sửa</button>';
-  bar?bar.after(d):stick.prepend(d);
-  document.getElementById('chiXemGo').addEventListener('click',async()=>{
-    const c=await hoi('Bật chỉnh sửa trên máy này?',
-      'Chỉ bật nếu đây là <b>máy tính</b> dùng làm máy Admin chính.<br><br>'
-      +'Nếu là điện thoại hoặc máy Admin thứ hai, hai máy cùng sửa sẽ <b>ghi đè mất thay đổi của nhau</b> '
-      +'và <b>trừ tồn kho hương liệu hai lần</b>.',
-      {nutOK:'Đây là máy tính — bật',nguyHiem:true});
-    if(!c)return;
-    try{localStorage.setItem(ADMIN_SUA_KEY,'1')}catch(e){}
-    adminChiXem=false; d.remove(); bao('Đã bật chỉnh sửa trên máy này');
-  });
 })();
 /* 10/09/2026 — bản S7: đăng ký sw.js để app mở được khi mất mạng (khách duyệt như ngoại lệ có
    chủ đích với quy tắc 1 file — xem chú thích đầu sw.js). CHỈ đăng ký trên https hoặc máy

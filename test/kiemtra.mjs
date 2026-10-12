@@ -322,7 +322,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -1975,6 +1975,7 @@ const aqFile='/tmp/_aq_me.json';
 fs.writeFileSync(aqFile, JSON.stringify({loai:'peroma-me',nv:'Test NV AQ',ngay:'2026-08-26',bcNgay:[],
   nk:[{id:'AQREC-1',ngaysx:'2026-08-26',lot:'9999999999',sp:'__TEST_AQ_MH__',quyCach:'5 kg',
     sl:50,huong:'Test Hương AQ',mlDung:4000,nv:'Test NV AQ',ts:'2026-08-26T08:00:00.000Z'}]}));
+await E(()=>{meDaTru={tu:'2000-01-01T00:00:00.000Z',ids:[]}}); // S53: sổ trừ tồn kho đã khởi tạo trước mẻ thử (mẻ mang ngày 26/08)
 await p.setInputFiles('#nvIn', aqFile); await p.waitForTimeout(300);
 await p.click('#dlgO'); await p.waitForTimeout(300);
 const aqRec=await E(()=>nk.find(r=>r.id==='AQREC-1'));
@@ -2388,6 +2389,7 @@ ok('đang gõ dở (input đang focus) thì dbKeoCauHinhNeuMoiHon() KHÔNG áp c
 const avKq2=await E(async ()=>{
   document.getElementById('AVTEST-INPUT').blur();
   document.getElementById('AVTEST-INPUT').remove();
+  dbChoDay=false; clearTimeout(dbHen2); // S53: thao tác thử phía trên có lưu → bỏ cờ "chờ gửi" để đo đúng điều kiện focus
   const dbGoiThat=window.dbGoi; const urlThatCuaTest=DONGBO_URL; DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
   window.dbGoi=async(url)=>{
     if(String(url).includes('a=cauhinh')){
@@ -2749,21 +2751,21 @@ ok('BE: bỏ lô đã huỷ và lô ngoài khoảng thời gian', be.boHuyVaNgoa
 
 console.log('\n── BF. ADMIN CHỈ XEM (ĐIỆN THOẠI) SOI GƯƠNG ĐÚNG GOOGLE SHEET (29/09/2026) ──');
 const bf=await E(async()=>{
-  const g={nk:nk.slice(),bc:bcNgay.slice(),lt:lenhTienDo.slice(),cx:adminChiXem,url:DONGBO_URL,dg:window.dbGoi};
+  const g={nk:nk.slice(),bc:bcNgay.slice(),lt:lenhTienDo.slice(),cx:window.laDienThoai,url:DONGBO_URL,dg:window.dbGoi};
   DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
   const sv={nk:[{id:'MIR-2',sp:sp[0].ten,lot:'1',ngaysx:'2026-09-20'}],bc:[],lt:[]};
   window.dbGoi=async u=>/a=nhatky/.test(u)?{ok:1,nk:sv.nk}:/a=baocao/.test(u)?{ok:1,bc:sv.bc}:/a=lenhtiendo/.test(u)?{ok:1,lt:sv.lt}:{ok:0};
   const cu=()=>{nk=[{id:'MIR-1',sp:sp[0].ten,lot:'1',ngaysx:'2026-08-01'},{id:'MIR-2',sp:sp[0].ten,lot:'1',ngaysx:'2026-09-20'}];bcNgay=[{id:'BCX'}];lenhTienDo=[{id:'LTX',lenhId:'x',kg:1}]};
   const kq={};
-  adminChiXem=true; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
+  window.laDienThoai=()=>true; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
   kq.dtBoCu=nk.map(r=>r.id).join()==='MIR-2'&&bcNgay.length===0&&lenhTienDo.length===0;
-  adminChiXem=false; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
+  window.laDienThoai=()=>false; cu(); await dbKeoNhatKy(); await dbKeoBaoCao(); await dbKeoTienDoLenh();
   kq.pcGiuNguyen=nk.length===2&&bcNgay.length===1&&lenhTienDo.length===1;
-  nk=g.nk; bcNgay=g.bc; lenhTienDo=g.lt; adminChiXem=g.cx; DONGBO_URL=g.url; window.dbGoi=g.dg; luuNgay();
+  nk=g.nk; bcNgay=g.bc; lenhTienDo=g.lt; window.laDienThoai=g.cx; DONGBO_URL=g.url; window.dbGoi=g.dg; luuNgay();
   return kq;
 });
-ok('BF: Admin chỉ xem (điện thoại) bỏ mẻ/báo cáo/tiến độ đã không còn trên Sheet', bf.dtBoCu, JSON.stringify(bf));
-ok('BF: Admin sửa được (PC) giữ nguyên dữ liệu riêng như cũ', bf.pcGiuNguyen);
+ok('BF: Admin trên điện thoại bỏ mẻ/báo cáo/tiến độ đã không còn trên Sheet', bf.dtBoCu, JSON.stringify(bf));
+ok('BF: Admin trên máy tính giữ nguyên dữ liệu riêng như cũ', bf.pcGiuNguyen);
 
 console.log('\n── BG. CẢNH BÁO + BỎ TÚI THỪA Ở BAO BÌ PHỤ (29/09/2026) ──');
 const bg=await E(async()=>{
@@ -2829,6 +2831,56 @@ const bj=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   temCoCache.clear(); return kq;
 });
 ok('BJ: mọi khổ tem — nội dung kết thúc trước 95% chiều cao (chừa dư đáy chống cắt chữ)', Object.values(bj).every(v=>v<=95), JSON.stringify(bj));
+
+/* BK — 12/10/2026 S53: Admin làm việc được trên CẢ máy tính lẫn điện thoại (bỏ chế độ chỉ xem).
+   (1) không ghi đè mù: gửi kèm tsCu; máy chủ báo xung đột → tải bản mới nhất + báo rõ
+   (2) đang có thay đổi chưa gửi thì vòng kéo định kỳ không đè
+   (3) mỗi mẻ chỉ trừ tồn kho hương 1 lần dù nhiều máy nhận (sổ meDaTru dùng chung) */
+console.log('\n── BK. ADMIN NHIỀU MÁY (PC + ĐIỆN THOẠI) — 12/10/2026 S53 ──');
+const bk=await E(async()=>{
+  const g={sp:JSON.stringify(sp),kho:kho.slice(),nh:JSON.stringify(nguonHuong),me:JSON.stringify(meDaTru),ts:dongBoCauHinhTs,url:DONGBO_URL,dg:window.dbGoi,nk:nk.slice()};
+  const kq={}; DONGBO_URL='https://script.google.com/macros/s/TEST/exec';
+  // (1) xung đột
+  let body=null; dongBoCauHinhTs='T1';
+  const svCH={sp:JSON.parse(JSON.stringify(sachCauHinh(sp))),kho:[...kho,'Hương Máy Khác']};
+  window.dbGoi=async(u,o)=>{ if(o&&o.method==='POST'){body=JSON.parse(o.body);return {ok:0,xungDot:1,ts:'T2'}}
+    if(/a=cauhinh/.test(u))return {ok:1,cauhinh:svCH,ts:'T2'}; return {ok:1}};
+  await dbDayCauHinh();
+  kq.guiTsCu=body&&body.tsCu==='T1'&&'meDaTru' in body.cauhinh;
+  kq.taiBanMoi=kho.includes('Hương Máy Khác')&&dongBoCauHinhTs==='T2';
+  kq.baoRo=!!document.getElementById('xungDot'); document.getElementById('xungDot')?.remove();
+  // (2) thay đổi chưa gửi → vòng kéo không đè
+  kho=g.kho.slice(); dbChoDay=true; dongBoCauHinhTs='T1';
+  window.dbGoi=async u=>/a=cauhinh/.test(u)?{ok:1,cauhinh:svCH,ts:'T3'}:{ok:1};
+  await dbKeoCauHinhNeuMoiHon(); kq.khongDe=!kho.includes('Hương Máy Khác')&&dongBoCauHinhTs==='T1';
+  dbChoDay=false; clearTimeout(dbHen2);
+  // (3) trừ tồn kho 1 lần
+  const H='Hương Test BK', p0=sp[0]; if(!kho.includes(H))kho.push(H);
+  nguonHuong[H]=[{ncc:'NCC BK',gia:500000,soKg:1,ngay:'12/10/2026',daDungKg:0}]; p0.huongs=[H]; p0.nguonHuongChon={};
+  meDaTru={tu:'2026-10-01T00:00:00.000Z',ids:[]};
+  const r={id:'BK-1',sp:p0.ten,huong:H,mlDung:250,ts:'2026-10-12T01:00:00.000Z'};
+  truTonKhoMe(r); truTonKhoMe(r);
+  kq.truMotLan=nguonHuong[H][0].daDungKg===0.25;
+  truTonKhoMe({...r,id:'BK-CU',ts:'2026-09-01T00:00:00.000Z'});
+  kq.khongTruLichSu=nguonHuong[H][0].daDungKg===0.25;
+  // máy thứ hai: bản server đã có id BK-1 trong sổ → nhận mẻ không trừ thêm
+  nk=[r]; const so=JSON.parse(JSON.stringify(meDaTru)); meDaTru={tu:so.tu,ids:[]};
+  apDungCauHinhTuServer({meDaTru:so}); kq.mayHaiKhongTru=truTonKhoConThieu()===0&&nguonHuong[H][0].daDungKg===0.25;
+  // máy chưa từng dùng sổ, tải toàn bộ mẻ cũ về → KHÔNG trừ lại lịch sử
+  meDaTru=null; nguonHuong[H][0].daDungKg=0; nk=[{...r,id:'BK-2',ts:'2026-09-30T00:00:00.000Z'}];
+  kq.mayMoiKhongTruCu=truTonKhoConThieu()===0&&nguonHuong[H][0].daDungKg===0;
+  sp=napSP(JSON.parse(g.sp)); kho=g.kho; nguonHuong=JSON.parse(g.nh); meDaTru=JSON.parse(g.me); dongBoCauHinhTs=g.ts; DONGBO_URL=g.url; window.dbGoi=g.dg; nk=g.nk;
+  clearTimeout(dbHen2); dbChoDay=false; luuNgay(); clearTimeout(dbHen2); dbChoDay=false; ve();
+  return kq;
+});
+ok('BK: gửi cấu hình kèm mốc đang dựa vào (tsCu) + sổ trừ tồn kho', bk.guiTsCu, JSON.stringify(bk));
+ok('BK: máy khác vừa lưu trước → không đè, tự tải bản mới nhất về', bk.taiBanMoi);
+ok('BK: báo rõ "thay đổi vừa làm chưa được lưu"', bk.baoRo);
+ok('BK: có thay đổi chưa gửi → vòng kéo định kỳ không đè mất', bk.khongDe);
+ok('BK: 1 mẻ chỉ trừ tồn kho hương 1 lần', bk.truMotLan);
+ok('BK: mẻ cũ trước mốc dùng sổ không bị trừ lại', bk.khongTruLichSu);
+ok('BK: máy Admin thứ hai nhận cùng mẻ → không trừ lần 2', bk.mayHaiKhongTru);
+ok('BK: máy mới tải toàn bộ mẻ về → không trừ lại lịch sử', bk.mayMoiKhongTruCu);
 
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));

@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-09-19-S38';
+const PHIEN_BAN_MAYCHU = '2026-10-12-S53';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -119,7 +119,13 @@ function doPost(e){
     const d = JSON.parse(e.postData.contents);
     if(!dungMatKhau(d.mk)) return ra({loi: loiMatKhau()});
     if(d.a && HANH_DONG_CHO_PHEP.indexOf(d.a) === -1) return ra({loi:'Hành động không được phép'});
-    if(d.a === 'luuCauHinh'){ ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
+    /* 12/10/2026 — S53: Admin dùng được trên CẢ máy tính lẫn điện thoại. Cấu hình ghi NGUYÊN KHỐI nên 2 máy cùng
+       sửa thì máy gửi sau đè mất phần của máy kia. Máy Admin mới gửi kèm tsCu = mốc cấu hình nó đang dựa vào; mốc
+       trên Sheet đã khác (máy khác vừa ghi) → TỪ CHỐI, trả mốc mới để máy đó tải bản mới về rồi làm lại. Kiểm tra
+       + ghi nằm trong cùng khoá LockService nên không có kẽ hở. Bản Admin cũ không gửi tsCu → ghi như trước. */
+    if(d.a === 'luuCauHinh'){
+      if(d.tsCu !== undefined && String(d.tsCu) !== tsCauHinh()) return ra({ok:0, xungDot:1, ts: tsCauHinh()});
+      ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themLenhTienDo'){ const r = themLenhTienDo(d.lt || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
@@ -199,7 +205,11 @@ function sachCauHinhServer(c, cu){
     tuHoSo: Array.isArray(c.tuHoSo) ? c.tuHoSo : ((cu && Array.isArray(cu.tuHoSo)) ? cu.tuHoSo : []),
     // 19/09/2026 — "Lệnh sản xuất theo lô" (mục tiêu kg Admin đặt cho 1 mặt hàng) — cùng whitelist
     // pattern với tuHoSo ở trên. Tiến độ (lenhTienDo) KHÔNG đi qua đây — xem docLenhTienDo()/themLenhTienDo().
-    lenhSX: Array.isArray(c.lenhSX) ? c.lenhSX : ((cu && Array.isArray(cu.lenhSX)) ? cu.lenhSX : [])
+    lenhSX: Array.isArray(c.lenhSX) ? c.lenhSX : ((cu && Array.isArray(cu.lenhSX)) ? cu.lenhSX : []),
+    // 12/10/2026 — S53: sổ "mẻ đã trừ tồn kho hương" {tu, ids} — để nhiều máy Admin cùng nhận 1 mẻ mà chỉ trừ 1 lần.
+    // Bản Admin cũ không gửi → giữ bản đang lưu.
+    meDaTru: (c.meDaTru && typeof c.meDaTru === 'object' && Array.isArray(c.meDaTru.ids)) ? c.meDaTru
+           : ((cu && cu.meDaTru && typeof cu.meDaTru === 'object') ? cu.meDaTru : undefined)
   };
 }
 
