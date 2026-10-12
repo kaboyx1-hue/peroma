@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S53</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S54</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 12/10/2026-S53</div>
+      <div class="verFoot">BẢN 12/10/2026-S54</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2563,6 +2563,12 @@ function veHuong(p,i){
     o+=`<div class="hnhchip">Không dùng hương liệu cho mặt hàng này</div>`;
   }else{
     o+='<div class="hset">';
+    /* 12/10/2026: khách "tôi còn có 1 phân mục là không mùi nhưng ở đây lại không xuất hiện" — cùng 1 mặt hàng bán
+       CẢ bản có hương LẪN bản không mùi. Trước đây "Không mùi" chỉ chọn được qua công tắc Không (loại trừ mọi hương).
+       Nay hiện thêm ô "Không mùi" trong lưới để chọn KÈM các hương; nhân viên chọn 1 trong số đó cho từng mẻ
+       (mẻ Không mùi: 0 g hương, giá hương 0 — luồng isUnscented() sẵn có). Không mùi luôn ở đầu, không xoá được. */
+    const kKM=kho.find(isUnscented)||UNSCENTED_LABEL;
+    o+=`<button class="h${tam.some(isUnscented)?' on':''}" data-h="${esc(kKM)}" data-i="${i}">${esc(kKM)}</button>`;
     o+=kho.filter(h=>!isUnscented(h)).map(h=>`<button class="h${tam.includes(h)?' on':''}" data-h="${esc(h)}" data-i="${i}">${esc(h)}${sua?`<span class="x" data-xh="${esc(h)}">×</span>`:''}</button>`).join('');
     o+=`<button class="h add" data-addh="1">+ Thêm hương vào danh mục</button>`;
     o+='</div>';

@@ -2882,6 +2882,27 @@ ok('BK: mẻ cũ trước mốc dùng sổ không bị trừ lại', bk.khongTru
 ok('BK: máy Admin thứ hai nhận cùng mẻ → không trừ lần 2', bk.mayHaiKhongTru);
 ok('BK: máy mới tải toàn bộ mẻ về → không trừ lại lịch sử', bk.mayMoiKhongTruCu);
 
+/* BL — 12/10/2026: 1 mặt hàng bán cả bản có hương lẫn bản KHÔNG MÙI — chọn "Không mùi" kèm các hương */
+const bl=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const i=sp.findIndex(p=>(p.dauRa||[]).length), p=sp[i], g={h:JSON.stringify(p.huongs||[]),t:JSON.stringify(p.tam||[]),n:p.ngay,l:JSON.stringify(p.lichSu||[])};
+  const H=kho.find(h=>!isUnscented(h)); p.huongs=[H]; p.tam=[H];
+  mo.clear(); mo.add(i); chuyenTab('ct'); await cho(30);
+  const nutKM=()=>[...document.querySelectorAll('.r.open .hset [data-h]')].find(b=>isUnscented(b.dataset.h));
+  kq.coO=!!nutKM();
+  nutKM().click(); await cho(30);
+  kq.chonKem=p.tam.includes(H)&&p.tam.some(isUnscented)&&!!document.querySelector('.r.open .hset');
+  document.querySelector('.r.open [data-savh="'+i+'"]').click(); await cho(60); $('dlgO').click(); await cho(60);
+  kq.luu=p.huongs.includes(H)&&p.huongs.some(isUnscented);
+  kq.giaThanh=[...document.querySelectorAll('.ctsec[data-sec="gt"][data-si="'+i+'"] [data-gthc]')].some(b=>isUnscented(b.dataset.gthc.split('|||')[1]));
+  kq.soLo=!!sinhLot(p,kho.find(isUnscented),p.dauRa[0],'2026-10-12').lot;
+  p.huongs=JSON.parse(g.h); p.tam=JSON.parse(g.t); p.ngay=g.n; p.lichSu=JSON.parse(g.l); for(const k in gtTT)delete gtTT[k]; mo.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BL: lưới hương có ô "Không mùi"', bl.coO, JSON.stringify(bl));
+ok('BL: chọn "Không mùi" KÈM hương khác (không bị loại trừ)', bl.chonKem);
+ok('BL: lưu được cả hương lẫn Không mùi', bl.luu);
+ok('BL: Giá thành có nút "Không mùi" để xem giá vốn bản không mùi', bl.giaThanh);
+ok('BL: mẻ Không mùi vẫn sinh được số lô', bl.soLo);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
