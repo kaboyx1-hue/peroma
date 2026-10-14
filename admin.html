@@ -494,6 +494,17 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 .bch-so .dung{color:var(--infoTx)} .bch-so .ton{color:var(--stMau)}
 .bch-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--stBg);margin-top:8px}
 .bch-bar i{display:block;background:var(--infoTx);opacity:.7}
+.bch-sp{margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.bch-sp summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--infoTx)}
+.bch-sprow{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:5px 0;border-bottom:1px solid var(--line);font-size:13px}
+.bch-sprow span{font-family:var(--mono);font-size:12px;color:var(--txt-2)}
+.hdbs{margin:0 12px 6px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:16px}
+.hdbs-luoi{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.hdbs select{font:inherit;font-size:15px;width:100%;min-height:46px;padding:9px 12px;border:1px solid var(--line2);border-radius:12px;background:var(--bg);color:var(--txt)}
+.hdbs-xem{font-size:13px;color:var(--txt-2)}
+.hdbs-kq{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.hdbs-dong{font:inherit;text-align:left;display:grid;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--txt)}
+.hdbs-dong span{font-size:12.5px;color:var(--txt-2)} .hdbs-dong small{font-size:12px;color:var(--infoTx)}
 
 .lot{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px;margin-top:9px}
 .lot .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -1125,9 +1136,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S58</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S59</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 14/10/2026-S58</div>
+      <div class="verFoot">BẢN 14/10/2026-S59</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1327,7 +1338,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung}})});
     dbChoDay=false;
     if(j&&j.xungDot){
       /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
@@ -1397,6 +1408,7 @@ function apDungCauHinhTuServer(c){
   if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
   if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
   if(c.meDaTru&&typeof c.meDaTru==='object'&&Array.isArray(c.meDaTru.ids))meDaTru=c.meDaTru;
+  if(c.hoaDonBoSung&&typeof c.hoaDonBoSung==='object'&&!Array.isArray(c.hoaDonBoSung))hoaDonBoSung=c.hoaDonBoSung;
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -1487,7 +1499,19 @@ function hoaDonCuaMe(r){
     ds.push({loai:'nl',ten:x.ten,ncc:e?e.ncc:'',soHD:e?String(e.soHD||''):''})});
   return ds;
 }
-const hoaDonTxt=r=>Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX.map(d=>d.ten+': '+(d.soHD||'chưa có số HĐ')).join(' · '):'';
+// Vật tư của mẻ CHƯA chụp HĐ (mẻ cũ): hương của mẻ + nguyên liệu trong công thức hiện tại của mặt hàng, chưa có số HĐ
+function hoaDonKhung(r){
+  const ds=[], pMh=sp.find(x=>x.ten===r.sp);
+  if(r.huong&&!isUnscented(r.huong))ds.push({loai:'h',ten:r.huong,ncc:'',soHD:''});
+  ((pMh&&pMh.congThucNL)||[]).filter(x=>x&&x.ten).forEach(x=>ds.push({loai:'nl',ten:x.ten,ncc:'',soHD:''}));
+  return ds;
+}
+// Danh sách HĐ của 1 mẻ = số chụp lúc nhận (hoặc khung vật tư nếu mẻ cũ) + số bổ sung (ưu tiên)
+function hdCuaMe(r){
+  const bs=hoaDonBoSung[r.id]||{};
+  return (Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX:hoaDonKhung(r)).map(d=>bs[d.ten]?{...d,soHD:bs[d.ten],boSung:true}:d);
+}
+const hoaDonTxt=r=>hdCuaMe(r).map(d=>d.ten+': '+(d.soHD||'chưa có số HĐ')).join(' · ');
 /* 12/10/2026 — S53: TRỪ TỒN KHO HƯƠNG — MỖI MẺ ĐÚNG MỘT LẦN dù nhiều máy Admin cùng nhận.
    Trước đây mỗi máy nhận mẻ tự trừ daDungKg rồi đẩy nguyên cấu hình lên → 2 máy = trừ 2 lần (lý do cũ phải khoá
    điện thoại chỉ xem). Nay sổ meDaTru = {tu, ids} đồng bộ CHUNG trong cấu hình: id đã có trong sổ thì không trừ
@@ -2296,6 +2320,11 @@ let maHuong={},maQC={},kgQC={},nvDS=[],moTra=new Set();
    "h:<tên>:<ix>" / "nl:<tên>:<ix>" (chế độ SỬA dòng ix có sẵn). */
 let moThemNguon=new Set();
 let tuNgay='',denNgay='',traLot='';
+/* 14/10/2026: khách "bây giờ mới bắt đầu đưa sản phẩm vào hoá đơn → cần cách bổ sung số hoá đơn vào các sản phẩm cũ".
+   Số HĐ bổ sung lưu RIÊNG theo id mẻ: hoaDonBoSung[idMẻ][tên vật tư] = số HĐ — đi qua kênh cấu hình nên mọi máy Admin
+   (PC + điện thoại) cùng thấy; KHÔNG sửa bản ghi mẻ (nk chỉ nằm trên từng máy). Có bổ sung thì ưu tiên hơn số chụp lúc
+   nhận mẻ (dùng cả để sửa số chụp sai). Mỗi lần gán ghi nhật ký thao tác (auditEvents). */
+let hoaDonBoSung={}, hdVT='', hdLo='', hdSo='', hdChiTrong=true, hdTra='';
 
 const $=id=>document.getElementById(id);
 /* 26/08/2026 — PATCH V1.1 mục P0.2 (UNSCENTED): "Không mùi" là 1 SENTINEL đại diện cho "không
@@ -2386,10 +2415,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -2404,21 +2433,26 @@ function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&0xF
 const U8=s=>new TextEncoder().encode(s);
 const XE=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 function colL(n){let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-m-1)/26}return s}
-function sheetXml(rows,cols){
+function sheetXml(rows,cols,dauBang){
+  // 14/10/2026: dauBang = chỉ số dòng tiêu đề bảng → in đậm có nền (style 1), cố định khi cuộn, bật nút lọc từng cột
+  const coDB=Number.isInteger(dauBang)&&dauBang>=0&&rows[dauBang], soCot=coDB?rows[dauBang].length:0;
   let x='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +(coDB?`<sheetViews><sheetView workbookViewId="0"><pane ySplit="${dauBang+1}" topLeftCell="A${dauBang+2}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>`:'')
     +(cols&&cols.length?'<cols>'+cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>':'')+'<sheetData>';
   rows.forEach((row,r)=>{x+=`<row r="${r+1}">`;
+    const st=coDB&&r===dauBang?' s="1"':'';
     row.forEach((v,c)=>{const ref=colL(c)+(r+1);
       if(v===null||v===undefined||v==='')return;
-      if(typeof v==='number'&&isFinite(v))x+=`<c r="${ref}"><v>${v}</v></c>`;
-      else x+=`<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;});
+      if(typeof v==='number'&&isFinite(v))x+=`<c r="${ref}"${st}><v>${v}</v></c>`;
+      else x+=`<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;});
     x+='</row>';});
-  return x+'</sheetData></worksheet>';
+  return x+'</sheetData>'+(coDB&&rows.length>dauBang+1?`<autoFilter ref="A${dauBang+1}:${colL(soCot-1)}${rows.length}"/>`:'')+'</worksheet>';
 }
 function xlsxBytes(sheets){
   const files=[];const push=(n,s)=>files.push({name:n,data:U8(s)});
   let ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>';
   sheets.forEach((s,i)=>ct+=`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`);
+  ct+='<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
   push('[Content_Types].xml',ct+'</Types>');
   push('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
   let wb='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>';
@@ -2426,8 +2460,16 @@ function xlsxBytes(sheets){
   push('xl/workbook.xml',wb+'</sheets></workbook>');
   let wr='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
   sheets.forEach((s,i)=>wr+=`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`);
+  wr+=`<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
   push('xl/_rels/workbook.xml.rels',wr+'</Relationships>');
-  sheets.forEach((s,i)=>push(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows,s.cols)));
+  push('xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+    +'<fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font></fonts>'
+    +'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFCE9C2"/><bgColor indexed="64"/></patternFill></fill></fills>'
+    +'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
+    +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+    +'<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'
+    +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
+  sheets.forEach((s,i)=>push(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows,s.cols,s.dauBang)));
   const parts=[],cen=[];let off=0;
   const w2=n=>[n&255,(n>>8)&255],w4=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];
   files.forEach(f=>{const nm=U8(f.name),c=crc32(f.data),n=f.data.length;
@@ -2474,7 +2516,25 @@ function xuatBaoCaoSoLot(){
   const ky=(tuNgay||denNgay)?`Từ ${tuNgay?vnNgay(tuNgay):'đầu'} đến ${denNgay?vnNgay(denNgay):'nay'}`:'Tất cả';
   const rows=[[TEM_MD.ctyTen],['BÁO CÁO SỐ LOT SẢN XUẤT'],['Kỳ báo cáo: '+ky],['Ngày lập: '+vnNgay(isoNay())],['Người lập:'],[],
     ['STT','Mã SP','Tên sản phẩm','Số LOT','NSX','HSD','Hoá đơn đầu vào'],...bang];
-  const ok=taiVe(`bao-cao-so-lot_${isoNay()}.xlsx`,xlsxBytes([{name:'Số LOT',rows,cols:[6,8,38,18,12,12,48]}]));
+  /* 14/10/2026: khách muốn phần tra ngược nằm trong file Excel và "dễ xem". Thêm 2 trang, mỗi trang là 1 BẢNG PHẲNG
+     (1 dòng = 1 dữ liệu) có nút lọc từng cột để lọc theo số HĐ / hương / mặt hàng ngay trong Excel:
+     "Hoá đơn đầu vào": mỗi mẻ × vật tư 1 dòng, xếp theo số HĐ — đối soát 1 hoá đơn ra đủ lô/mặt hàng.
+     "Hương theo mặt hàng": mỗi hương × mặt hàng 1 dòng — hương đã dùng cho những mặt hàng nào, bao nhiêu. */
+  const ls=locNK().filter(r=>!r.huy&&r.lot);
+  const hdT=[];ls.forEach(r=>hdCuaMe(r).forEach(d=>hdT.push({iso:String(r.ngaysx||''),dong:[d.soHD||'(chưa có số HĐ)',d.ten,d.loai==='h'?'Hương':'Nguyên liệu',d.ncc||'',lotDep(r.lot),r.sp||'',vnNgay(r.ngaysx),num(r.sl),d.boSung?'bổ sung sau':'']})));
+  // xếp: có số HĐ trước, theo số HĐ, rồi theo NGÀY SX thật (ISO) — không xếp chữ dd/mm/yyyy
+  hdT.sort((a,b)=>(a.dong[0][0]==='('?1:0)-(b.dong[0][0]==='('?1:0)||String(a.dong[0]).localeCompare(String(b.dong[0]))||a.iso.localeCompare(b.iso));
+  const hd=hdT.map(x=>x.dong);
+  const dauHD=[[TEM_MD.ctyTen],['HOÁ ĐƠN ĐẦU VÀO THEO LÔ'],['Kỳ báo cáo: '+ky],['Bấm mũi tên ở dòng tiêu đề để lọc theo số hoá đơn, vật tư hoặc mặt hàng.'],[],
+    ['Số hoá đơn','Vật tư','Loại','Nhà cung cấp','Số LOT','Mặt hàng','Ngày SX','Kg thành phẩm','Ghi chú']];
+  const hm=[];gom(ls.filter(r=>r.huong),r=>r.huong).forEach(([h])=>gom(ls.filter(r=>r.huong===h),r=>r.sp).forEach(([t,x])=>
+    hm.push([h,t,x.n,isUnscented(h)?0:Math.round(x.ml)/1000,Math.round(x.kg*1000)/1000])));
+  const dauHM=[[TEM_MD.ctyTen],['HƯƠNG ĐÃ DÙNG CHO MẶT HÀNG NÀO'],['Kỳ báo cáo: '+ky],['Bấm mũi tên ở dòng tiêu đề để lọc theo hương hoặc mặt hàng.'],[],
+    ['Hương','Mặt hàng','Số mẻ','Kg hương đã dùng','Kg thành phẩm']];
+  const ok=taiVe(`bao-cao-so-lot_${isoNay()}.xlsx`,xlsxBytes([
+    {name:'Số LOT',rows,cols:[6,8,38,18,12,12,48],dauBang:6},
+    {name:'Hoá đơn đầu vào',rows:[...dauHD,...hd],cols:[18,24,12,30,16,30,12,14,14],dauBang:5},
+    {name:'Hương theo mặt hàng',rows:[...dauHM,...hm],cols:[26,32,10,18,16],dauBang:5}]));
   bao(ok?'Đã xuất báo cáo số LOT ('+bang.length+' lô)':'Trình duyệt chặn tải file');
   return ok;
 }
@@ -3517,7 +3577,37 @@ function tonHuongG(h){
   if(ds.length)return Math.max(0,ds.reduce((a,e)=>a+conLaiNguon(e),0))*1000;
   const tk=tonKhoHuong[h]; return tk&&tk.con!==undefined&&tk.con!==''?Math.max(0,num(tk.con)):null;
 }
-function veBCHuong(rows){
+/* 14/10/2026: bổ sung số HĐ cho mẻ đã ghi (theo vật tư · khoảng thời gian đang lọc · lô tuỳ chọn) + tra ngược số HĐ */
+function meCanGanHD(ls){
+  if(!hdVT)return [];
+  return ls.filter(r=>!r.huy&&(!hdLo||r.lot===hdLo)).filter(r=>{const d=hdCuaMe(r).find(x=>x.ten===hdVT);return d&&(!hdChiTrong||!d.soHD)});
+}
+function veHoaDonBS(ls){
+  const vt=[...new Set(nk.filter(r=>!r.huy).flatMap(r=>hdCuaMe(r).map(d=>d.ten)))].sort((a,b)=>a.localeCompare(b,'vi'));
+  if(hdVT&&!vt.includes(hdVT))hdVT='';
+  const los=[...new Set(ls.filter(r=>!r.huy&&r.lot).map(r=>r.lot))], can=meCanGanHD(ls), soLo=new Set(can.map(r=>r.lot)).size;
+  let o=`<div class="sec">Số hoá đơn đầu vào — bổ sung &amp; tra cứu</div><div class="hdbs">
+    <div class="log" style="margin:0 0 8px">Gán số hoá đơn cho các mẻ <b>đã ghi</b> (kể cả mẻ cũ trước khi có ô số HĐ). Áp cho các mẻ trong <b>khoảng thời gian ở trên</b>; chọn thêm lô nếu chỉ muốn 1 lô.</div>
+    <div class="hdbs-luoi">
+      <div class="fld"><label>Vật tư (hương / nguyên liệu)</label><select id="hdVT"><option value="">— chọn —</option>${vt.map(v=>`<option${v===hdVT?' selected':''}>${esc(v)}</option>`).join('')}</select></div>
+      <div class="fld"><label>Lô (tuỳ chọn)</label><select id="hdLo"><option value="">Mọi lô trong khoảng thời gian</option>${los.map(l=>`<option value="${esc(l)}"${l===hdLo?' selected':''}>${esc(lotDep(l))} — ${esc((ls.find(r=>r.lot===l)||{}).sp||'')}</option>`).join('')}</select></div>
+      <div class="fld"><label>Số hoá đơn</label><input id="hdSo" value="${esc(hdSo)}" placeholder="VD 0001234"></div>
+    </div>
+    <label class="hint" style="display:flex;gap:8px;align-items:center;cursor:pointer;margin:4px 0 8px"><input type="checkbox" id="hdChiTrong"${hdChiTrong?' checked':''}> Chỉ điền mẻ <b>chưa có</b> số HĐ cho vật tư này (bỏ tick để ghi đè số đã có)</label>
+    <div class="hdbs-xem">${!hdVT?'Chọn vật tư để xem số mẻ sẽ được gán.':can.length?`Sẽ gán cho <b>${can.length}</b> mẻ thuộc <b>${soLo}</b> lô.`:'Không có mẻ nào cần gán với lựa chọn này.'}</div>
+    <button class="addbtn" id="hdGan" style="margin:8px 0 0;width:100%"${hdVT&&can.length?'':' disabled'}>Gán số hoá đơn</button>
+    <div class="fld" style="margin-top:14px"><label>Tra ngược theo số hoá đơn</label><div style="display:flex;gap:8px"><input id="hdTraIn" value="${esc(hdTra)}" placeholder="Gõ số HĐ (có thể 1 phần)" style="flex:1;min-width:0"><button class="abtn" id="hdTraBtn">Tra</button></div></div>`;
+  if(hdTra.trim()){
+    const q=hdTra.trim().toLowerCase(), kq=nk.filter(r=>!r.huy).map(r=>({r,d:hdCuaMe(r).filter(x=>String(x.soHD||'').toLowerCase().includes(q))})).filter(x=>x.d.length)
+      .sort((a,b)=>String(b.r.ngaysx||'').localeCompare(String(a.r.ngaysx||'')));
+    const tKg=kq.reduce((a,x)=>a+num(x.r.sl),0);
+    o+=kq.length?`<div class="hdbs-xem" style="margin-top:8px">Số HĐ chứa "<b>${esc(hdTra.trim())}</b>": <b>${kq.length}</b> mẻ · <b>${new Set(kq.map(x=>x.r.lot)).size}</b> lô · <b>${new Set(kq.map(x=>x.r.sp)).size}</b> mặt hàng · ${fmt(tKg)} kg thành phẩm</div>
+      <div class="hdbs-kq">${kq.slice(0,200).map(({r,d})=>`<button type="button" class="hdbs-dong" data-hdlot="${esc(r.lot)}"><b>${esc(r.sp)}</b><span>Lô ${esc(lotDep(r.lot))} · ${esc(vnNgay(r.ngaysx))} · ${fmt(num(r.sl))} kg</span><small>${d.map(x=>esc(x.ten)+': '+esc(x.soHD)).join(' · ')}</small></button>`).join('')}</div>`
+      :`<div class="hdbs-xem" style="margin-top:8px">Không có mẻ nào dùng số HĐ chứa "${esc(hdTra.trim())}".</div>`;
+  }
+  return o+`</div>`;
+}
+function veBCHuong(rows,ls){
   if(!rows.length)return '';
   return `<div class="sec">Tiêu hao theo hương</div><div class="bccards">`+
     rows.map(([k,v])=>{
@@ -3531,6 +3621,9 @@ function veBCHuong(rows){
           <div><span>Còn tồn hiện tại</span><b class="ton">${ton===null?'—':kg(ton)+' <small>kg</small>'}</b></div></div>
         ${ton!==null?`<div class="bch-bar" title="Đã dùng ${pDung}% · còn tồn ${100-pDung}%"><i style="width:${pDung}%"></i></div>`:''}`}
         <div class="bcc-bot"><span>${v.n} mẻ · ${fmt(v.kg)} kg thành phẩm</span>${v.cp>0?`<span>Chi phí ~<b>${fmt(Math.round(v.cp))} đ</b> · ~${fmt(cpMoiKg)} đ/kg</span>`:''}</div>
+        ${(()=>{const msp=gom((ls||[]).filter(r=>(r.huong||'—')===k),r=>r.sp); if(!msp.length)return '';
+          // 14/10/2026: truy ngược — hương này đã dùng cho những mặt hàng nào (trong kỳ đang lọc)
+          return `<details class="bch-sp"><summary>Dùng cho ${msp.length} mặt hàng</summary>${msp.map(([t,x])=>`<div class="bch-sprow"><b>${esc(t)}</b><span>${km?'':kg(x.ml)+' kg hương · '}${x.n} mẻ · ${fmt(x.kg)} kg thành phẩm</span></div>`).join('')}</details>`})()}
       </div>`;
     }).join('')+`</div>`;
 }
@@ -4386,6 +4479,7 @@ function veBC(){
      <div class="kpi"><b>${fmt(tMl)}</b><span>G hương liệu</span></div>
    </div>
    <button class="addbtn" id="xuatSoLot" style="margin:8px 12px 0;width:calc(100% - 24px)">Xuất báo cáo số LOT sản xuất (.xlsx) — theo khoảng thời gian trên</button>`;
+  o+=veHoaDonBS(ls);
 
   const cIT=loChuaInTem();
   if(cIT.length)o+=`<div class="canh"><b>${cIT.length}</b> lô đã ghi từ <b>${ngayNhacInTem}</b> ngày trước mà CHƯA in tem lần nào: <b>${cIT.slice(0,6).map(r=>esc(lotDep(r.lot))).join(' · ')}</b>${cIT.length>6?' …':''}. Đừng quên in trước khi xuất hàng.<br>Ngưỡng nhắc: <input id="ngayNhacIT" type="number" min="1" style="width:46px;font:inherit;font-family:var(--mono);background:var(--bg);color:var(--txt);border:1px solid var(--line-2);border-radius:6px;padding:3px 5px" value="${ngayNhacInTem}"> ngày.</div>`;
@@ -4436,9 +4530,7 @@ function veBC(){
       <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cyan)">${fmt(r.mlDung)} g / ${fmt(r.sl)} kg thành phẩm</b></div>
       ${(()=>{const cp=chiPhiHuongRecord(r);const coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null;
         return cp>0?`<div class="kv"><span>${coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu ~ giá ước tính hiện tại'}</span><b>${fmt(Math.round(cp))} đ</b></div>`:''})()}
-      ${(()=>{const hd=(Array.isArray(r.hoaDonLucSX)
-          ?`<div class="kv"><span>Hoá đơn đầu vào</span><b>${r.hoaDonLucSX.length?r.hoaDonLucSX.map(d=>`${esc(d.ten)}${d.ncc?' <small style="font-weight:500;color:var(--tx3)">('+esc(d.ncc)+')</small>':''}: ${d.soHD?esc(d.soHD):'<span style="color:var(--amber)">chưa có số HĐ</span>'}`).join('<br>'):'—'}</b></div>`
-          :`<div class="kv"><span>Hoá đơn đầu vào</span><b style="color:var(--tx3);font-weight:500">chưa ghi (mẻ nhận trước 14/10/2026)</b></div>`);
+      ${(()=>{const dsHD=hdCuaMe(r), hd=`<div class="kv"><span>Hoá đơn đầu vào</span><b>${dsHD.length?dsHD.map(d=>`${esc(d.ten)}${d.ncc?' <small style="font-weight:500;color:var(--tx3)">('+esc(d.ncc)+')</small>':''}: ${d.soHD?esc(d.soHD)+(d.boSung?' <small style="font-weight:500;color:var(--tx3)">(bổ sung)</small>':''):'<span style="color:var(--amber)">chưa có số HĐ</span>'}`).join('<br>'):'—'}</b></div>`;
         // 14/10/2026: hoá đơn hiện cả khi mẻ chưa gán bao bì (trước đó lỡ nằm sau dòng return sớm của bao bì)
         const cb=chiPhiBaoBiRecord(r);if(!cb)return hd;const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
         return hd+`<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
@@ -4468,7 +4560,7 @@ function veBC(){
 
   o+=veBCSanPham(gom(ls,r=>r.sp));
   o+=veBCNhanVien(gom(ls,r=>r.nv));
-  o+=veBCHuong(gom(ls,r=>r.huong));
+  o+=veBCHuong(gom(ls,r=>r.huong),ls);
   if(!ls.length)o+=`<div class="none">Chưa có mẻ nào trong khoảng này.</div>`;
   $('viewBC').innerHTML=o;
 }
@@ -5056,6 +5148,11 @@ $('viewBC').addEventListener('input',e=>{
     henBC=setTimeout(()=>{veBC();const el=$(id);if(el)el.focus()},700);
     return}
   if(e.target.id==='traLot'){traLot=e.target.value;veBC()}
+  if(e.target.id==='hdVT'){hdVT=e.target.value;veBC();return}
+  if(e.target.id==='hdLo'){hdLo=e.target.value;veBC();return}
+  if(e.target.id==='hdChiTrong'){hdChiTrong=e.target.checked;veBC();return}
+  if(e.target.id==='hdSo'){hdSo=e.target.value;return}
+  if(e.target.id==='hdTraIn'){hdTra=e.target.value;return}
   if(e.target.id==='temCotIn'||e.target.id==='temHangIn'){
     const id=e.target.id;
     clearTimeout(henBC);
@@ -5096,6 +5193,16 @@ $('viewBC').addEventListener('input',e=>{
 $('viewBC').addEventListener('click',async e=>{
   if(e.target.id==='clearNgay'){tuNgay='';denNgay='';veBC();return}
   if(e.target.id==='xuatSoLot'){xuatBaoCaoSoLot();return}
+  if(e.target.id==='hdTraBtn'){veBC();return}
+  const hdl=e.target.closest('[data-hdlot]'); if(hdl){traLot=hdl.dataset.hdlot;veBC();requestAnimationFrame(()=>{const t=$('traLot');if(t)t.scrollIntoView({block:'start'})});return}
+  if(e.target.id==='hdGan'){
+    const so=String(hdSo||'').trim(); if(!so){bao('Chưa nhập số hoá đơn');return}
+    const can=meCanGanHD(locNK()); if(!can.length){bao('Không có mẻ nào cần gán');return}
+    const ok=await hoi('Gán số hoá đơn',`Gán số HĐ <b>${esc(so)}</b> cho vật tư <b>${esc(hdVT)}</b><br>· ${can.length} mẻ thuộc ${new Set(can.map(r=>r.lot)).size} lô${hdLo?' (lô '+esc(lotDep(hdLo))+')':''}${hdChiTrong?'':'<br><b>Ghi đè</b> cả số HĐ đã có.'}`,{nutOK:'Gán'});
+    if(!ok)return;
+    can.forEach(r=>{const cu=(hdCuaMe(r).find(x=>x.ten===hdVT)||{}).soHD||'';
+      hoaDonBoSung[r.id]={...(hoaDonBoSung[r.id]||{}),[hdVT]:so}; ghiAudit('batch',r.id,'BO_SUNG_HOA_DON',{vatTu:hdVT,soHD:cu},{vatTu:hdVT,soHD:so})});
+    luuNgay(); bao('Đã gán số HĐ '+so+' cho '+can.length+' mẻ'); hdSo=''; veBC(); return}
   const tk=e.target.closest('[data-temkho]'); if(tk){const kv=tk.dataset.temkho;temKho=kv==='a4'?'a4':(laKhoNhiet(kv)?kv:'a4');luuNgay();veBC();return}
   const it=e.target.closest('[data-intem]');
   if(it){await inTem(it.dataset.intem,!!it.dataset.quafile,!!it.dataset.dantem);return} // S17: sửa — nút "Lưu file tem" (S13) trước đây in như nút thường
@@ -5875,6 +5982,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       lenhTienDo=Array.isArray(d.lenhTienDo)?d.lenhTienDo:[];
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
       meDaTru=(d.meDaTru&&typeof d.meDaTru==='object'&&Array.isArray(d.meDaTru.ids))?d.meDaTru:null;
+      hoaDonBoSung=(d.hoaDonBoSung&&typeof d.hoaDonBoSung==='object'&&!Array.isArray(d.hoaDonBoSung))?d.hoaDonBoSung:{};
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong;

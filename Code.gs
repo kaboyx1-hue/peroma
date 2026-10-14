@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-12-S55';
+const PHIEN_BAN_MAYCHU = '2026-10-14-S59';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -211,7 +211,10 @@ function sachCauHinhServer(c, cu){
     // 12/10/2026 — S53: sổ "mẻ đã trừ tồn kho hương" {tu, ids} — để nhiều máy Admin cùng nhận 1 mẻ mà chỉ trừ 1 lần.
     // Bản Admin cũ không gửi → giữ bản đang lưu.
     meDaTru: (c.meDaTru && typeof c.meDaTru === 'object' && Array.isArray(c.meDaTru.ids)) ? c.meDaTru
-           : ((cu && cu.meDaTru && typeof cu.meDaTru === 'object') ? cu.meDaTru : undefined)
+           : ((cu && cu.meDaTru && typeof cu.meDaTru === 'object') ? cu.meDaTru : undefined),
+    // 14/10/2026 — S59: số hoá đơn đầu vào bổ sung cho mẻ đã ghi {idMẻ: {vật tư: số HĐ}}. Bản Admin cũ không gửi → giữ bản đang lưu.
+    hoaDonBoSung: (c.hoaDonBoSung && typeof c.hoaDonBoSung === 'object' && !Array.isArray(c.hoaDonBoSung)) ? c.hoaDonBoSung
+           : ((cu && cu.hoaDonBoSung && typeof cu.hoaDonBoSung === 'object') ? cu.hoaDonBoSung : undefined)
   };
 }
 

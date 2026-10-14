@@ -322,7 +322,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -2962,6 +2962,36 @@ ok('BN: nhận mẻ → chụp số HĐ của nguồn hương + nguyên liệu �
 ok('BN: đổi số HĐ ở nguồn sau đó KHÔNG làm đổi mẻ đã ghi', bn.khongDoi);
 ok('BN: báo cáo số LOT có cột hoá đơn, gộp đủ HĐ của mọi mẻ trong lô', bn.baoCao);
 ok('BN: thẻ lô hiện hoá đơn kể cả mẻ chưa gán bao bì', bn.theLoKhongBaoBi===true, String(bn.theLoKhongBaoBi));
+/* BO — 14/10/2026: bổ sung số HĐ cho mẻ cũ (đồng bộ qua cấu hình), tra ngược số HĐ, hương → mặt hàng, 3 trang Excel */
+const bo=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const g={nk:nk.slice(),bs:JSON.stringify(hoaDonBoSung),sp:JSON.stringify(sp),nlDM:nlDM.slice(),tv:window.taiVe,tu:tuNgay,den:denNgay};
+  const p=sp.find(x=>(x.dauRa||[]).length), NL='NL Test BO'; if(!nlDM.includes(NL))nlDM.push(NL); p.congThucNL=[{ten:NL,kg:p.kg||100}];
+  const cu=[{id:'BO-1',sp:p.ten,huong:'Hương Chanh',quyCach:p.dauRa[0],sl:100,mlDung:200,lot:'1111111111',ngaysx:'2026-09-01'},
+            {id:'BO-2',sp:p.ten,huong:'Hương Chanh',quyCach:p.dauRa[0],sl:50,mlDung:100,lot:'2222222222',ngaysx:'2026-09-02'}];
+  nk=[...cu]; tuNgay=''; denNgay='';
+  kq.khung=hdCuaMe(cu[0]).map(d=>d.ten).join()==='Hương Chanh,'+NL&&!hdCuaMe(cu[0]).some(d=>d.soHD);
+  chuyenTab('bc'); await cho(40);
+  const s=$('hdVT'); s.value=NL; s.dispatchEvent(new Event('input',{bubbles:true})); await cho(40);
+  kq.xemTruoc=/Sẽ gán cho\s*2\s*mẻ thuộc\s*2\s*lô/.test(document.querySelector('.hdbs-xem').textContent);
+  const so=$('hdSo'); so.value='HĐ-BO-9'; so.dispatchEvent(new Event('input',{bubbles:true}));
+  $('hdGan').click(); await cho(80); $('dlgO').click(); await cho(80);
+  kq.gan=hoaDonBoSung['BO-1'][NL]==='HĐ-BO-9'&&hoaDonBoSung['BO-2'][NL]==='HĐ-BO-9'&&hdCuaMe(cu[0]).find(d=>d.ten===NL).boSung===true;
+  kq.dongBo=/hoaDonBoSung/.test(dbDayCauHinh.toString())&&(()=>{const c=JSON.parse(JSON.stringify(hoaDonBoSung));hoaDonBoSung={};apDungCauHinhTuServer({hoaDonBoSung:c});return hoaDonBoSung['BO-2'][NL]==='HĐ-BO-9'})();
+  const t=$('hdTraIn'); t.value='BO-9'; t.dispatchEvent(new Event('input',{bubbles:true})); $('hdTraBtn').click(); await cho(60);
+  kq.traNguoc=document.querySelectorAll('.hdbs-dong').length===2;
+  kq.huongSP=/Dùng cho 1 mặt hàng/.test($('viewBC').innerText);
+  let file=null; window.taiVe=(n,d)=>{file={n,d};return true}; xuatBaoCaoSoLot();
+  const x=file?new TextDecoder().decode(file.d):''; kq.excel=['Số LOT','Hoá đơn đầu vào','Hương theo mặt hàng','HĐ-BO-9','autoFilter','state="frozen"','styles.xml'].every(k=>x.includes(k));
+  nk=g.nk; hoaDonBoSung=JSON.parse(g.bs); sp=napSP(JSON.parse(g.sp)); nlDM=g.nlDM; window.taiVe=g.tv; tuNgay=g.tu; denNgay=g.den; hdVT='';hdSo='';hdTra='';hdLo=''; luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BO: mẻ cũ chưa chụp HĐ → vẫn liệt kê đủ vật tư (hương + nguyên liệu) để bổ sung', bo.khung, JSON.stringify(bo));
+ok('BO: chọn vật tư → xem trước "sẽ gán cho N mẻ thuộc M lô"', bo.xemTruoc);
+ok('BO: bấm Gán + xác nhận → mọi mẻ được bổ sung số HĐ, ghi rõ "bổ sung"', bo.gan);
+ok('BO: số HĐ bổ sung đi qua đồng bộ cấu hình (máy Admin khác thấy)', bo.dongBo);
+ok('BO: tra ngược số HĐ → ra đúng các mẻ/lô dùng HĐ đó', bo.traNguoc);
+ok('BO: thẻ hương có "Dùng cho N mặt hàng"', bo.huongSP);
+ok('BO: file Excel có 3 trang (Số LOT · Hoá đơn đầu vào · Hương theo mặt hàng), tiêu đề cố định + nút lọc', bo.excel);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
