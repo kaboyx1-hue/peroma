@@ -1136,9 +1136,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S59</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S60</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 14/10/2026-S59</div>
+      <div class="verFoot">BẢN 14/10/2026-S60</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1338,7 +1338,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung}})});
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe}})});
     dbChoDay=false;
     if(j&&j.xungDot){
       /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
@@ -1409,6 +1409,7 @@ function apDungCauHinhTuServer(c){
   if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
   if(c.meDaTru&&typeof c.meDaTru==='object'&&Array.isArray(c.meDaTru.ids))meDaTru=c.meDaTru;
   if(c.hoaDonBoSung&&typeof c.hoaDonBoSung==='object'&&!Array.isArray(c.hoaDonBoSung))hoaDonBoSung=c.hoaDonBoSung;
+  if(c.trangThaiMe&&typeof c.trangThaiMe==='object'&&!Array.isArray(c.trangThaiMe)){trangThaiMe=c.trangThaiMe;apTrangThaiMe()}
   if(Number.isFinite(+c.nlTong)&&+c.nlTong>0)nlTong=+c.nlTong;
   if(typeof c.nlNgayKhai==='string')nlNgayKhai=c.nlNgayKhai;
   if(typeof c.nlGhiChu==='string')nlGhiChu=c.nlGhiChu;
@@ -1552,6 +1553,7 @@ async function dbKeoNhatKy(){
     if(j.ok && Array.isArray(j.nk)){
       let them=0;
       j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ ghiNhanMeLanDau(r); nk.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
+      if(them)apTrangThaiMe();
       const bot=gonTheoMayChu('nk',j.nk);
       if(them||bot){ luuNgay(); if(typeof ve==='function')ve(); bao(them?'🟢 Nhận '+them+' mẻ mới từ máy nhân viên':'Đã bỏ '+bot+' mẻ cũ không còn trên Google Sheet'); }
       dbVeTT('ok');
@@ -2324,6 +2326,14 @@ let tuNgay='',denNgay='',traLot='';
    Số HĐ bổ sung lưu RIÊNG theo id mẻ: hoaDonBoSung[idMẻ][tên vật tư] = số HĐ — đi qua kênh cấu hình nên mọi máy Admin
    (PC + điện thoại) cùng thấy; KHÔNG sửa bản ghi mẻ (nk chỉ nằm trên từng máy). Có bổ sung thì ưu tiên hơn số chụp lúc
    nhận mẻ (dùng cả để sửa số chụp sai). Mỗi lần gán ghi nhật ký thao tác (auditEvents). */
+/* 14/10/2026: khách "ra đường nhiều, làm việc trên điện thoại là chính". Huỷ lô / ngừng sản xuất / đã in tem trước
+   đây chỉ ghi vào bản ghi mẻ TRÊN MÁY BẤM (nk không đồng bộ giữa các máy Admin) → điện thoại không thấy lô PC đã huỷ và
+   ngược lại. Nay ghi thêm vào trangThaiMe[idMẻ] đi qua kênh cấu hình; máy nào nhận cũng áp lại lên bản ghi mẻ của mình. */
+let trangThaiMe={};
+const TT_ME_O=['huy','huyLuc','ngungSX','ngungLyDo','ngungLuc','slThucTe','daInTem','inTemLuc'];
+function ghiTrangThaiMe(r){const o={};TT_ME_O.forEach(k=>{if(r[k]!==undefined)o[k]=r[k]});trangThaiMe[r.id]=o}
+function apTrangThaiMe(){nk.forEach(r=>{const o=trangThaiMe[r.id];if(!o)return;
+  TT_ME_O.forEach(k=>{if(k in o)r[k]=o[k];else if(k==='slThucTe'&&!o.ngungSX)delete r[k]})})}
 let hoaDonBoSung={}, hdVT='', hdLo='', hdSo='', hdChiTrong=true, hdTra='';
 
 const $=id=>document.getElementById(id);
@@ -2415,10 +2425,10 @@ function dongDlg(v){
 }
 
 let hen=null;
-const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung});dbDayChoDL()},320)};
+const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung,trangThaiMe});dbDayChoDL()},320)};
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
-const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung})};
+const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung,trangThaiMe})};
 // Rời trang / khoá máy giữa chừng thì đẩy nốt phần đang chờ
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luuNgay()});
 addEventListener('pagehide',()=>luuNgay());
@@ -2561,7 +2571,7 @@ async function huyLo(id){
   if(r.huy){
     const c=await hoi('Bỏ huỷ lô này?',`Lô <b>${lotDep(r.lot)}</b> sẽ tính lại vào báo cáo và in tem được như bình thường.`,{nutOK:'Bỏ huỷ'});
     if(!c)return;
-    r.huy=false; r.huyLuc='';
+    r.huy=false; r.huyLuc=''; ghiTrangThaiMe(r);
     ghiAudit('batch',r.id,'CANCEL',{huy:true},{huy:false});
     luuNgay(); ve(); bao('Đã bỏ huỷ'); return;
   }
@@ -2570,7 +2580,7 @@ async function huyLo(id){
     +`<br><br>Dữ liệu vẫn còn để tra soát — có thể bỏ huỷ lại bất cứ lúc nào, không mất.`,
     {nutOK:'Huỷ lô này',nguyHiem:true});
   if(!c)return;
-  r.huy=true; r.huyLuc=new Date().toISOString();
+  r.huy=true; r.huyLuc=new Date().toISOString(); ghiTrangThaiMe(r);
   ghiAudit('batch',r.id,'CANCEL',{huy:false},{huy:true});
   luuNgay(); ve(); bao('Đã huỷ lô');
 }
@@ -2584,7 +2594,7 @@ async function ngungLo(id){
   if(r.ngungSX){
     const c=await hoi('Tiếp tục sản xuất lại?',`Lô <b>${lotDep(r.lot)}</b> sẽ tính lại đủ <b>${fmt(num(r.kgVao!==undefined?r.kgVao:r.sl))}</b> kg nguyên liệu đầu vào như ban đầu (không còn coi là dư để đưa dự án khác).`,{nutOK:'Tiếp tục sản xuất'});
     if(!c)return;
-    r.ngungSX=false; r.ngungLyDo=''; r.ngungLuc=''; r.slThucTe=undefined;
+    r.ngungSX=false; r.ngungLyDo=''; r.ngungLuc=''; r.slThucTe=undefined; ghiTrangThaiMe(r);
     ghiAudit('batch',r.id,'STOP',{ngungSX:true},{ngungSX:false});
     luuNgay(); ve(); bao('Đã bỏ đánh dấu ngừng'); return;
   }
@@ -2597,7 +2607,7 @@ async function ngungLo(id){
   if(ttS===null||!String(ttS).trim())return;
   const tt=num(ttS);
   if(!(tt>=0)){bao('Số kg thực tế phải từ 0 trở lên, chưa lưu được');return}
-  r.ngungSX=true; r.ngungLyDo=String(lyDo).trim(); r.ngungLuc=new Date().toISOString(); r.slThucTe=tt;
+  r.ngungSX=true; r.ngungLyDo=String(lyDo).trim(); r.ngungLuc=new Date().toISOString(); r.slThucTe=tt; ghiTrangThaiMe(r);
   ghiAudit('batch',r.id,'STOP',{ngungSX:false},{ngungSX:true,ngungLyDo:r.ngungLyDo,slThucTe:tt});
   luuNgay(); ve(); bao('Đã đánh dấu ngừng sản xuất');
 }
@@ -3358,7 +3368,7 @@ async function inTem(id,quaFile,luonHoi){
   if(luonHoi||xetKhoTem(r,p)){ const kqDT=await moDanTem(r,p,quaFile); if(!kqDT)return;
     if(kqDT.hstem&&kqDT.hstem!==true){pIn={...p,hstem:kqDT.hstem}; bao(kqDT.daLuu?'Đã lưu nội dung sửa vào hồ sơ tem':'In với nội dung sửa lần cuối — hồ sơ tem không đổi')} }
   const htmlTem=trangTem(r,pIn);
-  r.daInTem=true;r.inTemLuc=new Date().toISOString();luuNgay();
+  r.daInTem=true;r.inTemLuc=new Date().toISOString();ghiTrangThaiMe(r);luuNgay();
   if(quaFile){
     taiFileIn('PEROMA-tem-lo-'+r.lot+'-'+r.sp+'.html','Tem phụ lô '+lotDep(r.lot),
       r.sp+' · '+(r.huong||'')+' · '+(r.quyCach||'')+' · ngày SX '+vnNgay(r.ngaysx)+'. Mở file này trên máy có máy in rồi bấm In — cần thêm bản thì chọn "Số bản in" trong hộp thoại in.',htmlTem);
@@ -5285,6 +5295,12 @@ $('viewSL').addEventListener('change',async e=>{
          tan mất, không có chỗ xem lại đã nhận file nào, lúc nào, từ ai, bao nhiêu mẻ/báo cáo. */
       nhanNhatKy.push({ts:new Date().toISOString(),nv:d.nv||'',file:f.name,soMe:moiThat.length,soBc:moiBcThat.length,soAe:moiAe.length});
       nhanNhatKy=nhanNhatKy.slice(-30);
+      /* 14/10/2026: mẻ/báo cáo nhận qua FILE trước đây chỉ nằm trên máy nhận (điện thoại còn tự bỏ mẻ không có trên Sheet)
+         → đẩy luôn lên máy chủ (themMe/themBaoCao, chống trùng theo id) để mọi máy Admin cùng thấy. Mất mạng thì bỏ qua êm. */
+      if(DONGBO_URL&&(moiThat.length||moiBcThat.length))(async()=>{try{
+        if(moiThat.length)await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:moiThat})});
+        if(moiBcThat.length)await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themBaoCao',bc:moiBcThat})});
+      }catch(e){}})();
       luuNgay();ve();bao(`Đã nhận ${moiThat.length} mẻ · ${moiBcThat.length} báo cáo tiến độ`
         +((moi.length-moiThat.length)+(moiBc.length-moiBcThat.length)>0?' (phần còn lại đã tự về qua Google Sheet trong lúc chờ)':''));
     }catch(err){bao('File không đọc được')}
@@ -5983,6 +5999,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       dongBoCauHinhTs=typeof d.dongBoCauHinhTs==='string'?d.dongBoCauHinhTs:'';
       meDaTru=(d.meDaTru&&typeof d.meDaTru==='object'&&Array.isArray(d.meDaTru.ids))?d.meDaTru:null;
       hoaDonBoSung=(d.hoaDonBoSung&&typeof d.hoaDonBoSung==='object'&&!Array.isArray(d.hoaDonBoSung))?d.hoaDonBoSung:{};
+      trangThaiMe=(d.trangThaiMe&&typeof d.trangThaiMe==='object'&&!Array.isArray(d.trangThaiMe))?d.trangThaiMe:{};
+      apTrangThaiMe();
       if(Number.isFinite(+d.nguongCanhBaoNgay)&&+d.nguongCanhBaoNgay>0)nguongCanhBaoNgay=+d.nguongCanhBaoNgay;
       if(Number.isFinite(+d.ngayNhacInTem)&&+d.ngayNhacInTem>0)ngayNhacInTem=+d.ngayNhacInTem;
       if(Number.isFinite(+d.nlTong)&&+d.nlTong>0)nlTong=+d.nlTong;

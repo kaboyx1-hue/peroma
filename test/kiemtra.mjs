@@ -322,7 +322,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w]*\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -2992,6 +2992,29 @@ ok('BO: số HĐ bổ sung đi qua đồng bộ cấu hình (máy Admin khác th
 ok('BO: tra ngược số HĐ → ra đúng các mẻ/lô dùng HĐ đó', bo.traNguoc);
 ok('BO: thẻ hương có "Dùng cho N mặt hàng"', bo.huongSP);
 ok('BO: file Excel có 3 trang (Số LOT · Hoá đơn đầu vào · Hương theo mặt hàng), tiêu đề cố định + nút lọc', bo.excel);
+/* BP — 14/10/2026: PC ↔ điện thoại — huỷ lô / ngừng SX / đã in tem đồng bộ qua cấu hình; mẻ nhận qua file đẩy lên máy chủ */
+const bp=await E(async()=>{ const kq={}, g={nk:nk.slice(),tt:JSON.stringify(trangThaiMe)}, hoiCu=window.hoi;
+  const p=sp[0]; window.hoi=async()=>true;
+  nk=[{id:'BP-1',sp:p.ten,huong:'Hương Chanh',sl:10,lot:'1234567890',ngaysx:'2026-10-14'}];
+  await huyLo('BP-1'); kq.maA=trangThaiMe['BP-1']&&trangThaiMe['BP-1'].huy===true&&/trangThaiMe/.test(dbDayCauHinh.toString());
+  // máy B: có cùng mẻ nhưng chưa biết đã huỷ → nhận cấu hình
+  const so=JSON.parse(JSON.stringify(trangThaiMe)); nk=[{id:'BP-1',sp:p.ten,huong:'Hương Chanh',sl:10,lot:'1234567890',ngaysx:'2026-10-14'}]; trangThaiMe={};
+  apDungCauHinhTuServer({trangThaiMe:so}); kq.maBHuy=nk[0].huy===true&&!!nk[0].huyLuc;
+  await huyLo('BP-1'); kq.boHuy=trangThaiMe['BP-1'].huy===false;
+  const so2=JSON.parse(JSON.stringify(trangThaiMe)); apDungCauHinhTuServer({trangThaiMe:so2}); kq.maBBoHuy=nk[0].huy===false;
+  window.hoi=hoiCu; nk=g.nk; trangThaiMe=JSON.parse(g.tt); luuNgay(); return kq;
+});
+ok('BP: huỷ lô trên 1 máy → ghi vào trạng thái đồng bộ', bp.maA, JSON.stringify(bp));
+ok('BP: máy Admin khác (điện thoại) nhận cấu hình → thấy lô đã huỷ', bp.maBHuy);
+ok('BP: bỏ huỷ cũng đồng bộ sang máy khác', bp.boHuy&&bp.maBBoHuy);
+{ const f='/tmp/_bp_me.json';
+  fs.writeFileSync(f, JSON.stringify({loai:'peroma-me',nv:'NV BP',ngay:'2026-10-14',bcNgay:[],
+    nk:[{id:'BP-FILE-1',ngaysx:'2026-10-14',lot:'1111111111',sp:'Citycat',quyCach:'5 kg',sl:5,huong:'Hương Chanh',mlDung:2,nv:'NV BP',ts:'2026-10-14T08:00:00.000Z'}]}));
+  await E(()=>{window.__bpGoi=[];window.__bpDg=window.dbGoi;window.__bpUrl=DONGBO_URL;DONGBO_URL='https://script.google.com/macros/s/TEST/exec';
+    window.dbGoi=async(u,o)=>{if(o&&o.method==='POST')window.__bpGoi.push(JSON.parse(o.body).a);return {ok:1}}});
+  await p.setInputFiles('#nvIn', f); await p.waitForTimeout(300); await p.click('#dlgO'); await p.waitForTimeout(400);
+  const goi=await E(()=>{const g=window.__bpGoi.slice();window.dbGoi=window.__bpDg;DONGBO_URL=window.__bpUrl;nk=nk.filter(r=>r.id!=='BP-FILE-1');luuNgay();return g});
+  ok('BP: mẻ nhận qua FILE được đẩy lên máy chủ (themMe) để điện thoại cũng có', goi.includes('themMe'), JSON.stringify(goi)); }
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
