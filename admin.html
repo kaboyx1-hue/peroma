@@ -482,6 +482,18 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 .bcc-fill{height:100%;background:var(--mau);border-radius:3px}
 .bcc-bot{display:flex;justify-content:space-between;gap:10px;margin-top:6px;font-size:12.5px;font-family:var(--mono);color:var(--txt-2)}
 .bcc-pct{color:var(--mau);font-weight:700}
+/* 14/10/2026: thẻ "Tiêu hao theo hương" — đã dùng cạnh còn tồn, màu theo tình trạng kho */
+.bcc.bch{border-left:5px solid var(--stMau)}
+.bch.st-ok{--stMau:var(--ok);--stBg:var(--okBg)} .bch.st-sap{--stMau:var(--warnTx);--stBg:var(--warnBg)}
+.bch.st-het{--stMau:var(--badTx);--stBg:var(--badBg)} .bch.st-na{--stMau:var(--txt-3);--stBg:var(--line)}
+.bch-pill{font-size:11.5px!important;font-weight:700;color:var(--stMau)!important;background:var(--stBg);padding:2px 9px;border-radius:999px}
+.bch-so{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.bch-so span{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--txt-3)}
+.bch-so b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.bch-so b small{font-size:12px;font-weight:600;color:var(--txt-3)}
+.bch-so .dung{color:var(--infoTx)} .bch-so .ton{color:var(--stMau)}
+.bch-bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--stBg);margin-top:8px}
+.bch-bar i{display:block;background:var(--infoTx);opacity:.7}
 
 .lot{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:13px;margin-top:9px}
 .lot .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -1113,9 +1125,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S57</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S58</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 14/10/2026-S57</div>
+      <div class="verFoot">BẢN 14/10/2026-S58</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3496,15 +3508,29 @@ function veBCNhanVien(rows){
       </div>`;
     }).join('')+`</div>`;
 }
+/* 14/10/2026: khách "nên có mức tồn kèm theo mức đã sử dụng, dùng font chữ + màu sắc để biểu thị rõ". Còn tồn = tổng
+   phần còn lại các dòng nhà cung cấp (tự trừ theo mẻ — cùng số với Danh mục); hương chưa khai nguồn thì lấy tồn kho
+   nhập tay (tonKhoHuong). Màu theo số ngày còn dùng được (tốc độ dùng 30 ngày, ngưỡng cảnh báo ở Danh mục).
+   "Đã dùng" theo khoảng thời gian đang lọc; "Còn tồn" là hiện tại. */
+function tonHuongG(h){
+  const ds=(nguonHuong[h]||[]).filter(e=>num(e.soKg)>0);
+  if(ds.length)return Math.max(0,ds.reduce((a,e)=>a+conLaiNguon(e),0))*1000;
+  const tk=tonKhoHuong[h]; return tk&&tk.con!==undefined&&tk.con!==''?Math.max(0,num(tk.con)):null;
+}
 function veBCHuong(rows){
   if(!rows.length)return '';
   return `<div class="sec">Tiêu hao theo hương</div><div class="bccards">`+
-    rows.map(([k,v],i)=>{
-      const mau=BANG_MAU[i%BANG_MAU.length], cpMoiKg=v.kg>0?Math.round(v.cp/v.kg):0;
-      return `<div class="bcc" style="--mau:${mau}">
-        <div class="bcc-top"><b>${esc(k)}</b><span>${v.n} mẻ</span></div>
-        <div class="bcc-bot"><span>${fmt(v.ml)} g đã dùng</span><span>${fmt(v.kg)} kg thành phẩm</span></div>
-        ${v.cp>0?`<div class="bcc-bot" style="margin-top:2px"><span>Chi phí ~<b>${fmt(Math.round(v.cp))} đ</b></span><span>~${fmt(cpMoiKg)} đ/kg thành phẩm</span></div>`:''}
+    rows.map(([k,v])=>{
+      const cpMoiKg=v.kg>0?Math.round(v.cp/v.kg):0, km=isUnscented(k), ton=km?null:tonHuongG(k), th=km?0:tieuHaoNgay(k), ngay=ton>0&&th>0?Math.floor(ton/th):null;
+      const st=km||ton===null?'na':ton<=0?'het':(ngay!==null&&ngay<=nguongCanhBaoNgay)?'sap':'ok';
+      const pill=km?'Không dùng hương':ton===null?'Chưa khai tồn kho':st==='het'?'Hết hàng':st==='sap'?`Sắp hết · còn ~${ngay} ngày`:ngay!==null?`Còn đủ · ~${ngay} ngày`:'Còn hàng';
+      const kg=g=>fmtSo(g/1000), pDung=ton!==null&&v.ml+ton>0?Math.round(v.ml/(v.ml+ton)*100):0;
+      return `<div class="bcc bch st-${st}">
+        <div class="bcc-top"><b>${esc(k)}</b><span class="bch-pill">${pill}</span></div>
+        ${km?'':`<div class="bch-so"><div><span>Đã dùng trong kỳ</span><b class="dung">${kg(v.ml)} <small>kg</small></b></div>
+          <div><span>Còn tồn hiện tại</span><b class="ton">${ton===null?'—':kg(ton)+' <small>kg</small>'}</b></div></div>
+        ${ton!==null?`<div class="bch-bar" title="Đã dùng ${pDung}% · còn tồn ${100-pDung}%"><i style="width:${pDung}%"></i></div>`:''}`}
+        <div class="bcc-bot"><span>${v.n} mẻ · ${fmt(v.kg)} kg thành phẩm</span>${v.cp>0?`<span>Chi phí ~<b>${fmt(Math.round(v.cp))} đ</b> · ~${fmt(cpMoiKg)} đ/kg</span>`:''}</div>
       </div>`;
     }).join('')+`</div>`;
 }
