@@ -2950,6 +2950,10 @@ const bn=await E(async()=>{ const kq={}, g={nh:JSON.stringify(nguonHuong),nl:JSO
   nguonHuong[H][0].soHD='HD-H2'; ghiNhanMeLanDau(r); kq.khongDoi=r.hoaDonLucSX[0].soHD==='HD-H1';
   const r2={...r,id:'BN-2',hoaDonLucSX:undefined,giaHuongTheoGLucSX:undefined,chiPhiBaoBiLucSX:undefined}; ghiNhanMeLanDau(r2);
   const row=bangSoLot([r,r2])[0]; kq.baoCao=row.length===7&&/HD-H1/.test(row[6])&&/HD-H2/.test(row[6])&&/HD-NL1/.test(row[6]);
+  // thẻ lô hiện HĐ kể cả mẻ chưa gán bao bì (lỗi demo bắt được 14/10)
+  const r3={...r,id:'BN-3',quyCach:'__chua_gan_bao_bi__',lot:'9999000003'}; nk.push(r3); traLot=r3.lot; chuyenTab('bc'); await new Promise(z=>setTimeout(z,60));
+  kq.theLoKhongBaoBi=chiPhiBaoBiRecord(r3)===null||!chiPhiBaoBiRecord(r3) ? /Hoá đơn đầu vào[\s\S]*HD-H1/.test($('viewBC').innerText) : 'co-bao-bi';
+  nk.splice(nk.findIndex(x=>x.id==='BN-3'),1); traLot=''; chuyenTab('tq');
   nguonHuong=JSON.parse(g.nh); nguonNguyenLieu=JSON.parse(g.nl); nlDangDung=JSON.parse(g.dd); sp=napSP(JSON.parse(g.sp)); kho=g.kho; luuNgay();
   return kq;
 });
@@ -2957,6 +2961,7 @@ ok('BN: ô "Số hoá đơn đầu vào" khi khai nguồn', bn.oNhap, JSON.strin
 ok('BN: nhận mẻ → chụp số HĐ của nguồn hương + nguyên liệu đang dùng', bn.chup);
 ok('BN: đổi số HĐ ở nguồn sau đó KHÔNG làm đổi mẻ đã ghi', bn.khongDoi);
 ok('BN: báo cáo số LOT có cột hoá đơn, gộp đủ HĐ của mọi mẻ trong lô', bn.baoCao);
+ok('BN: thẻ lô hiện hoá đơn kể cả mẻ chưa gán bao bì', bn.theLoKhongBaoBi===true, String(bn.theLoKhongBaoBi));
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

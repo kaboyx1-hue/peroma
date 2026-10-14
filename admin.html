@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S56</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S57</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 14/10/2026-S56</div>
+      <div class="verFoot">BẢN 14/10/2026-S57</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -4410,11 +4410,12 @@ function veBC(){
       <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cyan)">${fmt(r.mlDung)} g / ${fmt(r.sl)} kg thành phẩm</b></div>
       ${(()=>{const cp=chiPhiHuongRecord(r);const coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null;
         return cp>0?`<div class="kv"><span>${coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu ~ giá ước tính hiện tại'}</span><b>${fmt(Math.round(cp))} đ</b></div>`:''})()}
-      ${(()=>{const cb=chiPhiBaoBiRecord(r);if(!cb)return '';const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
-        return (Array.isArray(r.hoaDonLucSX)
+      ${(()=>{const hd=(Array.isArray(r.hoaDonLucSX)
           ?`<div class="kv"><span>Hoá đơn đầu vào</span><b>${r.hoaDonLucSX.length?r.hoaDonLucSX.map(d=>`${esc(d.ten)}${d.ncc?' <small style="font-weight:500;color:var(--tx3)">('+esc(d.ncc)+')</small>':''}: ${d.soHD?esc(d.soHD):'<span style="color:var(--amber)">chưa có số HĐ</span>'}`).join('<br>'):'—'}</b></div>`
-          :`<div class="kv"><span>Hoá đơn đầu vào</span><b style="color:var(--tx3);font-weight:500">chưa ghi (mẻ nhận trước 14/10/2026)</b></div>`)
-          +`<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
+          :`<div class="kv"><span>Hoá đơn đầu vào</span><b style="color:var(--tx3);font-weight:500">chưa ghi (mẻ nhận trước 14/10/2026)</b></div>`);
+        // 14/10/2026: hoá đơn hiện cả khi mẻ chưa gán bao bì (trước đó lỡ nằm sau dòng return sớm của bao bì)
+        const cb=chiPhiBaoBiRecord(r);if(!cb)return hd;const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
+        return hd+`<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
       <div class="kv"><span>Định mức lúc SX</span><b>${fmt(r.mlChuan)} g / ${fmt(r.meChuan)} kg</b></div>
       <div class="kv"><span>Phun khử bụi</span><b>${r.pkb?('Có'+(r.pkbPhut?` · ${esc(r.pkbPhut)} phút`:'')+(r.pkbChat?` · ${esc(r.pkbChat)}`:'')):'Không'}</b></div>
       ${r.pkb&&r.pkbCT?`<div class="kv"><span>Công thức pha${r.pkbCTRieng?' (riêng)':' (chung)'}</span><b style="white-space:pre-wrap;text-align:right">${esc(r.pkbCT)}</b></div>`:''}
