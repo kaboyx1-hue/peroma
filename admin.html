@@ -1113,9 +1113,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/10/2026-S55</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 14/10/2026-S56</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 12/10/2026-S55</div>
+      <div class="verFoot">BẢN 14/10/2026-S56</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1453,6 +1453,7 @@ function ghiNhanMeLanDau(r){
   /* S21: chi phí bao bì chụp MỘT LẦN, đặt TRƯỚC dòng return bên dưới — mẻ "Không mùi" bên NV gửi giá hương = 0
      (khác null) nên sẽ return sớm; bao bì vẫn phải được chụp. Có rồi (kể cả null) thì không tính lại. */
   if(r.chiPhiBaoBiLucSX===undefined){const t=tinhBaoBiMe(r);r.baoBiLucSX=t.ds;r.chiPhiBaoBiLucSX=t.chiPhi}
+  if(r.hoaDonLucSX===undefined)r.hoaDonLucSX=hoaDonCuaMe(r);
   if(r.giaHuongTheoGLucSX!==undefined&&r.giaHuongTheoGLucSX!==null)return;
   const pMh=sp.find(x=>x.ten===r.sp);
   const nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
@@ -1461,6 +1462,20 @@ function ghiNhanMeLanDau(r){
   r.chiPhiHuongLucSX=giaG>0?Math.round(num(r.mlDung)*giaG):null;
   truTonKhoMe(r);
 }
+/* 14/10/2026: khách "mỗi lô hàng cần có số hoá đơn đầu vào của nguyên liệu để sau này tiện đối soát". Số HĐ khai ở
+   từng dòng nguồn (Danh mục → nhà cung cấp · giá); lúc NHẬN mẻ chụp lại HĐ của đúng nguồn đang dùng — hương: nguồn
+   riêng của mặt hàng (như giá); nguyên liệu: dòng mới nhất của NCC đang dùng (như giaNLHienTaiCT). Chụp 1 lần, đổi
+   nguồn/HĐ sau đó không làm đổi mẻ đã ghi. Mẻ nhận trước bản này không có (hiện "chưa ghi"). */
+function hoaDonCuaMe(r){
+  const ds=[], pMh=sp.find(x=>x.ten===r.sp);
+  if(r.huong&&!isUnscented(r.huong)){const n=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
+    ds.push({loai:'h',ten:r.huong,ncc:n?n.e.ncc:'',soHD:n?String(n.e.soHD||''):''})}
+  ((pMh&&pMh.congThucNL)||[]).filter(x=>x&&x.ten).forEach(x=>{
+    const ncc=nlDangDung&&nlDangDung[x.ten], l=(nguonNguyenLieu[x.ten]||[]).filter(e=>num(e.soKg)>0&&(!ncc||e.ncc===ncc)), e=l[l.length-1];
+    ds.push({loai:'nl',ten:x.ten,ncc:e?e.ncc:'',soHD:e?String(e.soHD||''):''})});
+  return ds;
+}
+const hoaDonTxt=r=>Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX.map(d=>d.ten+': '+(d.soHD||'chưa có số HĐ')).join(' · '):'';
 /* 12/10/2026 — S53: TRỪ TỒN KHO HƯƠNG — MỖI MẺ ĐÚNG MỘT LẦN dù nhiều máy Admin cùng nhận.
    Trước đây mỗi máy nhận mẻ tự trừ daDungKg rồi đẩy nguyên cấu hình lên → 2 máy = trừ 2 lần (lý do cũ phải khoá
    điện thoại chỉ xem). Nay sổ meDaTru = {tu, ids} đồng bộ CHUNG trong cấu hình: id đã có trong sổ thì không trừ
@@ -2437,15 +2452,17 @@ function bangSoLot(ds){
     if(!cu||String(r.ngaysx||'')<String(cu.ngaysx||''))gap.set(l,r)});
   return [...gap.values()].sort((a,b)=>String(a.ngaysx||'').localeCompare(String(b.ngaysx||''))||String(a.lot).localeCompare(String(b.lot)))
     .map((r,i)=>{const p=sp.find(x=>x.ten===r.sp),t=(p&&p.hstem)||{};
-      return [i+1,hai(r.maSP||(p&&p.maSP)),r.sp||'',lotDep(r.lot),vnNgay(r.ngaysx),hanDung(r.ngaysx,t.hsdNam)]});
+      return [i+1,hai(r.maSP||(p&&p.maSP)),r.sp||'',lotDep(r.lot),vnNgay(r.ngaysx),hanDung(r.ngaysx,t.hsdNam),
+        // 14/10/2026: 1 lô có thể gồm nhiều mẻ dùng hoá đơn khác nhau → gộp đủ, không trùng
+        [...new Set(ds.filter(x=>x.lot===r.lot).flatMap(x=>hoaDonTxt(x).split(' · ')).filter(Boolean))].join(' · ')]});
 }
 function xuatBaoCaoSoLot(){
   const bang=bangSoLot(locNK());
   if(!bang.length){bao('Không có lô nào trong khoảng thời gian đang chọn');return false}
   const ky=(tuNgay||denNgay)?`Từ ${tuNgay?vnNgay(tuNgay):'đầu'} đến ${denNgay?vnNgay(denNgay):'nay'}`:'Tất cả';
   const rows=[[TEM_MD.ctyTen],['BÁO CÁO SỐ LOT SẢN XUẤT'],['Kỳ báo cáo: '+ky],['Ngày lập: '+vnNgay(isoNay())],['Người lập:'],[],
-    ['STT','Mã SP','Tên sản phẩm','Số LOT','NSX','HSD'],...bang];
-  const ok=taiVe(`bao-cao-so-lot_${isoNay()}.xlsx`,xlsxBytes([{name:'Số LOT',rows,cols:[6,8,38,18,12,12]}]));
+    ['STT','Mã SP','Tên sản phẩm','Số LOT','NSX','HSD','Hoá đơn đầu vào'],...bang];
+  const ok=taiVe(`bao-cao-so-lot_${isoNay()}.xlsx`,xlsxBytes([{name:'Số LOT',rows,cols:[6,8,38,18,12,12,48]}]));
   bao(ok?'Đã xuất báo cáo số LOT ('+bang.length+' lô)':'Trình duyệt chặn tải file');
   return ok;
 }
@@ -3562,6 +3579,7 @@ function veThemNguonPanel(loai,ten,ix){
   const tk=tonKhoMapCua(loai)[ten];
   return `<div class="nguonform" data-nguonform="${esc(key)}" style="background:var(--bg);border:1px solid var(--line-2);border-radius:8px;padding:10px;margin-top:8px">
     <input class="ninp" data-nf="ncc" type="text" placeholder="Tên nhà cung cấp" value="${esc(e0?e0.ncc:'')}" style="width:100%;margin-bottom:6px">
+    <input class="ninp" data-nf="soHD" type="text" placeholder="Số hoá đơn đầu vào (VD 0001234) — để đối soát" value="${esc(e0&&e0.soHD||'')}" style="width:100%;margin-bottom:6px">
     <div style="display:flex;gap:6px">
       <input class="ninp" data-nf="gia" type="text" inputmode="decimal" placeholder="Số tiền đã trả (đ, gồm VAT)" value="${e0?e0.gia:''}" style="flex:1;min-width:0">
       <input class="ninp" data-nf="soKg" type="text" inputmode="decimal" placeholder="Ứng bao nhiêu kg" value="${e0?e0.soKg:''}" style="flex:1;min-width:0">
@@ -3596,7 +3614,7 @@ function veKhoiNguon(loai,ten){
         return `<div class="ncc-row${e.ncc===dung?' dang':''}"${hetHang?' style="opacity:.55"':''}>
           <span class="ncc-nm">${esc(e.ncc)}${e.ncc===dung?' · đang dùng':''}</span>
           <span class="ncc-gia">${fmt(e.gia)} đ / ${fmt(e.soKg||0)} kg${e.soKg?' · '+fmt(Math.round(giaTrenDonVi(loai,e)*100)/100)+' đ/'+dvGiaHT+' (đã VAT)':''}${e.soKg?(()=>{const q=quyVAT(giaTrenDonVi(loai,e),e.vat);return q.daQuy?' · chưa VAT <b>'+fmt(Math.round(q.gia*100)/100)+' đ/'+dvGiaHT+'</b> (VAT '+q.vat+'%)':' · <span class="gvvat">⚠ chưa khai VAT — đang tính giá gồm VAT</span>'})():''}</span>
-          <span class="ncc-ngay">${esc(e.ngay)}${loai==='h'?(hetHang?' · <b style="color:var(--red)">hết tồn kho — không còn chọn được cho mặt hàng mới</b>':` · còn <b>${conLai}</b>kg${e.daDungKg?' (đã dùng '+e.daDungKg+'kg trong sản xuất)':''}`):''}</span>
+          <span class="ncc-ngay">${esc(e.ngay)}${e.soHD?' · HĐ <b>'+esc(e.soHD)+'</b>':' · <span style="color:var(--amber)">chưa có số HĐ</span>'}${loai==='h'?(hetHang?' · <b style="color:var(--red)">hết tồn kho — không còn chọn được cho mặt hàng mới</b>':` · còn <b>${conLai}</b>kg${e.daDungKg?' (đã dùng '+e.daDungKg+'kg trong sản xuất)':''}`):''}</span>
           <button class="xosua" data-suanguon="${loai}:${esc(ten)}:${ix}" title="Sửa nếu lỡ nhập nhầm giá/kg">Sửa</button>
           <button class="xosua" data-xoanguon="${loai}:${esc(ten)}:${ix}" title="Xoá dòng nhà cung cấp · giá này" style="color:var(--red)">Xoá</button>
         </div>`+veThemNguonPanel(loai,ten,ix)}).join('')+`</div>`;
@@ -4393,7 +4411,10 @@ function veBC(){
       ${(()=>{const cp=chiPhiHuongRecord(r);const coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null;
         return cp>0?`<div class="kv"><span>${coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu ~ giá ước tính hiện tại'}</span><b>${fmt(Math.round(cp))} đ</b></div>`:''})()}
       ${(()=>{const cb=chiPhiBaoBiRecord(r);if(!cb)return '';const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
-        return `<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
+        return (Array.isArray(r.hoaDonLucSX)
+          ?`<div class="kv"><span>Hoá đơn đầu vào</span><b>${r.hoaDonLucSX.length?r.hoaDonLucSX.map(d=>`${esc(d.ten)}${d.ncc?' <small style="font-weight:500;color:var(--tx3)">('+esc(d.ncc)+')</small>':''}: ${d.soHD?esc(d.soHD):'<span style="color:var(--amber)">chưa có số HĐ</span>'}`).join('<br>'):'—'}</b></div>`
+          :`<div class="kv"><span>Hoá đơn đầu vào</span><b style="color:var(--tx3);font-weight:500">chưa ghi (mẻ nhận trước 14/10/2026)</b></div>`)
+          +`<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
       <div class="kv"><span>Định mức lúc SX</span><b>${fmt(r.mlChuan)} g / ${fmt(r.meChuan)} kg</b></div>
       <div class="kv"><span>Phun khử bụi</span><b>${r.pkb?('Có'+(r.pkbPhut?` · ${esc(r.pkbPhut)} phút`:'')+(r.pkbChat?` · ${esc(r.pkbChat)}`:'')):'Không'}</b></div>
       ${r.pkb&&r.pkbCT?`<div class="kv"><span>Công thức pha${r.pkbCTRieng?' (riêng)':' (chung)'}</span><b style="white-space:pre-wrap;text-align:right">${esc(r.pkbCT)}</b></div>`:''}
@@ -4915,11 +4936,12 @@ $('viewMA').addEventListener('click',async e=>{
     const soKg=num(gv('soKg'));
     if(!(soKg>0)){bao('Số kg phải lớn hơn 0');return}
     const vatRaw=String(gv('vat')||'').trim(), vat=vatRaw===''?null:num(vatRaw);
+    const soHD=String(gv('soHD')||'').trim(); // 14/10/2026: số hoá đơn đầu vào — chụp vào từng mẻ để đối soát
     if(vat!==null&&!(vat>=0&&vat<=100)){bao('Thuế suất VAT từ 0 đến 100 %');return}
     const nguonM=nguonMapCua(loai), dungM=dangDungMapCua(loai);
     nguonM[ten]=nguonM[ten]||[];
     if(ix===undefined){
-      nguonM[ten].push(Object.assign({ncc,gia,soKg,vat,ngay:homNay()},loai==='h'?{daDungKg:0}:{}));
+      nguonM[ten].push(Object.assign({ncc,gia,soKg,vat,soHD,ngay:homNay()},loai==='h'?{daDungKg:0}:{}));
       dungM[ten]=ncc; // vừa khai/đổi giá coi như đang dùng nguồn này
       const tonS=gv('ton');
       // 27/08/2026-R2: ô "ton" giờ nhập theo KG cho cả hương lẫn nguyên liệu (xem dvTonKho()) —
@@ -4930,7 +4952,7 @@ $('viewMA').addEventListener('click',async e=>{
     }else{
       const e0=nguonM[ten][ix]; if(!e0){bao('Không tìm thấy dòng này');return}
       const nccCu=e0.ncc;
-      nguonM[ten][ix]={...e0,ncc,gia,soKg,vat};
+      nguonM[ten][ix]={...e0,ncc,gia,soKg,vat,soHD};
       if(dungM[ten]===nccCu&&nccCu!==ncc)dungM[ten]=ncc; // đổi tên NCC đang dùng thì cập nhật theo
       moThemNguon.delete(loai+':'+ten+':'+ix);
       luuNgay();ve();bao('Đã sửa lại dòng nguồn giá');

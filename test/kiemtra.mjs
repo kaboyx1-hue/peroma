@@ -2937,6 +2937,26 @@ ok('BM: số lô 8 số = mã SP + mã hương + tháng-năm (bỏ mã quy cách
 ok('BM: mặt hàng khác vẫn lô 10 số như cũ', bm.lo10Khac);
 ok('BM: thẻ lô không còn nút in tem, ghi rõ "không in tem phụ"', bm.khongNut);
 ok('BM: gọi in tem cho mặt hàng này → không in', bm.khongIn);
+/* BN — 14/10/2026: số hoá đơn đầu vào — khai ở nguồn, chụp vào từng mẻ, hiện ở thẻ lô + báo cáo số LOT */
+const bn=await E(async()=>{ const kq={}, g={nh:JSON.stringify(nguonHuong),nl:JSON.stringify(nguonNguyenLieu),dd:JSON.stringify(nlDangDung),sp:JSON.stringify(sp),kho:kho.slice()};
+  const p=sp[0], H='Hương Test BN', NL='NL Test BN'; if(!kho.includes(H))kho.push(H);
+  p.huongs=[H]; p.nguonHuongChon={}; p.congThucNL=[{ten:NL,kg:p.kg||100}];
+  nguonHuong[H]=[{ncc:'NCC Hương',gia:400000,soKg:1,soHD:'HD-H1',ngay:'14/10/2026',daDungKg:0}];
+  nguonNguyenLieu[NL]=[{ncc:'NCC NL',gia:50000,soKg:10,soHD:'HD-NL1',ngay:'14/10/2026'}]; nlDangDung[NL]='NCC NL';
+  moThemNguon.add('h:'+H); kq.oNhap=veThemNguonPanel('h',H).includes('data-nf="soHD"'); moThemNguon.delete('h:'+H);
+  const r={id:'BN-1',sp:p.ten,huong:H,quyCach:(p.dauRa||[])[0],sl:10,mlDung:10,lot:'9999000000',ngaysx:'2026-10-14',ts:'2026-10-14T01:00:00.000Z'};
+  ghiNhanMeLanDau(r);
+  kq.chup=JSON.stringify(r.hoaDonLucSX.map(d=>d.soHD))==='["HD-H1","HD-NL1"]'&&r.hoaDonLucSX[0].ncc==='NCC Hương';
+  nguonHuong[H][0].soHD='HD-H2'; ghiNhanMeLanDau(r); kq.khongDoi=r.hoaDonLucSX[0].soHD==='HD-H1';
+  const r2={...r,id:'BN-2',hoaDonLucSX:undefined,giaHuongTheoGLucSX:undefined,chiPhiBaoBiLucSX:undefined}; ghiNhanMeLanDau(r2);
+  const row=bangSoLot([r,r2])[0]; kq.baoCao=row.length===7&&/HD-H1/.test(row[6])&&/HD-H2/.test(row[6])&&/HD-NL1/.test(row[6]);
+  nguonHuong=JSON.parse(g.nh); nguonNguyenLieu=JSON.parse(g.nl); nlDangDung=JSON.parse(g.dd); sp=napSP(JSON.parse(g.sp)); kho=g.kho; luuNgay();
+  return kq;
+});
+ok('BN: ô "Số hoá đơn đầu vào" khi khai nguồn', bn.oNhap, JSON.stringify(bn));
+ok('BN: nhận mẻ → chụp số HĐ của nguồn hương + nguyên liệu đang dùng', bn.chup);
+ok('BN: đổi số HĐ ở nguồn sau đó KHÔNG làm đổi mẻ đã ghi', bn.khongDoi);
+ok('BN: báo cáo số LOT có cột hoá đơn, gộp đủ HĐ của mọi mẻ trong lô', bn.baoCao);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
