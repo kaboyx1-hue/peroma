@@ -751,6 +751,61 @@ html,body{background:var(--bg);min-height:100%}
 #viewCT .thead .ctsx:hover{background:var(--c2);color:var(--tx)}
 #viewCT .thead .ctsx.on{color:var(--accTx);font-weight:800}
 .ctsxdt{display:none}
+/* 15/10/2026: sơ đồ dây nối hương ↔ sản phẩm */
+.sodo-k{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:12px 16px;margin:0 0 14px;box-shadow:var(--shadowSm)}
+.sodo-hd{font:inherit;width:100%;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;background:none;border:0;padding:4px 0;cursor:pointer;color:var(--txt);text-align:left}
+.sodo-hd b{font-size:15px}.sodo-hd span{font-size:12.5px;color:var(--txt-3)}
+.sodo-goi{font-size:12.5px;color:var(--txt-2);margin:4px 0 10px;line-height:1.5}
+.sodo{display:grid;grid-template-columns:minmax(0,1fr) minmax(70px,26%) minmax(0,1fr);align-items:stretch}
+.sodo-cot{display:flex;flex-direction:column;gap:6px;justify-content:space-around;padding:2px 0}
+.sodo-day{width:100%;overflow:visible;display:block}
+.sodo-n{font:inherit;display:grid;gap:1px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:7px 10px;cursor:pointer;color:var(--txt);transition:opacity .15s,border-color .15s}
+.sodo-n.h{border-left:5px solid var(--m)}
+.sodo-n span{font-size:13.5px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.sodo-n small{font-size:11.5px;color:var(--txt-3)}
+.sodo-n.mo{opacity:.35}.sodo-n.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--accSoft)}
+.sodo-mo{font-style:normal;font-size:12px;font-weight:800;color:var(--accTx);margin-top:3px}
+.sodo-thieu{margin-top:10px;font-size:13px}
+/* 15/10/2026: bản trình chiếu báo cáo */
+#tc{position:fixed;inset:0;z-index:60;background:rgba(20,16,10,.95);display:flex;flex-direction:column;color:#2b2418}
+.tc-thanh{display:flex;align-items:center;gap:10px;padding:10px 14px;color:#fff}
+.tc-thanh b{font-size:15px}.tc-thanh span{flex:1;font-size:13px;opacity:.8}
+.tc-thanh button{font:inherit;font-weight:700;border:0;border-radius:10px;padding:8px 12px;cursor:pointer;background:#fff3dd;color:#6b4300}
+.tc-cuon{flex:1;overflow:auto;padding:0 12px 24px;-webkit-overflow-scrolling:touch}
+.tc-doc{max-width:920px;margin:0 auto;background:#fffdf8;border-radius:14px;padding:28px 34px;box-shadow:0 10px 40px rgba(0,0,0,.35);font-size:15px;line-height:1.45}
+.tc-muc{padding:22px 0;border-top:1px solid #eadfcb}.tc-muc.tc-dau-bc{border-top:0;padding-top:4px}
+.tc-bia{display:flex;flex-direction:column;gap:.5em}
+.tc-bia small{letter-spacing:.06em;color:#7a6a50;font-weight:700;font-size:.8em}
+.tc-bia h1{font-size:2.6em;margin:0;line-height:1.1}.tc-bia p{margin:0;color:#5c5140}
+.tc-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:.8em;margin-top:1em}
+.tc-kpi div{background:#fff3dd;border-radius:.8em;padding:.8em}.tc-kpi b{display:block;font-size:1.9em;font-variant-numeric:tabular-nums;color:#8a5300}.tc-kpi span{font-size:.85em;color:#5c5140}
+.tc-nho{color:#7a6a50;font-size:.9em}
+.tc-dau{display:flex;align-items:flex-start;gap:.8em;margin-bottom:1em}
+.tc-so{background:#e8901a;color:#fff;font-weight:800;border-radius:50%;min-width:1.9em;height:1.9em;display:grid;place-items:center}
+.tc-dau h2{margin:0;font-size:1.5em;line-height:1.2}.tc-dau p{margin:.2em 0 0;color:#7a6a50;font-size:.85em}.tc-dau em{margin-left:auto;font-style:normal;font-size:.8em;color:#7a6a50;white-space:nowrap}
+.tc-bars{display:grid;gap:.55em}
+.tc-bar{display:grid;grid-template-columns:minmax(0,30%) 1fr 10.5em;gap:.8em;align-items:center}
+.tc-bar span{font-weight:700;font-size:.9em;overflow-wrap:anywhere}.tc-bar i{height:1.1em;background:#f1e9da;border-radius:.6em;overflow:hidden}.tc-bar b{display:block;height:100%;border-radius:.6em}
+.tc-bar em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:700;font-size:.9em;white-space:nowrap;text-align:right}
+.tc-ton.ok{color:#1f7a45}.tc-ton.sap{color:#8f5a00}.tc-ton.het{color:#c0342c}
+.tc-the{display:grid;grid-template-columns:repeat(auto-fill,minmax(14em,1fr));gap:.7em}
+.tc-c{border-radius:.8em;padding:.8em 1em;display:grid;gap:.2em}.tc-c.do{background:#fdecea;color:#9e2a23}.tc-c.vang{background:#fff3dc;color:#8f5a00}.tc-c b{color:#2b2418}
+.tc-trong{color:#7a6a50;padding:2em 0;text-align:center}.tc-trong.ok{color:#1f7a45;font-weight:700}
+.tc-bang{width:100%;border-collapse:collapse;font-size:.82em;font-variant-numeric:tabular-nums;margin-top:.6em}
+.tc-bang th{text-align:left;background:#fff3dd;padding:.4em .6em}.tc-bang td{padding:.35em .6em;border-bottom:1px solid #eadfcb}
+.tc-tile{display:grid;grid-template-columns:repeat(3,1fr);gap:.8em}.tc-tile div{background:#f4efe6;border-radius:.8em;padding:.8em}.tc-tile .ok{background:#e3f3e8}.tc-tile .vang{background:#fff3dc}
+.tc-tile b{display:block;font-size:1.8em;font-variant-numeric:tabular-nums}.tc-tile span{font-size:.85em;color:#5c5140}
+#tcInTrang{display:none}
+@media (max-width:700px){.tc-doc{padding:16px;font-size:13.5px}.tc-cuon{padding:0 6px 16px}.tc-thanh span{display:none}.tc-kpi,.tc-tile{grid-template-columns:1fr 1fr}.tc-bar{grid-template-columns:1fr auto}.tc-bar i{grid-column:1/-1;grid-row:2}}
+@media print{
+  @page tcTrang{size:A4;margin:12mm}
+  html.in-tc #temIn{display:none!important}
+  html.in-tc #tcInTrang{display:block!important}
+  html.in-tc .tc-giay{page:tcTrang;font-size:11pt;line-height:1.4;color:#2b2418}
+  html.in-tc .tc-giay .tc-muc{break-inside:avoid}
+}
+.sodo-cham{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--badTx);margin-left:6px;vertical-align:middle}
+@media (max-width:899px){.sodo-k{padding:10px 10px}.sodo{grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr)}.sodo-n{padding:6px 8px}.sodo-n span{font-size:12.5px}.sodo-n small{display:none}}
 @media (max-width:899px){.ctsxdt{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0 2px;font-size:12.5px;color:var(--tx3)}}
 .ctsxb{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line2);background:var(--card);color:var(--tx2);border-radius:999px;padding:6px 12px;cursor:pointer}
 .ctsxb.on{background:var(--acc);border-color:var(--acc);color:var(--onAcc)}
@@ -1179,9 +1234,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/10/2026-S63</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/10/2026-S64</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 15/10/2026-S63</div>
+      <div class="verFoot">BẢN 15/10/2026-S64</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1207,6 +1262,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
   <div id="viewTQ" class="pg"></div>
   <div id="viewCT">
     <div class="cthead" id="ctHead"></div>
+    <div id="ctSoDo"></div>
     <div class="find">
       <div class="ctloc" id="ctLoc" role="tablist" aria-label="Lọc mặt hàng"></div>
       <div class="ctsxdt" id="ctSxDt" aria-label="Sắp xếp mặt hàng"></div>
@@ -3500,9 +3556,75 @@ function veCTDau(){
     +'<button class="cth-add" data-ctadd="1" type="button">+ Thêm mặt hàng</button>';
   $('ctLoc').innerHTML=CT_LOC.map(([k,t])=>'<button type="button" role="tab" aria-selected="'+(locCT===k)+'" class="ctl'+(locCT===k?' on':'')+'" data-ctloc="'+k+'">'+t+'<span>'+dem[k]+'</span></button>').join('');
 }
+/* 15/10/2026 — SƠ ĐỒ DÂY NỐI hương ↔ sản phẩm (khách: "kiểu bản đồ dây điện … giao diện dễ nhìn của mối quan hệ giữa hương
+   và sản phẩm"). Cột trái = hương (đã lưu cho ít nhất 1 mặt hàng), cột phải = mặt hàng, dây = mặt hàng đang dùng hương đó
+   (theo công thức đã lưu). Dây dày theo lượng hương đã dùng 30 ngày; chưa dùng thì dây mảnh nét đứt. Bấm 1 hương / 1 mặt hàng
+   → sáng các dây của nó, mờ phần còn lại; bấm lại để bỏ chọn. Hương đang vượt tồn / nợ dữ liệu có chấm đỏ. Chỉ đọc dữ liệu,
+   không ghi gì. Vẽ bằng HTML (tên tự xuống dòng) + 1 lớp SVG ở giữa, toạ độ dây lấy từ vị trí thật của từng ô sau khi vẽ. */
+let soDoMo=true, soDoChon=null;
+const SODO_MAU=['#d9822b','#2f7fc1','#7a55c7','#2e9b6a','#c2453f','#b88a00','#1f8a99','#a24f8f','#5b7d2a','#8a6a4f'];
+function soDoDuLieu(){
+  const tu=ngayTruoc(29), dung={};
+  nk.filter(r=>!r.huy&&(r.ngaysx||'')>=tu).forEach(r=>{const k=r.huong+'|||'+r.sp;dung[k]=(dung[k]||0)+num(r.mlDung)});
+  let hs=[...new Set(sp.flatMap(p=>(p.huongs||[]).filter(Boolean)))];
+  const soSp=h=>sp.filter(p=>(p.huongs||[]).includes(h)).length;
+  hs.sort((a,b)=>(isUnscented(a)-isUnscented(b))||(soSp(b)-soSp(a))||a.localeCompare(b,'vi'));
+  /* 15/10/2026 (khách: "có cơ chế tự sắp xếp cho đẹp hơn và gọn gàng không"): xếp lặp 2 phía theo vị trí trung bình
+     của các đầu dây (barycenter) — mặt hàng theo hương của nó, rồi hương theo mặt hàng của nó, 6 lượt → dây ít bắt chéo.
+     "Không mùi" luôn cuối cột hương. Mặt hàng chưa có hương không vẽ (gom 1 dòng bấm để lọc). */
+  let ps=sp.map((p,i)=>({p,i})).filter(({p})=>(p.huongs||[]).some(Boolean));
+  const khongHuong=sp.length-ps.length, tb=(ds)=>ds.length?ds.reduce((a,b)=>a+b,0)/ds.length:1e9;
+  for(let k=0;k<6;k++){
+    const viH=Object.fromEntries(hs.map((h,i)=>[h,i]));
+    ps.sort((a,b)=>tb((a.p.huongs||[]).map(h=>viH[h]).filter(x=>x!==undefined))-tb((b.p.huongs||[]).map(h=>viH[h]).filter(x=>x!==undefined))||a.p.ten.localeCompare(b.p.ten,'vi'));
+    const viP=Object.fromEntries(ps.map((o,i)=>[o.p.ten,i]));
+    hs.sort((a,b)=>(isUnscented(a)-isUnscented(b))||tb(ps.filter(o=>(o.p.huongs||[]).includes(a)).map(o=>viP[o.p.ten]))-tb(ps.filter(o=>(o.p.huongs||[]).includes(b)).map(o=>viP[o.p.ten]))||a.localeCompare(b,'vi'));
+  }
+  const day=[]; ps.forEach(({p})=>(p.huongs||[]).filter(Boolean).forEach(h=>day.push({h,sp:p.ten,g:dung[h+'|||'+p.ten]||0})));
+  const cb=new Set(tinhCanhBaoHuong().map(x=>x.h));
+  return {hs,ps,day,cb,khongHuong};
+}
+function veSoDo(){
+  const el=$('ctSoDo'); if(!el)return;
+  const {hs,ps,day,cb,khongHuong}=soDoDuLieu();
+  if(!hs.length){el.innerHTML='';return}
+  const nutMo=(loai,ten)=>soDoChon&&soDoChon.loai===loai&&soDoChon.ten===ten?`<em class="sodo-mo" data-sodoct="${loai}|||${esc(ten)}">Mở chi tiết →</em>`:'';
+  const mau=h=>isUnscented(h)?'var(--txt-3)':SODO_MAU[hs.indexOf(h)%SODO_MAU.length];
+  const sangH=h=>!soDoChon||(soDoChon.loai==='h'?soDoChon.ten===h:day.some(d=>d.sp===soDoChon.ten&&d.h===h));
+  const sangSp=t=>!soDoChon||(soDoChon.loai==='sp'?soDoChon.ten===t:day.some(d=>d.h===soDoChon.ten&&d.sp===t));
+  const gH=h=>day.filter(d=>d.h===h).reduce((a,d)=>a+d.g,0);
+  el.innerHTML=`<div class="sodo-k">
+    <button type="button" class="sodo-hd" data-sodomo="1"><b>${soDoMo?'▾':'▸'} Sơ đồ dây nối hương ↔ sản phẩm</b><span>${hs.length} hương · ${ps.length} mặt hàng có hương · ${day.length} dây</span></button>
+    ${soDoMo?`<div class="sodo-goi">Bấm 1 hương hoặc 1 mặt hàng để xem dây của nó, bấm <b>"Mở chi tiết →"</b> để tới trang của nó${soDoChon?` · <button type="button" class="lnk" data-sodobo="1">bỏ chọn</button>`:''}. Dây dày = dùng nhiều hương trong 30 ngày; nét đứt = có trong công thức nhưng 30 ngày chưa pha. <i class="sodo-cham"></i> = hương vượt tồn / nợ dữ liệu.</div>
+    <div class="sodo">
+      <div class="sodo-cot">${hs.map(h=>`<button type="button" class="sodo-n h${sangH(h)?'':' mo'}${soDoChon&&soDoChon.loai==='h'&&soDoChon.ten===h?' on':''}" data-sodoh="${esc(h)}" style="--m:${mau(h)}"><span>${esc(h)}${cb.has(h)?'<i class="sodo-cham" title="Vượt tồn / nợ dữ liệu"></i>':''}</span><small>${day.filter(d=>d.h===h).length} mặt hàng${gH(h)?' · '+fmtSo(gH(h)/1000)+' kg/30 ngày':''}</small>${nutMo('h',h)}</button>`).join('')}</div>
+      <svg class="sodo-day" aria-hidden="true"></svg>
+      <div class="sodo-cot">${ps.map(({p})=>`<button type="button" class="sodo-n sp${sangSp(p.ten)?'':' mo'}${soDoChon&&soDoChon.loai==='sp'&&soDoChon.ten===p.ten?' on':''}" data-sodosp="${esc(p.ten)}"><span>${esc(p.ten)}</span><small>${(p.huongs||[]).length} hương</small>${nutMo('sp',p.ten)}</button>`).join('')}</div>
+    </div>
+    ${khongHuong?`<button type="button" class="lnk sodo-thieu" data-sodothieu="1">+ ${khongHuong} mặt hàng chưa có hương — bấm để xem danh sách bên dưới</button>`:''}`:''}
+  </div>`;
+  if(soDoMo)requestAnimationFrame(veDaySoDo);
+}
+function veDaySoDo(){
+  const k=document.querySelector('#ctSoDo .sodo'), svg=k&&k.querySelector('.sodo-day'); if(!svg)return;
+  const {day}=soDoDuLieu(), rs=svg.getBoundingClientRect(), W=rs.width, H=k.getBoundingClientRect().height;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`); svg.style.height=H+'px';
+  const y=el=>{const r=el.getBoundingClientRect();return r.top+r.height/2-rs.top};
+  const nutH={}, nutSp={};
+  k.querySelectorAll('[data-sodoh]').forEach(b=>nutH[b.dataset.sodoh]=b);
+  k.querySelectorAll('[data-sodosp]').forEach(b=>nutSp[b.dataset.sodosp]=b);
+  const gMax=Math.max(1,...day.map(d=>d.g));
+  const sang=d=>!soDoChon||(soDoChon.loai==='h'?d.h===soDoChon.ten:d.sp===soDoChon.ten);
+  svg.innerHTML=day.map(d=>{const a=nutH[d.h],b=nutSp[d.sp]; if(!a||!b)return '';
+    const y1=y(a),y2=y(b),w=d.g>0?2+5*Math.sqrt(d.g/gMax):1.5, m=a.style.getPropertyValue('--m');
+    return `<path d="M0 ${y1} C ${W*.5} ${y1}, ${W*.5} ${y2}, ${W} ${y2}" fill="none" stroke="${m}" stroke-width="${w}" stroke-linecap="round"${d.g>0?'':' stroke-dasharray="4 4"'} opacity="${sang(d)?(d.g>0?.9:.6):.08}"/>`}).join('')
+    +Object.values(nutH).map(b=>`<circle cx="3" cy="${y(b)}" r="3.5" fill="${b.style.getPropertyValue('--m')}"/>`).join('')
+    +Object.values(nutSp).map(b=>`<circle cx="${W-3}" cy="${y(b)}" r="3.5" fill="var(--txt-3)"/>`).join('');
+}
+window.addEventListener('resize',()=>{if(tab==='ct')veDaySoDo()});
 function veCT(){
   const tu=$('q').value.trim().toLowerCase();
-  veCTDau();
+  veCTDau(); veSoDo();
   const ds=sp.map((p,i)=>({p,i,k:ctKiem(p)})).filter(({p})=>!tu||
     (p.ten+' '+(p.huongs||[]).join(' ')+' '+p.nguyenlieu+' '+p.pkbChat+' '+p.ghi+' '+(TT[p.tt||'ok']||TT.ok).n+' '+(p.ttLyDo||'')+' '+(p.dauRa||[]).join(' ')).toLowerCase().includes(tu))
     .filter(({p,k})=>ctHopLoc(p,k));
@@ -3649,6 +3771,67 @@ function veBCNhanVien(rows){
    nhập tay (tonKhoHuong). Màu theo số ngày còn dùng được (tốc độ dùng 30 ngày, ngưỡng cảnh báo ở Danh mục).
    "Đã dùng" theo khoảng thời gian đang lọc; "Còn tồn" là hiện tại. */
 function tonHuongG(h){const t=tonThucKg(h);return t===null?null:t*1000}
+/* 15/10/2026 — BẢN TRÌNH CHIẾU BÁO CÁO SƠ BỘ (khách: "trong báo cáo có thể tạo ra trực tiếp 1 bản thuyết trình nhỏ, giống dạng
+   báo cáo sơ bộ như khi xuất excel để xem trước"). Lấy CÙNG dữ liệu với báo cáo đang lọc (locNK — bỏ lô huỷ, theo khoảng thời
+   gian), vẽ thành các trang 16:9: bìa + số tổng · sản lượng theo sản phẩm · hương: đã dùng / tồn thực · cảnh báo kho · số LOT
+   · hoá đơn đầu vào. Xem trong app (nút / phím ← → / vuốt) và In / Lưu PDF (A4 ngang, mỗi trang 1 tờ — trang in riêng tên
+   "tcTrang", không đụng khổ in tem). Chỉ đọc, không ghi dữ liệu. */
+function trangTrinhChieu(){
+  const ls=locNK(), ky=(tuNgay||denNgay)?`${tuNgay?vnNgay(tuNgay):'đầu'} → ${denNgay?vnNgay(denNgay):'nay'}`:'Toàn bộ dữ liệu';
+  const tKg=ls.reduce((a,r)=>a+num(r.sl),0), tG=ls.reduce((a,r)=>a+num(r.mlDung),0), tCp=ls.reduce((a,r)=>a+chiPhiHuongRecord(r),0);
+  const dau=(so,ten,phu)=>`<div class="tc-dau"><span class="tc-so">${so}</span><div><h2>${ten}</h2>${phu?`<p>${phu}</p>`:''}</div></div>`; // kỳ báo cáo đã ghi ở đầu trang, không lặp từng mục
+  const thanh=(ds,giaTri,nhan,mau)=>{const mx=Math.max(1,...ds.map(giaTri));return `<div class="tc-bars">${ds.map((x,i)=>`<div class="tc-bar"><span>${esc(nhan(x))}</span><i><b style="width:${Math.max(2,Math.round(giaTri(x)/mx*100))}%;background:${mau(x,i)}"></b></i><em>${fmtSo(giaTri(x))}</em></div>`).join('')}</div>`};
+  const tr=[];
+  // 1. bìa
+  tr.push(`<div class="tc-bia"><small>${esc(TEM_MD.ctyTen)}</small><h1>Báo cáo sản xuất</h1><p>${esc(ky)} · lập ngày ${vnNgay(isoNay())}</p>
+    <div class="tc-kpi"><div><b>${ls.length}</b><span>mẻ đã ghi</span></div><div><b>${fmt(tKg)}</b><span>kg thành phẩm</span></div><div><b>${fmtSo(tG/1000)}</b><span>kg hương đã dùng</span></div><div><b>${fmt(Math.round(tCp))}</b><span>đ chi phí hương (ước tính)</span></div></div>
+    <div class="tc-nho">${new Set(ls.map(r=>r.lot).filter(Boolean)).size} số LOT · ${new Set(ls.map(r=>r.sp)).size} mặt hàng · ${new Set(ls.map(r=>r.nv).filter(Boolean)).size} nhân viên</div></div>`);
+  // 2. sản lượng theo sản phẩm
+  const gSp=gom(ls,r=>r.sp).slice(0,9);
+  tr.push(dau(1,'Sản lượng theo sản phẩm','kg thành phẩm trong kỳ'+(gom(ls,r=>r.sp).length>9?' · 9 mặt hàng nhiều nhất':''))
+    +(gSp.length?thanh(gSp,([,v])=>v.kg,([k,v])=>k+' · '+v.n+' mẻ',(x,i)=>SODO_MAU[i%SODO_MAU.length]):'<div class="tc-trong">Chưa có mẻ nào trong kỳ.</div>'));
+  // 3. hương: đã dùng vs tồn thực
+  const gH=gom(ls.filter(r=>!isUnscented(r.huong)),r=>r.huong).slice(0,9);
+  tr.push(dau(2,'Hương liệu — đã dùng & tồn thực','kg · thanh xanh = đã dùng trong kỳ, số bên phải = tồn thực hiện tại')
+    +(gH.length?`<div class="tc-bars">${(()=>{const mx=Math.max(1,...gH.map(([,v])=>v.ml/1000));return gH.map(([k,v])=>{const t=tonThucKg(k),cl=t===null?'':t<=0?'het':(uocConLai(k)!==null&&uocConLai(k)<=nguongCanhBaoNgay?'sap':'ok');
+      return `<div class="tc-bar"><span>${esc(k)}</span><i><b style="width:${Math.max(2,Math.round(v.ml/1000/mx*100))}%;background:#2f7fc1"></b></i><em class="tc-ton ${cl}">${fmtSo(v.ml/1000)} · tồn ${t===null?'—':(t<0?'−':'')+fmtSo(Math.abs(t))}</em></div>`}).join('')})()}</div>`:'<div class="tc-trong">Chưa dùng hương nào trong kỳ.</div>'));
+  // 4. cảnh báo kho
+  const cb=tinhCanhBaoHuong(), sap=kho.filter(h=>!isUnscented(h)&&!cb.some(x=>x.h===h)).filter(h=>{const d=uocConLai(h);return d!==null&&d<=nguongCanhBaoNgay});
+  tr.push(dau(3,'Cảnh báo kho hương','cần xử lý ở Danh mục / Báo cáo: kiểm kê · nhập thêm hàng · trả nợ dữ liệu')
+    +(cb.length||sap.length?`<div class="tc-the">${cb.map(x=>`<div class="tc-c do"><b>${esc(x.h)}</b><span>${x.vuotKg?'Vượt tồn '+fmtSo(x.vuotKg)+' kg':''}${x.vuotKg&&x.noMe?' · ':''}${x.noMe?'Nợ dữ liệu '+x.noMe+' mẻ':''}</span></div>`).join('')}${sap.map(h=>`<div class="tc-c vang"><b>${esc(h)}</b><span>Sắp hết · còn ~${uocConLai(h)} ngày</span></div>`).join('')}</div>`
+      :'<div class="tc-trong ok">✓ Không có hương nào vượt tồn, nợ dữ liệu hay sắp hết.</div>'));
+  // 5. số LOT
+  const lot=bangSoLot(ls);
+  tr.push(dau(4,'Số LOT sản xuất',lot.length+' lô'+(lot.length>12?' · 12 lô đầu, đủ trong file Excel':''))
+    +(lot.length?`<table class="tc-bang"><tr><th>STT</th><th>Mã SP</th><th>Sản phẩm</th><th>Số LOT</th><th>NSX</th><th>HSD</th></tr>${lot.slice(0,12).map(r=>`<tr>${r.slice(0,6).map(c=>`<td>${esc(c===undefined||c===null?'':c)}</td>`).join('')}</tr>`).join('')}</table>`:'<div class="tc-trong">Chưa có lô nào trong kỳ.</div>'));
+  // 6. hoá đơn đầu vào
+  const dong=ls.filter(r=>r.lot).flatMap(r=>hdCuaMe(r)), co=dong.filter(d=>d.soHD).length, hd={};
+  dong.filter(d=>d.soHD).forEach(d=>{hd[d.soHD]=hd[d.soHD]||new Set();hd[d.soHD].add(d.ten)});
+  const dsHD=Object.entries(hd).slice(0,12);
+  tr.push(dau(5,'Hoá đơn đầu vào',`${co}/${dong.length} vật tư đã có số hoá đơn`)
+    +`<div class="tc-tile"><div class="${co===dong.length&&dong.length?'ok':'vang'}"><b>${dong.length?Math.round(co/dong.length*100):0}%</b><span>vật tư của các mẻ trong kỳ đã có số HĐ</span></div><div><b>${Object.keys(hd).length}</b><span>số hoá đơn khác nhau</span></div><div class="${dong.length-co?'vang':''}"><b>${dong.length-co}</b><span>vật tư còn thiếu số HĐ — bổ sung ở Báo cáo</span></div></div>`
+    +(dsHD.length?`<table class="tc-bang"><tr><th>Số hoá đơn</th><th>Vật tư</th></tr>${dsHD.map(([so,vt])=>`<tr><td>${esc(so)}</td><td>${esc([...vt].join(', '))}</td></tr>`).join('')}</table>`:''));
+  return tr;
+}
+/* 15/10/2026 (khách: "không nghĩ trình chiếu là ý hay — xem trực tiếp trên giao diện html luôn dưới dạng report"): bỏ dạng
+   slide, hiện CẢ báo cáo thành 1 trang cuộn dọc như văn bản; In / Lưu PDF ra A4 dọc, không cắt ngang từng mục. */
+function moTrinhChieu(){
+  const tr=trangTrinhChieu();
+  let k=document.getElementById('tc'); if(k)k.remove();
+  k=document.createElement('div'); k.id='tc'; k.setAttribute('role','dialog'); k.setAttribute('aria-label','Báo cáo sơ bộ');
+  k.innerHTML=`<div class="tc-thanh"><b>Báo cáo sơ bộ</b><span>xem trước — cùng số liệu với file Excel</span><button type="button" id="tcIn">In / Lưu PDF</button><button type="button" id="tcDong" aria-label="Đóng">✕</button></div>
+    <div class="tc-cuon"><div class="tc-doc">${tr.map((h,i)=>`<section class="tc-muc${i?'':' tc-dau-bc'}">${h}</section>`).join('')}</div></div>`;
+  document.body.appendChild(k);
+  const phim=e=>{if(e.key==='Escape')dong()};
+  const dong=()=>{document.removeEventListener('keydown',phim);k.remove()};
+  k.addEventListener('click',e=>{const t=e.target;
+    if(t.id==='tcDong')dong();
+    else if(t.id==='tcIn'){let p=document.getElementById('tcInTrang');if(!p){p=document.createElement('div');p.id='tcInTrang';document.body.appendChild(p)}
+      p.innerHTML=`<div class="tc-giay">${tr.map((h,i)=>`<section class="tc-muc${i?'':' tc-dau-bc'}">${h}</section>`).join('')}</div>`;
+      document.documentElement.classList.add('in-tc'); const bo=()=>{document.documentElement.classList.remove('in-tc');window.removeEventListener('afterprint',bo)};
+      window.addEventListener('afterprint',bo); window.print(); setTimeout(bo,1500)}});
+  document.addEventListener('keydown',phim);
+}
 /* 14/10/2026: bổ sung số HĐ cho mẻ đã ghi (theo vật tư · khoảng thời gian đang lọc · lô tuỳ chọn) + tra ngược số HĐ */
 function meCanGanHD(ls){
   if(!hdVT)return [];
@@ -4652,6 +4835,7 @@ function veBC(){
      <div class="kpi"><b>${fmt(tMl)}</b><span>G hương liệu</span></div>
    </div>
    <button class="addbtn" id="xuatSoLot" style="margin:8px 12px 0;width:calc(100% - 24px)">Xuất báo cáo số LOT sản xuất (.xlsx) — theo khoảng thời gian trên</button>`;
+  o+=`<button class="addbtn" id="moTrinhChieu" style="margin:8px 12px 0;width:calc(100% - 24px)">📄 Xem báo cáo sơ bộ (dạng trang) — theo khoảng thời gian trên</button>`;
   o+=veHoaDonBS(ls);
 
   const cIT=loChuaInTem();
@@ -5373,6 +5557,7 @@ $('viewBC').addEventListener('click',async e=>{
   if(e.target.id==='clearNgay'){tuNgay='';denNgay='';veBC();return}
   if(e.target.id==='xuatSoLot'){xuatBaoCaoSoLot();return}
   if(e.target.id==='hdTraBtn'){veBC();return}
+  if(e.target.id==='moTrinhChieu'){moTrinhChieu();return}
   const kk=e.target.closest('[data-kiemke]'); if(kk){if(await kiemKeHuong(kk.dataset.kiemke))veBC();return}
   const tnb=e.target.closest('[data-trano]'); if(tnb){if(await traNoHuong(tnb.dataset.trano))veBC();return}
   const bqn=e.target.closest('[data-boquano]'); if(bqn){if(await boQuaNoHuong(bqn.dataset.boquano))veBC();return}
@@ -6017,6 +6202,23 @@ $('q').addEventListener('input',ve);
 /* S11 — tab Công thức: lọc nhanh (chỉ lọc hiển thị), nút "+ Thêm mặt hàng" ở đầu trang dùng lại đúng
    nút Thêm có sẵn, thanh neo trong trang hồ sơ nhảy tới đúng nhóm của đúng mặt hàng */
 $('ctLoc').addEventListener('click',e=>{const b=e.target.closest('[data-ctloc]');if(!b)return;locCT=b.dataset.ctloc;veCT()});
+$('ctSoDo').addEventListener('click',e=>{
+  if(e.target.closest('[data-sodomo]')){soDoMo=!soDoMo;veSoDo();return}
+  if(e.target.closest('[data-sodobo]')){soDoChon=null;veSoDo();return}
+  const ct=e.target.closest('[data-sodoct]');
+  if(ct){const [loai,ten]=ct.dataset.sodoct.split('|||'); soDoChon=null;
+    if(loai==='sp'){const i=sp.findIndex(x=>x.ten===ten); if(i<0)return; locCT='all'; $('q').value=''; mo.clear(); mo.add(i); veCT();
+      requestAnimationFrame(()=>{const r=document.querySelector(`#rows [data-t="${i}"]`); const row=r&&r.closest('.r'); (row||r)?.scrollIntoView({block:'start'}); scrollBy(0,-80)});}
+    else{moTra.add('ncc-h-'+ten); chuyenTab('ma');
+      requestAnimationFrame(()=>{const c=[...document.querySelectorAll('.ncc-card')].find(x=>x.querySelector('.ncc-ten')?.textContent===ten); if(c){c.scrollIntoView({block:'start'}); scrollBy(0,-80)}});}
+    return}
+  if(e.target.closest('[data-sodothieu]')){soDoChon=null; locCT='huong'; veCT(); requestAnimationFrame(()=>{$('ctLoc').scrollIntoView({block:'start'}); scrollBy(0,-80)}); return}
+  const h=e.target.closest('[data-sodoh]'), p=e.target.closest('[data-sodosp]');
+  if(h)soDoChon=soDoChon&&soDoChon.loai==='h'&&soDoChon.ten===h.dataset.sodoh?null:{loai:'h',ten:h.dataset.sodoh};
+  else if(p)soDoChon=soDoChon&&soDoChon.loai==='sp'&&soDoChon.ten===p.dataset.sodosp?null:{loai:'sp',ten:p.dataset.sodosp};
+  else return;
+  veSoDo();
+});
 $('viewCT').addEventListener('click',e=>{const b=e.target.closest('[data-ctsx]');if(!b)return;const k=b.dataset.ctsx;
   sxCT=!k?{k:'',tang:true}:sxCT.k===k?{k,tang:!sxCT.tang}:{k,tang:true};veCT()});
 $('ctHead').addEventListener('click',e=>{if(e.target.closest('[data-ctadd]'))$('addBtn').click()});
