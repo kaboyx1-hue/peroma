@@ -2298,11 +2298,12 @@ ok('tồn kho nguyên liệu lưu đúng đơn vị kg (khác hương là gram)'
 const atSelOk=await Ea(v=>{ve();return !!document.querySelector(`select[data-nguondung="nl:${v}"]`)},atNl);
 ok('nguyên liệu cũng có dropdown "đang dùng" như hương', atSelOk);
 const atHtml1=await Ea(v=>{ve();const card=[...document.querySelectorAll('.ncc-card')].find(c=>c.querySelector('.ncc-ten')?.textContent===v);return card?card.innerHTML:''},atNl);
-ok('tồn kho nguyên liệu hiện đúng đơn vị "kg" và câu "không tự trừ theo sản xuất"', /kg/.test(atHtml1)&&/không tự trừ theo sản xuất/.test(atHtml1), atHtml1.slice(0,200));
+ok('tồn kho nguyên liệu hiện kg + "Tồn kho thực" (S65: tự trừ theo mẻ như hương)', /kg/.test(atHtml1)&&/Tồn kho thực/.test(atHtml1)&&/480 kg/.test(atHtml1), atHtml1.slice(0,200));
 ok('nguyên liệu KHÔNG hiện ước tính "còn dùng được N ngày" (khác hương, chưa theo dõi tiêu hao theo mẻ)', !/còn dùng được/.test(atHtml1));
 // Cập nhật tồn kho tay qua nút riêng (data-suatknl)
 await p.click(`[data-suatknl="${atNl}"]`); await p.waitForTimeout(250);
 await p.fill('#dlgI','300'); await p.click('#dlgO'); await p.waitForTimeout(300);
+await p.click('#dlgO'); await p.waitForTimeout(300); // S65: hộp thứ 2 hỏi lý do kiểm kê
 ok('cập nhật tồn kho nguyên liệu tay lưu đúng số mới', (await Ea(v=>tonKhoNguyenLieu[v].con,atNl))===300);
 // Đổi tên nguyên liệu — nguồn/giá/tồn kho phải theo tên mới, không mất (giống hương)
 await E(()=>{tab='ma';ve()}); await p.waitForTimeout(150);
@@ -3111,6 +3112,62 @@ const bt=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('BT: mở báo cáo sơ bộ dạng trang — đủ 6 mục trên 1 trang cuộn', bt.mo, JSON.stringify(bt));
 ok('BT: In / Lưu PDF in đủ các mục (lớp in riêng, không đụng tem)', bt.in&&bt.inLop);
 ok('BT: đóng báo cáo', bt.dong);
+/* BU — 15/10/2026 (S65): tồn nguyên liệu tự trừ theo mẻ · khoá định lượng hương khi chỉ Không mùi · cột Danh mục thẳng hàng */
+const bu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const g={nl:JSON.stringify(nlDM),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),ct:JSON.stringify(sp[0].congThucNL||[]),kg:sp[0].kg,hs:JSON.stringify([sp[1].huongs,sp[1].tam]),nk:nk,hoi:window.hoi};
+  const N='BU Hạt thử'; if(!nlDM.includes(N))nlDM.push(N);
+  sp[0].kg=100; sp[0].congThucNL=[{ten:N,kg:80}];                      // 80 kg NL / mẻ chuẩn 100 kg
+  const moc=new Date(Date.now()-60000).toISOString();
+  tonKhoNguyenLieu[N]={con:500,capNhat:'15/10/2026',moc}; nguonNguyenLieu[N]=[{ncc:'NCC cũ',gia:1,soKg:999,ngay:'01/10/2026'}]; // dòng mua CŨ (không ts) đã nằm trong số chốt
+  const ts=new Date().toISOString();
+  nk=[...g.nk,{id:'BU-1',sp:sp[0].ten,huong:'Không mùi',sl:50,ts,ngaysx:isoNay()},{id:'BU-2',sp:sp[0].ten,huong:'Không mùi',sl:100,ts,ngaysx:isoNay(),nlLucSX:[{ten:N,tl:0.5}]},
+    {id:'BU-3',sp:sp[0].ten,huong:'Không mùi',sl:100,ts:new Date(Date.now()-120000).toISOString(),ngaysx:isoNay()}]; // BU-3 trước mốc chốt → không trừ
+  kq.tru=tonNLKg(N)===500-40-50;                                      // 50×0,8 + 100×0,5 (tỉ lệ chụp lúc nhận)
+  kq.khongTru2Lan=(tonNLKg(N),tonNLKg(N))===410;
+  nk.find(r=>r.id==='BU-1').huy=true; kq.huyCongLai=tonNLKg(N)===450; nk.find(r=>r.id==='BU-1').huy=false;
+  nk.find(r=>r.id==='BU-1').ngungSX=true; nk.find(r=>r.id==='BU-1').slThucTe=25; kq.ngungTheoThucTe=tonNLKg(N)===430; delete nk.find(r=>r.id==='BU-1').ngungSX;
+  const r4={id:'BU-4',sp:sp[0].ten,huong:'Không mùi',sl:100,ts}; ghiNhanMeLanDau(r4); kq.chupTiLe=JSON.stringify(r4.nlLucSX)===JSON.stringify([{ten:N,tl:0.8}]);
+  // dùng lố → âm, cảnh báo Tổng quan + báo cáo có nút xử lý
+  tonKhoNguyenLieu[N].con=50; kq.am=tonNLKg(N)===-40;
+  chuyenTab('tq'); await cho(40); kq.tq=[...document.querySelectorAll('.tqcb')].some(x=>/nguyên liệu đang dùng vượt tồn/.test(x.textContent)&&x.textContent.includes(N));
+  tuNgay='';denNgay=''; chuyenTab('bc'); await cho(40);
+  const the=[...document.querySelectorAll('.bch')].find(c=>c.querySelector('.bcc-top b')?.textContent===N);
+  kq.bc=!!the&&/Dùng lố 40 kg/.test(the.textContent)&&!!the.querySelector('[data-suatknl]')&&!!the.querySelector('[data-nhapthemnl]')&&/Dùng cho 1 mặt hàng/.test(the.textContent);
+  // nhập thêm hàng từ báo cáo: mở khung ở Danh mục, dòng mua mới (có ts) cộng vào tồn → phần thiếu tự bù
+  the.querySelector('[data-nhapthemnl]').click(); await cho(80);
+  const f=document.querySelector(`[data-nguonform="${CSS.escape('nl:'+N)}"]`); kq.moKhung=tab==='ma'&&!!f;
+  f.querySelector('[data-nf="ncc"]').value='NCC mới'; f.querySelector('[data-nf="gia"]').value='1000000'; f.querySelector('[data-nf="soKg"]').value='200';
+  f.querySelector('[data-luunguon]').click(); await cho(80);
+  kq.nhapThem=tonNLKg(N)===160;
+  // kiểm kê → số mới, mốc mới (mẻ cũ không trừ lại), có nhật ký
+  const tl=['300','đếm kho']; window.hoi=async()=>tl.shift();
+  document.querySelector(`#viewMA [data-suatknl="${CSS.escape(N)}"]`).click(); await cho(120);
+  kq.kiemKe=tonNLKg(N)===300&&tonKhoNguyenLieu[N].dcLog.slice(-1)[0].lyDo==='đếm kho';
+  // khoá định lượng hương khi mặt hàng chỉ có "Không mùi"
+  sp[1].huongs=['Không mùi']; sp[1].tam=['Không mùi']; mo.clear(); mo.add(1); chuyenTab('ct'); await cho(60);
+  const ml=document.querySelector('input[data-f="ml"][data-i="1"]'); kq.khoa=!!ml&&ml.disabled&&/Không mùi/.test(ml.closest('.fld').textContent);
+  // cột Danh mục: ô mã của mặt hàng / hương / quy cách thẳng 1 cột; tên nguyên liệu thẳng mép
+  chuyenTab('ma'); await cho(60);
+  const xs=[...document.querySelectorAll('#viewMA .marow .mi')].map(i=>Math.round(i.getBoundingClientRect().left));
+  const xo=[...document.querySelectorAll('#viewMA .marow .xo')].map(i=>Math.round(i.getBoundingClientRect().right));
+  kq.cot=xs.length>3&&new Set(xs).size===1&&new Set(xo).size===1;
+  window.hoi=g.hoi; nlDM=JSON.parse(g.nl); nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); sp[0].congThucNL=JSON.parse(g.ct); sp[0].kg=g.kg;
+  [sp[1].huongs,sp[1].tam]=JSON.parse(g.hs); nk=g.nk; mo.clear(); moThemNguon.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BU: tồn NL tự trừ theo mẻ sau mốc chốt (tỉ lệ chụp lúc nhận mẻ được ưu tiên)', bu.tru, JSON.stringify(bu));
+ok('BU: tính lại nhiều lần không trừ 2 lần', bu.khongTru2Lan);
+ok('BU: huỷ mẻ → tồn NL tự cộng lại', bu.huyCongLai);
+ok('BU: mẻ ngừng sản xuất trừ theo kg thực tế', bu.ngungTheoThucTe);
+ok('BU: nhận mẻ chụp tỉ lệ NL của công thức lúc đó', bu.chupTiLe);
+ok('BU: dùng lố → tồn âm', bu.am);
+ok('BU: Tổng quan báo nguyên liệu vượt tồn', bu.tq);
+ok('BU: báo cáo có thẻ NL "Dùng lố" + Kiểm kê / Nhập thêm + truy ngược mặt hàng', bu.bc);
+ok('BU: kiểm kê NL → tồn = số thật, có nhật ký lý do', bu.kiemKe);
+ok('BU: "Nhập thêm hàng" NL mở đúng khung ở Danh mục', bu.moKhung);
+ok('BU: lần mua mới cộng vào tồn NL', bu.nhapThem);
+ok('BU: khoá "Định lượng hương" khi mặt hàng chỉ có Không mùi', bu.khoa);
+ok('BU: Danh mục — ô mã và nút xoá mọi dòng thẳng 1 cột', bu.cot);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
