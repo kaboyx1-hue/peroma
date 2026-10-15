@@ -3168,6 +3168,48 @@ ok('BU: "Nhập thêm hàng" NL mở đúng khung ở Danh mục', bu.moKhung);
 ok('BU: lần mua mới cộng vào tồn NL', bu.nhapThem);
 ok('BU: khoá "Định lượng hương" khi mặt hàng chỉ có Không mùi', bu.khoa);
 ok('BU: Danh mục — ô mã và nút xoá mọi dòng thẳng 1 cột', bu.cot);
+/* BV — 15/10/2026 (S66): ô "tồn hiện có" khi khai lần mua hương phải được tính; số đã điền trước đây áp dụng được bằng 1 nút */
+const bv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  const H=kho.filter(h=>!isUnscented(h))[0], g={nh:JSON.stringify(nguonHuong),tk:JSON.stringify(tonKhoHuong),hd:JSON.stringify(huongDangDung),md:JSON.stringify(meDaTru),nk,hoi:window.hoi};
+  // ca thật của khách (Hoa hồng): dòng mua khai 1 kg, đã dùng 1,5 kg, nợ 1 mẻ 2,24 kg, điền tồn 5 kg lúc khai
+  nguonHuong[H]=[{ncc:'Peroma',gia:453600,soKg:1,daDungKg:1.5,ngay:'12/10/2026'}]; huongDangDung[H]='Peroma'; tonKhoHuong[H]={con:5000,capNhat:'12/10/2026'};
+  nk=[...g.nk,{id:'BV-1',sp:sp[0].ten,huong:H,sl:100,mlDung:2240,giaHuongTheoGLucSX:null,ts:new Date().toISOString(),ngaysx:isoNay()}];
+  kq.truoc=tonThucKg(H)===-2.74;
+  moTra.add('ncc-h-'+H); chuyenTab('ma'); await cho(60);
+  const nut=document.querySelector(`[data-aptay="${CSS.escape(H)}"]`); kq.nut=!!nut&&/1,26 kg/.test(nut.closest('.tk-row').textContent);
+  nut.click(); await cho(80);
+  kq.ap=tonThucKg(H)===1.26&&!document.querySelector(`[data-aptay="${CSS.escape(H)}"]`)&&nguonHuong[H][0].daDungKg===1.5&&nguonHuong[H][0].soKg===1;
+  // khai lần mua mới có điền "tồn thật sau khi nhập" → tồn thực = đúng số điền; ô không điền sẵn
+  moThemNguon.add('h:'+H); ve(); await cho(60);
+  const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`); kq.oTrong=f.querySelector('[data-nf="ton"]').value==='';
+  f.querySelector('[data-nf="ncc"]').value='Việt Đức'; f.querySelector('[data-nf="gia"]').value='2200000'; f.querySelector('[data-nf="soKg"]').value='5'; f.querySelector('[data-nf="ton"]').value='6';
+  window.hoi=async()=>false; f.querySelector('[data-luunguon]').click(); await cho(120);
+  kq.dien=tonThucKg(H)===6;
+  window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); tonKhoHuong=JSON.parse(g.tk); huongDangDung=JSON.parse(g.hd); meDaTru=JSON.parse(g.md); nk=g.nk; moThemNguon.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BV: ca Hoa hồng — trước khi áp: tồn thực −2,74 kg', bv.truoc, JSON.stringify(bv));
+ok('BV: hiện nút "Áp dụng 5 kg" kèm tồn sau khi áp (1,26 kg)', bv.nut);
+ok('BV: áp dụng → tồn thực 1,26 kg, không sửa số đã mua / đã dùng, ẩn nhắc', bv.ap);
+ok('BV: ô "tồn hiện có" không điền sẵn số cũ', bv.oTrong);
+ok('BV: khai lần mua có điền tồn thật → tồn thực = đúng số điền', bv.dien);
+/* BW — 15/10/2026 (S66): "Không mùi" + "Không Mùi" (M hoa) trùng → gộp về 1, đổi tham chiếu mặt hàng / mẻ */
+const bw=await E(async()=>{ const g={kho:[...kho],sp:JSON.stringify(sp.map(p=>[p.huongs,p.tam])),mh:JSON.stringify(maHuong),nk}, kq={};
+  kho=[...kho.filter(h=>h!=='Không mùi'),'Không mùi','Không Mùi']; maHuong['Không Mùi']='00';
+  sp[0].huongs=['Không Mùi']; sp[0].tam=['Không Mùi']; sp[1].huongs=['Không mùi','Không Mùi']; sp[1].tam=['Không mùi'];
+  nk=[...g.nk,{id:'BW-1',sp:sp[0].ten,huong:'Không Mùi',sl:10,ts:new Date().toISOString(),ngaysx:isoNay()}];
+  kq.doi=gopKhongMui();
+  kq.mot=kho.filter(isUnscented).length===1&&kho.includes('Không mùi');
+  kq.thamChieu=sp[0].huongs[0]==='Không mùi'&&sp[1].huongs.length===1&&nk.find(r=>r.id==='BW-1').huong==='Không mùi'&&!('Không Mùi' in maHuong);
+  chuyenTab('ma'); kq.mucDM=[...document.querySelectorAll('#viewMA .marow .tn')].filter(i=>isUnscented(i.value)).length===1;
+  kq.lan2=gopKhongMui()===false;
+  kho=g.kho; JSON.parse(g.sp).forEach(([a,b],i)=>{sp[i].huongs=a;sp[i].tam=b}); maHuong=JSON.parse(g.mh); nk=g.nk; luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BW: 2 biến thể "Không mùi" gộp về 1', bw.doi&&bw.mot, JSON.stringify(bw));
+ok('BW: mặt hàng / mẻ đã ghi / mã chuyển sang "Không mùi" chuẩn, không trùng trong mặt hàng', bw.thamChieu);
+ok('BW: Danh mục chỉ còn 1 dòng Không mùi', bw.mucDM);
+ok('BW: chạy lại không đổi gì (không đẩy cấu hình thừa)', bw.lan2);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

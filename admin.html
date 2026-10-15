@@ -1263,9 +1263,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/10/2026-S65</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 15/10/2026-S66</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 15/10/2026-S65</div>
+      <div class="verFoot">BẢN 15/10/2026-S66</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1515,7 +1515,7 @@ function apDungCauHinhTuServer(c){
     sp.forEach(x=>{if(!(x.dauRa||[]).length)x.dauRa=drMacDinh(x.ten);pbTuDong(x)});
   }
   if(Array.isArray(c.kho)&&c.kho.length)kho=c.kho;
-  if(!kho.includes('Không mùi'))kho.push('Không mùi');
+  if(gopKhongMui())setTimeout(luuNgay,0); // đẩy bản đã gộp lên máy chủ để máy khác không kéo bản trùng về
   if(Array.isArray(c.cp))cp=c.cp;
   if(Array.isArray(c.dr)&&c.dr.length)dr=c.dr;
   if(!dr.includes('500 g'))dr.unshift('500 g');
@@ -2477,6 +2477,18 @@ const $=id=>document.getElementById(id);
    bình thường, nhưng KHÔNG cho đổi tên/xoá khỏi danh mục hương. */
 const UNSCENTED_LABEL='Không mùi';
 const isUnscented=v=>String(v||'').trim().toLocaleLowerCase('vi')===UNSCENTED_LABEL.toLocaleLowerCase('vi');
+/* 15/10/2026 (khách: "bị trùng 2 cái không mùi"): trước đây chỉ kiểm tra ĐÚNG chữ 'Không mùi' — dữ liệu có "Không Mùi"
+   (M hoa) thì app tưởng chưa có, thêm bản thứ 2 → 2 mục hệ thống trùng mã 00, không xoá được. Nay mọi biến thể (hoa/thường,
+   khoảng trắng) gộp về MỘT 'Không mùi': đổi tên khắp nơi (mặt hàng, mẻ đã ghi, mã) bằng doiTen rồi bỏ bản trùng. */
+function gopKhongMui(){ // gọi được cả lúc nạp dữ liệu sớm → không dựa vào const isUnscented/UNSCENTED_LABEL
+  const KM='Không mùi', la=x=>String(x||'').trim().toLocaleLowerCase('vi')===KM.toLocaleLowerCase('vi');
+  let doi=false;
+  kho.filter(x=>la(x)&&x!==KM).forEach(v=>{doiTen('h',v,KM);doi=true});
+  const n=kho.length; kho=kho.filter((x,i)=>x!==KM||kho.indexOf(x)===i); if(kho.length!==n)doi=true;
+  if(!kho.includes(KM))kho.push(KM);
+  if(doi)sp.forEach(x=>{x.huongs=[...new Set(x.huongs||[])];x.tam=[...new Set(x.tam||[])]});
+  return doi;
+}
 /* 27/08/2026: chấp nhận CẢ dấu phẩy lẫn dấu chấm thập phân — người Việt quen gõ "50,5".
    input[type=number] gốc chỉ hiểu dấu chấm, gõ dấu phẩy vào đó bị trình duyệt reset về
    rỗng ngay lập tức (mất số đang gõ dở — lỗi "bị văng" khách báo). Đã đổi các ô kg/g liên
@@ -4029,8 +4041,7 @@ function veThemNguonPanel(loai,ten,ix){
       <input class="ninp" data-nf="vat" type="text" inputmode="decimal" placeholder="chưa khai" value="${e0&&e0.vat!==null&&e0.vat!==undefined?e0.vat:''}" style="width:76px;flex:none">
       <span style="font-size:11.5px;color:var(--txt-3)">% (8, 10… để trống nếu chưa rõ)</span>
     </div>
-    ${sua?'':loai==='nl'?`<input class="ninp" data-nf="ton" type="text" inputmode="decimal" placeholder="Tồn kho thật sau khi nhập (kg) — để trống: app tự cộng số kg mua vào tồn" value="" style="width:100%;margin-top:6px">`
-      :`<input class="ninp" data-nf="ton" type="text" inputmode="decimal" placeholder="Tồn kho hiện có (${dvTonKho(loai)}) — để trống nếu không đổi" value="${tk&&tk.con!==undefined?(loai==='h'?Math.round(tk.con/1000*1000)/1000:tk.con):''}" style="width:100%;margin-top:6px">`}
+    ${sua?'':`<input class="ninp" data-nf="ton" type="text" inputmode="decimal" placeholder="Tồn kho thật sau khi nhập (kg) — để trống: app tự cộng số kg mua vào tồn" value="" style="width:100%;margin-top:6px">`}
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="addbtn" data-luunguon="${esc(key)}" style="flex:1;margin:0">${sua?'Lưu sửa':'Lưu nguồn · giá'+(sua?'':' · tồn kho')}</button>
       <button class="addbtn" data-huynguon="${esc(key)}" style="flex:none;width:auto;padding:0 16px;margin:0;background:transparent;border:1px solid var(--line-2);color:var(--txt-3)">Huỷ</button>
@@ -4172,7 +4183,9 @@ function veTonKhoHuong(h){
   else o+=`<span style="color:var(--txt-3)">Chưa đủ 30 ngày dữ liệu ghi mẻ để ước tính</span>`;
   // số nhập tay CŨ (trước khi gộp 1 con số) — không tự trừ theo mẻ, nên chỉ nhắc để khách chốt lại bằng Kiểm kê
   const tay=tonKhoHuong[h], tayKg=tay&&tay.con!==undefined&&tay.con!==''?num(tay.con)/1000:null;
-  if(coDong&&tayKg!==null&&Math.abs(tayKg-(tk.con/1000))>0.001)o+=`</div><div class="log" style="margin:6px 0 0">Số tồn bạn từng <b>nhập tay</b>: <b>${fmtSo(tayKg)} kg</b>${tay.capNhat?' (ngày '+esc(tay.capNhat)+')':''} — số này không tự trừ theo mẻ nên có thể đã cũ. Đếm lại kho thật rồi bấm <b>Kiểm kê</b> để chốt một con số duy nhất.`;
+  if(coDong&&tayKg!==null&&!tay.daAp&&Math.abs(tayKg-(tk.con/1000))>0.001){const sau=tonSauApTay(h);
+    o+=`</div><div class="tk-row" style="display:block;background:var(--warnBg);color:var(--warnTx);margin-top:6px">Số tồn bạn đã điền lúc khai: <b>${fmtSo(tayKg)} kg</b>${tay.capNhat?' (ngày '+esc(tay.capNhat)+')':''} — <b>chưa được tính</b> vào tồn ở trên. Nếu đó là số kho thật lúc khai, bấm <b>Áp dụng</b>: app coi lúc đó kho có ${fmtSo(tayKg)} kg rồi trừ các mẻ đã pha từ đó → tồn thực còn <b>${sau<0?'âm '+fmtSo(-sau):fmtSo(sau)} kg</b>.
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" class="ctsxb on" data-aptay="${esc(h)}">Áp dụng ${fmtSo(tayKg)} kg</button><button type="button" class="ctsxb" data-botay="${esc(h)}">Bỏ qua số này</button></div>`}
   const noDs=noMeHuong(h);
   if(noDs.length)o+=`</div><div class="tk-row" style="background:var(--warnBg);color:var(--warnTx);margin-top:6px;display:block"><b>Nợ dữ liệu: ${noDs.length} mẻ · ${fmtSo(noKgHuong(h))} kg</b> — pha khi chưa có lần mua còn hàng nên chưa có giá (đã tính vào tồn thực ở trên). Khai lần mua rồi <b>trả nợ</b> để chốt giá.
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" class="ctsxb on" data-trano="${esc(h)}">Trả nợ vào lần mua</button><button type="button" class="ctsxb" data-boquano="${esc(h)}">Bỏ qua (mẻ cũ, không tính)</button></div>`;
@@ -4256,6 +4269,19 @@ async function boQuaNoHuong(h){
 function tinhCanhBaoHuong(){
   return kho.filter(h=>!isUnscented(h)).map(h=>{const t=tonThucKg(h),n=noMeHuong(h).length;return {h,vuotKg:t!==null&&t<0?Math.round(-t*1000)/1000:0,noMe:n}})
     .filter(x=>x.vuotKg>0||x.noMe>0);
+}
+/* 15/10/2026: số tồn khách điền lúc khai (tonKhoHuong — bản S63–S65 bỏ qua). Áp dụng = coi lúc khai kho có đúng số đó (tổng các
+   dòng mua + điều chỉnh = số điền), các mẻ trừ từ đó vẫn giữ nguyên → tồn thực mới = tồn thực hiện tại + chênh lệch. */
+function chenhTay(h){const ds=(nguonHuong[h]||[]).filter(e=>num(e.soKg)>0);return Math.round((num(tonKhoHuong[h].con)/1000-ds.reduce((a,e)=>a+num(e.soKg)+num(e.dieuChinhKg||0),0))*1000)/1000}
+const tonSauApTay=h=>Math.round(((tonThucKg(h)||0)+chenhTay(h))*1000)/1000;
+function apSoTayHuong(h){
+  const ds=(nguonHuong[h]||[]).map((e,ix)=>({e,ix})).filter(o=>num(o.e.soKg)>0); if(!ds.length)return false;
+  const dung=huongDangDung[h], dich=(ds.filter(o=>o.e.ncc===dung).slice(-1)[0]||ds[ds.length-1]).e, cu=tonThucKg(h), d=chenhTay(h), sau=tonSauApTay(h);
+  dich.dieuChinhKg=Math.round((num(dich.dieuChinhKg||0)+d)*1000)/1000;
+  dich.dcLog=[...(Array.isArray(dich.dcLog)?dich.dcLog:[]),{ngay:homNay(),truocKg:cu,sauKg:sau,lyDo:'Áp số tồn đã điền lúc khai ('+fmtSo(num(tonKhoHuong[h].con)/1000)+' kg)'}].slice(-30);
+  tonKhoHuong[h].daAp=true;
+  ghiAudit('stock',h,'AP_TON_TAY',{kg:cu},{kg:sau});
+  luuNgay(); bao('Đã áp dụng — tồn '+h+' còn '+fmtSo(sau)+' kg'); return true;
 }
 // kiểm kê: nhập số kg THẬT đang có → chỉnh cho khớp (ghi điều chỉnh vào dòng đang dùng, có nhật ký)
 async function kiemKeHuong(h){
@@ -5554,7 +5580,14 @@ $('viewMA').addEventListener('click',async e=>{
         // ghi "tồn hiện có" = chốt kho (đã gồm lần mua này) · chưa có số tồn = bắt đầu đếm từ lần mua này
         if(String(tonS).trim())tonKhoNguyenLieu[ten]={...(tk||{}),con:num(tonS),capNhat:homNay(),moc:new Date(Date.parse(eM.ts)+1).toISOString()};
         else if(!tk||tk.con===undefined||tk.con==='')tonKhoNguyenLieu[ten]={con:0,capNhat:homNay(),moc:new Date(Date.parse(eM.ts)-1).toISOString()};
-      }else if(String(tonS).trim())tonKhoHuong[ten]={con:num(tonS)*1000,capNhat:homNay()};
+      }else if(String(tonS).trim()){
+        /* 15/10/2026 (khách: "phần khai báo bạn thêm mục ghi tồn làm gì? tôi điền vô đó"): từ S63 tồn hương chỉ tính theo dòng
+           mua nên số điền ở đây bị bỏ qua. Nay số điền = tồn THỰC sau khi nhập → chỉnh dieuChinhKg của dòng vừa khai cho khớp. */
+        const eM=nguonM[ten][nguonM[ten].length-1], x=num(tonS), cu=tonThucKg(ten);
+        eM.dieuChinhKg=Math.round((x-(cu||0))*1000)/1000;
+        eM.dcLog=[{ngay:homNay(),truocKg:cu,sauKg:x,lyDo:'Tồn khai lúc nhập hàng'}];
+        tonKhoHuong[ten]={con:x*1000,capNhat:homNay()};
+      }
       moThemNguon.delete(loai+':'+ten);
       luuNgay();ve();bao('Đã lưu nguồn '+tenLoaiNguon(loai));
       if(loai==='h'&&noMeHuong(ten).length&&await traNoHuong(ten,nguonM[ten].length-1))ve(); // 15/10: có mẻ nợ → hỏi trả nợ vào lần mua vừa khai
@@ -5570,6 +5603,8 @@ $('viewMA').addEventListener('click',async e=>{
 
   const tnb=e.target.closest('[data-trano]'); if(tnb){if(await traNoHuong(tnb.dataset.trano))ve();return}
   const bqn=e.target.closest('[data-boquano]'); if(bqn){if(await boQuaNoHuong(bqn.dataset.boquano))ve();return}
+  const apt=e.target.closest('[data-aptay]'); if(apt){if(apSoTayHuong(apt.dataset.aptay))ve();return}
+  const bot=e.target.closest('[data-botay]'); if(bot){const t=tonKhoHuong[bot.dataset.botay]; if(t){t.daAp=true;luuNgay();ve()} return}
   const stk=e.target.closest('[data-suatk]');
   if(stk){
     const h=stk.dataset.suatk;
@@ -6464,7 +6499,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&dlgRes)dongDlg(null
       cp=Array.isArray(d.cp)?d.cp:[];
       dr=Array.isArray(d.dr)&&d.dr.length?d.dr:[...DR_GOC];
       if(!dr.includes('500 g'))dr.unshift('500 g');
-      if(!kho.includes('Không mùi'))kho.push('Không mùi');
+      gopKhongMui();
       DR_CHUAN.forEach(q=>{if(!dr.includes(q))dr.push(q)});
       sp.forEach(x=>{if(!(x.dauRa||[]).length)x.dauRa=drMacDinh(x.ten);pbTuDong(x)});
       nk=Array.isArray(d.nk)?d.nk:[];nvCuoi=d.nvCuoi||'';
