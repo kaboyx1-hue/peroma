@@ -52,6 +52,9 @@ jobs:
       - name: Admin — trên điện thoại (sửa được như máy tính)
         working-directory: peroma
         run: node huong/kiemtra-chixem.mjs
+      - name: Đồng bộ thật nhiều máy (PC + điện thoại + nhân viên, Code.gs chạy trên Sheet giả lập)
+        working-directory: peroma
+        run: node huong/kiemtra-2may.mjs
       - name: Nhân viên
         working-directory: peroma
         run: node nv/kiemtra-nv.mjs

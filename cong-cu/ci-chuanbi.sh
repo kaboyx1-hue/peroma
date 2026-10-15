@@ -8,7 +8,7 @@ cp admin.html     peroma/huong/bang-tra-huong-lieu.html
 cp nhanvien.html  peroma/nv/peroma-nhanvien.html
 for d in peroma peroma/huong peroma/nv; do cp sw.js "$d/sw.js"; done
 cp Code.gs peroma/giao-apps-script/Code.gs
-cp test/kiemtra.mjs test/kiemtra-chixem.mjs test/kiemtra-truockhi-gui.mjs peroma/huong/
+cp test/kiemtra.mjs test/kiemtra-chixem.mjs test/kiemtra-truockhi-gui.mjs test/kiemtra-2may.mjs peroma/huong/
 cp test/kiemtra-nv.mjs test/kiemtra-vongtron.mjs test/kiemtra-offline.mjs peroma/nv/
 ln -sfn "$PWD/peroma/huong" /tmp/huong
 ln -sfn "$PWD/peroma/nv"    /tmp/nv

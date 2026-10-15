@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 12/10/2026-R38</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 15/10/2026-R39</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -598,6 +598,7 @@ async function dbKeoCauHinh(){
       if(Array.isArray(c.baoBi))baoBi=c.baoBi;
       if(c.baoBiQC&&typeof c.baoBiQC==='object')baoBiQC=c.baoBiQC;
       if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
+      if(Array.isArray(c.canhBaoHuong))canhBaoHuong=c.canhBaoHuong;
       if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
       if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
       if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
@@ -645,6 +646,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='',baoBi=[],baoBiQC={},tuHoSo=[],lenhSX=[],lenhTienDo=[];
+let canhBaoHuong=[]; // 15/10/2026: Admin gửi qua cấu hình — hương đang dùng vượt tồn thực tế / nợ dữ liệu
 /* 19/09/2026 — "Lệnh sản xuất theo lô": xem chú thích đầy đủ ở bản Admin (bang-tra-huong-lieu.html,
    khai báo `let lenhSX=[]`). NV chỉ ĐỌC lenhSX (Admin tạo), còn lenhTienDo NV vừa đọc vừa ghi
    (nhiều nhân viên cùng ghi vào 1 lệnh) — đi qua kênh riêng themLenhTienDo/lenhtiendo ở Code.gs,
@@ -809,7 +811,7 @@ function tongDaSanXuat(tuISO){
 /* 27/08/2026 (phản hồi lần 3): BỎ "Tiến độ nguyên liệu đầu vào" — xem lý do ở bản Admin (đổi
    sang tồn kho + giá riêng từng nguyên liệu). nlTong/nlNgayKhai/nlGhiChu vẫn giữ trong dữ
    liệu lưu/nạp để không phá máy cũ, chỉ không còn hiển thị. */
-const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo});
+const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,canhBaoHuong});
 addEventListener('pagehide',()=>luu());
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luu()});
 
@@ -948,8 +950,14 @@ function veBaoCao(){
     </div>`}).join('');
   return o;
 }
+// 15/10/2026: thông báo hương vượt tồn thực tế (Admin tính, gửi qua cấu hình) — nhắc báo quản lý điều chỉnh
+const cbHuongTxt=x=>(x.vuotKg?'vượt tồn '+fmt(x.vuotKg)+' kg':'')+(x.vuotKg&&x.noMe?' · ':'')+(x.noMe?'chưa khai lần mua ('+x.noMe+' mẻ)':'');
+function veCanhBaoHuongNV(){
+  if(!canhBaoHuong.length)return '';
+  return `<div class="canh" role="alert" style="margin-bottom:12px"><b>⚠ Thông báo kho hương:</b> ${canhBaoHuong.map(x=>'<b>'+esc(x.h)+'</b> '+esc(cbHuongTxt(x))).join(' · ')}.<br>Hương đang dùng nhiều hơn tồn ghi nhận — vẫn pha được, nhưng <b>báo quản lý</b> kiểm kê / nhập thêm hàng.</div>`;
+}
 function veDS(){
-  let o=`<div class="sec">Chọn mặt hàng cần pha</div>`;
+  let o=veCanhBaoHuongNV()+`<div class="sec">Chọn mặt hàng cần pha</div>`;
   o+=sp.map((p,i)=>{
     const tt=p.tt||'ok';
     return `<div class="r" data-sp="${i}">
@@ -1004,7 +1012,8 @@ function veMe(){
   const hs=(p.huongs||[]).filter(h=>h&&String(h).trim());
   o+=`<div class="fld"><label>Hương của mẻ này — chọn một</label>`;
   o+= hs.length
-    ? `<div class="chips">`+hs.map(h=>`<button data-h="${esc(h)}" class="${p.huongMe===h?'on':''}">${esc(h)}</button>`).join('')+`</div>`
+    ? `<div class="chips">`+hs.map(h=>`<button data-h="${esc(h)}" class="${p.huongMe===h?'on':''}">${esc(h)}${canhBaoHuong.some(x=>x.h===h)?' ⚠':''}</button>`).join('')+`</div>`
+      +(canhBaoHuong.find(x=>x.h===p.huongMe)?`<div class="canh" style="margin-top:6px">⚠ <b>${esc(p.huongMe)}</b>: ${esc(cbHuongTxt(canhBaoHuong.find(x=>x.h===p.huongMe)))} — báo quản lý.</div>`:'')
     : `<div class="canh">Mặt hàng chưa có hương nào. Báo quản lý.</div>`;
   o+=`</div>`;
 
@@ -2048,6 +2057,7 @@ function xuatMe(){
       if(Array.isArray(d.baoBi))baoBi=d.baoBi;
       if(d.baoBiQC&&typeof d.baoBiQC==='object')baoBiQC=d.baoBiQC;
       if(Array.isArray(d.tuHoSo))tuHoSo=d.tuHoSo;
+      if(Array.isArray(d.canhBaoHuong))canhBaoHuong=d.canhBaoHuong;
       if(Array.isArray(d.lenhSX))lenhSX=d.lenhSX;
       if(Array.isArray(d.lenhTienDo))lenhTienDo=d.lenhTienDo;
       if(Number.isFinite(+d.temCot)&&+d.temCot>=1)temCot=Math.min(10,Math.round(+d.temCot));

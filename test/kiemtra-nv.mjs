@@ -1023,6 +1023,18 @@ const s25=await E(async()=>{ const kq={}, p=sp.find(x=>(x.dauRa||[]).length&&x.m
 ok('S25: không in tem phụ → số lô 8 số (bỏ mã quy cách), mặt hàng khác giữ 10 số', s25.lo, JSON.stringify(s25));
 ok('S25: tem in "Tên in trên tem" Admin đặt', s25.ten);
 ok('S25: mặt hàng không in tem phụ → bấm in không in', s25.khongIn);
+/* S26 — 15/10/2026: thông báo hương vượt tồn thực tế (Admin gửi qua cấu hình) hiện trên màn chính + chỗ chọn hương */
+const s26=await E(()=>{ const g=JSON.stringify(canhBaoHuong), p=sp[0], hCu=JSON.stringify(p.huongs||[]), hm=p.huongMe, kq={};
+  const H=(p.huongs||[])[0]||kho.find(h=>!isUnscented(h)); p.huongs=[H]; p.huongMe=H;
+  canhBaoHuong=[{h:H,vuotKg:1.24,noMe:1}]; moSP=-1; tab='me'; ve();
+  kq.banner=/Thông báo kho hương/.test(document.body.innerText)&&document.body.innerText.includes(H);
+  moSP=0; ve(); kq.choChon=/báo quản lý/.test(document.body.innerText)&&[...document.querySelectorAll('[data-h]')].some(b=>/⚠/.test(b.textContent));
+  canhBaoHuong=[]; moSP=-1; ve(); kq.hetThiAn=!/Thông báo kho hương/.test(document.body.innerText);
+  canhBaoHuong=JSON.parse(g); p.huongs=JSON.parse(hCu); p.huongMe=hm; ve(); return kq;
+});
+ok('S26: màn chính hiện "Thông báo kho hương" khi Admin báo vượt tồn', s26.banner, JSON.stringify(s26));
+ok('S26: chọn đúng hương đó khi pha → nhắc "báo quản lý", nút hương có ⚠', s26.choChon);
+ok('S26: không còn cảnh báo thì ẩn thông báo', s26.hetThiAn);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

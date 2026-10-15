@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-14-S60';
+const PHIEN_BAN_MAYCHU = '2026-10-15-S63';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -217,7 +217,9 @@ function sachCauHinhServer(c, cu){
            : ((cu && cu.hoaDonBoSung && typeof cu.hoaDonBoSung === 'object') ? cu.hoaDonBoSung : undefined),
     // 14/10/2026 — S60: trạng thái mẻ do Admin đặt (huỷ / ngừng SX / đã in tem) {idMẻ: {...}} — để PC và điện thoại cùng thấy.
     trangThaiMe: (c.trangThaiMe && typeof c.trangThaiMe === 'object' && !Array.isArray(c.trangThaiMe)) ? c.trangThaiMe
-           : ((cu && cu.trangThaiMe && typeof cu.trangThaiMe === 'object') ? cu.trangThaiMe : undefined)
+           : ((cu && cu.trangThaiMe && typeof cu.trangThaiMe === 'object') ? cu.trangThaiMe : undefined),
+    // 15/10/2026 — S63: thông báo hương vượt tồn / nợ dữ liệu (Admin tính) để Nhân viên thấy. Bản Admin cũ không gửi → giữ bản đang lưu.
+    canhBaoHuong: Array.isArray(c.canhBaoHuong) ? c.canhBaoHuong : ((cu && Array.isArray(cu.canhBaoHuong)) ? cu.canhBaoHuong : [])
   };
 }
 

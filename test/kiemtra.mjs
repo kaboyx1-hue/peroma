@@ -322,7 +322,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w]*\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w:()]*\}\}/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -1324,14 +1324,16 @@ const abSetup=await Ea(h=>{
     const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     nk.push({id:'TESTKHO-'+i,sp:sp[0].ten,ngaysx:iso,lot:'TESTKHOLOT',huong:h,mlDung:300,sl:100,quyCach:'5 kg'});
   }
-  tonKhoHuong[h]={con:1000,capNhat:'test'}; // còn 1000ml, dùng ~100ml/ngày (300*10/30) → còn ~10 ngày, KHÔNG cảnh báo
+  // 15/10/2026: tồn = tổng các dòng nhà cung cấp (một con số) → đặt bằng điều chỉnh kiểm kê cho đúng 1 kg
+  window.__datTon=(h,kg)=>{const ds=nguonHuong[h];ds.forEach(e=>e.dieuChinhKg=0);ds[ds.length-1].dieuChinhKg=Math.round((kg-tonHuongKg(h))*1000)/1000};
+  __datTon(h,1); // còn 1000 g, dùng ~100 g/ngày (300*10/30) → còn ~10 ngày, KHÔNG cảnh báo
   return true;
 },aaH);
 ok('thiết lập dữ liệu test tồn kho xong', abSetup);
 const abUoc1=await Ea(x=>uocConLai(x),aaH);
 ok('ước tính đúng số ngày còn dùng được (1000ml ÷ (3000ml/30ngày)=10 ngày)', abUoc1===10, abUoc1);
 ok('10 ngày > ngưỡng 7 → CHƯA cảnh báo', abUoc1>7);
-await Ea(x=>{tonKhoHuong[x].con=200;},aaH); // còn 200ml → ước ~2 ngày, PHẢI cảnh báo
+await Ea(x=>{__datTon(x,0.2);},aaH); // còn 200 g → ước ~2 ngày, PHẢI cảnh báo
 const abUoc2=await Ea(x=>uocConLai(x),aaH);
 ok('còn 200ml → ước ~2 ngày, dưới ngưỡng', abUoc2<=7, abUoc2);
 const abHtml=await Ea(x=>{tab='ma';ve();return $('viewMA').innerHTML},aaH);
@@ -1341,7 +1343,8 @@ await p.click(`[data-suatk="${aaH}"]`); await p.waitForTimeout(250);
 // 27/08/2026-R2: hộp thoại giờ hỏi/nhập theo KG (trước là gram) — nhập '5' (kg) để ra đúng
 // con=5000 gram nội bộ như kỳ vọng ở assertion bên dưới.
 await p.fill('#dlgI','5'); await p.click('#dlgO'); await p.waitForTimeout(300);
-ok('bấm "Cập nhật tồn kho hiện có" lưu đúng số ml mới', (await Ea(x=>tonKhoHuong[x].con,aaH))===5000);
+await p.fill('#dlgI','kiểm kê thử'); await p.click('#dlgO'); await p.waitForTimeout(300); // 15/10: bước 2 — lý do điều chỉnh
+ok('bấm "Kiểm kê" → tồn khớp đúng số kg thật nhập vào (5 kg), có nhật ký điều chỉnh', (await Ea(x=>tonHuongKg(x)===5&&tonKhoHuong[x].con===5000&&nguonHuong[x].some(e=>(e.dcLog||[]).some(l=>l.sauKg===5&&l.lyDo==='kiểm kê thử')),aaH)));
 
 console.log('\n── AC. TỰ TÍNH CHI PHÍ HƯƠNG LIỆU MỖI MẺ/SẢN PHẨM (25/08/2026) ──');
 const acR=await E(()=>{tab='bc';traLot='TESTKHOLOT';ve();return $('viewBC').innerHTML});
@@ -1438,12 +1441,13 @@ console.log('\n── AG. YÊU CẦU 25/08/2026-I (sửa giá nhầm, hết tồ
 // AG1: sửa lỗi hiện "còn dùng được ~null ngày" khi tồn kho về 0 nhưng vẫn có dữ liệu tiêu hao
 const agHetHang=await Ea(h=>{
   tonKhoHuong[h]={con:0,capNhat:'test'};
-  tab='ma'; ve();
+  if((nguonHuong[h]||[]).some(e=>num(e.soKg)>0))__datTon(h,0); // 15/10: một con số tồn — đưa tổng các dòng NCC về 0
+  moTra.add('ncc-h-'+h); tab='ma'; ve();
   const card=[...document.querySelectorAll('.ncc-card')].find(c=>c.querySelector('.ncc-ten')?.textContent===h);
   return card?card.innerHTML:'';
 }, await E(()=>kho[0]));
 ok('hết tồn kho (con=0) KHÔNG còn hiện chữ "null" ra màn hình', !/null/.test(agHetHang), agHetHang.includes('null')?'còn null':'ok');
-ok('hết tồn kho hiện đúng cảnh báo "Đã hết tồn kho"', /Đã hết tồn kho/.test(agHetHang));
+ok('hết tồn kho hiện đúng cảnh báo (15/10: "Hết trong hệ thống — kiểm kê … hoặc nhập thêm")', /Hết trong hệ thống|Đã dùng lố/.test(agHetHang));
 // AG2: "Sửa" 1 dòng nguồn giá đã khai (khách nhập nhầm) — sửa tại chỗ, không tạo dòng lịch sử mới
 // 27/08/2026 (phản hồi lần 3): flow sửa cũng đổi sang panel (data-suanguon → điền lại 3 ô → Lưu sửa)
 const agH=await E(()=>kho[0]);
@@ -1999,7 +2003,7 @@ ok('dùng hết 10kg (4+6) → NCC Hai hết tồn kho', (await E(()=>{
 })));
 await Ea(i=>{tab='ma';moTra.add('ncc-h-Test Hương AQ');ve()},aqIdx); await p.waitForTimeout(150);
 const aqDmHtml=await E(()=>document.getElementById('viewMA').innerHTML);
-ok('tab Danh mục vẫn hiện đủ lịch sử NCC Hai, đánh dấu "hết tồn kho"', /hết tồn kho/.test(aqDmHtml)&&aqDmHtml.includes('NCC Hai'));
+ok('tab Danh mục vẫn hiện đủ lịch sử NCC Hai, đánh dấu đã dùng hết (15/10: "lần mua này đã dùng hết")', /đã dùng hết|tồn trong hệ thống/.test(aqDmHtml)&&aqDmHtml.includes('NCC Hai'));
 
 fs.unlinkSync(aqFile); fs.unlinkSync(aqFile2);
 await E(()=>{nk=nk.filter(r=>!['AQREC-1','AQREC-2'].includes(r.id));tab='ct';moTra.delete('ncc-h-Test Hương AQ');luu();ve()});
@@ -3015,6 +3019,63 @@ ok('BP: bỏ huỷ cũng đồng bộ sang máy khác', bp.boHuy&&bp.maBBoHuy);
   await p.setInputFiles('#nvIn', f); await p.waitForTimeout(300); await p.click('#dlgO'); await p.waitForTimeout(400);
   const goi=await E(()=>{const g=window.__bpGoi.slice();window.dbGoi=window.__bpDg;DONGBO_URL=window.__bpUrl;nk=nk.filter(r=>r.id!=='BP-FILE-1');luuNgay();return g});
   ok('BP: mẻ nhận qua FILE được đẩy lên máy chủ (themMe) để điện thoại cũng có', goi.includes('themMe'), JSON.stringify(goi)); }
+/* BQ — 15/10/2026 (khách duyệt lại): không có lần mua còn hàng → KHÔNG đoán giá, mẻ là NỢ dữ liệu; trả nợ khi khai lần mua */
+const bq=await E(async()=>{ const kq={}, g={nh:JSON.stringify(nguonHuong),hd:JSON.stringify(huongDangDung),sp:JSON.stringify(sp),me:JSON.stringify(meDaTru),nk:nk.slice(),hoi:window.hoi,bs:JSON.stringify(hoaDonBoSung)};
+  const p=sp[0], H='Hương Test BQ'; if(!kho.includes(H))kho.push(H); p.huongs=[H]; p.nguonHuongChon={}; p.nguonHuongKhoa=true;
+  nguonHuong[H]=[{ncc:'Việt Đức',gia:440000,soKg:1,daDungKg:1.2,ngay:'01/10/2026'}]; huongDangDung[H]='Việt Đức';
+  kq.khongDoan=nguonDangDungCuaMatHang(p,H)===null&&thieuNguonMatHang(p).length===0;
+  meDaTru={tu:'2000-01-01T00:00:00.000Z',ids:[]};
+  const r={id:'BQ-1',sp:p.ten,huong:H,mlDung:100,ts:'2026-10-15T01:00:00.000Z'}; nk=[r]; ghiNhanMeLanDau(r);
+  kq.no=r.giaHuongTheoGLucSX===null&&nguonHuong[H][0].daDungKg===1.2&&noMeHuong(H).length===1&&tonThucKg(H)===-0.3;
+  kq.nhanNo=/NỢ dữ liệu/.test(veNguonHuongMatHang(p,0));
+  kq.canhBao=tinhCanhBaoHuong().some(x=>x.h===H&&x.noMe===1&&x.vuotKg===0.3);
+  // khai lần mua mới 5 kg → trả nợ vào lần mua đó
+  nguonHuong[H].push({ncc:'Cty Mới',gia:2200000,soKg:5,daDungKg:0,soHD:'HD-BQ',ngay:'15/10/2026'}); const truoc=tonThucKg(H);
+  window.hoi=async()=>true; await traNoHuong(H,1);
+  kq.traNo=noMeHuong(H).length===0&&r.giaHuongTheoGLucSX===440&&r.chiPhiHuongLucSX===44000&&nguonHuong[H][1].daDungKg===0.1&&tonThucKg(H)===truoc&&hoaDonBoSung['BQ-1'][H]==='HD-BQ';
+  // máy khác nhận sổ trả nợ → điền giá cho mẻ của nó, không trừ lần 2
+  const so=JSON.parse(JSON.stringify(meDaTru)); const r2={...r,giaHuongTheoGLucSX:null,chiPhiHuongLucSX:null}; nk=[r2];
+  apDungCauHinhTuServer({meDaTru:so}); kq.mayKhac=r2.giaHuongTheoGLucSX===440&&truTonKhoConThieu()===0;
+  // bỏ qua nợ
+  const r3={id:'BQ-3',sp:p.ten,huong:H,mlDung:50,ts:'2026-10-15T02:00:00.000Z',giaHuongTheoGLucSX:null}; nk=[r3];
+  await boQuaNoHuong(H); kq.boQua=noMeHuong(H).length===0&&meDaTru.traNo['BQ-3'].boQua===true;
+  // 2 nguồn còn hàng, mặt hàng chưa chọn → theo "đang dùng" ở Danh mục
+  nguonHuong[H]=[{ncc:'A',gia:300000,soKg:5,daDungKg:0},{ncc:'Việt Đức',gia:440000,soKg:5,daDungKg:0}]; huongDangDung[H]='Việt Đức'; p.nguonHuongKhoa=false;
+  kq.theoDangDung=nguonDangDungCuaMatHang(p,H).e.ncc==='Việt Đức';
+  window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); huongDangDung=JSON.parse(g.hd); sp=napSP(JSON.parse(g.sp)); meDaTru=JSON.parse(g.me); nk=g.nk; hoaDonBoSung=JSON.parse(g.bs); luuNgay();
+  return kq;
+});
+ok('BQ: không có lần mua còn hàng → KHÔNG đoán giá, không báo lỗi "chọn nguồn"', bq.khongDoan, JSON.stringify(bq));
+ok('BQ: mẻ ghi là NỢ dữ liệu — chưa giá, chưa trừ kho, nhưng đã tính vào tồn thực', bq.no&&bq.nhanNo);
+ok('BQ: hương nợ / vượt tồn vào danh sách thông báo', bq.canhBao);
+ok('BQ: khai lần mua → trả nợ: chốt giá theo lần mua đó, trừ kho, ghi số HĐ, tồn thực không đổi', bq.traNo);
+ok('BQ: máy Admin khác nhận sổ trả nợ → có giá, không trừ kho lần 2', bq.mayKhac);
+ok('BQ: "Bỏ qua" nợ của mẻ cũ', bq.boQua);
+ok('BQ: nhiều nguồn còn hàng, mặt hàng chưa chọn → dùng nguồn "đang dùng" ở Danh mục', bq.theoDangDung);
+/* BR — 15/10/2026: MỘT con số tồn hương (đã mua − đã dùng + kiểm kê); dùng lố → báo cáo cho Kiểm kê / Nhập thêm hàng */
+const br=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nh:JSON.stringify(nguonHuong),tk:JSON.stringify(tonKhoHuong),hd:JSON.stringify(huongDangDung),nk:nk.slice(),hoi:window.hoi};
+  const H='Hương Test BR'; if(!kho.includes(H))kho.push(H);
+  nguonHuong[H]=[{ncc:'Việt Đức',gia:440000,soKg:1,daDungKg:1.5,ngay:'01/10/2026'}]; huongDangDung[H]='Việt Đức'; tonKhoHuong[H]={con:25000,capNhat:'05/10/2026'};
+  kq.motConSo=tonHuongKg(H)===-0.5;
+  nk.push({id:'BR-1',sp:sp[0].ten,huong:H,sl:100,mlDung:1500,lot:'1212121212',ngaysx:isoNay(),ts:new Date().toISOString()});
+  tuNgay='';denNgay=''; chuyenTab('bc'); await cho(40);
+  const the=[...document.querySelectorAll('.bch')].find(c=>c.textContent.includes(H));
+  kq.baoLo=!!the&&/Dùng lố 0,5 kg/.test(the.textContent)&&!!the.querySelector('[data-kiemke]')&&!!the.querySelector('[data-nhapthem]');
+  const tl=['25','đếm kho']; window.hoi=async()=>tl.shift();
+  the.querySelector('[data-kiemke]').click(); await cho(120);
+  kq.kiemKe=tonHuongKg(H)===25&&nguonHuong[H][0].dcLog.slice(-1)[0].lyDo==='đếm kho'&&nguonHuong[H][0].daDungKg===1.5&&nguonHuong[H][0].soKg===1;
+  // nhập thêm: thêm dòng mua mới 5 kg khi đang âm → phần thiếu tự bù vào tổng
+  nguonHuong[H][0].dieuChinhKg=0; nguonHuong[H].push({ncc:'Việt Đức',gia:2200000,soKg:5,daDungKg:0,ngay:'15/10/2026'}); kq.nhapThemBu=tonHuongKg(H)===4.5;
+  nguonHuong[H].pop(); chuyenTab('bc'); await cho(40); [...document.querySelectorAll('.bch')].find(c=>c.textContent.includes(H)).querySelector('[data-nhapthem]')?.click(); await cho(80);
+  kq.moKhungNhap=tab==='ma'&&!!document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`);
+  window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); tonKhoHuong=JSON.parse(g.tk); huongDangDung=JSON.parse(g.hd); nk=g.nk; moThemNguon.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BR: chỉ MỘT con số tồn = đã mua − đã dùng (không lẫn số nhập tay cũ)', br.motConSo, JSON.stringify(br));
+ok('BR: báo cáo hiện "Dùng lố" + 2 nút Kiểm kê / Nhập thêm hàng', br.baoLo);
+ok('BR: Kiểm kê → tồn khớp số thật, có nhật ký lý do, KHÔNG sửa số đã mua/đã dùng', br.kiemKe);
+ok('BR: Nhập thêm lần mua mới khi đang âm → phần thiếu tự bù vào tổng', br.nhapThemBu);
+ok('BR: bấm "Nhập thêm hàng" ở báo cáo → mở đúng khung nhập ở Danh mục', br.moKhungNhap);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
