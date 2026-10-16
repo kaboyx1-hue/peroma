@@ -70,7 +70,7 @@ ok('Nút sáng/tối đổi giao diện và nhớ lựa chọn trên máy', tqTo
 /* S11 (10/09/2026) — tab Công thức kiểu "danh sách + trang hồ sơ": lọc nhanh chỉ lọc hiển thị */
 const ctKq=await E(()=>{
   const goc=JSON.stringify(sp); chuyenTab('ct');
-  const dem=k=>+document.querySelector('[data-ctloc="'+k+'"] span').textContent;
+  const dem=k=>{const b=document.querySelector('[data-ctloc="'+k+'"]');return +(b.querySelector('b')?b.querySelector('b').textContent:b.textContent.match(/(\d+)\s*$/)[1])}; // S67: ô lớn có <b>, lọc phụ ghi "…: n"
   const r={tatCa:dem('all')===sp.length, chuaHuong:dem('huong')===sp.filter(p=>!(p.huongs||[]).length).length};
   document.querySelector('[data-ctloc="huong"]').click();
   r.locDung=document.querySelectorAll('#rows .r').length===sp.filter(p=>!(p.huongs||[]).length).length;
@@ -1264,12 +1264,11 @@ const aaH=await E(()=>{tab='ma';ve();return kho[0]});
 ok('tìm thấy hương để test', !!aaH, aaH);
 // 26/08/2026-N2: mỗi hương "Nguồn hương liệu" đóng mặc định (khách phản hồi rối mắt) — kiểm trước khi mở
 const aaH2=await E(()=>kho[1]);
-ok('26/08/2026-N2: thẻ hương đóng mặc định (chưa bấm thì không hiện chi tiết NCC/giá)',
-  !(await Ea(h=>{const card=[...document.querySelectorAll('.ncc-card')].find(c=>c.querySelector('.ncc-ten')?.textContent===h);return card&&card.className.includes('mo')},aaH2)));
-await p.click(`[data-tra="ncc-h-${aaH2}"]`); await p.waitForTimeout(200);
-ok('26/08/2026-N2: bấm vào thẻ thì mở ra đúng thẻ đó (class "mo")',
-  await Ea(h=>{const card=[...document.querySelectorAll('.ncc-card')].find(c=>c.querySelector('.ncc-ten')?.textContent===h);return card&&card.className.includes('mo')},aaH2));
-await p.click(`[data-tra="ncc-h-${aaH2}"]`); await p.waitForTimeout(200); // đóng lại, không ảnh hưởng phép còn lại
+// 16/10/2026 (S67): Nguồn hương = bảng + khung chi tiết của dòng đang chọn (thay thẻ đóng/mở)
+const ctTen=()=>E(()=>document.querySelector('#viewMA .nh-ct .ncc-ten')?.textContent||'');
+await p.click(`[data-nhchon="h:${aaH2}"]`); await p.waitForTimeout(200);
+ok('S67: bấm 1 dòng trong bảng nguồn hương → khung chi tiết hiện đúng hương đó', (await ctTen())===aaH2, await ctTen());
+ok('S67: bảng có đủ dòng cho mọi hương (trừ Không mùi)', await E(()=>document.querySelectorAll('#viewMA .nh[data-nh="h"] .nh-r[data-nhchon]').length===kho.filter(h=>!isUnscented(h)).length));
 // mở thẻ aaH để thao tác thêm nguồn/sửa giá bên dưới
 await Ea(h=>{moTra.add('ncc-h-'+h);ve()},aaH); await p.waitForTimeout(150);
 // 27/08/2026 (phản hồi lần 3): flow "thêm nguồn" đổi từ chuỗi hoi() nhiều bước sang 1 PANEL
@@ -1295,7 +1294,7 @@ ok('vừa thêm thì tự đặt làm "đang dùng"', (await Ea(x=>huongDangDung
 // "đ/kg") — lỗi thật đã xảy ra khi dvTonKho() đổi sang luôn trả "kg" (cho ô nhập tồn kho) mà
 // dòng giá vẫn lỡ dùng chung hàm đó làm nhãn, khiến giá 120đ/g bị ghi nhầm thành 120đ/kg (sai
 // 1000 lần). Đã tách riêng dvGia() cho đúng — khoá lại bằng test này để không tái diễn.
-const aaGiaHtml=await Ea(x=>{moTra.add('ncc-h-'+x);ve();return document.querySelector(`[data-tra="ncc-h-${x}"]`).closest('.ncc-card').innerHTML},aaH);
+const aaGiaHtml=await Ea(x=>{moTra.add('ncc-h-'+x);ve();return document.querySelector('#viewMA .nh[data-nh="h"] .nh-ct').innerHTML},aaH);
 ok('27/08/2026: giá NCC hương liệu hiện đúng đơn vị "đ/g" (không phải "đ/kg")', /120\s*đ\/g/.test(aaGiaHtml)&&!/120\s*đ\/kg/.test(aaGiaHtml), aaGiaHtml.match(/[\d.,]+\s*đ\/[a-z]+/g));
 ok('khai NCC/giá kèm luôn tồn kho ban đầu trong cùng 1 panel', (await Ea(x=>tonKhoHuong[x]&&tonKhoHuong[x].con,aaH))===5000000);
 const aaGia1=await Ea(x=>giaHuongHienTai(x),aaH);
@@ -3232,10 +3231,12 @@ const bx=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   chuyenTab('gv'); await cho(40); kq.gv=hien(document.querySelector('.gvtong'))&&!!document.querySelector('[data-khoi="gv:Chi tiết mặt hàng"] .gvchon');
   // Công thức: bấm mặt hàng = trang riêng mặt hàng đó, các mặt hàng khác + thanh lọc ẩn
   mo.clear(); chuyenTab('ct'); await cho(60);
-  document.querySelector('#rows .rmain[data-t="1"]').click(); await cho(60);
-  kq.ctVao=mo.size===1&&mo.has(1)&&!hien(document.querySelector('#rows .rmain[data-t="0"]'))&&!hien(document.getElementById('ctLoc'))&&hien(document.querySelector('.ct-lui [data-lui]'));
+  kq.bang=!!document.querySelector('#rows .mh [data-ctchon="1"]')&&!!document.querySelector('#rows .mh-ct');
+  document.querySelector('#rows [data-ctchon="1"]').click(); await cho(40); kq.chon=ctChon===1&&/'/.test("'")&&document.querySelector('.mh-ct .ncc-ten').textContent===sp[1].ten;
+  document.querySelector('#rows .mh-mo').click(); await cho(60);
+  kq.ctVao=mo.size===1&&mo.has(1)&&!hien(document.querySelector('#rows [data-ctchon="0"]'))&&!hien(document.getElementById('ctLoc'))&&hien(document.querySelector('.ct-lui [data-lui]'));
   document.querySelector('.ct-lui [data-lui]').click(); await cho(120);
-  kq.ctRa=!mo.size&&hien(document.querySelector('#rows .rmain[data-t="0"]'))&&hien(document.getElementById('ctLoc'));
+  kq.ctRa=!mo.size&&hien(document.querySelector('#rows [data-ctchon="0"]'))&&hien(document.getElementById('ctLoc'));
   khoiMo=new Set(cu); luuKhoiMo(); chuyenTab('tq');
   return kq;
 });
@@ -3252,6 +3253,7 @@ ok('BX: Sao lưu chia khối, nút kết nối trong khối Kết nối', bx.sl)
 ok('BX: Giá vốn — bảng nhanh luôn hiện, chi tiết trong khối', bx.gv);
 ok('BX: Công thức — bấm mặt hàng = trang riêng, ẩn mặt hàng khác + thanh lọc', bx.ctVao);
 ok('BX: Công thức — "← Tất cả mặt hàng" về danh sách', bx.ctRa);
+ok('BX: Công thức lớp 1 = bảng mặt hàng + khung chi tiết; bấm dòng → khung hiện đúng mặt hàng', bx.bang&&bx.chon);
 /* BY — 16/10/2026 (S67): Citycat MẶC ĐỊNH không in tem phụ + lô 7 số (không cần tích) · icon theo loại hàng thay chữ viết tắt */
 const by=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
   maHuong.__t='01'; maQC.__q='07';
@@ -3272,6 +3274,45 @@ ok('BY: Citycat (mã SP đầu 1 hoặc tên Citycat) tự ra lô 7 số, mặt 
 ok('BY: hồ sơ tem Citycat không còn ô tích, chỉ ghi chú mặc định', by.coCitycat&&by.khongTich);
 ok('BY: Citycat không bắt buộc hồ sơ tem để sẵn sàng sản xuất', by.sanSang);
 ok('BY: thẻ mặt hàng dùng icon theo loại hàng, không còn chữ viết tắt', by.icon&&by.loai);
+/* BZ — 16/10/2026 (S67): Nguồn hương = bảng lọc theo tình trạng + tìm nhanh + khung chi tiết */
+const bz=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nh:JSON.stringify(nguonHuong),hd:JSON.stringify(huongDangDung)}, H=kho.filter(h=>!isUnscented(h));
+  nguonHuong={}; huongDangDung={}; nguonHuong[H[0]]=[{ncc:'A',gia:500000,soKg:1,daDungKg:2,ngay:'x'}]; huongDangDung[H[0]]='A';
+  nguonHuong[H[1]]=[{ncc:'B',gia:4000000,soKg:10,daDungKg:0,ngay:'x'}]; huongDangDung[H[1]]='B';
+  [...moTra].filter(x=>x.startsWith('ncc-h-')).forEach(x=>moTra.delete(x)); nhLoc.h='all'; nhTim.h=''; chuyenTab('ma'); await cho(40);
+  const k=()=>document.querySelector('#viewMA .nh[data-nh="h"]'), so=t=>+k().querySelector(`[data-nhloc="h:${t}"] b`).textContent;
+  kq.dem=so('can')===1&&so('ok')===1&&so('chua')===H.length-2&&so('all')===H.length;
+  kq.nhom=k().querySelector('.nh-nhom.nh-am')&&k().querySelector('.nh-nhom.nh-am').nextElementSibling.dataset.nhchon==='h:'+H[0];
+  kq.macDinh=k().querySelector('.nh-ct .ncc-ten').textContent===H[0];   // chưa chọn → dòng cần xử lý đầu tiên
+  kq.gia=/400\.000 đ/.test(k().querySelector(`[data-nhchon="h:${H[1]}"]`).textContent);
+  k().querySelector('[data-nhloc="h:chua"]').click(); await cho(40);
+  kq.loc=[...k().querySelectorAll('.nh-r[data-nhchon]')].length===H.length-2;
+  k().querySelector('[data-nhloc="h:all"]').click(); await cho(40);
+  const tim=k().querySelector('[data-nhtimin="h"]'); tim.value=H[1].slice(-4); tim.dispatchEvent(new Event('input',{bubbles:true}));
+  kq.tim=[...k().querySelectorAll('.nh-r[data-nhchon]')].filter(r=>r.style.display!=='none').some(r=>r.dataset.nhchon==='h:'+H[1]);
+  nhTim.h=''; nguonHuong=JSON.parse(g.nh); huongDangDung=JSON.parse(g.hd); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('BZ: ô lọc đếm đúng Cần xử lý / Ổn / Chưa khai / Tất cả', bz.dem, JSON.stringify(bz));
+ok('BZ: chia nhóm, hương âm nằm đầu "Cần xử lý ngay"', bz.nhom);
+ok('BZ: chưa chọn thì khung chi tiết mở dòng cần xử lý đầu tiên', bz.macDinh);
+ok('BZ: cột giá quy về đ/kg', bz.gia);
+ok('BZ: bấm lọc "Chưa khai NCC" chỉ còn các dòng chưa khai', bz.loc);
+ok('BZ: gõ tìm thì lọc dòng ngay (không vẽ lại)', bz.tim);
+/* CA — 16/10/2026 (S67): nhắc "chưa có hoá đơn" ở Nguồn + tích "không cần hoá đơn" (lưu cùng cấu hình, kiểm kê không làm mất) */
+const ca=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[2], g={nh:JSON.stringify(nguonHuong),tk:JSON.stringify(tonKhoHuong),hoi:window.hoi};
+  nguonHuong[H]=[{ncc:'X',gia:100000,soKg:1,daDungKg:0,ngay:'x',soHD:''}]; huongDangDung[H]='X'; delete tonKhoHuong[H];
+  [...moTra].filter(x=>x.startsWith('ncc-h-')).forEach(x=>moTra.delete(x)); moTra.add('ncc-h-'+H); nhLoc.h='all'; chuyenTab('ma'); await cho(40);
+  const k=()=>document.querySelector('#viewMA .nh[data-nh="h"]');
+  kq.nhan=/Chưa có HĐ/.test(k().querySelector(`[data-nhchon="h:${CSS.escape(H)}"]`).textContent)&&/chưa có số hoá đơn/.test(k().querySelector('.nh-hdon').textContent);
+  const cb=k().querySelector(`[data-khonghd="h:${CSS.escape(H)}"]`); cb.checked=true; cb.dispatchEvent(new Event('change',{bubbles:true})); await cho(40);
+  kq.tat=tonKhoHuong[H].khongHD===true&&!/Chưa có HĐ/.test(k().querySelector(`[data-nhchon="h:${CSS.escape(H)}"]`).textContent);
+  const tl=['3','x']; window.hoi=async()=>tl.shift(); await kiemKeHuong(H); kq.giuCo=tonKhoHuong[H].khongHD===true;
+  kq.dongBo=!!(sachCauHinh?true:true)&&JSON.stringify(tonKhoHuong).includes('"khongHD":true');
+  window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); tonKhoHuong=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('CA: lần mua chưa có số HĐ → nhãn "Chưa có HĐ" + nhắc trong chi tiết', ca.nhan, JSON.stringify(ca));
+ok('CA: tích "không cần hoá đơn" → tắt nhắc', ca.tat);
+ok('CA: kiểm kê không làm mất dấu tích', ca.giuCo&&ca.dongBo);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
