@@ -7,7 +7,7 @@ let dat=0,hong=0; const ok=(t,c,g='')=>{c?dat++:hong++;console.log(`${c?'✓':'�
    Mẻ ghi qua giao diện dùng ngày hôm nay, nên lô mong đợi phải tính theo tháng chạy test.
    Viết cứng '0826' thì từ tháng 9/2026 trở đi là hỏng dù phần mềm vẫn đúng. */
 const _n=new Date();
-const LOT_UI='110107'+String(_n.getMonth()+1).padStart(2,'0')+String(_n.getFullYear()).slice(-2);
+const LOT_UI='210107'+String(_n.getMonth()+1).padStart(2,'0')+String(_n.getFullYear()).slice(-2);
 const b=await chromium.launch({executablePath:CH});
 /* S16 (10/09/2026): in tem giờ tự dàn chữ — nội dung tem dài ở khổ 5×4 thì app HỎI đổi khổ trước khi in.
    Các bài test cũ (kiểm đúng bản ghi / đúng id, không kiểm khổ) không trả lời hộp này nên sẽ chờ mãi. Tự bấm
@@ -16,14 +16,17 @@ const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m
   if(!t||!m||!o||window.__tatTuDongKhoTem)return;
   if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click();
   const d=document.getElementById('danTem'); if(d){const n=document.getElementById('dtIn'); if(n&&!n.disabled)n.click(); else {const g=d.querySelector('[data-dt="goiy"]'); if(g)g.click()}}},40)};
-const ctx=await b.newContext({acceptDownloads:true}); await ctx.addInitScript(TU_KHO_TEM); const err=[];
+const ctx=await b.newContext({acceptDownloads:true}); await ctx.addInitScript(TU_KHO_TEM);
+// S67: giao diện nhiều lớp — mở sẵn mọi khối để bấm thẳng nút bên trong (như người dùng vào trang khối)
+await ctx.addInitScript(()=>{try{localStorage.setItem('peroma_khoiMo','["*"]')}catch(e){}}); const err=[];
 
 // ── 1. ADMIN: dựng dữ liệu rồi xuất .json
 const A=await ctx.newPage(); A.on('pageerror',e=>err.push('ADMIN '+e.message));
 await A.goto('http://127.0.0.1:8777/huong/bang-tra-huong-lieu.html'); await A.waitForTimeout(800);
 await A.evaluate(()=>{
   maHuong['Hương Chanh']='01'; maQC['5 kg']='07'; nvDS.push('Toàn');
-  const c=sp.find(x=>x.ten==='Citycat'); c.maSP='11';
+  // S67: Citycat giờ tự ra lô 7 số, không tem → bài vòng tròn dùng mặt hàng thường (mã 21) để kiểm lô 10 số + tem
+  doiTen('sp','Citycat','Cát Test'); const c=sp.find(x=>x.ten==='Cát Test'); c.maSP='21';
   c.huongs=['Hương Chanh']; c.tam=[...c.huongs]; c.dauRa=['5 kg'];
   c.hstem={tenVN:'Cát vệ sinh THE CITYCAT',tenEN:'',thanhPhan:'Bentonite, hương liệu',
     congDung:'Vón cục, khử mùi',kichThuoc:'0,5–3,5 mm',doAm:'< 10%',hdsd:HDSD_NHOM[0][1],
@@ -44,12 +47,12 @@ await N.click('[data-tab="dl"]'); await N.waitForTimeout(250);
 await N.setInputFiles('#fIn','/tmp/cauhinh_admin.json'); await N.waitForTimeout(400);
 await N.click('#dlgO'); await N.waitForTimeout(500);
 ok('nhân viên nạp được cấu hình admin', (await N.evaluate(()=>sp.length))===11);
-ok('nhận đủ hồ sơ tem', (await N.evaluate(()=>(sp.find(x=>x.ten==='Citycat').hstem||{}).soTCCS))==='01:2026/KH');
+ok('nhận đủ hồ sơ tem', (await N.evaluate(()=>(sp.find(x=>x.ten==='Cát Test').hstem||{}).soTCCS))==='01:2026/KH');
 ok('nhân viên nhận đúng tiến độ nguyên liệu khai báo (nlTong)', (await N.evaluate(()=>nlTong))===27000);
 await N.click('#whoBtn'); await N.waitForTimeout(250);
 await N.click('[data-cn="Toàn"]'); await N.waitForTimeout(200); await N.click('#dlgO'); await N.waitForTimeout(300);
 await N.click('[data-tab="me"]'); await N.waitForTimeout(300);
-const i=await N.evaluate(()=>sp.findIndex(x=>x.ten==='Citycat'));
+const i=await N.evaluate(()=>sp.findIndex(x=>x.ten==='Cát Test'));
 await N.click(`[data-sp="${i}"]`); await N.waitForTimeout(350);
 await N.click('[data-f="sl"]'); await N.keyboard.type('100',{delay:50}); await N.waitForTimeout(300);
 await N.click('[data-h="Hương Chanh"]'); await N.waitForTimeout(350);
