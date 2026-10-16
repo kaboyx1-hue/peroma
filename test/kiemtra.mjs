@@ -17,6 +17,8 @@ const TU_KHO_TEM=()=>{setInterval(()=>{const t=document.getElementById('dlgT'),m
   if(/Khổ này không đủ chỗ cho tem|Chữ trên tem sẽ rất nhỏ/.test(t.textContent)&&getComputedStyle(m).display!=='none')o.click();
   const d=document.getElementById('danTem'); if(d){const n=document.getElementById('dtIn'); if(n&&!n.disabled)n.click(); else {const g=d.querySelector('[data-dt="goiy"]'); if(g)g.click()}}},40)};
 const ctxA=await b.newContext(); await ctxA.addInitScript(TU_KHO_TEM);
+// S67: giao diện nhiều lớp — các bài cũ bấm thẳng vào nội dung trong khối, nên mở sẵn mọi khối (BX kiểm riêng lúc đóng)
+await ctxA.addInitScript(()=>{try{if(!sessionStorage.getItem('kt_lop')){localStorage.setItem('peroma_khoiMo','["*"]');sessionStorage.setItem('kt_lop','1')}}catch(e){}});
 const p=await ctxA.newPage();
 const cerr=[]; p.on('pageerror',e=>cerr.push('PAGEERROR '+e.message));
 p.on('console',m=>{if(m.type()==='error')cerr.push(m.text())});
@@ -761,7 +763,7 @@ ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
 
 console.log('\n── B. SỐ LÔ ──');
-const vd=await E(()=>{const t=[['11','01','06','2026-08-15','11 01 06 0826'],['42','00','04','2026-08-01','42 00 04 0826'],
+const vd=await E(()=>{const t=[['11','01','06','2026-08-15','11 01 086'],['42','00','04','2026-08-01','42 00 04 0826'],
   ['36','00','10','2026-09-20','36 00 10 0926'],['51','02','02','2026-09-05','51 02 02 0926'],['22','08','05','2026-10-11','22 08 05 1026']];
   return t.map(x=>{maHuong.__t=x[1];maQC.__q=x[2];return lotDep(sinhLot({ten:'X',maSP:x[0]},'__t','__q',x[3]).lot)===x[4]})});
 ok('5 ví dụ trong quy ước khớp hết', vd.every(Boolean), vd.filter(Boolean).length+'/5');
@@ -782,7 +784,7 @@ console.log('\n── D. GHI MẺ ──');
    hàm sinhLot()/chiaBao()/lenhKe() mà trước đây data-ok handler dùng, mô phỏng 1 mẻ 100kg
    chia 2 quy cách (75kg→5kg, 25kg→1kg) — y hệt kịch bản cũ để các phần E trở đi không đổi. */
 const i=await E(()=>{maHuong['Hương Chanh']='01';maQC['5 kg']='07';maQC['1 kg']='04';nvDS.push('Toàn');
-  const c=sp.find(x=>x.ten==='Citycat');c.maSP='11';c.huongs=['Hương Chanh'];c.tam=[...c.huongs];c.huongMe='Hương Chanh';
+  doiTen('sp','Citycat','Cát Test');const c=sp.find(x=>x.ten==='Cát Test');c.maSP='21';c.huongs=['Hương Chanh'];c.tam=[...c.huongs];c.huongMe='Hương Chanh';
   c.dauRa=['5 kg','1 kg'];c.ngaysx='2026-08-22';c.sl='100';c.nv='Toàn';c.pb=[{qc:'5 kg',kg:'75'},{qc:'1 kg',kg:'25'}];
   luuNgay();tab='ct';mo.clear();mo.add(sp.indexOf(c));ve();return sp.indexOf(c)});
 await p.waitForTimeout(400);
@@ -822,8 +824,8 @@ ok('25/08/2026-K, 26/08/2026 PATCH V1 mục G1: chưa có chốt thực tế nà
 await p.click('[data-intem]'); await p.waitForTimeout(450);
 ok('chặn in khi hồ sơ tem thiếu', (await E(()=>($('dlgT')||{}).textContent))==='Hồ sơ tem chưa đủ');
 await p.click('#dlgC'); await p.waitForTimeout(250);
-await E(()=>{const c=sp.find(x=>x.ten==='Citycat');
-  c.hstem={tenVN:'Cát vệ sinh THE CITYCAT',tenEN:'',thanhPhan:'Bentonite, hương liệu',congDung:'Vón cục, khử mùi',
+await E(()=>{const c=sp.find(x=>x.ten==='Cát Test');
+  c.hstem={tenVN:'Cát vệ sinh THE CATTEST',tenEN:'',thanhPhan:'Bentonite, hương liệu',congDung:'Vón cục, khử mùi',
     kichThuoc:'0,5–3,5 mm',doAm:'< 10%',hdsd:HDSD_NHOM[0][1],baoQuan:BAOQUAN_MD,xuatXu:XUATXU_MD,soTCCS:'01:2026/KH',hsdNam:'10'};
   luuNgay();ve()});
 await p.waitForTimeout(300);
@@ -831,14 +833,14 @@ await p.click('[data-intem]'); await p.waitForTimeout(500);
 ok('in được khi hồ sơ đủ', (await E(()=>window.__in===1)));
 const tem=await E(()=>$('temIn').innerText);
 ok('tem có ngày SX đầy đủ', /22\/08\/2026/.test(tem));
-ok('tem có số lô', /11 01 07 0826|11 01 04 0826/.test(tem));
+ok('tem có số lô', /21 01 07 0826|21 01 04 0826/.test(tem));
 ok('tem có địa chỉ sản xuất', /8A AN DƯƠNG VƯƠNG/i.test(tem)); // 16/09/2026: khối công ty đổi sang chữ hoa (khách yêu cầu fix cứng)
 ok('tem tính hạn dùng', /đến 22\/08\/2036/.test(tem));
 ok('#temIn là con trực tiếp của body', (await E(()=>$('temIn').parentElement.tagName))==='BODY');
 
 console.log('\n── F. ĐỔI TÊN LAN TRUYỀN ──');
-await E(()=>{doiTen('sp','Citycat','THE CITYCAT');doiTen('h','Hương Chanh','Chanh tươi');luuNgay();ve()});
-ok('đổi tên SP lan sang nhật ký', (await E(()=>nk.every(r=>r.sp==='THE CITYCAT'))));
+await E(()=>{doiTen('sp','Cát Test','THE CATTEST');doiTen('h','Hương Chanh','Chanh tươi');luuNgay();ve()});
+ok('đổi tên SP lan sang nhật ký', (await E(()=>nk.every(r=>r.sp==='THE CATTEST'))));
 ok('đổi tên hương lan sang nhật ký', (await E(()=>nk.every(r=>r.huong==='Chanh tươi'))));
 ok('mã hương theo tên mới', (await E(()=>maHuong['Chanh tươi']))==='01');
 ok('tên cũ biến mất', (await E(()=>!kho.includes('Hương Chanh'))));
@@ -847,7 +849,7 @@ console.log('\n── G. LƯU / NẠP LẠI ──');
 await p.reload(); await p.waitForTimeout(900);
 ok('nhật ký còn sau tải lại', (await E(()=>nk.length))===2);
 ok('danh mục nhân viên còn', (await E(()=>nvDS.includes('Toàn'))));
-ok('hồ sơ tem còn', (await E(()=>(sp.find(x=>x.ten==='THE CITYCAT').hstem||{}).soTCCS))==='01:2026/KH');
+ok('hồ sơ tem còn', (await E(()=>(sp.find(x=>x.ten==='THE CATTEST').hstem||{}).soTCCS))==='01:2026/KH');
 await E(()=>{kgQC['5 kg']=99;return luuNgay()});
 await p.waitForTimeout(200); await p.reload(); await p.waitForTimeout(900);
 ok('kg sửa tay không bị đoán đè', (await E(()=>kgQC['5 kg']))===99);
@@ -881,9 +883,9 @@ ok('in tem theo id B lấy đúng bản ghi B, KHÔNG lấy nhầm A', /20\/08\/
 await E(()=>{nk=nk.filter(x=>x.id!=='TEST-H2-A'&&x.id!=='TEST-H2-B');luuNgay();ve()});
 
 console.log('\n── J. H1 — CẤU HÌNH GỬI ĐI KHÔNG MANG DỮ LIỆU ĐANG GHI DỞ ──');
-await E(()=>{const c=sp.find(x=>x.ten==='THE CITYCAT');
+await E(()=>{const c=sp.find(x=>x.ten==='THE CATTEST');
   c.sl='999';c.pb=[{qc:'5 kg',kg:'999'}];c.huongMe='Hương Chanh';c.ngaysx='2026-08-01';c.lot='TESTLOT';c.nv='NguoiTest'});
-const sachJ=await E(()=>JSON.stringify(sachCauHinh(sp).find(x=>x.ten==='THE CITYCAT')));
+const sachJ=await E(()=>JSON.stringify(sachCauHinh(sp).find(x=>x.ten==='THE CATTEST')));
 const sachJO=JSON.parse(sachJ);
 ok('sachCauHinh() bỏ trường sl (đang ghi dở)', !sachJO.hasOwnProperty('sl'));
 ok('sachCauHinh() bỏ trường pb/huongMe/lot/ngaysx/nv', ['pb','huongMe','lot','ngaysx','nv'].every(k=>!sachJO.hasOwnProperty(k)));
@@ -891,7 +893,7 @@ ok('sachCauHinh() vẫn giữ trường danh mục (kg/maSP)', sachJO.hasOwnProp
 
 console.log('\n── K. TCCS TỰ ĐỘNG ĐIỀN HỒ SƠ TEM ──');
 const kR=await E(()=>{
-  const p=sp.find(x=>x.ten==='THE CITYCAT');
+  const p=sp.find(x=>x.ten==='THE CATTEST');
   p.maSP='11'; p.hstem={...temMoi()}; p.hstem.tenVN='TÊN ĐÃ NHẬP TAY — KHÔNG ĐƯỢC GHI ĐÈ';
   const r=apTCCS(sp.indexOf(p));
   return {ok:r.ok,ly_do:r.ly_do,tenVN:p.hstem.tenVN,thanhPhan:p.hstem.thanhPhan,
@@ -927,8 +929,8 @@ ok('apTCCS() báo rõ khi mặt hàng chưa có mã sản phẩm', kNoMa.ok===fa
 
 console.log('\n── L. LƯỚI TEM 1 TRANG A4 DUY NHẤT (25/08/2026 — đơn giản hoá, bỏ phụ thuộc soBao) ──');
 const lR=await E(()=>{
-  const p=sp.find(x=>x.ten==='THE CITYCAT');
-  const r={...nk[0],sp:'THE CITYCAT',soBao:'7'}; // soBao giờ KHÔNG còn ảnh hưởng tới số trang/tem
+  const p=sp.find(x=>x.ten==='THE CATTEST');
+  const r={...nk[0],sp:'THE CATTEST',soBao:'7'}; // soBao giờ KHÔNG còn ảnh hưởng tới số trang/tem
   temCot=5;temHang=4;
   const html=trangTem(r,p);
   const div=document.createElement('div');div.innerHTML=html;
@@ -939,8 +941,8 @@ ok('luôn đúng 1 trang, dàn kín lưới (5×4=20 tem), không phụ thuộc 
 ok('lưới 20/tờ dùng cỡ chữ nhỏ nhất (to-nho)', /to-nho/.test(lR.cls));
 
 const lR3=await E(()=>{
-  const p=sp.find(x=>x.ten==='THE CITYCAT');
-  const r={...nk[0],sp:'THE CITYCAT',soBao:''}; // hàng rời, không có số bao — vẫn 1 trang dàn kín
+  const p=sp.find(x=>x.ten==='THE CATTEST');
+  const r={...nk[0],sp:'THE CATTEST',soBao:''}; // hàng rời, không có số bao — vẫn 1 trang dàn kín
   temCot=3;temHang=2;
   const html=trangTem(r,p);
   const div=document.createElement('div');div.innerHTML=html;
@@ -953,8 +955,8 @@ ok('lưới nhỏ (6/tờ) dùng cỡ chữ vừa (to-vua)', /to-vua/.test(lR3.c
 ok('cột/hàng áp đúng vào CSS grid-template-columns', /repeat\(3/.test(lR3.cols));
 
 const lR4=await E(()=>{
-  const p=sp.find(x=>x.ten==='THE CITYCAT');
-  const r={...nk[0],sp:'THE CITYCAT',soBao:'2'};
+  const p=sp.find(x=>x.ten==='THE CATTEST');
+  const r={...nk[0],sp:'THE CATTEST',soBao:'2'};
   temCot=1;temHang=1; // 1 tem/trang
   const html=trangTem(r,p);
   const div=document.createElement('div');div.innerHTML=html;
@@ -1177,7 +1179,7 @@ ok('vẫn tôn trọng bộ lọc Khoảng thời gian có sẵn (không đổi 
 console.log('\n── Y. HUỶ LÔ (ĐÁNH DẤU HUỶ, GIỮ LỊCH SỬ) (25/08/2026) ──');
 const yId=await E(()=>{
   traLot='';tuNgay='';denNgay='';
-  const c=sp.find(x=>x.ten==='THE CITYCAT');
+  const c=sp.find(x=>x.ten==='THE CATTEST');
   const id='TESTHUY-1';
   nk.push({id,sp:c.ten,ngaysx:'2026-08-25',lot:'1101070826',soBao:5,huong:'Chanh tươi',quyCach:'1 kg',sl:5,nv:'Toàn'});
   tab='bc';traLot='1101070826';ve();
@@ -1383,7 +1385,7 @@ ok('hàm veTienDo() đã gỡ bỏ hoàn toàn (không còn định nghĩa)', (a
 ok('nút "Khai báo lô nguyên liệu mới" (#nlKhaiBtn) đã gỡ bỏ khỏi tab Báo cáo', !aeTD1.includes('id="nlKhaiBtn"'));
 
 const aeXX=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.hstem=c.hstem||{}; c.hstem.xuatXu='';
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.hstem=c.hstem||{}; c.hstem.xuatXu='';
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return {i:sp.indexOf(c), html:$('rows').innerHTML};
 });
@@ -1393,7 +1395,7 @@ const aeXXCty=await E(()=>{const c=sp.find(x=>x.ten.includes('ZAKA')||x.ten.incl
 ok('mặt hàng có xuất xứ câu dài hơn (nguyên liệu nhập khẩu) vẫn giữ nguyên nội dung riêng, không bị đồng nhất', aeXXCty==='—'||/nhập khẩu|Việt Nam/.test(aeXXCty), aeXXCty);
 
 const aeCT=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.huongMe='';
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.huongMe='';
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return {before:$('rows').innerHTML};
 });
@@ -1412,7 +1414,7 @@ ok('thẻ chi tiết lô ở Tra lô tô màu ưu tiên Hương/Quy cách/Số b
 console.log('\n── AF. NGỪNG SẢN XUẤT — LÝ DO + TRẢ NGUYÊN LIỆU DƯ VỀ TỒN KHO (25/08/2026-H) ──');
 /* Khách chốt: "ngừng sản xuất" KHÁC "huỷ lô" — không xoá dữ liệu, bắt buộc lý do, và số
    nguyên liệu đầu vào CHƯA thực dùng phải quay lại được để đưa sang dự án khác. Dùng lại
-   mẻ THE CITYCAT/Chanh tươi ở phần D (2 dòng, kgVao=100kg chung 1 mẻ). */
+   mẻ THE CATTEST/Chanh tươi ở phần D (2 dòng, kgVao=100kg chung 1 mẻ). */
 const afGocId=await E(()=>nk[0].id);
 const afTruoc=await E(()=>tongDaSanXuat(''));
 await E(()=>{tab='bc';traLot=nk[0].lot;ve()}); await p.waitForTimeout(300);
@@ -1485,7 +1487,7 @@ fs.writeFileSync(ahFile, JSON.stringify({loai:'peroma-me', nv:'Chú Cảnh', nga
     kgThucTe:ahKeHoach-30, lyDo:'Hết nguyên liệu giữa buổi', nv:'Chú Cảnh', ts:'2026-08-25T10:00:00.000Z'},
   // 26/08/2026-M: báo cáo KHÔNG gắn lô (mẻ chưa ghi được, đúng kịch bản bug thật khách gặp) —
   // Admin vẫn phải nhận và hiện được bình thường, không được lỗi/mất tích vì thiếu lot.
-  {id:'BCTEST-2', ngay:'2026-08-25', lot:'', sp:'THE CITYCAT', quyCach:'', kgKeHoach:500,
+  {id:'BCTEST-2', ngay:'2026-08-25', lot:'', sp:'THE CATTEST', quyCach:'', kgKeHoach:500,
     kgThucTe:300, lyDo:'Máy hỏng giữa buổi, không kịp làm hết 500kg dự kiến', nv:'Chú Cảnh', ts:'2026-08-25T11:00:00.000Z'}]}));
 await E(()=>{tab='sl';ve()}); await p.waitForTimeout(250);
 const ahTruoc=await E(()=>bcNgay.length);
@@ -1499,7 +1501,7 @@ ok('lưu đúng nội dung báo cáo (gắn đúng lô, kế hoạch, kg, lý do
   ahBc&&ahBc.lot===ahLot&&ahBc.kgKeHoach===ahKeHoach&&ahBc.kgThucTe===ahKeHoach-30&&ahBc.lyDo==='Hết nguyên liệu giữa buổi'&&ahBc.nv==='Chú Cảnh', JSON.stringify(ahBc));
 const ahBc2=await E(()=>bcNgay.find(r=>r.id==='BCTEST-2'));
 ok('26/08/2026-M: báo cáo KHÔNG gắn lô (mẻ chưa ghi được) vẫn nhận đúng, không mất dữ liệu',
-  ahBc2&&ahBc2.lot===''&&ahBc2.kgKeHoach===500&&ahBc2.kgThucTe===300&&ahBc2.sp==='THE CITYCAT', JSON.stringify(ahBc2));
+  ahBc2&&ahBc2.lot===''&&ahBc2.kgKeHoach===500&&ahBc2.kgThucTe===300&&ahBc2.sp==='THE CATTEST', JSON.stringify(ahBc2));
 // Nhận lại lần 2 — không trùng
 await p.setInputFiles('#nvIn', ahFile); await p.waitForTimeout(450);
 const ahDlg2=await E(()=>($('dlgT')||{}).textContent);
@@ -1526,7 +1528,7 @@ console.log('\n── AI. CÔNG DỤNG + THÀNH PHẦN — NÚT CHỌN NHANH (25
    nhóm HDSD_NHOM), và cho "Thành phần" (chọn từ danh sách chuẩn THANHPHAN_CHUAN, không gõ
    tay/không kèm giải thích). */
 const aiI=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.hstem=c.hstem||{}; c.hstem.congDung=''; c.hstem.thanhPhan='';
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.hstem=c.hstem||{}; c.hstem.congDung=''; c.hstem.thanhPhan='';
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return sp.indexOf(c);
 });
@@ -1549,13 +1551,13 @@ console.log('\n── AJ0. DANH MỤC NGUYÊN LIỆU (26/08/2026, bản vá theo
    mục ↔ Công thức ↔ lưu/nạp lại ↔ đồng bộ NV). Mục này kiểm khối "Nguyên liệu" mới trong
    tab Danh mục — y hệt cách các khối Hương/Quy cách/Chất phun/Nhân viên đã có từ trước. */
 await E(()=>{tab='ma';ve()}); await p.waitForTimeout(150);
-ok('tab Danh mục hiện khối "Nguyên liệu" (ban đầu trống)', (await E(()=>document.querySelector('#viewMA').innerHTML)).includes('Nguyên liệu — 0 mục'));
+ok('tab Danh mục hiện khối "Nguyên liệu" (ban đầu trống)', await E(()=>{const k=document.querySelector('[data-khoi="ma:Nguyên liệu"]');return !!k&&/0 mục/.test(k.querySelector('.khoi-tt').textContent)}));
 
 // Bản vá theo phản hồi: "phần thêm nguyên liệu nút chọn nguyên liệu bị lỗi không tìm thấy" —
 // gốc là Danh mục nguyên liệu còn trống nên select không có gì để chọn (không phải lỗi code).
 // Khi trống: ẩn nút "+ Thêm nguyên liệu", hiện cảnh báo + nút tắt sang tab Danh mục.
 const aj00I=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.congThucNL=[];
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.congThucNL=[];
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return sp.indexOf(c);
 });
@@ -1582,7 +1584,7 @@ ok('thêm mục thứ 2 độc lập, không đè mục đầu', JSON.stringify(
 // Dùng mục "Zzz Test..." riêng cho kịch bản đổi tên/xoá — KHÔNG đụng "Bentonite" vì mục AJ/AJ2
 // bên dưới cần đúng tên "Bentonite" còn nguyên để khớp với kịch bản Thành phần tem đã có sẵn.
 const aj0I=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.congThucNL=[{ten:'Zzz Test Đổi Tên',kg:100}]; c.kg=500;
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.congThucNL=[{ten:'Zzz Test Đổi Tên',kg:100}]; c.kg=500;
   mo.clear(); mo.add(sp.indexOf(c)); tab='ct'; ve();
   return sp.indexOf(c);
 });
@@ -1602,7 +1604,7 @@ ok('xoá nguyên liệu khỏi Danh mục cũng gỡ đúng dòng đó khỏi "H
   (await Ea(i=>sp[i].congThucNL.length,aj0I))===0);
 
 const aj0Migr=await E(async()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT');
+  const c=sp.find(x=>x.ten==='THE CATTEST');
   c.congThucNL=[{ten:'Bentonite',kg:100},{ten:'Nguyên liệu chưa từng khai trong danh mục',kg:5}];
   await luuNgay();
   return true;
@@ -1612,7 +1614,7 @@ ok('nạp lại trang: dữ liệu cũ (tên tự do chưa có trong Danh mục)
   (await E(()=>nlDM.includes('Nguyên liệu chưa từng khai trong danh mục'))), await E(()=>JSON.stringify(nlDM)));
 ok('migrate không tạo trùng — tên đã có sẵn (Bentonite) không bị thêm lần 2',
   (await E(()=>nlDM.filter(x=>x==='Bentonite').length))===1);
-await E(()=>{const c=sp.find(x=>x.ten==='THE CITYCAT');c.congThucNL=c.congThucNL.filter(x=>x.ten==='Bentonite');return luuNgay()}); await p.waitForTimeout(200);
+await E(()=>{const c=sp.find(x=>x.ten==='THE CATTEST');c.congThucNL=c.congThucNL.filter(x=>x.ten==='Bentonite');return luuNgay()}); await p.waitForTimeout(200);
 
 console.log('\n── AJ. HÀM LƯỢNG NGUYÊN LIỆU THEO MẺ CHUẨN (26/08/2026-N, nâng cấp theo bản demo Công thức) ──');
 /* Nâng cấp so với bản N gốc: (1) CHỌN nguyên liệu từ Danh mục (select) thay vì gõ tay tự do;
@@ -1620,7 +1622,7 @@ console.log('\n── AJ. HÀM LƯỢNG NGUYÊN LIỆU THEO MẺ CHUẨN (26/08/
    không ép khớp) — không có nút Lưu riêng nên thể hiện bằng khung cảnh báo đỏ rõ ràng. */
 await E(()=>{nlDM.push('Phụ gia tạo mùi'); return true});
 const ajI=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.congThucNL=[]; c.kg=500;
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.congThucNL=[]; c.kg=500;
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return sp.indexOf(c);
 });
@@ -1658,7 +1660,7 @@ ok('chưa đủ mẻ chuẩn (470/500kg) → badge "Thiếu 30 kg" màu đỏ (n
 await p.fill(`[data-nlkg="${ajI}:1"]`,'50'); await p.waitForTimeout(150); // về lại đúng 500
 await p.click(`[data-nldel="${ajI}:1"]`); await p.waitForTimeout(150);
 ok('bấm Xoá bỏ đúng dòng đã xoá, giữ nguyên dòng còn lại', JSON.stringify(await Ea(i=>sp[i].congThucNL,ajI))==='[{"ten":"Bentonite","kg":450}]');
-const ajCH=await E(()=>sachCauHinh(sp).find(x=>x.ten==='THE CITYCAT').congThucNL);
+const ajCH=await E(()=>sachCauHinh(sp).find(x=>x.ten==='THE CATTEST').congThucNL);
 ok('đồng bộ qua sachCauHinh() (kênh admin→nhân viên) mang đúng công thức nguyên liệu', JSON.stringify(ajCH)==='[{"ten":"Bentonite","kg":450}]', JSON.stringify(ajCH));
 const ajChaKhaiHtml=await Ea(i=>{sp[i].congThucNL=[];return veNL(sp[i],i)},ajI);
 ok('công thức rỗng (chưa khai dòng nào) KHÔNG hiện cảnh báo đỏ/vàng — giữ hành vi cũ, chỉ nhắc chưa khai', !/nlsum/.test(ajChaKhaiHtml));
@@ -1676,7 +1678,7 @@ console.log('\n── AJ2. GIAO DIỆN GỌN LẠI (26/08/2026-N2) ──');
    chuẩn/Định lượng hương phải GIỮ NGUYÊN (đã hỏi lại khách — bỏ 2 ô đó sẽ làm nút "Áp mẻ cho
    tất cả" viết đè công thức thật, rủi ro mất dữ liệu — khách đồng ý chỉ bỏ dòng tính toán). */
 const aj2I=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CITYCAT'); c.huongs=['Hương Chanh']; c.hstem=c.hstem||{}; c.hstem.thanhPhan='';
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.huongs=['Hương Chanh']; c.hstem=c.hstem||{}; c.hstem.thanhPhan='';
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return sp.indexOf(c);
 });
@@ -1685,7 +1687,7 @@ ok('nút "Lấy theo nguyên liệu đã khai" hiện đúng khi đã có hàm l
 await p.click(`[data-tpnl="${aj2I}"]`); await p.waitForTimeout(200);
 ok('bấm nút thì điền đúng "tên nguyên liệu 1, tên nguyên liệu 2, hương liệu" (có hương thì thêm ", hương liệu")',
   (await Ea(i=>sp[i].hstem.thanhPhan,aj2I))==='Bentonite, Cao lanh, hương liệu', await Ea(i=>sp[i].hstem.thanhPhan,aj2I));
-const aj2NoHuong=await E(()=>{const c=sp.find(x=>x.ten==='THE CITYCAT');c.huongs=[];c.hstem.thanhPhan='';tab='ct';ve();return sp.indexOf(c)});
+const aj2NoHuong=await E(()=>{const c=sp.find(x=>x.ten==='THE CATTEST');c.huongs=[];c.hstem.thanhPhan='';tab='ct';ve();return sp.indexOf(c)});
 await p.click(`[data-tpnl="${aj2NoHuong}"]`); await p.waitForTimeout(200);
 ok('mặt hàng KHÔNG có hương thì KHÔNG tự thêm ", hương liệu"',
   (await Ea(i=>sp[i].hstem.thanhPhan,aj2NoHuong))==='Bentonite, Cao lanh', await Ea(i=>sp[i].hstem.thanhPhan,aj2NoHuong));
@@ -1708,9 +1710,9 @@ ok('26/08/2026-N2: tab Danh mục có bảng "mã đang dùng trong hệ thống
   /Bảng mã đang dùng trong hệ thống/.test(aj2Bang));
 await p.click('[data-tra="xuatma"]'); await p.waitForTimeout(200);
 const aj2BangMo=await E(()=>document.querySelector('#viewMA').innerHTML);
-const aj2MaThat=await E(()=>{const c=sp.find(x=>x.ten==='THE CITYCAT');return hai(c.maSP)});
+const aj2MaThat=await E(()=>{const c=sp.find(x=>x.ten==='THE CATTEST');return hai(c.maSP)});
 ok('bảng mã đang dùng liệt kê đúng mã THẬT đang gán (không phải bảng quy ước tĩnh)',
-  aj2MaThat?aj2BangMo.includes(aj2MaThat)&&aj2BangMo.includes('THE CITYCAT'):true, `mã hiện tại: ${aj2MaThat||'(chưa cấp)'}`);
+  aj2MaThat?aj2BangMo.includes(aj2MaThat)&&aj2BangMo.includes('THE CATTEST'):true, `mã hiện tại: ${aj2MaThat||'(chưa cấp)'}`);
 
 console.log('\n── AK. NHẬT KÝ NHẬN FILE Ở TAB DỮ LIỆU (26/08/2026-N) ──');
 /* Khách phản hồi: sau khi gửi báo cáo tiến độ, qua tab Dữ liệu bên admin không thấy chỗ nào
@@ -1727,7 +1729,7 @@ ok('nhật ký nằm ngay dưới ô "Nhận mẻ từ máy nhân viên" (không
 const akTruocSoLuong=await E(()=>nhanNhatKy.length);
 const akFile='/tmp/_ak_bc.json';
 fs.writeFileSync(akFile, JSON.stringify({loai:'peroma-me',nv:'Chú Cảnh',ngay:'2026-08-26',nk:[],
-  bcNgay:[{id:'AKTEST-1',ngay:'2026-08-26',lot:'',sp:'THE CITYCAT',quyCach:'',kgKeHoach:200,kgThucTe:150,lyDo:'Test AK',nv:'Chú Cảnh',ts:'2026-08-26T09:00:00.000Z'}]}));
+  bcNgay:[{id:'AKTEST-1',ngay:'2026-08-26',lot:'',sp:'THE CATTEST',quyCach:'',kgKeHoach:200,kgThucTe:150,lyDo:'Test AK',nv:'Chú Cảnh',ts:'2026-08-26T09:00:00.000Z'}]}));
 await p.setInputFiles('#nvIn', akFile); await p.waitForTimeout(400);
 await p.click('#dlgO'); await p.waitForTimeout(400);
 const akHtmlSau=await E(()=>{tab='sl';ve();return $('viewSL').innerHTML});
@@ -1770,7 +1772,7 @@ const alH2=await E(()=>{if(!kho.includes('__TEST_ALH2__'))kho.push('__TEST_ALH2_
 await Ea(h=>{nguonHuong[h]=[{ncc:'NCC AL2',gia:250000,soKg:1,ngay:'26/08/2026'}];huongDangDung[h]='NCC AL2'},alH2);
 const alFile='/tmp/_al_snap.json';
 fs.writeFileSync(alFile, JSON.stringify({loai:'peroma-me',nv:'Chú Cảnh',ngay:'2026-08-26',
-  nk:[{id:'ALSNAP-1',ngaysx:'2026-08-26',lot:'',sp:'THE CITYCAT',huong:'__TEST_ALH2__',sl:100,mlDung:400,
+  nk:[{id:'ALSNAP-1',ngaysx:'2026-08-26',lot:'',sp:'THE CATTEST',huong:'__TEST_ALH2__',sl:100,mlDung:400,
     giaHuongTheoGLucSX:null,chiPhiHuongLucSX:null,ts:'2026-08-26T09:00:00.000Z'}],bcNgay:[]}));
 await p.setInputFiles('#nvIn', alFile); await p.waitForTimeout(400);
 await p.click('#dlgO'); await p.waitForTimeout(400);
@@ -1787,14 +1789,14 @@ console.log('\n── AM. PATCH V1.1 — P0.1 (H2: không dùng lot làm khóa) 
 /* P0.1 — H2: 2 bản ghi CỐ Ý trùng lot (mô phỏng đúng rủi ro audit nêu — dữ liệu biên/nhiều
    dòng cùng lot) để kiểm resolveBcRecord() không bao giờ "đoán đại" bản ghi đầu tiên. */
 await E(()=>{
-  nk.push({id:'AMDUP-1',ngaysx:'2026-08-26',lot:'9999999999',sp:'THE CITYCAT',quyCach:'5 kg',
+  nk.push({id:'AMDUP-1',ngaysx:'2026-08-26',lot:'9999999999',sp:'THE CATTEST',quyCach:'5 kg',
     sl:100,huong:'Chanh tươi',mlDung:50,nv:'Test',ts:'2026-08-26T08:00:00.000Z'});
-  nk.push({id:'AMDUP-2',ngaysx:'2026-08-26',lot:'9999999999',sp:'THE CITYCAT',quyCach:'5 kg',
+  nk.push({id:'AMDUP-2',ngaysx:'2026-08-26',lot:'9999999999',sp:'THE CATTEST',quyCach:'5 kg',
     sl:100,huong:'Chanh tươi',mlDung:999,nv:'Test',ts:'2026-08-26T08:05:00.000Z'}); // chi phí khác hẳn AMDUP-1
   ve();
 });
 const amAmbig=await E(()=>{
-  const {rec,ambiguous}=resolveBcRecord({lot:'9999999999',sp:'THE CITYCAT',quyCach:'5 kg',kgKeHoach:100});
+  const {rec,ambiguous}=resolveBcRecord({lot:'9999999999',sp:'THE CATTEST',quyCach:'5 kg',kgKeHoach:100});
   return {rec:rec&&rec.id, ambiguous};
 });
 ok('H2 — báo cáo CŨ (không có recordId) mà khóa tổ hợp khớp >1 bản ghi → KHÔNG tự chọn đại, báo ambiguous',
@@ -1802,7 +1804,7 @@ ok('H2 — báo cáo CŨ (không có recordId) mà khóa tổ hợp khớp >1 b�
 const amResolve2=await E(()=>{const {rec}=resolveBcRecord({recordId:'AMDUP-2'});return rec&&rec.id});
 ok('H2 — báo cáo MỚI có recordId thì tra ĐÚNG bản ghi đó dù trùng lot với bản ghi khác', amResolve2==='AMDUP-2', amResolve2);
 const amHtmlAmbig=await E(()=>{
-  bcNgay.push({id:'AMBC-1',ngay:'2026-08-26',lot:'9999999999',sp:'THE CITYCAT',quyCach:'5 kg',
+  bcNgay.push({id:'AMBC-1',ngay:'2026-08-26',lot:'9999999999',sp:'THE CATTEST',quyCach:'5 kg',
     kgKeHoach:100,kgThucTe:100,lyDo:'',nv:'Test',ts:'2026-08-26T08:10:00.000Z'}); // KHÔNG có recordId — legacy
   tab='bc';ve();return $('viewBC').innerHTML});
 ok('H2 — UI hiện đúng "Không xác định duy nhất" thay vì âm thầm gắn nhầm chi phí', /Không xác định duy nhất/.test(amHtmlAmbig));
@@ -1830,7 +1832,7 @@ const amXoaChan=await E(()=>{
 ok('UNSCENTED — "Không mùi" vẫn còn trong kho (không bị xoá được)', amXoaChan.conKhongMui);
 
 console.log('\n── AN. PATCH V1.1 — P1-A (recipe version + snapshot bất biến) ──');
-/* Dùng SẢN PHẨM RIÊNG cho test này (không phải THE CITYCAT — sản phẩm đó đã bị nhiều test ở
+/* Dùng SẢN PHẨM RIÊNG cho test này (không phải THE CATTEST — sản phẩm đó đã bị nhiều test ở
    trên đụng vào kg/congThucNL nên recipeVersion của nó không còn là 1 tới lúc chạy tới đây).
    So sánh theo ĐỘ CHÊNH LỆCH (delta), không giả định version tuyệt đối là an toàn hơn. */
 const anIdx=await E(()=>{
@@ -1870,13 +1872,13 @@ await Ea(i=>{sp.splice(i,1);luu()},anIdx); // dọn dữ liệu test — xoá h�
 
 console.log('\n── AO. PATCH V1.1 — P1-B (batchId + trạng thái tính từ nk/bcNgay) ──');
 await E(()=>{
-  nk.push({id:'AOREC-1',ngaysx:'2026-08-26',lot:'8888888888',sp:'THE CITYCAT',quyCach:'5 kg',
+  nk.push({id:'AOREC-1',ngaysx:'2026-08-26',lot:'8888888888',sp:'THE CATTEST',quyCach:'5 kg',
     sl:100,huong:'Chanh tươi',mlDung:50,nv:'Test',ts:'2026-08-26T08:00:00.000Z',batchId:'AOREC'});
   ve();
 });
 ok('P1-B — record vừa ghi (chưa có báo cáo thực tế) → trạng thái RECORDED',
   (await E(()=>trangThaiSXCua(nk.find(r=>r.id==='AOREC-1'))))==='RECORDED');
-await E(()=>{bcNgay.push({id:'AOBC-1',ngay:'2026-08-26',lot:'8888888888',recordId:'AOREC-1',sp:'THE CITYCAT',
+await E(()=>{bcNgay.push({id:'AOBC-1',ngay:'2026-08-26',lot:'8888888888',recordId:'AOREC-1',sp:'THE CATTEST',
   quyCach:'5 kg',kgKeHoach:100,kgThucTe:98,lyDo:'',nv:'Test',ts:'2026-08-26T09:00:00.000Z'});ve()});
 ok('P1-B — sau khi có báo cáo thực tế gắn đúng recordId → trạng thái COMPLETED',
   (await E(()=>trangThaiSXCua(nk.find(r=>r.id==='AOREC-1'))))==='COMPLETED');
@@ -1903,7 +1905,7 @@ ok('P1-C — sửa công thức thật (kg) ghi đúng 1 event EDIT_RECIPE, befo
 ok('P1-C — auditEvents chỉ tăng (append-only), không mất event cũ', (await E(()=>auditEvents.length))>apCountBefore);
 
 await E(()=>{
-  nk.push({id:'APREC-1',ngaysx:'2026-08-26',lot:'7777777777',sp:'THE CITYCAT',quyCach:'5 kg',
+  nk.push({id:'APREC-1',ngaysx:'2026-08-26',lot:'7777777777',sp:'THE CATTEST',quyCach:'5 kg',
     sl:100,huong:'Chanh tươi',mlDung:50,nv:'Test',ts:'2026-08-26T08:00:00.000Z'});
   ve();
 });
@@ -2331,7 +2333,7 @@ const auKq=await E(async ()=>{
   const bcTruoc=bcNgay.length;
   window.dbGoi=async (url)=>{
     if(String(url).includes('a=baocao')){
-      return {ok:1, bc:[{id:'BCSHEET-1',ngay:'2026-08-27',lot:'',sp:'THE CITYCAT',quyCach:'',
+      return {ok:1, bc:[{id:'BCSHEET-1',ngay:'2026-08-27',lot:'',sp:'THE CATTEST',quyCach:'',
         kgKeHoach:200,kgThucTe:180,lyDo:'Test đồng bộ tự động',nv:'Test Sheet',ts:'2026-08-27T09:00:00.000Z'}]};
     }
     return {ok:0};
@@ -2348,7 +2350,7 @@ const auKq2=await E(async ()=>{
   const truoc=bcNgay.length;
   window.dbGoi=async (url)=>{
     if(String(url).includes('a=baocao')){
-      return {ok:1, bc:[{id:'BCSHEET-1',ngay:'2026-08-27',lot:'',sp:'THE CITYCAT',quyCach:'',
+      return {ok:1, bc:[{id:'BCSHEET-1',ngay:'2026-08-27',lot:'',sp:'THE CATTEST',quyCach:'',
         kgKeHoach:200,kgThucTe:180,lyDo:'Test đồng bộ tự động',nv:'Test Sheet',ts:'2026-08-27T09:00:00.000Z'}]};
     }
     return {ok:0};
@@ -2925,7 +2927,7 @@ const bm=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const cb=document.querySelector('[data-khongtem="'+i+'"]'); cb.click(); await cho(40);
   kq.bat=p.khongTemPhu===true&&sachCauHinh([p])[0].khongTemPhu===true;
   const l8=sinhLot(p,H,q,'2026-10-12').lot; r.lot=l8;
-  kq.lo8=l8.length===8&&l8===l10.slice(0,4)+l10.slice(6)&&lotDep(l8)===l8.slice(0,2)+' '+l8.slice(2,4)+' '+l8.slice(4);
+  kq.lo8=l8.length===7&&l8===l10.slice(0,4)+l10.slice(6,8)+l10.slice(9)&&lotDep(l8)===l8.slice(0,2)+' '+l8.slice(2,4)+' '+l8.slice(4); // S67: Citycat 7 số
   kq.lo10Khac=l10.length===10&&sinhLot({...p,khongTemPhu:false},H,q,'2026-10-12').lot===l10;
   nk.push(r); traLot=l8; chuyenTab('bc'); await cho(60);
   const bc=$('viewBC').innerHTML; kq.khongNut=!bc.includes('data-intem="BM-1"')&&/Không in — bao bì đã có đủ thông tin/.test($('viewBC').innerText);
@@ -2938,7 +2940,7 @@ ok('BM: gõ tên → tem in đúng tên bạn tự đặt', bm.inTenTuDat);
 ok('BM: mặt hàng khoá theo TCCS vẫn có ô "Tên in trên tem" sửa được', bm.oSuaKhiKhoa&&bm.goSua);
 ok('BM: tên in trên tem được đồng bộ sang máy khác', bm.dongBo);
 ok('BM: bật "Không in tem phụ" (lưu + đồng bộ)', bm.bat);
-ok('BM: số lô 8 số = mã SP + mã hương + tháng-năm (bỏ mã quy cách)', bm.lo8);
+ok('BM: số lô Citycat 7 số = mã SP + mã hương + tháng + số cuối năm (bỏ mã quy cách)', bm.lo8);
 ok('BM: mặt hàng khác vẫn lô 10 số như cũ', bm.lo10Khac);
 ok('BM: thẻ lô không còn nút in tem, ghi rõ "không in tem phụ"', bm.khongNut);
 ok('BM: gọi in tem cho mặt hàng này → không in', bm.khongIn);
@@ -3014,7 +3016,7 @@ ok('BP: máy Admin khác (điện thoại) nhận cấu hình → thấy lô đ�
 ok('BP: bỏ huỷ cũng đồng bộ sang máy khác', bp.boHuy&&bp.maBBoHuy);
 { const f='/tmp/_bp_me.json';
   fs.writeFileSync(f, JSON.stringify({loai:'peroma-me',nv:'NV BP',ngay:'2026-10-14',bcNgay:[],
-    nk:[{id:'BP-FILE-1',ngaysx:'2026-10-14',lot:'1111111111',sp:'Citycat',quyCach:'5 kg',sl:5,huong:'Hương Chanh',mlDung:2,nv:'NV BP',ts:'2026-10-14T08:00:00.000Z'}]}));
+    nk:[{id:'BP-FILE-1',ngaysx:'2026-10-14',lot:'1111111111',sp:'Cát Test',quyCach:'5 kg',sl:5,huong:'Hương Chanh',mlDung:2,nv:'NV BP',ts:'2026-10-14T08:00:00.000Z'}]}));
   await E(()=>{window.__bpGoi=[];window.__bpDg=window.dbGoi;window.__bpUrl=DONGBO_URL;DONGBO_URL='https://script.google.com/macros/s/TEST/exec';
     window.dbGoi=async(u,o)=>{if(o&&o.method==='POST')window.__bpGoi.push(JSON.parse(o.body).a);return {ok:1}}});
   await p.setInputFiles('#nvIn', f); await p.waitForTimeout(300); await p.click('#dlgO'); await p.waitForTimeout(400);
@@ -3210,6 +3212,66 @@ ok('BW: 2 biến thể "Không mùi" gộp về 1', bw.doi&&bw.mot, JSON.stringi
 ok('BW: mặt hàng / mẻ đã ghi / mã chuyển sang "Không mùi" chuẩn, không trùng trong mặt hàng', bw.thamChieu);
 ok('BW: Danh mục chỉ còn 1 dòng Không mùi', bw.mucDM);
 ok('BW: chạy lại không đổi gì (không đẩy cấu hình thừa)', bw.lan2);
+/* BX — 16/10/2026 (S67): giao diện nhiều lớp TRANG — lớp 1 = danh sách khối có nhãn; bấm = vào trang khối, "← Quay lại"/Back ra */
+const bx=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, cu=[...khoiMo], hien=el=>!!el&&el.getClientRects().length>0;
+  khoiMo.clear(); chuyenTab('ma'); await cho(60);
+  const ks=[...document.querySelectorAll('#viewMA .khoi')];
+  kq.lop1=ks.length>=8&&ks.every(k=>!hien(k.querySelector('.khoi-than')))&&hien(ks[0].querySelector('.khoi-hd'));
+  kq.nhom=[...document.querySelectorAll('#viewMA .lop-nhom')].map(x=>x.textContent).join('|')==='Mã số lô|Vật tư & tồn kho|Khác';
+  const kSp=document.querySelector('[data-khoi="ma:Mặt hàng"]'); kq.nhan=/chưa cấp mã/.test(kSp.querySelector('.khoi-tt').textContent)===sp.some(x=>!hai(x.maSP));
+  const dai=lopSau; kSp.querySelector('.khoi-hd').click(); await cho(30);
+  kq.vao=hien(kSp.querySelector('.khoi-than'))&&!hien(document.querySelector('[data-khoi="ma:Hương"]'))&&hien(kSp.querySelector("[data-lui]"))&&lopSau===dai+1;
+  veMa(); kq.veLai=hien(document.querySelector('[data-khoi="ma:Mặt hàng"] .khoi-than'));
+  document.querySelector('[data-khoi="ma:Mặt hàng"] [data-lui]').click(); await cho(120);
+  kq.ra=!khoiVao.ma&&hien(document.querySelector('[data-khoi="ma:Hương"] .khoi-hd'))&&!hien(document.querySelector('[data-khoi="ma:Mặt hàng"] .khoi-than'));
+  // nhảy tới chỗ nằm trong khối khác (Giá vốn → "chưa có giá" → Nguồn hương) → vào thẳng trang khối đó
+  gvDen('h'); await cho(80); kq.nhay=khoiVao.ma==='ma:Nguồn hương liệu'&&hien(document.getElementById('secNguonHuong').querySelector('.khoi-than'));
+  chuyenTab('bc'); kq.doiTab=!khoiVao.ma; await cho(40);
+  kq.bc=hien(document.querySelector('#tuNgay'))&&!document.querySelector('#tuNgay').closest('.khoi')&&!!document.querySelector('[data-khoi="bc:Lệnh sản xuất theo lô"] #lsxTaoBtn');
+  chuyenTab('sl'); await cho(40); kq.sl=!!document.querySelector('[data-khoi="sl:Kết nối &amp; đồng bộ"] #knLuu')&&document.querySelectorAll('#viewSL .khoi').length>=6;
+  chuyenTab('gv'); await cho(40); kq.gv=hien(document.querySelector('.gvtong'))&&!!document.querySelector('[data-khoi="gv:Chi tiết mặt hàng"] .gvchon');
+  // Công thức: bấm mặt hàng = trang riêng mặt hàng đó, các mặt hàng khác + thanh lọc ẩn
+  mo.clear(); chuyenTab('ct'); await cho(60);
+  document.querySelector('#rows .rmain[data-t="1"]').click(); await cho(60);
+  kq.ctVao=mo.size===1&&mo.has(1)&&!hien(document.querySelector('#rows .rmain[data-t="0"]'))&&!hien(document.getElementById('ctLoc'))&&hien(document.querySelector('.ct-lui [data-lui]'));
+  document.querySelector('.ct-lui [data-lui]').click(); await cho(120);
+  kq.ctRa=!mo.size&&hien(document.querySelector('#rows .rmain[data-t="0"]'))&&hien(document.getElementById('ctLoc'));
+  khoiMo=new Set(cu); luuKhoiMo(); chuyenTab('tq');
+  return kq;
+});
+ok('BX: Danh mục lớp 1 — chỉ còn tên + nhãn, nội dung ẩn', bx.lop1, JSON.stringify(bx));
+ok('BX: Danh mục chia 3 nhóm: Mã số lô · Vật tư & tồn kho · Khác', bx.nhom);
+ok('BX: nhãn "chưa cấp mã" khớp dữ liệu', bx.nhan);
+ok('BX: bấm khối → vào trang riêng (khối khác ẩn, có "← Quay lại", ghi lịch sử cho nút Back)', bx.vao);
+ok('BX: vẽ lại vẫn ở trong trang khối', bx.veLai);
+ok('BX: "← Quay lại" → về danh sách khối', bx.ra);
+ok('BX: nhảy tới chỗ trong khối khác → vào thẳng trang khối đó', bx.nhay);
+ok('BX: đổi tab → về lớp 1', bx.doiTab);
+ok('BX: Báo cáo — khoảng thời gian luôn hiện, lệnh SX nằm trong khối', bx.bc);
+ok('BX: Sao lưu chia khối, nút kết nối trong khối Kết nối', bx.sl);
+ok('BX: Giá vốn — bảng nhanh luôn hiện, chi tiết trong khối', bx.gv);
+ok('BX: Công thức — bấm mặt hàng = trang riêng, ẩn mặt hàng khác + thanh lọc', bx.ctVao);
+ok('BX: Công thức — "← Tất cả mặt hàng" về danh sách', bx.ctRa);
+/* BY — 16/10/2026 (S67): Citycat MẶC ĐỊNH không in tem phụ + lô 7 số (không cần tích) · icon theo loại hàng thay chữ viết tắt */
+const by=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
+  maHuong.__t='01'; maQC.__q='07';
+  const cc={ten:'Citycat Plus',maSP:'12'}, ma1={ten:'Cát gì đó',maSP:'15'}, khac={ten:'Cát Zaka',maSP:'41'};
+  kq.lo=sinhLot(cc,'__t','__q','2026-10-16').lot==='1201106'&&sinhLot(ma1,'__t','__q','2026-10-16').lot.length===7&&sinhLot(khac,'__t','__q','2026-10-16').lot==='4101071026';
+  kq.tenChu=khongTem({ten:'Bao Citycat',maSP:''})&&!khongTem({ten:'Bigpaw',maSP:''});
+  sp.push(napSP([{ten:'Citycat BY',kg:100,ml:0,me:0,pkb:false,maSP:'19'}])[0]); const i=sp.length-1; kq.coCitycat=true;
+  if(i>=0){ mo.clear(); mo.add(i); moTem.add(i); chuyenTab('ct'); await cho(60);
+    const sec=document.querySelector(`.ctsec[data-sec="tem"][data-si="${i}"]`)||document.getElementById('viewCT');
+    kq.khongTich=!sec.querySelector(`[data-khongtem="${i}"]`)&&/Citycat — mặc định không in tem phụ/.test(sec.textContent);
+    kq.sanSang=ctKiem(sp[i]).th.length===0; mo.clear(); moTem.delete(i); sp.pop(); luuNgay(); }
+  chuyenTab('ct'); await cho(60);
+  const av=[...document.querySelectorAll('#rows .ctav')]; kq.icon=av.length>3&&av.every(a=>a.querySelector('svg')&&!a.textContent.trim());
+  const mau=t=>icSP(t).ten.split(' · ')[0]; kq.loai=mau('Citycat')==='Cát vệ sinh mèo'&&mau('Gỗ thông nén')==='Gỗ – mùn cưa'&&mau('Hạt khử mùi')==='Khử mùi'&&mau('Cát Zaka pro')==='Cát';
+  chuyenTab('tq'); return kq;
+});
+ok('BY: Citycat (mã SP đầu 1 hoặc tên Citycat) tự ra lô 7 số, mặt hàng khác giữ 10 số', by.lo&&by.tenChu, JSON.stringify(by));
+ok('BY: hồ sơ tem Citycat không còn ô tích, chỉ ghi chú mặc định', by.coCitycat&&by.khongTich);
+ok('BY: Citycat không bắt buộc hồ sơ tem để sẵn sàng sản xuất', by.sanSang);
+ok('BY: thẻ mặt hàng dùng icon theo loại hàng, không còn chữ viết tắt', by.icon&&by.loai);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

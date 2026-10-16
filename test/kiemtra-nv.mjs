@@ -14,12 +14,12 @@ const ok=(t,c,g='')=>{c?dat++:(hong++,loi.push(t));console.log(`${c?'✓':'✗ H
    thì GIỮ NGUYÊN '1101070826' vì chúng tự đặt ngày, không phụ thuộc hôm nay. */
 const _homNay=new Date();
 const MMYY_NAY=String(_homNay.getMonth()+1).padStart(2,'0')+String(_homNay.getFullYear()).slice(-2);
-const LOT_UI='110107'+MMYY_NAY;              // lô của mẻ ghi qua giao diện
-const LOT_UI_CACH='11 01 07 '+MMYY_NAY;      // dạng có dấu cách khi hiển thị/in
+const LOT_UI='210107'+MMYY_NAY;              // lô của mẻ ghi qua giao diện
+const LOT_UI_CACH='21 01 07 '+MMYY_NAY;      // dạng có dấu cách khi hiển thị/in
 
 // cấu hình giả lập bản admin xuất ra
 const CAU_HINH={v:8,sp:[
- {ten:'Citycat',kg:100,ml:100,me:100,maSP:'11',pkb:true,pkbChat:'DD A',pkbPhut:'5',pkbCT:'Nước 8L + A 350ml',
+ {ten:'Cát Test',kg:100,ml:100,me:100,maSP:'21',pkb:true,pkbChat:'DD A',pkbPhut:'5',pkbCT:'Nước 8L + A 350ml',
   huongs:['Hương Chanh','Hương Lài'],tam:[],dauRa:['5 kg','1 kg'],tt:'ok',nguyenlieu:'',
   congThucNL:[{ten:'Bentonite',kg:90},{ten:'Phụ gia tạo mùi',kg:10}],
   hstem:{tenVN:'Cát vệ sinh THE CITYCAT',tenEN:'',thanhPhan:'Bentonite, hương liệu',congDung:'Vón cục, khử mùi',
@@ -113,7 +113,7 @@ await p.click('[data-h="Hương Chanh"]'); await p.waitForTimeout(350);
 await p.click('[data-pbadd]'); await p.waitForTimeout(400);
 ok('dòng đầu tự nhận kg', (await E(()=>sp[0].pb[0].kg))==='100');
 ok('hiện số bao', /20 bao/.test(await E(()=>$('view').innerText)), '100 ÷ 5');
-ok('hiện số lô', /11 01 07 0826|11 01 07/.test(await E(()=>$('view').innerText).then(t=>t.replace(/\s+/g,' '))) || /1101 07/.test(''), await E(()=>{const m=$('view').innerText.match(/Số lô\s+([\d ]+)/);return m?m[1].trim():'—'}));
+ok('hiện số lô', /21 01 07 0826|21 01 07/.test(await E(()=>$('view').innerText).then(t=>t.replace(/\s+/g,' '))) || /1101 07/.test(''), await E(()=>{const m=$('view').innerText.match(/Số lô\s+([\d ]+)/);return m?m[1].trim():'—'}));
 const gDom=await E(()=>$('view').innerHTML);
 ok('25/08/2026-J: khối "Đóng gói" nằm TRƯỚC khối "Phiếu công thức" trong màn pha mẻ',
   gDom.indexOf('Đóng gói')>=0 && gDom.indexOf('Phiếu công thức')>gDom.indexOf('Đóng gói'),
@@ -208,7 +208,7 @@ ok('thanh trên đếm mẻ hôm nay', /Hôm nay đã ghi/.test(await E(()=>$('h
 console.log('\n── L. TRA LÔ & IN TEM ──');
 await p.click('[data-tab="lo"]'); await p.waitForTimeout(300);
 await p.selectOption('#oLot',LOT_UI); await p.waitForTimeout(400);
-ok('tra ra lô', /Citycat/.test(await E(()=>$('view').innerText)));
+ok('tra ra lô', /Cát Test/.test(await E(()=>$('view').innerText)));
 const lHuongDaDung=await Ea(lot=>{const r=nk.find(x=>x.lot===lot);return `${fmt(num(r.mlDung))} g`},LOT_UI);
 ok('27/08/2026 (phản hồi lần 4): "Hương liệu đã dùng" chỉ còn hiện đúng số g (bỏ "/ N kg thành phẩm")', (await E(()=>$('view').innerHTML)).includes(`<span>Hương liệu đã dùng</span><b style="color:var(--cy)">${lHuongDaDung}</b>`), lHuongDaDung);
 const lDauVaoHtml=await E(()=>$('view').innerHTML);
@@ -280,7 +280,7 @@ await E(()=>{const p0=sp[0]; p0.sl='55';p0.pb=[{qc:'5 kg',kg:'55'}];p0.huongMe='
 const qRes=await E(()=>{
   // Mô phỏng cấu hình "sạch" từ server (giống sachCauHinh() bên admin — không có sl/pb/huongMe/lot/ngaysx/nv),
   // nhưng đổi 1 giá trị catalog (kg) để xác nhận phần catalog vẫn được cập nhật.
-  const serverSp = sp.map(x=>({ten:x.ten,kg:x.ten==='Citycat'?123:x.kg,ml:x.ml,pkb:x.pkb,huongs:x.huongs,tam:x.tam,
+  const serverSp = sp.map(x=>({ten:x.ten,kg:x.ten==='Cát Test'?123:x.kg,ml:x.ml,pkb:x.pkb,huongs:x.huongs,tam:x.tam,
     dauRa:x.dauRa,maSP:x.maSP,hstem:x.hstem,pkbChat:x.pkbChat,pkbPhut:x.pkbPhut,pkbCT:x.pkbCT,tt:x.tt,ttLyDo:x.ttLyDo}));
   sp = apCauHinhVaoSP(sp, serverSp);
   luu(); ve();
@@ -435,7 +435,7 @@ await p.click('#bcGuiBtn'); await p.waitForTimeout(300);
 ok('gửi báo cáo thành công', (await E(()=>bcNgay.length))===1);
 const yBc=await E(()=>bcNgay[0]);
 ok('lưu đúng nội dung báo cáo, gắn đúng lô + kế hoạch lấy từ nk',
-  yBc.kgThucTe===45&&yBc.lyDo==='Hư máy trộn giữa buổi'&&yBc.sp==='Citycat'&&yBc.nv==='Toàn'&&
+  yBc.kgThucTe===45&&yBc.lyDo==='Hư máy trộn giữa buổi'&&yBc.sp==='Cát Test'&&yBc.nv==='Toàn'&&
   yBc.lot===LOT_UI&&yBc.kgKeHoach===100, JSON.stringify(yBc));   // LOT_UI = lô theo tháng chạy test (chú thích đầu file)
 const yHtml=await E(()=>{ve();return $('view').innerHTML});
 ok('26/08/2026 PATCH V1 mục G2: báo cáo vừa gửi hiện ngay trong danh sách "hôm nay" (kèm chênh lệch trung tính, không còn "Thiếu/Dư")',
@@ -540,7 +540,7 @@ await E(()=>{window.print=()=>{}});
 await p.click('[data-inphieu="1"]'); await p.waitForTimeout(200);
 await p.click('[data-xnct="1"]'); await p.waitForTimeout(200);
 await p.click('[data-kiem="1"]'); await p.waitForTimeout(400); // 27/08/2026-lần4: ghi thẳng, không còn qua 2 hộp thoại
-const aaRec=await E(()=>nk.slice().reverse().find(r=>r.sp==='Citycat'&&r.huong==='Không mùi'));
+const aaRec=await E(()=>nk.slice().reverse().find(r=>r.sp==='Cát Test'&&r.huong==='Không mùi'));
 ok('UNSCENTED — bản ghi ghi mẻ thật: mlDung=0, giaHuongTheoGLucSX=0, chiPhiHuongLucSX=0',
   aaRec&&aaRec.mlDung===0&&aaRec.giaHuongTheoGLucSX===0&&aaRec.chiPhiHuongLucSX===0, JSON.stringify(aaRec));
 ok('UNSCENTED — vẫn sinh LOT bình thường (mã hương 00)', aaRec&&aaRec.maHuong==='00'&&!!aaRec.lot, aaRec&&aaRec.lot);
@@ -563,7 +563,7 @@ if(aaRecordIdCheck){
 
 console.log('\n── AB. PATCH V1.1 — P1-A (recipe version/snapshot + đúng giờ xác nhận) ──');
 ok('P1-A — bản ghi ghi mẻ đã có ở AA mang theo recipeVersion và recipeSnapshot đầy đủ',
-  aaRec&&aaRec.recipeVersion===1&&aaRec.recipeSnapshot&&aaRec.recipeSnapshot.productName==='Citycat'
+  aaRec&&aaRec.recipeVersion===1&&aaRec.recipeSnapshot&&aaRec.recipeSnapshot.productName==='Cát Test'
   &&aaRec.recipeSnapshot.selectedFragrance==='Không mùi'&&aaRec.recipeSnapshot.selectedDoseG===0,
   JSON.stringify(aaRec&&aaRec.recipeSnapshot));
 ok('P1-A (acceptance #5) — xacNhanCTLuc là giờ lúc BẤM XÁC NHẬN, không phải giờ ghi mẻ (2 mốc khác nhau)',
@@ -578,7 +578,7 @@ await p.click('[data-xnct="1"]'); await p.waitForTimeout(150);
 const abXnLuc=await E(()=>sp[0].xacNhanCTLuc);
 await p.waitForTimeout(600); // đợi rõ ràng để 2 mốc thời gian không thể trùng nhau tình cờ
 await p.click('[data-kiem="1"]'); await p.waitForTimeout(400); // 27/08/2026-lần4: ghi thẳng, không còn qua 2 hộp thoại
-const abRec=await E(()=>nk.slice().reverse().find(r=>r.sp==='Citycat'&&r.huong==='Hương Chanh'&&r.kgVao===120));
+const abRec=await E(()=>nk.slice().reverse().find(r=>r.sp==='Cát Test'&&r.huong==='Hương Chanh'&&r.kgVao===120));
 ok('P1-A — record dùng ĐÚNG timestamp đã lưu lúc xác nhận (không tạo mới lúc ghi mẻ dù cách nhau >0,5s)',
   abRec&&abRec.xacNhanCTLuc===abXnLuc, JSON.stringify({luuLai:abXnLuc,trenRecord:abRec&&abRec.xacNhanCTLuc}));
 ok('P1-A — phiếu công thức in ra có dòng "Phiên bản công thức"',
@@ -592,7 +592,7 @@ ok('P1-B — bản ghi ghi mẻ ở AB mang batchId (đúng bằng phần trư�
 ok('P1-B — trước khi có báo cáo thực tế, trạng thái là RECORDED',
   (await Ea(id=>trangThaiSXCua(nk.find(r=>r.id===id)),abRec.id))==='RECORDED');
 await Ea(id=>{bcNgay.push({id:'ACBC-1',ngay:isoNay(),recordId:id,lot:nk.find(r=>r.id===id).lot,
-  sp:'Citycat',quyCach:'5 kg',kgKeHoach:120,kgThucTe:118,lyDo:'',nv:'Toàn',ts:new Date().toISOString()});ve()},abRec.id);
+  sp:'Cát Test',quyCach:'5 kg',kgKeHoach:120,kgThucTe:118,lyDo:'',nv:'Toàn',ts:new Date().toISOString()});ve()},abRec.id);
 ok('P1-B — sau khi gửi báo cáo thực tế gắn recordId → trạng thái COMPLETED',
   (await Ea(id=>trangThaiSXCua(nk.find(r=>r.id===id)),abRec.id))==='COMPLETED');
 await Ea(id=>{tab='lo';traLot=nk.find(r=>r.id===id).lot;ve()},abRec.id); await p.waitForTimeout(150);
@@ -660,7 +660,7 @@ const aeAuto=await E(async()=>{
   const dbGoiThat=window.dbGoi; const urlThatCuaTest=DONGBO_URL; DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; let goiVoiAction=null;
   window.dbGoi=async(url,opt)=>{ if(opt&&opt.body){try{goiVoiAction=JSON.parse(opt.body).a}catch(e){}} return {ok:1}; };
   const truoc=bcNgay.length;
-  bcNgay.push({id:'AETEST-1',ngay:isoNay(),lot:'',sp:'Citycat',quyCach:'',kgKeHoach:100,kgThucTe:90,lyDo:'',nv:'Toàn',ts:new Date().toISOString()});
+  bcNgay.push({id:'AETEST-1',ngay:isoNay(),lot:'',sp:'Cát Test',quyCach:'',kgKeHoach:100,kgThucTe:90,lyDo:'',nv:'Toàn',ts:new Date().toISOString()});
   await dbDayBaoCao([bcNgay[bcNgay.length-1]]);
   window.dbGoi=dbGoiThat; DONGBO_URL=urlThatCuaTest;
   const kq={them:bcNgay.length-truoc, action:goiVoiAction, daGui:bcNgay[bcNgay.length-1].daGui};
@@ -677,8 +677,8 @@ console.log('\n── AF. "ADMIN TOÀN QUYỀN" — MÁY NHÂN VIÊN TỰ NHẬN
    (xoaMocApDung) của chính máy đó, khác thì tự xoá nk/bcNgay, KHÔNG đụng sp/kho/cấu hình đang
    nhập dở (giữ invariant H1). Mô phỏng dbGoi() trả về xoaMocTs mới, không gọi mạng thật. */
 const afSetup=await E(()=>{
-  nk.push({id:'AFTEST-NK',ngaysx:isoNay(),lot:'9999999999',sp:'Citycat',quyCach:'5 kg',sl:10,huong:'Hương Chanh',mlDung:5,nv:'Test',ts:new Date().toISOString(),daGui:1});
-  bcNgay.push({id:'AFTEST-BC',ngay:isoNay(),lot:'',sp:'Citycat',quyCach:'',kgKeHoach:10,kgThucTe:9,lyDo:'',nv:'Test',ts:new Date().toISOString(),daGui:1});
+  nk.push({id:'AFTEST-NK',ngaysx:isoNay(),lot:'9999999999',sp:'Cát Test',quyCach:'5 kg',sl:10,huong:'Hương Chanh',mlDung:5,nv:'Test',ts:new Date().toISOString(),daGui:1});
+  bcNgay.push({id:'AFTEST-BC',ngay:isoNay(),lot:'',sp:'Cát Test',quyCach:'',kgKeHoach:10,kgThucTe:9,lyDo:'',nv:'Test',ts:new Date().toISOString(),daGui:1});
   const spTruoc=sp.map(x=>x.ten);
   return {nk:nk.length,bc:bcNgay.length,spTruoc};
 });
@@ -697,7 +697,7 @@ ok('27/08/2026-R3: lưu lại đúng mốc đã áp (xoaMocApDung)', afKq.xoaMoc
 ok('27/08/2026-R3: có báo cho nhân viên biết máy vừa tự xoá theo lệnh quản lý', /Quản lý vừa xoá dữ liệu mô phỏng/.test(afKq.toast), afKq.toast);
 // Đồng bộ lại lần nữa với ĐÚNG mốc cũ (chưa đổi) — không được xoá thêm lần nữa / không báo lại
 const afKq2=await E(async()=>{
-  nk.push({id:'AFTEST-NK2',ngaysx:isoNay(),lot:'8888888888',sp:'Citycat',quyCach:'5 kg',sl:10,huong:'Hương Chanh',mlDung:5,nv:'Test',ts:new Date().toISOString(),daGui:1});
+  nk.push({id:'AFTEST-NK2',ngaysx:isoNay(),lot:'8888888888',sp:'Cát Test',quyCach:'5 kg',sl:10,huong:'Hương Chanh',mlDung:5,nv:'Test',ts:new Date().toISOString(),daGui:1});
   const dbGoiThat=window.dbGoi; const urlThatCuaTest=DONGBO_URL; DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec';
   window.dbGoi=async()=>({ok:1, cauhinh:{sp:[],kho:[]}, xoaMocTs:'2026-08-27T10:00:00.000Z'});
   await dbKeoCauHinh();
@@ -1013,14 +1013,14 @@ const s25=await E(async()=>{ const kq={}, p=sp.find(x=>(x.dauRa||[]).length&&x.m
   const H=Object.keys(maHuong).find(h=>maHuong[h]&&!isUnscented(h)), q=p.dauRa.find(x=>maQC[x])||p.dauRa[0];
   p.khongTemPhu=false; const l10=sinhLot(p,H,q,'2026-10-12').lot;
   p.khongTemPhu=true; const l8=sinhLot(p,H,q,'2026-10-12').lot;
-  kq.thieu=sinhLot(p,H,q,'2026-10-12').thieu; kq.l10=l10; kq.l8=l8; kq.lo=l10.length===10&&l8===l10.slice(0,4)+l10.slice(6)&&lotDep(l8).split(' ').length===3;
+  kq.thieu=sinhLot(p,H,q,'2026-10-12').thieu; kq.l10=l10; kq.l8=l8; kq.lo=l10.length===10&&l8.length===7&&l8===l10.slice(0,4)+l10.slice(6,8)+l10.slice(9)&&lotDep(l8).split(' ').length===3;
   const r={id:'S25',sp:p.ten,huong:H,quyCach:q,sl:1,soBao:1,kgBao:1,ngaysx:'2026-10-12',lot:l8,nv:'T'};
   const d=document.createElement('div'); p.tenTem='TÊN S25'; d.innerHTML=temHTML(r,p); kq.ten=d.querySelector('.t2').textContent==='TÊN S25';
   const inCu=window.print; let n=0; window.print=()=>{n++}; nk.push(r);
   const pr=inTem('S25'); await new Promise(z=>setTimeout(z,80)); const o=document.getElementById('dlgO'); if(o)o.click(); await pr; kq.khongIn=n===0;
   nk.splice(nk.findIndex(x=>x.id==='S25'),1); window.print=inCu; p.khongTemPhu=g.k; p.tenTem=g.t; return kq;
 });
-ok('S25: không in tem phụ → số lô 8 số (bỏ mã quy cách), mặt hàng khác giữ 10 số', s25.lo, JSON.stringify(s25));
+ok('S25: không in tem phụ → số lô Citycat 7 số = SP+hương+tháng+số cuối năm (bỏ mã quy cách), mặt hàng khác giữ 10 số', s25.lo, JSON.stringify(s25));
 ok('S25: tem in "Tên in trên tem" Admin đặt', s25.ten);
 ok('S25: mặt hàng không in tem phụ → bấm in không in', s25.khongIn);
 /* S26 — 15/10/2026: thông báo hương vượt tồn thực tế (Admin gửi qua cấu hình) hiện trên màn chính + chỗ chọn hương */
