@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/10/2026-R40</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 17/10/2026-R41</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -599,6 +599,8 @@ async function dbKeoCauHinh(){
       if(c.baoBiQC&&typeof c.baoBiQC==='object')baoBiQC=c.baoBiQC;
       if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
       if(Array.isArray(c.canhBaoHuong))canhBaoHuong=c.canhBaoHuong;
+      // 17/10/2026: Admin sửa tay số liệu mẻ (đầu vào kg…) → máy nhân viên hiện + in tem theo số đã sửa
+      if(c.trangThaiMe&&typeof c.trangThaiMe==='object')nk.forEach(r=>{const o=c.trangThaiMe[r.id];if(o&&o.suaLuc)['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX'].forEach(k=>{if(k in o)r[k]=o[k]})});
       if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
       if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
       if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
@@ -1141,6 +1143,7 @@ function veLo(){
     <div class="kv"><span>Hương</span><b style="color:var(--cy)">${esc(r.huong)}</b></div>
     <div class="kv"><span>Quy cách</span><b style="color:var(--am)">${esc(r.quyCach)}</b></div>
     <div class="kv"><span>Đầu vào</span><b>${fmt(num(r.sl))} kg</b></div>
+    ${r.suaLuc?`<div class="kv"><span>Quản lý đã sửa</span><b style="color:var(--am)">${fmt(num(r.slGoc))} → ${fmt(num(r.sl))} kg${r.suaLyDo?' · '+esc(r.suaLyDo):''}</b></div>`:''}
     ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:var(--pur)">${esc(r.soBao)} ${donVi(r.quyCach)}${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
     <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cy)">${fmt(num(r.mlDung))} g</b></div>
     <div class="kv"><span>Người pha</span><b>${esc(r.nv)}</b></div>

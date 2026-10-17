@@ -1350,9 +1350,9 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 16/10/2026-S68</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 17/10/2026-S69</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/10/2026-S68</div>
+      <div class="verFoot">BẢN 17/10/2026-S69</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1746,7 +1746,7 @@ function truTonKhoMe(r){
   const pMh=sp.find(x=>x.ten===r.sp), nguon=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
   if(nguon&&num(r.mlDung)>0){
     const e=nguonHuong[r.huong]&&nguonHuong[r.huong][nguon.ix];
-    if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;
+    if(e){e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000;r.truIx=nguon.ix}
   }
   return true;
 }
@@ -2556,9 +2556,12 @@ let tuNgay='',denNgay='',traLot='';
    ngược lại. Nay ghi thêm vào trangThaiMe[idMẻ] đi qua kênh cấu hình; máy nào nhận cũng áp lại lên bản ghi mẻ của mình. */
 let trangThaiMe={};
 const TT_ME_O=['huy','huyLuc','ngungSX','ngungLyDo','ngungLuc','slThucTe','daInTem','inTemLuc'];
-function ghiTrangThaiMe(r){const o={};TT_ME_O.forEach(k=>{if(r[k]!==undefined)o[k]=r[k]});trangThaiMe[r.id]=o}
+/* 17/10/2026: số liệu mẻ SỬA TAY (xem suaMe) cũng đi qua kênh này — chỉ ghi khi mẻ đã được sửa (có suaLuc) */
+const TT_SUA=['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX'];
+function ghiTrangThaiMe(r){const o={};TT_ME_O.forEach(k=>{if(r[k]!==undefined)o[k]=r[k]});if(r.suaLuc)TT_SUA.forEach(k=>{if(r[k]!==undefined)o[k]=r[k]});trangThaiMe[r.id]=o}
 function apTrangThaiMe(){nk.forEach(r=>{const o=trangThaiMe[r.id];if(!o)return;
-  TT_ME_O.forEach(k=>{if(k in o)r[k]=o[k];else if(k==='slThucTe'&&!o.ngungSX)delete r[k]})})}
+  TT_ME_O.forEach(k=>{if(k in o)r[k]=o[k];else if(k==='slThucTe'&&!o.ngungSX)delete r[k]});
+  if(o.suaLuc)TT_SUA.forEach(k=>{if(k in o)r[k]=o[k]})})}
 let hoaDonBoSung={}, hdVT='', hdLo='', hdSo='', hdChiTrong=true, hdTra='';
 
 const $=id=>document.getElementById(id);
@@ -2807,12 +2810,51 @@ function locNK(){
    khỏi KPI/báo cáo tổng hợp (qua locNK() ở trên) và chặn in tem (qua inTem() bên dưới). Đúng
    nguyên tắc "không xoá lịch sử sản xuất" — khách chốt 25/08/2026: nhỡ bấm nhầm vẫn xem lại
    được ai ghi, khi nào, chứ không mất dấu vết hoàn toàn. */
+/* 17/10/2026 — chỉnh tồn hương theo 1 mẻ đã trừ kho (huỷ / bỏ huỷ / sửa số liệu). Trước đây HUỶ lô không trả lại lượng
+   hương đã trừ → huỷ rồi ghi lại mẻ đúng là bị trừ 2 lần. Chỉ chỉnh mẻ THẬT SỰ đã trừ (có trong sổ meDaTru.ids; mẻ nợ dữ liệu
+   tự tính theo mlDung nên không cần). Dòng mua: dòng đã trả nợ vào → dòng lúc trừ (truIx) → nguồn đang dùng → dòng mới nhất. */
+const daTruHuongMe=r=>!!(r&&meDaTru&&Array.isArray(meDaTru.ids)&&meDaTru.ids.includes(r.id))&&!isUnscented(r.huong);
+function dongTruCua(r){
+  const ds=nguonHuong[r.huong]||[]; if(!ds.length)return null;
+  const tn=meDaTru&&meDaTru.traNo&&meDaTru.traNo[r.id]; if(tn&&!tn.boQua&&ds[tn.ix])return ds[tn.ix];
+  if(r.truIx!==undefined&&ds[r.truIx])return ds[r.truIx];
+  const p=sp.find(x=>x.ten===r.sp), n=p?nguonDangDungCuaMatHang(p,r.huong):null; if(n)return n.e;
+  const dung=huongDangDung[r.huong]; return [...ds].reverse().find(e=>e.ncc===dung)||ds[ds.length-1];
+}
+function chinhTonHuongMe(r,deltaG){if(!deltaG||!daTruHuongMe(r))return; const e=dongTruCua(r); if(e)e.daDungKg=Math.round((num(e.daDungKg||0)+deltaG/1000)*1000)/1000}
+/* 17/10/2026 (khách: "đầu vào thực tế 27000 chứ không phải 2000 — giữ nguyên dữ liệu nhưng sửa thủ công ngay trong dữ liệu, trong đó
+   đã có tỉ lệ sẵn rồi"): SỬA TẠI CHỖ số kg đầu vào của 1 mẻ đã ghi. Không xoá/ghi mẻ mới: cùng id, cùng số lô. App tự tính lại theo
+   TỈ LỆ CỦA CHÍNH MẺ ĐÓ (định mức lúc pha mlChuan/meChuan; thiếu thì mlDung/sl cũ): hương đã dùng, đầu ra (số bao theo kg/bao),
+   chi phí; tồn hương trừ thêm/trả lại phần chênh; tồn nguyên liệu tự tính theo số mới. Giữ số GỐC (slGoc, mlGoc, soBaoGoc) + lý do +
+   nhật ký thao tác; đồng bộ các máy qua trangThaiMe. */
+async function suaMe(id){
+  const r=nk.find(x=>x.id===id); if(!r||r.huy)return;
+  const sl0=num(r.sl), ml0=num(r.mlDung), tl=num(r.meChuan)>0&&num(r.mlChuan)>0?num(r.mlChuan)/num(r.meChuan):(sl0>0?ml0/sl0:0);
+  const v=await hoi('Sửa số liệu mẻ',`Lô <b>${esc(lotDep(r.lot))}</b> · ${esc(r.sp)}${r.quyCach?' · '+esc(r.quyCach):''}<br>Đầu vào đang ghi: <b>${fmt(sl0)} kg</b>.<br><small>Nhập số kg đầu vào THẬT. App giữ nguyên mẻ này (cùng số lô), tự tính lại đầu ra và hương đã dùng theo tỉ lệ lúc pha (${fmtSo(tl)} g hương / kg), chỉnh tồn kho phần chênh.</small>`,
+    {nhap:true,goiY:'VD: 27000',giaTri:String(sl0),nutOK:'Tiếp'});
+  if(v===null||!String(v).trim())return;
+  const x=num(v); if(!(x>0)){bao('Số kg phải lớn hơn 0');return} if(x===sl0)return;
+  const ml=isUnscented(r.huong)?0:Math.round(x*tl*10)/10, kb=num(r.kgBao);
+  const so=kb>0?Math.floor(x/kb+1e-9):r.soBao, du=kb>0?Math.round((x-so*kb)*1000)/1000:r.kgDu;
+  const ly=await hoi('Lý do sửa',`Đầu vào ${fmt(sl0)} kg → <b>${fmt(x)} kg</b>${kb>0?` · đầu ra ${fmt(num(r.soBao))} → <b>${fmt(so)}</b> bao`:''}${isUnscented(r.huong)?'':` · hương ${fmt(ml0)} g → <b>${fmt(ml)} g</b>`}.<br>Ghi lý do để đối chiếu sau này (không bắt buộc).`,
+    {nhap:true,goiY:'VD: nhân viên gõ thiếu số 0',nutOK:'Lưu sửa'});
+  if(ly===null)return;
+  const truoc={sl:r.sl,mlDung:r.mlDung,soBao:r.soBao,kgDu:r.kgDu};
+  chinhTonHuongMe(r,ml-ml0);
+  if(r.slGoc===undefined){r.slGoc=sl0;r.mlGoc=ml0;r.soBaoGoc=r.soBao}
+  if(r.chiPhiBaoBiLucSX>0&&num(r.soBao)>0&&kb>0)r.chiPhiBaoBiLucSX=Math.round(r.chiPhiBaoBiLucSX*so/num(r.soBao));
+  r.sl=x; r.mlDung=ml; if(kb>0){r.soBao=so;r.kgDu=du}
+  if(r.giaHuongTheoGLucSX>0)r.chiPhiHuongLucSX=Math.round(ml*r.giaHuongTheoGLucSX);
+  r.suaLuc=new Date().toISOString(); r.suaLyDo=String(ly||'').trim();
+  ghiTrangThaiMe(r); ghiAudit('batch',r.id,'SUA_SO_LIEU',truoc,{sl:x,mlDung:ml,soBao:r.soBao,kgDu:r.kgDu,lyDo:r.suaLyDo});
+  luuNgay(); ve(); bao('Đã sửa mẻ: '+fmt(x)+' kg');
+}
 async function huyLo(id){
   const r=nk.find(x=>x.id===id); if(!r)return;
   if(r.huy){
     const c=await hoi('Bỏ huỷ lô này?',`Lô <b>${lotDep(r.lot)}</b> sẽ tính lại vào báo cáo và in tem được như bình thường.`,{nutOK:'Bỏ huỷ'});
     if(!c)return;
-    r.huy=false; r.huyLuc=''; ghiTrangThaiMe(r);
+    r.huy=false; r.huyLuc=''; chinhTonHuongMe(r,num(r.mlDung)); ghiTrangThaiMe(r); // bỏ huỷ → trừ lại tồn hương
     ghiAudit('batch',r.id,'CANCEL',{huy:true},{huy:false});
     luuNgay(); ve(); bao('Đã bỏ huỷ'); return;
   }
@@ -2821,7 +2863,7 @@ async function huyLo(id){
     +`<br><br>Dữ liệu vẫn còn để tra soát — có thể bỏ huỷ lại bất cứ lúc nào, không mất.`,
     {nutOK:'Huỷ lô này',nguyHiem:true});
   if(!c)return;
-  r.huy=true; r.huyLuc=new Date().toISOString(); ghiTrangThaiMe(r);
+  r.huy=true; r.huyLuc=new Date().toISOString(); chinhTonHuongMe(r,-num(r.mlDung)); ghiTrangThaiMe(r); // 17/10: huỷ → trả lại tồn hương
   ghiAudit('batch',r.id,'CANCEL',{huy:false},{huy:true});
   luuNgay(); ve(); bao('Đã huỷ lô');
 }
@@ -5273,6 +5315,7 @@ function veBC(){
       ${r.soLenh?`<div class="kv"><span>Lệnh sản xuất</span><b>${esc(r.soLenh)}</b></div>`:''}
       ${[7,8,10].includes(String(r.lot||'').length)?`<div class="kv"><span>Giải mã số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
       <div class="kv"><span>Số lượng</span><b>${fmt(r.sl)} kg</b></div>
+      ${r.suaLuc?`<div class="kv"><span>Đã sửa số liệu</span><b style="color:var(--amber)">${fmt(num(r.slGoc))} → ${fmt(num(r.sl))} kg${r.suaLyDo?' · '+esc(r.suaLyDo):''} · ${esc(String(r.suaLuc).replace('T',' ').slice(0,16))}</b></div>`:''}
       ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:var(--pur)">${esc(r.soBao)} × ${fmt(num(r.kgBao))} kg${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
       <div class="kv"><span>Quy cách đóng gói</span><b style="color:var(--amber)">${esc(r.quyCach)||'—'}</b></div>
       <div class="kv"><span>Nhân viên thực hiện</span><b>${esc(r.nv)||'—'}</b></div>
@@ -5303,6 +5346,7 @@ function veBC(){
       <div class="kv"><span>Ngừng lúc</span><b>${esc(String(r.ngungLuc||'').replace('T',' ').slice(0,19))}</b></div>`:''}
       ${!r.huy&&khongTem(sp.find(x=>x.ten===r.sp))?`<div class="kv"><span>Tem phụ</span><b>Không in — bao bì đã có đủ thông tin</b></div>`:''}
       ${r.huy||khongTem(sp.find(x=>x.ten===r.sp))?'':`<button class="inbtn" data-intem="${esc(r.id)}">In tem phụ cho lô này</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
+      ${r.huy?'':`<button class="inbtn" data-suame="${esc(r.id)}" style="border-color:var(--amber);color:var(--amber)">Sửa số liệu mẻ (đầu vào kg)</button>`}
       <button class="inbtn" data-huylo="${esc(r.id)}" style="${r.huy?'':'border-color:var(--red-dim);color:var(--red)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
       ${r.huy?'':`<button class="inbtn" data-ngunglo="${esc(r.id)}" style="${r.ngungSX?'':'border-color:var(--amber);color:var(--amber)'};margin-top:6px">${r.ngungSX?'Tiếp tục sản xuất lại':'Ngừng sản xuất — điều chỉnh'}</button>`}
       </div>`).join('');
@@ -6009,6 +6053,7 @@ $('viewBC').addEventListener('click',async e=>{
   if(it){await inTem(it.dataset.intem,!!it.dataset.quafile,!!it.dataset.dantem);return} // S17: sửa — nút "Lưu file tem" (S13) trước đây in như nút thường
   const hl=e.target.closest('[data-huylo]');
   if(hl){await huyLo(hl.dataset.huylo);return}
+  const sm=e.target.closest('[data-suame]'); if(sm){await suaMe(sm.dataset.suame);return}
   const ngl=e.target.closest('[data-ngunglo]');
   if(ngl){await ngungLo(ngl.dataset.ngunglo);return}
   if(e.target.id==='lsxTaoBtn'){

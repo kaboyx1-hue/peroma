@@ -3313,6 +3313,33 @@ const ca=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('CA: lần mua chưa có số HĐ → nhãn "Chưa có HĐ" + nhắc trong chi tiết', ca.nhan, JSON.stringify(ca));
 ok('CA: tích "không cần hoá đơn" → tắt nhắc', ca.tat);
 ok('CA: kiểm kê không làm mất dấu tích', ca.giuCo&&ca.dongBo);
+/* CB — 17/10/2026 (S69): sửa tại chỗ số liệu mẻ đã ghi (ca thật: 2.000 → 27.000 kg, Hương Kem, 1 kg/bao) + huỷ lô trả lại tồn hương */
+const cb=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[0];
+  const g={nh:JSON.stringify(nguonHuong),hd:JSON.stringify(huongDangDung),md:JSON.stringify(meDaTru),tt:JSON.stringify(trangThaiMe),nk,hoi:window.hoi};
+  nguonHuong[H]=[{ncc:'Việt Đức',gia:30000000,soKg:50,daDungKg:0,ngay:'x',soHD:'1'}]; huongDangDung[H]='Việt Đức';
+  meDaTru={tu:new Date(Date.now()-864e5).toISOString(),ids:[]};
+  const r={id:'CB-1',sp:sp[0].ten,huong:H,quyCach:'1 kg',sl:2000,kgBao:1,soBao:2000,kgDu:0,mlDung:1000,mlChuan:50,meChuan:100,lot:'3202040926',ngaysx:'2026-09-10',ts:new Date().toISOString(),nv:'Toàn'};
+  nk=[...g.nk,r]; ghiNhanMeLanDau(r); kq.tru1=nguonHuong[H][0].daDungKg===1;
+  const tl=['27000','gõ thiếu số 0']; window.hoi=async()=>tl.shift(); await suaMe('CB-1');
+  kq.sua=r.sl===27000&&r.soBao===27000&&r.mlDung===13500&&r.slGoc===2000&&r.mlGoc===1000&&r.lot==='3202040926'&&r.id==='CB-1';
+  kq.ton=nguonHuong[H][0].daDungKg===13.5;            // trừ thêm 12,5 kg (tỉ lệ mẻ: 50 g / 100 kg)
+  kq.chiPhi=r.chiPhiHuongLucSX===Math.round(13500*r.giaHuongTheoGLucSX);
+  kq.dongBo=trangThaiMe['CB-1'].sl===27000&&trangThaiMe['CB-1'].suaLuc===r.suaLuc;
+  kq.nhatKy=auditEvents.some(a=>a.entityId==='CB-1'&&a.action==='SUA_SO_LIEU');
+  // máy Admin khác: bản ghi gốc 2.000 kg + cấu hình có trangThaiMe → áp số đã sửa
+  const r2={...r,sl:2000,soBao:2000,mlDung:1000}; delete r2.suaLuc; nk=[...g.nk,r2]; apTrangThaiMe(); kq.mayKhac=r2.sl===27000&&r2.soBao===27000;
+  nk=[...g.nk,r];
+  tab='bc'; traLot='3202040926'; ve(); await cho(30); kq.the=/Đã sửa số liệu/.test($('viewBC').textContent)&&!!document.querySelector('[data-suame="CB-1"]');
+  window.hoi=async()=>true; await huyLo('CB-1'); kq.huy=nguonHuong[H][0].daDungKg===0;
+  await huyLo('CB-1'); kq.boHuy=nguonHuong[H][0].daDungKg===13.5;
+  window.hoi=g.hoi; traLot=''; nguonHuong=JSON.parse(g.nh); huongDangDung=JSON.parse(g.hd); meDaTru=JSON.parse(g.md); trangThaiMe=JSON.parse(g.tt); nk=g.nk; luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('CB: sửa đầu vào 2.000 → 27.000 kg tại chỗ (cùng id, cùng lô), đầu ra + hương tính lại theo tỉ lệ của mẻ, giữ số gốc', cb.tru1&&cb.sua, JSON.stringify(cb));
+ok('CB: tồn hương trừ thêm đúng phần chênh', cb.ton&&cb.chiPhi);
+ok('CB: đồng bộ sang máy khác qua trangThaiMe + có nhật ký thao tác', cb.dongBo&&cb.mayKhac&&cb.nhatKy);
+ok('CB: thẻ lô hiện "Đã sửa số liệu" + nút sửa', cb.the);
+ok('CB: huỷ lô trả lại tồn hương, bỏ huỷ trừ lại', cb.huy&&cb.boHuy);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
