@@ -103,7 +103,7 @@ await A.click('#dlgC').catch(()=>{}); await A.waitForTimeout(300);
 ok('số mẻ không đổi', (await A.evaluate(()=>nk.length))===sau);
 
 // ── 5. Admin in được tem cho lô nhân viên ghi
-await A.evaluate(lot=>{tab='bc';traLot=lot;ve();window.print=()=>{window.__in=1}}, LOT_UI);
+await A.evaluate(lot=>{tab='sx';traLot=lot;ve();window.print=()=>{window.__in=1}}, LOT_UI);
 await A.waitForTimeout(350);
 await A.click('[data-intem]'); await A.waitForTimeout(500);
 ok('admin in được tem cho lô của nhân viên', (await A.evaluate(()=>window.__in===1)));
