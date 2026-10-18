@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 17/10/2026-R41</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 17/10/2026-R42</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -475,6 +475,16 @@ async function dbGoi(url,tuychon,ms){
     // 28/09/2026: trình duyệt báo 'signal is aborted without reason' khi hết giờ — khó hiểu với khách
     if(e&&e.name==='AbortError') throw new Error('Máy chủ không trả lời sau '+Math.round(ms/1000)+' giây — mạng chậm hoặc bị chặn');
     throw e; }
+}
+/* 17/10/2026: bản cũ bấm "Xuất file mẻ" là đánh dấu daGui=1 → các mẻ đó KHÔNG BAO GIỜ được tự gửi lên Google Sheet nữa (máy khác
+   không thấy). Lên bản này: gửi lại 1 lần TOÀN BỘ mẻ của máy — máy chủ bỏ qua mẻ đã có (trùng id) nên không nhân đôi. Chỉ đánh dấu
+   xong khi mọi gói gửi thành công; lỗi mạng thì lần mở app sau gửi tiếp. */
+async function guiLaiMotLan(){
+  if(!DONGBO_URL)return; try{if(localStorage.getItem('peroma_guiLai_R42'))return}catch(e){return}
+  const ds=nk.filter(r=>r&&r.id&&r.lot); if(!ds.length){try{localStorage.setItem('peroma_guiLai_R42','1')}catch(e){}return}
+  try{for(let i=0;i<ds.length;i+=40)await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:ds.slice(i,i+40)})});
+    ds.forEach(r=>r.daGui=1); try{localStorage.setItem('peroma_guiLai_R42','1')}catch(e){} luu(); if(typeof ve==='function')ve();
+  }catch(e){}
 }
 async function dbDayMe(banGhi){
   if(!DONGBO_URL||!banGhi||!banGhi.length)return;
@@ -629,6 +639,8 @@ async function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
   if(await laMayChuCu(DONGBO_URL)){DONGBO_URL='';baoMayChuCu();dbVeTT('loi','máy chủ cũ');return}
   dbKeoCauHinh();dbKeoTienDoLenh();
+  setTimeout(()=>taiLoHeThong(true),3000); setInterval(()=>taiLoHeThong(true),120000);
+  setTimeout(guiLaiMotLan,6000);
   setInterval(dbKeoCauHinh,20000);
   setInterval(dbKeoTienDoLenh,20000);
   setInterval(()=>{ const cho=nk.filter(r=>!r.daGui); if(cho.length)dbDayMe(cho);
@@ -1100,7 +1112,7 @@ function veLo(){
       })()}
     </select></div>
     ${DONGBO_URL
-      ?`<button class="add" data-taiht="1">Tải lô do máy khác ghi (qua hệ thống)</button><div class="ghichu">${nkHTLuc?`Đã tải ${nkHT.length} mẻ của máy khác lúc ${nkHTLuc} — chỉ để xem &amp; in tem, không lưu vào máy này.`:'Dùng khi máy khác (hoặc máy in của máy khác) hỏng mà cần in tem cho lô máy đó đã ghi.'}</div>`
+      ?`<button class="add" data-taiht="1">Tải lô do máy khác ghi (qua hệ thống)</button><div class="ghichu">${nkHTLuc?`Có ${nkHT.length} mẻ của máy khác, cập nhật lúc ${nkHTLuc} — app tự tải lại mỗi 2 phút; chỉ để xem &amp; in tem.`:'App tự tải lô của máy khác khi có mạng; bấm để tải ngay.'}</div>`
       :`<div class="ghichu">Máy này chưa nối Google Sheet nên chỉ thấy lô ghi tại máy này. Cần in tem cho lô của máy khác: nhờ máy đó bấm <b>"Lưu file tem"</b> rồi gửi file sang, hoặc khai kết nối ở tab Dữ liệu.</div>`}
     </div>`;
   o+=`<div class="card"><div class="fld"><label>Khổ in tem phụ</label>
@@ -1137,6 +1149,7 @@ function veLo(){
     </h5>
     ${dong?'':`
     ${r._heThong?`<div class="ghichu htnhan">Lô do máy khác ghi (tải từ hệ thống) — máy này chỉ xem &amp; in tem, không huỷ/sửa được.</div>`:''}
+    ${!r._heThong&&DONGBO_URL&&!r.daGui?`<div class="ghichu htnhan" style="color:var(--am)">⚠ Lô này CHƯA lên hệ thống — máy khác chưa thấy. App tự gửi khi có mạng (bấm chấm đồng bộ ở góc trên để gửi ngay).</div>`:''}
     ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--am)">${esc(r.ngungLyDo)||'—'}</b></div>`:''}
     <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
     <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
@@ -1687,19 +1700,24 @@ function taiFileIn(tenFile,tieuDe,moTa,htmlIn){
    - KHÔNG gộp vào nk, KHÔNG lưu xuống máy, KHÔNG gửi ngược lên Sheet (không thể tạo mẻ trùng);
    - chỉ để xem và in tem; không huỷ/sửa được lô của máy khác từ đây;
    - tắt app mở lại là mất, cần thì bấm tải lại. */
+/* 17/10/2026 (khách: "máy tôi và máy nhân viên đều đồng bộ hẳn hoi nhưng danh sách lô khác nhau"): trước đây chỉ tải khi BẤM nút và
+   mất khi mở lại app → máy chưa bấm không thấy lô của máy khác. Nay TỰ TẢI lúc mở app + mỗi 2 phút, và nhớ bản tải gần nhất trên
+   máy (localStorage riêng, vẫn KHÔNG gộp vào nk, KHÔNG gửi ngược lên). Bấm nút = tải ngay. */
 let nkHT=[], nkHTLuc='';
-async function taiLoHeThong(){
-  if(!DONGBO_URL){bao('Máy này chưa khai kết nối Google Sheet — vào tab Dữ liệu để khai');return}
-  bao('Đang tải các lô trên hệ thống…');
+try{const c=JSON.parse(localStorage.getItem('peroma_nkHT')||'null');if(c&&Array.isArray(c.ds)){nkHT=c.ds;nkHTLuc=c.luc||''}}catch(e){}
+async function taiLoHeThong(im){
+  if(!DONGBO_URL){if(!im)bao('Máy này chưa khai kết nối Google Sheet — vào tab Dữ liệu để khai');return}
+  if(!im)bao('Đang tải các lô trên hệ thống…');
   try{
     const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky');
     if(!j||!j.ok||!Array.isArray(j.nk))throw new Error((j&&j.loi)||'hệ thống không trả dữ liệu');
     const coSan=new Set(nk.map(r=>r.id));
     nkHT=j.nk.filter(r=>r&&r.id&&r.lot&&!coSan.has(r.id)).map(r=>Object.assign({},r,{_heThong:true}));
     nkHTLuc=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+    try{localStorage.setItem('peroma_nkHT',JSON.stringify({luc:nkHTLuc,ds:nkHT}))}catch(e){}
     ve();
-    bao(nkHT.length?'Đã tải '+nkHT.length+' mẻ do máy khác ghi — chọn lô ở ô trên để xem & in tem':'Trên hệ thống không có mẻ nào của máy khác');
-  }catch(e){bao('Không tải được: '+e.message)}
+    if(!im)bao(nkHT.length?'Đã tải '+nkHT.length+' mẻ do máy khác ghi — chọn lô ở ô trên để xem & in tem':'Trên hệ thống không có mẻ nào của máy khác');
+  }catch(e){if(!im)bao('Không tải được: '+e.message)}
 }
 async function inPhieuCT(quaFile){
   const p=sp[moSP]; if(!p)return;
@@ -2039,18 +2057,17 @@ $('view').addEventListener('change',async e=>{
   e.target.value='';
 });
 function xuatMe(){
-  const gui=nk.filter(r=>!r.daGui);
-  const guiBc=bcNgay.filter(r=>!r.daGui);
-  const guiAe=auditEvents.filter(r=>!r.daGui);
+  // 17/10/2026: đánh dấu daXuat (đã xuất file) thay vì daGui — app vẫn tự gửi lên Google Sheet khi có mạng
+  const gui=nk.filter(r=>!r.daGui&&!r.daXuat);
+  const guiBc=bcNgay.filter(r=>!r.daGui&&!r.daXuat);
+  const guiAe=auditEvents.filter(r=>!r.daGui&&!r.daXuat);
   if(!gui.length&&!guiBc.length&&!guiAe.length){bao('Không có mẻ hoặc báo cáo mới để gửi');return}
   const s=JSON.stringify({loai:'peroma-me',nv:toi,ngay:isoNay(),nk:gui,bcNgay:guiBc,auditEvents:guiAe},null,1);
   try{
     const b=new Blob([s],{type:'application/json'}), u=URL.createObjectURL(b);
     const a=document.createElement('a'); a.href=u; a.download=`peroma_me_${(toi||'nv').replace(/\s/g,'')}_${isoNay()}.json`;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),1500);
-    nk.forEach(r=>{if(!r.daGui)r.daGui=1});
-    bcNgay.forEach(r=>{if(!r.daGui)r.daGui=1});
-    auditEvents.forEach(r=>{if(!r.daGui)r.daGui=1});
+    gui.forEach(r=>r.daXuat=1); guiBc.forEach(r=>r.daXuat=1); guiAe.forEach(r=>r.daXuat=1);
     luu(); ve();
     bao(`Đã tải ${gui.length} mẻ · ${guiBc.length} báo cáo — gửi file cho quản lý`);
   }catch(e){bao('Trình duyệt chặn tải file')}

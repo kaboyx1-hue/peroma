@@ -247,7 +247,7 @@ await p.click('[data-xuat]');
 let xu=false,ten='';
 try{const d=await dl; ten=d.suggestedFilename(); xu=true}catch(e){}
 ok('tải được file mẻ', xu, ten);
-ok('đánh dấu đã gửi', (await E(()=>nk.every(r=>r.daGui===1))));
+ok('R42: xuất file đánh dấu đã xuất (daXuat), KHÔNG chặn việc tự gửi lên hệ thống', (await E(()=>nk.every(r=>r.daXuat===1))));
 
 console.log('\n── O. TẢI LẠI TRANG ──');
 await p.reload(); await p.waitForTimeout(800);
@@ -764,12 +764,12 @@ const r9ht=await E(async()=>{const urlCu=DONGBO_URL, mkCu=LEGACY_SHARED_TOKEN, t
   const kq={soHT:nkHT.length, boTrung:!nkHT.some(r=>r.id==='R9-A1'), trongChon:[...document.querySelectorAll('#oLot option')].some(o=>/máy khác/.test(o.textContent)),
     nhan:!!document.querySelector('.htnhan'), khongHuy:!document.querySelector('[data-huylo="R9-B7"]'), coIn:!!document.querySelector('[data-intem="R9-B7"]')};
   await inTem('R9-B7'); kq.inDuoc=/1101070925|11 01 07 0925/.test($('temIn').innerHTML);
-  kq.khongGopNk=JSON.stringify(nk)===nkTruoc; await luu(); kq.khongLuu=!JSON.stringify(localStorage).includes('R9-B7');
+  kq.khongGopNk=JSON.stringify(nk)===nkTruoc; await luu(); kq.khongLuu=!JSON.stringify(Object.entries(localStorage).filter(([k])=>k!=='peroma_nkHT')).includes('R9-B7'); // R42: chỉ nhớ riêng ở peroma_nkHT, không lẫn vào dữ liệu máy
   window.fetch=that; DONGBO_URL=urlCu; LEGACY_SHARED_TOKEN=mkCu; nkHT=[]; nkHTLuc=''; traLot=''; ve(); return kq;});
 ok('R9: tải lô máy khác qua hệ thống — bỏ mẻ máy này đã có, chỉ thêm mẻ của máy khác', r9ht.soHT===1&&r9ht.boTrung, JSON.stringify(r9ht));
 ok('R9: lô máy khác hiện trong ô chọn (ghi "máy khác") và có nhãn chỉ xem & in', r9ht.trongChon&&r9ht.nhan);
 ok('R9: lô máy khác KHÔNG có nút Huỷ lô, vẫn in được tem', r9ht.khongHuy&&r9ht.coIn&&r9ht.inDuoc);
-ok('R9: lô máy khác KHÔNG gộp vào dữ liệu máy này, KHÔNG lưu xuống máy (không thể gửi trùng lên Sheet)', r9ht.khongGopNk&&r9ht.khongLuu);
+ok('R9: lô máy khác KHÔNG gộp vào dữ liệu máy này (chỉ nhớ riêng để xem/in), không thể gửi trùng lên Sheet', r9ht.khongGopNk&&r9ht.khongLuu);
 /* R13: nhân viên được sửa nội dung tem lần cuối CHỈ cho lần in đó — không có ô lưu, cấu hình quản lý không đổi */
 const r13=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms));
   const pp=sp[0], goc=JSON.stringify(pp.hstem), inCu=window.print; window.print=()=>{};

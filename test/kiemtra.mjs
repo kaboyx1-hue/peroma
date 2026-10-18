@@ -1695,7 +1695,7 @@ ok('26/08/2026-N2: bỏ dòng tính toán trùng lặp "X kg × Y mg/100kg" kh�
 ok('26/08/2026-N2: VẪN giữ nguyên ô "Mẻ chuẩn (kg)" và "Định lượng hương (mg)" (an toàn dữ liệu — không gộp vào ô đầu dòng)',
   (await E(()=>!!document.querySelector('[data-f="kg"]')))&&(await E(()=>!!document.querySelector('[data-f="ml"]'))));
 // S9 (10/09/2026): giao diện theo Zaka nên màu nhấn không còn là vàng cố định — kiểm nút dùng ĐÚNG màu nhấn var(--amber) của giao diện đang bật
-const aj2MauNut=await E(()=>{const b=document.querySelector('[data-addh]');if(!b)return '';const m=document.createElement('i');m.style.color='var(--amber)';document.body.appendChild(m);const c=getComputedStyle(m).color;m.remove();return getComputedStyle(b).color+'|'+c});
+const aj2MauNut=await E(()=>{const b=document.querySelector('[data-addh]');if(!b)return '';const m=document.createElement('i');m.style.color='var(--amber)';b.parentElement.appendChild(m);const c=getComputedStyle(m).color;m.remove();return getComputedStyle(b).color+'|'+c});
 ok('26/08/2026-N2: nút "+ Thêm hương vào danh mục" tô màu nhấn var(--amber)', (()=>{const [x,y]=aj2MauNut.split('|');return !!x&&x===y})(), aj2MauNut);
 
 await E(()=>{tab='ma';moTra.delete('ctl');ve()}); await p.waitForTimeout(150);
@@ -3340,6 +3340,46 @@ ok('CB: tồn hương trừ thêm đúng phần chênh', cb.ton&&cb.chiPhi);
 ok('CB: đồng bộ sang máy khác qua trangThaiMe + có nhật ký thao tác', cb.dongBo&&cb.mayKhac&&cb.nhatKy);
 ok('CB: thẻ lô hiện "Đã sửa số liệu" + nút sửa', cb.the);
 ok('CB: huỷ lô trả lại tồn hương, bỏ huỷ trừ lại', cb.huy&&cb.boHuy);
+/* CC — 17/10/2026 (S70): chứng từ của lô → lần mua hương/nguyên liệu: số HĐ + số hợp đồng, sửa lần mua ngay từ thẻ lô */
+const cc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[0], N='CC Bentonite';
+  const g={nh:JSON.stringify(nguonHuong),hd:JSON.stringify(huongDangDung),md:JSON.stringify(meDaTru),nl:JSON.stringify(nlDM),nn:JSON.stringify(nguonNguyenLieu),nd:JSON.stringify(nlDangDung),ct:JSON.stringify(sp[0].congThucNL||[]),nk};
+  nguonHuong[H]=[{ncc:'Việt Đức',gia:20000000,soKg:25,daDungKg:0,ngay:'01/09/2026',soHD:''}]; huongDangDung[H]='Việt Đức';
+  if(!nlDM.includes(N))nlDM.push(N); nguonNguyenLieu[N]=[{ncc:'Ấn Độ',gia:5000000,soKg:1000,ngay:'02/09/2026',soHD:'7788',soHopDong:'HD-01/2026',ts:new Date().toISOString()}]; nlDangDung[N]='Ấn Độ';
+  sp[0].congThucNL=[{ten:N,kg:100}]; meDaTru={tu:new Date(Date.now()-864e5).toISOString(),ids:[]};
+  const r={id:'CC-1',sp:sp[0].ten,huong:H,quyCach:'1 kg',sl:100,kgBao:1,soBao:100,mlDung:50,mlChuan:50,meChuan:100,lot:'4101040926',ngaysx:'2026-09-10',ts:new Date().toISOString()};
+  nk=[...g.nk,r]; ghiNhanMeLanDau(r);
+  const d=()=>hdCuaMe(r); kq.nl=d().find(x=>x.ten===N).soHD==='7788'&&d().find(x=>x.ten===N).hopDong==='HD-01/2026';
+  kq.chuaHuong=!d().find(x=>x.ten===H).soHD;
+  // sửa lần mua hương (từ thẻ lô) → điền số HĐ + hợp đồng + chỉnh số kg
+  tab='bc'; traLot='4101040926'; ve(); await cho(30);
+  document.querySelector(`[data-suadongmua="h:${CSS.escape(H)}:0"]`).click(); await cho(80);
+  const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H+':0')}"]`); kq.moKhung=tab==='ma'&&!!f;
+  f.querySelector('[data-nf="soHD"]').value='2148'; f.querySelector('[data-nf="soHopDong"]').value='HĐMB-09'; f.querySelector('[data-nf="soKg"]').value='30';
+  f.querySelector('[data-luunguon]').click(); await cho(80);
+  kq.luu=nguonHuong[H][0].soHD==='2148'&&nguonHuong[H][0].soHopDong==='HĐMB-09'&&nguonHuong[H][0].soKg===30&&nguonHuong[H][0].daDungKg===0.05;
+  const x=d().find(y=>y.ten===H); kq.theoLanMua=x.soHD==='2148'&&x.theoLanMua&&x.hopDong==='HĐMB-09';
+  tab='bc'; ve(); await cho(30); kq.the=/HĐMB-09/.test($('viewBC').textContent)&&/theo lần mua/.test($('viewBC').textContent);
+  traLot=''; nguonHuong=JSON.parse(g.nh); huongDangDung=JSON.parse(g.hd); meDaTru=JSON.parse(g.md); nlDM=JSON.parse(g.nl); nguonNguyenLieu=JSON.parse(g.nn); nlDangDung=JSON.parse(g.nd); sp[0].congThucNL=JSON.parse(g.ct); nk=g.nk; moThemNguon.clear(); luuNgay(); chuyenTab('tq');
+  return kq;
+});
+ok('CC: mẻ lấy số HĐ + số hợp đồng theo lần mua nguyên liệu đã dùng', cc.nl&&cc.chuaHuong, JSON.stringify(cc));
+ok('CC: "Sửa lần mua →" ở thẻ lô mở đúng khung sửa lần mua', cc.moKhung);
+ok('CC: lưu số HĐ / hợp đồng / số kg vào lần mua, không đụng lượng đã dùng', cc.luu);
+ok('CC: mẻ cũ tự có số HĐ + hợp đồng "theo lần mua", thẻ lô hiện đủ', cc.theoLanMua&&cc.the);
+/* CD — 18/10/2026 (S70): khai nhà cung cấp ngay từ khối Hương (khách: "không tìm được chỗ nhập nhà cung cấp") */
+const cd=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nh:JSON.stringify(nguonHuong)}, H=kho.filter(h=>!isUnscented(h)), cu=[...khoiMo]; khoiMo.clear();
+  nguonHuong={}; nguonHuong[H[0]]=[{ncc:'Việt Đức',gia:1000000,soKg:10,daDungKg:0,ngay:'x'}]; huongDangDung[H[0]]='Việt Đức'; moThemNguon.clear(); khoiVao={}; chuyenTab('ma'); await cho(40);
+  const nut=t=>document.querySelector(`#viewMA [data-khoi="ma:Hương"] [data-moncc="h:${CSS.escape(t)}"]`);
+  kq.nut=!!nut(H[1])&&/Khai nhà cung cấp/.test(nut(H[1]).textContent)&&/Việt Đức · tồn 10 kg/.test(nut(H[0]).textContent)&&!document.querySelector('[data-moncc="h:Không mùi"]');
+  nut(H[1]).click(); await cho(80);
+  kq.moKhung=khoiVao.ma==='ma:Nguồn hương liệu'&&document.querySelector('.nh[data-nh="h"] .nh-ct .ncc-ten').textContent===H[1]&&!!document.querySelector(`[data-nguonform="${CSS.escape('h:'+H[1])}"]`)&&/Khai nhà cung cấp đầu tiên/.test(document.querySelector('.nh-ct').textContent);
+  khoiVao={}; moThemNguon.clear(); chuyenTab('ma'); await cho(30); nut(H[0]).click(); await cho(60);
+  kq.chiTiet=document.querySelector('.nh[data-nh="h"] .nh-ct .ncc-ten').textContent===H[0]&&!document.querySelector('[data-nguonform]');
+  nguonHuong=JSON.parse(g.nh); moThemNguon.clear(); khoiVao={}; khoiMo=new Set(cu); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('CD: mỗi dòng khối Hương có ô nhà cung cấp (chưa khai → "+ Khai nhà cung cấp")', cd.nut, JSON.stringify(cd));
+ok('CD: bấm "+ Khai nhà cung cấp" → vào thẳng Nguồn hương, chọn đúng hương, mở sẵn khung nhập', cd.moKhung);
+ok('CD: hương đã khai → mở chi tiết đúng hương', cd.chiTiet);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
