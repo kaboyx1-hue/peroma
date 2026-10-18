@@ -380,7 +380,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 17/10/2026-R42</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 19/10/2026-R43</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -783,6 +783,14 @@ function chiaBao(kg,q){const dv=kgCua(q);if(dv<=0)return null;
 const donVi=q=>/kg|kilo|tấn/i.test(q)?'bao':'túi';
 /* 25/08/2026 — mặt hàng chỉ có ĐÚNG 1 quy cách hợp lệ thì tự tạo sẵn dòng đóng gói,
    khỏi bắt bấm "+ Thêm quy cách" cho một lựa chọn không có gì để chọn. */
+/* 19/10/2026 (khách: bỏ thao tác nhập 2 lần): mẻ chia nhiều quy cách → DÒNG CUỐI tự lấy phần còn lại (tổng kế hoạch − các dòng trên),
+   nhân viên chỉ nhập các dòng trước. Gõ tay vào dòng cuối thì thôi tự tính dòng đó. */
+function conLaiQuyCach(p,dangSua){
+  const pb=p.pb||[]; if(pb.length<2)return; const k=pb.length-1, cuoi=pb[k]; if(dangSua===k||cuoi.tay)return;
+  const con=Math.round((num(p.sl)-pb.slice(0,k).reduce((a,d)=>a+num(d.kg),0))*1000)/1000;
+  cuoi.kg=con>0?String(con):''; delete cuoi.tay;
+  const o=document.querySelector(`[data-pbk="${k}"]`); if(o)o.value=cuoi.kg;
+}
 function pbTuDong(p){
   const ds=p.dauRa||[];
   if(ds.length===1&&!((p.pb||[]).length))p.pb=[{qc:ds[0],kg:p.sl||''}];
@@ -1047,7 +1055,7 @@ function veMe(){
     o+=`<div class="pb">
       <select data-pbq="${k}"><option value="">— chọn quy cách —</option>
       ${ds.map(q=>`<option value="${esc(q)}"${d.qc===q?' selected':''}>${esc(q)}</option>`).join('')}</select>
-      <input data-pbk="${k}" inputmode="decimal" value="${esc(d.kg??'')}" placeholder="kg">
+      <input data-pbk="${k}" inputmode="decimal" value="${esc(d.kg??'')}" placeholder="${pb.length>1&&k===pb.length-1?'tự tính phần còn lại':'kg'}">
       <button class="x" data-pbx="${k}">×</button></div>`;
     const cb=d.qc?chiaBao(d.kg,d.qc):null;
     const rl=d.qc?sinhLot(p,p.huongMe,d.qc,p.ngaysx||isoNay()):{thieu:['chưa chọn quy cách']};
@@ -1984,13 +1992,14 @@ $('view').addEventListener('input',e=>{
     if(f==='sl'){const v=String(el.value||'').replace(/[^\d.,]/g,'').replace(',','.');
       if(el.value!==v)el.value=v; p.sl=v;
       const pb=p.pb||[]; if(pb.length===1&&!pb[0].tay)pb[0].kg=v;
+      conLaiQuyCach(p);
     } else p[f]=el.value;
     if(f==='ngaysx')p.ngaysxChon=isoNay(); // 30/09: ngày NV tự chọn — ngaysxTuSua() không đè trong hôm nay
     luu(); capNhat(); return}
   const k=el.dataset.pbk;
   if(k!==undefined){const p=sp[moSP], v=String(el.value||'').replace(/[^\d.,]/g,'').replace(',','.');
     if(el.value!==v)el.value=v;
-    if(p.pb&&p.pb[+k]){p.pb[+k].kg=v;p.pb[+k].tay=1} luu(); capNhat(); return}
+    if(p.pb&&p.pb[+k]){p.pb[+k].kg=v;p.pb[+k].tay=1} conLaiQuyCach(p,+k); luu(); capNhat(); return}
 });
 $('view').addEventListener('change',e=>{
   const q=e.target.dataset.pbq; if(q===undefined)return;

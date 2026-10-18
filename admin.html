@@ -422,6 +422,34 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 /* 15/10/2026 (khách: "các cột ở trang danh mục luôn nhé"): mọi dòng danh mục chung 1 lưới cột cố định
    tên | nhãn | kg | mã | xoá — ô nào không có thì để trống đúng chỗ, cột không xô lệch; thụt vào thẳng mép các thẻ. */
 #viewMA .sec{margin-left:12px;margin-right:12px}
+/* 18/10/2026 — S72: "Xưởng" mặt hàng (3 khung rêu) */
+.xuong{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);gap:12px;margin:12px 0 14px}
+.xuong>.xv-k{--bg:#263E3F;--card:var(--reu);--c2:var(--reu2);--line2:rgba(234,239,234,.22);--tx:#EAEFEA;--tx2:#C5D3CF;--tx3:#9DB2AE;--accTx:#F0BE4E;
+  background:var(--reu);color:var(--tx);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.xv-k .nhan-k{display:flex;align-items:center;gap:8px;font:700 10.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--tx3);margin:4px 0 2px}
+.xv-k .nhan-k::after{content:'';flex:1;height:1px;background:var(--line2)}
+.xv-dem{font:700 11px var(--disp);letter-spacing:.06em;color:var(--tx2);order:2}
+.xv-cs,.xv-o,.xv-s,.xv-g{font:inherit;color:inherit;text-align:left;border:0;cursor:pointer;background:var(--reu2);border-radius:8px}
+.xv-cs:hover,.xv-o:hover,.xv-s:hover,.xv-g:hover{background:var(--reu3)}
+.xv-cs{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:4px 8px;padding:8px 10px}
+.xv-ic svg{width:17px;height:17px;display:block}.xv-l{font-size:12.5px;font-weight:600}.xv-cs b{font:700 14px var(--disp);letter-spacing:.03em}
+.xv-vach{grid-column:2/4;display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.xv-vach i{height:6px;border-radius:2px;background:rgba(234,239,234,.16)}.xv-vach i.c{background:#EAEFEA}.xv-vach i.v{background:var(--vang)}.xv-vach i.d{background:#E06A4E}
+.xv-o{display:grid;gap:2px;padding:9px 11px}.xv-o small{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3)}.xv-o span{font-size:13px}.xv-o em{font-style:normal;color:var(--vang)}
+.xv-xau{color:#FFAE98!important}
+.xv-slot{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.xv-s{display:flex;align-items:center;gap:9px;padding:9px;min-height:56px;min-width:0}
+.xv-s>span:last-child{min-width:0}.xv-s b{display:block;font:700 12.5px var(--disp);letter-spacing:.05em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xv-s small{display:block;font-size:11px;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xv-tr{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--reu3);border:2px solid rgba(234,239,234,.45)}
+.xv-tr svg{width:16px;height:16px}.xv-s.trong{opacity:.6}.xv-s.trong .xv-tr{background:none;border-style:dashed}
+.xv-g{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 11px;font-size:12.5px}
+.xv-g b{font:700 12.5px var(--disp);letter-spacing:.03em;text-align:right}.xv-g b.ok{color:#8FD6AF}.xv-g b.no{color:var(--vang)}
+.xv-lo{font:700 28px var(--disp);letter-spacing:.12em;color:var(--vang);text-align:center;padding:6px 0 0}
+.xv-lo-g{font-size:11.5px;color:var(--tx3);text-align:center}
+:root.toi .xuong>.xv-k{background:var(--reu)}
+@media (max-width:1100px){.xuong{grid-template-columns:1fr 1fr}.xuong>.xv-k:nth-child(2){grid-column:1/-1;order:3}}
+@media (max-width:899px){.xuong{grid-template-columns:1fr}.xuong>.xv-k:nth-child(2){order:0}}
 /* 16/10/2026: Mặt hàng — bảng + khung chi tiết (dùng chung khung .nh) */
 #viewCT.ct-bang .thead{display:none}#viewCT.ct-bang .rows{padding:0 12px 12px}
 #ctLoc:has(.ct-o){display:block;background:none;border:0;box-shadow:none;padding:0}
@@ -449,6 +477,8 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 #viewMA .marow .ma-ncc.co{color:var(--txt-2);background:var(--panel);border:1px solid var(--line)}
 .nh-dau1{display:grid;gap:8px;margin:0 0 12px;padding:11px 12px;border-radius:12px;background:var(--warnBg);color:var(--warnTx);font-size:13px;line-height:1.5}
 @media (max-width:899px){#viewMA .marow.mr-h{grid-template-columns:minmax(0,1fr) auto 52px 34px;grid-template-areas:"n t m x" "c c c c"}#viewMA .marow .ma-ncc{justify-self:start}}
+.hd-thieu{display:grid;gap:6px;margin:0 0 10px}.hd-th{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 10px;border-radius:10px;background:var(--warnBg);color:var(--warnTx);font-size:13px}
+.hd-nc{margin:6px 0 4px}.hd-nc>summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--tx2);padding:4px 0}
 .nh-hdon{margin-top:10px;padding:9px 11px;border-radius:12px;background:var(--okBg);color:var(--ok);font-size:12.5px;line-height:1.5}
 .nh-hdon.thieu{background:var(--warnBg);color:var(--warnTx)}.nh-hdon label{display:flex;gap:8px;align-items:center;margin-top:6px;color:var(--txt-2);cursor:pointer}
 .nh{margin:0 12px}
@@ -1358,7 +1388,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
    Cách làm: chỉ đổi BIẾN MÀU — trang giữ bộ biến "giấy", còn trong các khung dùng bộ biến "rêu" (biến CSS kế thừa xuống con),
    nên mọi ô nhập/nhãn/bảng bên trong tự đổi theo, không phải sửa từng chỗ. Không dùng phông tải từ mạng (app chạy được khi mất mạng):
    Bahnschrift (Windows) / Roboto Condensed (Android) làm chữ tiêu đề. Tem in và báo cáo in KHÔNG đổi. */
-:root,.khoi.vao,.khoi.vao .nh-l:not(.on){
+:root,.khoi.vao,.khoi.vao .nh-l:not(.on),#viewCT.ct-vao .rows,#viewCT.ct-vao .r{
   --bg:#ECE8DF; --bg2:#E4DFD4; --card:#F6F3EC; --c2:#ECE7DC; --line:#D7D0C2; --line2:#CFC7B7; --tx:#20363A; --tx2:#455C5E; --tx3:#66797A;
   --rowAlt:#EFEBE2; --rowOn:#F3DED0; --acc:#C9562E; --acc2:#E08559; --accSoft:#F4DFD3; --accTx:#A8441F; --btnA:#C9562E; --btnB:#D96B40; --onAcc:#fff;
   --btnGlow:0 6px 16px -8px rgba(201,86,46,.5);
@@ -1370,7 +1400,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
   --disp:Bahnschrift,"DIN Alternate","Barlow Semi Condensed","Roboto Condensed","Arial Narrow",var(--sans);
   --reu:#2E4A4B; --reu2:#385655; --reu3:#46655F; --vang:#E9B53D;
 }
-:root.toi,:root.toi .khoi.vao,:root.toi .khoi.vao .nh-l:not(.on){
+:root.toi,:root.toi .khoi.vao,:root.toi .khoi.vao .nh-l:not(.on),:root.toi #viewCT.ct-vao .rows,:root.toi #viewCT.ct-vao .r{
   --bg:#121A1A; --bg2:#0F1616; --card:#1A2626; --c2:#223232; --line:#2C3E3E; --line2:#365050; --tx:#E6ECE8; --tx2:#AEC0BC; --tx3:#8DA19D;
   --rowAlt:#1E2B2B; --rowOn:#33281E; --acc:#E0703F; --accSoft:#3A2419; --accTx:#F09A6C; --btnA:#D2603A; --btnB:#E07A4C; --onAcc:#fff;
   --panel:var(--card); --row:var(--card); --row-alt:var(--rowAlt); --row-on:var(--rowOn); --line-2:var(--line2);
@@ -1395,6 +1425,7 @@ html.hv-tat *,html.hv-tat *::before,html.hv-tat *::after{animation:none!importan
 .khoi,.nh-bang,.nh-ct,.bk,.lot,.bcc,.w,.card,.sodo-k,#viewCT .rows{background:var(--reu)!important;border-color:transparent!important;box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 10px 24px -18px rgba(20,40,40,.6)!important}
 .khoi-hd:hover{background:var(--reu2)}
 .khoi.vao{background:transparent!important;box-shadow:none!important;color:var(--tx)}
+#viewCT.ct-vao .rows,#viewCT.ct-vao .r{background:transparent!important;box-shadow:none!important;border-color:transparent!important;color:var(--tx)}
 .khoi.vao>.khoi-than>.lop-lui{background:var(--bg)!important}
 /* khối lồng trong khung rêu: nhạt hơn 1 bậc */
 .khoi .khoi,.khoi .lot,.khoi .bcc,.khoi .bk,.nh-ct .tk-row,.khoi .card,.lot .card{background:var(--reu2)!important}
@@ -1446,9 +1477,9 @@ body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 18/10/2026-S71</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S73</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 18/10/2026-S71</div>
+      <div class="verFoot">BẢN 19/10/2026-S73</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3048,6 +3079,14 @@ function nhan(p){
   if(!nhuNhau(hs,tam))o+=`<span class="bdg unsaved">CHƯA LƯU</span>`;
   return o;
 }
+/* 19/10/2026: bấm chọn hương là có hiệu lực ngay (trước đây phải bấm thêm "Lưu thay đổi hương" — 2 thao tác, quên bấm là
+   nhân viên không thấy). Vẫn ghi lịch sử đổi hương; nhiều lần đổi trong cùng 1 ngày gộp thành 1 dòng. Bỏ chọn hết thì CHƯA đổi
+   (tránh mặt hàng mất sạch hương vì lỡ tay) — chọn lại ít nhất 1 hương mới lưu. */
+function luuHuongTuDong(p){
+  const tam=[...(p.tam||[])].filter(h=>h&&String(h).trim()); if(!tam.length||nhuNhau(p.huongs,tam)){luu();return}
+  p.huongs=tam; p.ngay=homNay(); const ls=[...(p.lichSu||[])]; if(ls.length&&ls[ls.length-1].t===p.ngay)ls[ls.length-1]={t:p.ngay,hs:tam}; else ls.push({t:p.ngay,hs:tam});
+  p.lichSu=ls.slice(-30); if(!tam.includes(p.huongMe))p.huongMe=''; dongBoThanhPhanTuNL(p); bumpRecipeVersion(p); luuNgay();
+}
 function veHuong(p,i){
   const hs=p.huongs||[],tam=p.tam||[],chuaLuu=!nhuNhau(hs,tam);
   // 12/09/2026 — S29: công tắc Có/Không dùng hương liệu — trước đây phải biết chọn đúng mục hệ thống
@@ -3079,7 +3118,7 @@ function veHuong(p,i){
     o+=`<div class="pend">Đang chọn: <b>${tam.length?esc(tam.join(' + ')):'không có hương nào'}</b><br>Bấm lưu thì mới ghi vào lịch sử.</div>`;
     o+=`<div class="pair2"><button class="huy" data-huyh="${i}">Hủy</button>
       <button class="hsave" data-savh="${i}" style="margin-top:0">Lưu thay đổi hương</button></div>`;
-  }else o+=`<button class="hsave" disabled>Không có thay đổi để lưu</button>`;
+  }else o+=`<div class="log">Bấm chọn/bỏ hương là tự lưu vào lịch sử.</div>`;
   const ls=(p.lichSu||[]).slice(-5).reverse();
   if(ls.length)o+=`<div class="log">Lịch sử thay đổi hương<br>${ls.map(x=>`${esc(x.t)} · <b>${esc((x.hs||[]).join(' + ')||'—')}</b>`).join('<br>')}</div>`;
   return o;
@@ -3096,7 +3135,7 @@ function veNguonHuongMatHang(p,i){
     const conHang=nguonConHang(h);
     const dang=nguonDangDungCuaMatHang(p,h);
     let ctrl;
-    if(khoa){
+    if(false){ // 19/10/2026: bỏ bước khoá — chọn là lưu luôn (giá/trừ kho chưa bao giờ phụ thuộc cờ khoá)
       /* Đã khoá: LUÔN hiện đúng nguồn mặt hàng đã cam kết (kể cả khi vừa hết tồn kho do
          chính sản xuất dùng hết) — không đọc qua nguonConHang() vì nguồn hết hàng sẽ bị lọc
          mất, khiến hiện nhầm "chưa có nguồn" dù mặt hàng đã xác nhận rõ ràng từ trước. */
@@ -3107,7 +3146,7 @@ function veNguonHuongMatHang(p,i){
         ctrl=`<span class="bdg s-ok">🔒 ${esc(eRaw.ncc)}</span>`+(het?' '+nhanNo(h):'');
       }else ctrl=dang?`<span class="bdg s-ok">🔒 ${esc(dang.e.ncc)}${conHang.length===1?' — nguồn duy nhất':' — đang dùng'}</span>`:nhanNo(h);
     }else if(conHang.length<=1){
-      ctrl=dang?`<span class="bdg s-ok">${esc(dang.e.ncc)} — nguồn duy nhất còn hàng</span>`:nhanNo(h);
+      ctrl=dang?`<span class="bdg s-ok">${esc(dang.e.ncc)} — tự lấy (chỉ 1 lần mua còn hàng)</span>`:nhanNo(h);
     }else{
       ctrl=`<select data-chonnguon="${i}|||${esc(h)}">
         <option value="">— chọn nhà cung cấp đang dùng cho mặt hàng này —</option>
@@ -3122,8 +3161,7 @@ function veNguonHuongMatHang(p,i){
   o+='</div>';
   const thieu=thieuNguonMatHang(p);
   if(thieu.length)o+=`<div class="canh" style="margin-top:8px">Chưa xác định nhà cung cấp đang dùng cho: <b>${thieu.map(esc).join(', ')}</b> — hương này có từ 2 nhà cung cấp còn tồn kho trở lên (hoặc nguồn đã chọn trước đây vừa hết tồn kho) nên phải chọn rõ, không tự đoán.</div>`;
-  if(khoa)o+=`<button class="addbtn" data-mokhoanguon="${i}" style="margin:8px 0 0;width:100%">Mở khoá để sửa lại nguồn hương liệu</button>`;
-  else o+=`<button class="addbtn" data-xacnhannguon="${i}" style="margin:8px 0 0;width:100%" ${duDieuKienXacNhanNguon(p)?'':'disabled'}>✓ Xác nhận nguồn hương liệu cho mặt hàng này</button>`;
+  o+=`<div class="log" style="margin:6px 0 0">Nhà cung cấp đang dùng chọn ở <b>Danh mục → Nguồn hương liệu</b>. Ở đây chỉ phải chọn khi 1 hương có từ 2 lần mua cùng còn hàng.</div>`;
   return o;
 }
 /* 25/08/2026 — bỏ bước Admin tick tay quy cách cho từng mặt hàng (khách phản hồi
@@ -3157,6 +3195,10 @@ function dongBoThanhPhanTuNL(p){
    chuẩn — thiếu hay dư đều báo rõ ràng. Không có nút "Lưu" riêng cho khối này (mọi ô ở đây
    tự lưu ngay khi gõ/chọn, giống toàn bộ tab Công thức) nên "chỉ cho lưu nếu đúng chuẩn"
    được thể hiện bằng trạng thái CẢNH BÁO ĐỎ rõ ràng thay vì khoá nút — xem nlLech(). */
+/* 19/10/2026 (khách: "nhập 2 lần thao tác mà dữ liệu lại không đồng nhất"): mặt hàng đã khai nguyên liệu thì MẺ CHUẨN = tổng
+   hàm lượng nguyên liệu, tự cập nhật khi sửa/thêm/bớt nguyên liệu (không còn ô mẻ chuẩn gõ riêng → hết cảnh "lệch mẻ chuẩn"). */
+function dongBoMeChuan(p){const ds=(p.congThucNL||[]).filter(x=>x&&num(x.kg)>0); if(!ds.length)return false;
+  const t=Math.round(ds.reduce((a,x)=>a+num(x.kg),0)*1000)/1000; if(t>0&&num(p.kg)!==t){const cu=num(p.kg); if(num(p.me)===cu||!num(p.me))p.me=t; p.kg=t; return true} return false}
 function nlLech(p){
   const ds=p.congThucNL||[];
   const tong=Math.round(ds.reduce((a,x)=>a+num(x.kg),0)*1000)/1000;
@@ -3931,6 +3973,47 @@ document.addEventListener('click',e=>{const l=e.target.closest('.pg .log');
    KHUNG CHI TIẾT mặt hàng đang chọn (máy tính, bên phải): mẻ chuẩn, mẻ đang tính (sửa được), cần dùng/mẻ, trạng thái, hương, các mục còn
    thiếu (bấm → tới đúng chỗ bổ sung), nút mở công thức đầy đủ. Điện thoại: bấm dòng = mở thẳng trang công thức. */
 let ctChon=-1;
+/* 18/10/2026 — S72 Bước 2 (khách duyệt phác "Xưởng xe" theo Galactic Racer): đầu trang 1 mặt hàng = 3 khung
+   CHỈ SỐ (thanh vạch) · CÔNG THỨC (hương dạng ô lắp) · ĐÓNG GÓI & HỒ SƠ (đếm x/4 + số lô tháng này). Chỉ ĐỌC và DẪN ĐƯỜNG:
+   bấm ô nào thì cuộn tới đúng nhóm sửa bên dưới (data-ctnav như thanh nhóm cũ); không đổi dữ liệu. */
+const vach=(n,cls)=>{n=Math.max(0,Math.min(12,Math.round(n)));return '<span class="xv-vach">'+Array.from({length:12},(_,j)=>'<i'+(j<n?' class="'+(cls||'c')+'"':'')+'></i>').join('')+'</span>'};
+function veXuong(p,i,k){
+  const hs=(p.huongs||[]).filter(Boolean), that=hs.filter(h=>!isUnscented(h)), ml=num(p.ml), kg=num(p.kg);
+  const maxKg=Math.max(1,...sp.map(x=>num(x.kg))), maxMl=Math.max(1,...sp.map(x=>num(x.ml)));
+  // tồn hương đủ cho bao nhiêu mẻ chuẩn (lấy hương ít nhất); null = chưa tính được
+  const meDu=that.length&&ml>0?Math.min(...that.map(h=>{const t=tonThucKg(h);return t===null?Infinity:Math.max(0,Math.floor(t*1000/ml))})):null;
+  const gt=gtTomTat(p), coGia=gt&&gt.g&&gt.g.kgBao, thieuGia=coGia&&gt.g.thieu&&gt.g.thieu.length;
+  const cs=(ic,ten,gtri,thanh,go)=>`<button type="button" class="xv-cs" data-ctnav="${go}" data-ci="${i}"><span class="xv-ic">${CT_IC[ic]||''}</span><span class="xv-l">${ten}</span><b>${gtri}</b>${thanh}</button>`;
+  const khongHuong=hs.length&&hs.every(isUnscented);
+  const cot1=`<div class="xv-k"><div class="nhan-k">Chỉ số mặt hàng</div>
+    ${cs('dm','Mẻ chuẩn',fmt(kg)+' kg',vach(kg/maxKg*12),'dm')}
+    ${cs('h','Hương / mẻ',khongHuong?'Không dùng':fmt(ml)+' g',vach(khongHuong?0:ml/maxMl*12),'dm')}
+    ${cs('h','Tồn hương đủ cho',meDu===null?'—':meDu===Infinity?'chưa khai tồn':'~'+fmt(meDu)+' mẻ',meDu===null||meDu===Infinity?vach(0):vach(meDu,meDu<=1?'d':meDu<=3?'v':'c'),'h')}
+    ${cs('gt','Giá vốn',coGia?fmt(Math.round(gt.g.tong))+' đ/'+esc(gt.q):'—',vach(coGia?(thieuGia?6:12):0,thieuGia?'v':'c'),'gt')}
+    ${cs('tem','Điều kiện sản xuất',k.dat+'/4',vach(k.dat*3,k.dat===4?'c':'v'),'tem')}</div>`;
+  const slot=h=>{const x=isUnscented(h)?null:ttNguon('h',h);
+    return `<button type="button" class="xv-s" data-ctnav="h" data-ci="${i}"><span class="xv-tr">${CT_IC.h}</span><span><b>${esc(String(h).replace(/^Hương\s+/i,''))}</b><small>${!x?'không dùng hương liệu':!x.ds.length?'chưa khai nhà cung cấp':esc(x.dung||'—')+' · '+(x.ton===null?'chưa có tồn':(x.ton<0?'âm ':'tồn ')+fmtSo(Math.abs(x.ton))+' kg')}</small></span></button>`};
+  const soO=Math.max(4,hs.length+(hs.length<6?1:0)), trong=Math.max(0,soO-hs.length);
+  const nl=(p.congThucNL||[]).filter(x=>x&&x.ten);
+  const cot2=`<div class="xv-k"><div class="nhan-k">Công thức</div>
+    <button type="button" class="xv-o" data-ctnav="dm" data-ci="${i}"><small>Định mức</small><span>${khongHuong?'Không dùng hương liệu':fmt(ml)+' g hương / mẻ chuẩn '+fmt(kg)+' kg'+(kg>0&&ml>0?' · <em>'+fmtSo(ml/kg)+' g mỗi kg</em>':'')}</span></button>
+    <button type="button" class="xv-o" data-ctnav="dm" data-ci="${i}"><small>Nguyên liệu</small><span>${nl.length?nl.map(x=>esc(x.ten)+' · <em>'+fmt(num(x.kg))+' kg</em>').join(' + ')+(k.nl.dat?' — khớp mẻ chuẩn':' — <em class="xv-xau">lệch mẻ chuẩn</em>'):'<em class="xv-xau">chưa khai</em>'}</span></button>
+    <div class="nhan-k">Hương đang dùng <span class="xv-dem">${hs.length} / ${soO}</span></div>
+    <div class="xv-slot">${hs.map(slot).join('')}${Array.from({length:trong},()=>`<button type="button" class="xv-s trong" data-ctnav="h" data-ci="${i}"><span class="xv-tr"></span><span><b>Ô trống</b><small>+ thêm hương</small></span></button>`).join('')}</div></div>`;
+  const q=(p.dauRa||[])[0], bb=q?baoBiCho(p,q):[], kt=khongTem(p);
+  const goi=[[!!(p.dauRa||[]).length,'Quy cách',(p.dauRa||[]).length?esc(p.dauRa.join(' · ')):'chưa chọn','sx'],
+    [bb.length>0,'Bao bì',bb.length?esc(bb.map(d=>(baoBi.find(b=>b.id===d.id)||{}).ten||'?').join(' + ')):'chưa gán','sx'],
+    [kt||!k.th.length,'Tem phụ',kt?'Không in · mặc định':k.th.length?'thiếu '+k.th.length+' ô':'đủ hồ sơ','tem'],
+    [!!hai(p.maSP),'Mã sản phẩm',hai(p.maSP)||'chưa cấp','sx']];
+  const ngay=new Date(), iso=ngay.getFullYear()+'-'+String(ngay.getMonth()+1).padStart(2,'0')+'-01';
+  const hLo=hs.find(h=>hai(maHuong[h]))||hs[0], lo=hLo&&q?sinhLot(p,hLo,q,iso):null; // ví dụ theo hương đầu tiên đã có mã
+  const cot3=`<div class="xv-k"><div class="nhan-k">Đóng gói &amp; hồ sơ <span class="xv-dem">${goi.filter(g=>g[0]).length} / 4</span></div>
+    ${goi.map(([ok,t,v,go])=>`<button type="button" class="xv-g" data-ctnav="${go}" data-ci="${i}"><span>${t}</span><b class="${ok?'ok':'no'}">${v}${ok?' ✓':''}</b></button>`).join('')}
+    <div class="nhan-k">Số lô tháng này</div>
+    <div class="xv-lo">${lo&&lo.lot?esc(lotDep(lo.lot)):'—'}</div>
+    <div class="xv-lo-g">${lo&&lo.lot?(kt?'SS HH MM Y · mã SP + hương + tháng + năm':'SS HH QQ MMYY · mã SP + hương + quy cách + tháng năm'):lo?'Còn thiếu: '+esc(lo.thieu.join(', ')):'Chọn hương và quy cách để ra số lô'}</div></div>`;
+  return `<div class="xuong">${cot1}${cot2}${cot3}</div>`;
+}
 function veCTBang(dsX){
   const kiem=new Map(dsX.map(o=>[o.i,o.k]));
   const nhomCua=({p,k})=>p.tt==='dinh'||p.tt==='tam'?'ngung':k.dat===4?'san':'can';
@@ -4000,6 +4083,7 @@ function veCT(){
         <span class="ctchev" aria-hidden="true"></span>
       </div>
       <div class="det">
+        ${mo.has(i)?veXuong(p,i,k):''}
         <nav class="ctnav" aria-label="Các nhóm thông tin">${neo.map(([key,t,v,tt])=>`<button type="button" class="ctnv" data-ctnav="${key}" data-ci="${i}"><span>${t}</span><b>${esc(v)}</b><i class="d ${tt}"></i></button>`).join('')}</nav>
         <div class="ctsecs">
           <section class="ctsec" data-sec="h" data-si="${i}">${dau('h','Hương liệu','Hương pha cho mặt hàng và nguồn mua đang dùng',hChip)}
@@ -4008,7 +4092,8 @@ function veCT(){
           </section>
           <section class="ctsec" data-sec="dm" data-si="${i}">${dau('dm','Định mức & nguyên liệu','Mẻ chuẩn, định lượng hương và thành phần nguyên liệu',nlChip)}
             <div class="two">
-              <div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" data-f="kg" data-i="${i}" type="text" inputmode="decimal" value="${p.kg}"></div>
+              ${(p.congThucNL||[]).some(x=>x&&num(x.kg)>0)?`<div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" type="text" value="${esc(fmt(num(p.kg)))}" disabled title="Tự bằng tổng hàm lượng nguyên liệu"><small class="khoa-ghi">${nlLech(p).dat?'Tự bằng tổng hàm lượng nguyên liệu bên dưới — sửa nguyên liệu là mẻ chuẩn đổi theo.':`<b>Đang ghi ${fmt(num(p.kg))} kg ≠ tổng nguyên liệu ${fmt(nlLech(p).tong)} kg.</b> <button type="button" class="lnk" data-meTheoNL="${i}">Dùng ${fmt(nlLech(p).tong)} kg</button>`}</small></div>`
+                :`<div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" data-f="kg" data-i="${i}" type="text" inputmode="decimal" value="${p.kg}"></div>`}
               ${hs.length&&hs.every(isUnscented)?`<div class="fld"><label>Định lượng hương (g)</label><input class="mn" data-f="ml" data-i="${i}" type="text" value="Không dùng" disabled title="Mặt hàng chỉ có Không mùi — không pha hương liệu"><small class="khoa-ghi">Đang khoá vì mặt hàng chỉ có "Không mùi". Thêm 1 hương thật ở khối Hương liệu thì ô này mở lại.</small></div>`
                 :`<div class="fld"><label>Định lượng hương (g)</label><input class="mn" data-f="ml" data-i="${i}" type="text" inputmode="decimal" value="${p.ml}"></div>`}
             </div>
@@ -4181,8 +4266,13 @@ function veHoaDonBS(ls){
   const vt=[...new Set(nk.filter(r=>!r.huy).flatMap(r=>hdCuaMe(r).map(d=>d.ten)))].sort((a,b)=>a.localeCompare(b,'vi'));
   if(hdVT&&!vt.includes(hdVT))hdVT='';
   const los=[...new Set(ls.filter(r=>!r.huy&&r.lot).map(r=>r.lot))], can=meCanGanHD(ls), soLo=new Set(can.map(r=>r.lot)).size;
+  // 19/10/2026: số HĐ khai ở LẦN MUA tự gắn vào mọi mẻ dùng lần mua đó → chỉ cần điền ở lần mua (1 lần). Liệt kê lần mua còn thiếu.
+  const thieuMua=new Map(); ls.filter(r=>!r.huy).forEach(r=>hdCuaMe(r).forEach(d=>{if(!d.soHD&&d.mua){const k=d.mua.loai+':'+d.ten+':'+d.mua.ix; const x=thieuMua.get(k)||{d,n:0}; x.n++; thieuMua.set(k,x)}}));
   let o=`<div class="sec">Số hoá đơn đầu vào — bổ sung &amp; tra cứu</div><div class="hdbs">
-    <div class="log" style="margin:0 0 8px">Gán số hoá đơn cho các mẻ <b>đã ghi</b> (kể cả mẻ cũ trước khi có ô số HĐ). Áp cho các mẻ trong <b>khoảng thời gian ở trên</b>; chọn thêm lô nếu chỉ muốn 1 lô.</div>
+    <div class="log" style="margin:0 0 8px">Số hoá đơn điền <b>1 lần ở lần mua</b> (Danh mục → Nguồn) là tự gắn vào mọi mẻ dùng lần mua đó.</div>
+    ${thieuMua.size?`<div class="hd-thieu">${[...thieuMua].map(([k,{d,n}])=>`<div class="hd-th"><span><b>${esc(d.ten)}</b> · ${esc(d.mua.e.ncc||'')} · lần mua ${esc(d.mua.e.ngay||'')} — ${n} mẻ đang chờ số HĐ</span><button type="button" class="ctsxb on" data-suadongmua="${esc(k)}">Điền số HĐ →</button></div>`).join('')}</div>`
+      :`<div class="hdbs-xem">✓ Các lần mua dùng trong kỳ đều đã có số hoá đơn.</div>`}
+    <details class="hd-nc"${hdVT||hdSo?' open':''}><summary>Gán tay số HĐ cho mẻ cũ (nâng cao — mẻ dùng lẫn nhiều lần mua)</summary>
     <div class="hdbs-luoi">
       <div class="fld"><label>Vật tư (hương / nguyên liệu)</label><select id="hdVT"><option value="">— chọn —</option>${vt.map(v=>`<option${v===hdVT?' selected':''}>${esc(v)}</option>`).join('')}</select></div>
       <div class="fld"><label>Lô (tuỳ chọn)</label><select id="hdLo"><option value="">Mọi lô trong khoảng thời gian</option>${los.map(l=>`<option value="${esc(l)}"${l===hdLo?' selected':''}>${esc(lotDep(l))} — ${esc((ls.find(r=>r.lot===l)||{}).sp||'')}</option>`).join('')}</select></div>
@@ -4190,7 +4280,7 @@ function veHoaDonBS(ls){
     </div>
     <label class="hint" style="display:flex;gap:8px;align-items:center;cursor:pointer;margin:4px 0 8px"><input type="checkbox" id="hdChiTrong"${hdChiTrong?' checked':''}> Chỉ điền mẻ <b>chưa có</b> số HĐ cho vật tư này (bỏ tick để ghi đè số đã có)</label>
     <div class="hdbs-xem">${!hdVT?'Chọn vật tư để xem số mẻ sẽ được gán.':can.length?`Sẽ gán cho <b>${can.length}</b> mẻ thuộc <b>${soLo}</b> lô.`:'Không có mẻ nào cần gán với lựa chọn này.'}</div>
-    <button class="addbtn" id="hdGan" style="margin:8px 0 0;width:100%"${hdVT&&can.length?'':' disabled'}>Gán số hoá đơn</button>
+    <button class="addbtn" id="hdGan" style="margin:8px 0 0;width:100%"${hdVT&&can.length?'':' disabled'}>Gán số hoá đơn</button></details>
     <div class="fld" style="margin-top:14px"><label>Tra ngược theo số hoá đơn</label><div style="display:flex;gap:8px"><input id="hdTraIn" value="${esc(hdTra)}" placeholder="Gõ số HĐ (có thể 1 phần)" style="flex:1;min-width:0"><button class="abtn" id="hdTraBtn">Tra</button></div></div>`;
   if(hdTra.trim()){
     const q=hdTra.trim().toLowerCase(), kq=nk.filter(r=>!r.huy).map(r=>({r,d:hdCuaMe(r).filter(x=>String(x.soHD||'').toLowerCase().includes(q))})).filter(x=>x.d.length)
@@ -4326,9 +4416,9 @@ function veThemNguonPanel(loai,ten,ix){
       <input class="ninp" data-nf="vat" type="text" inputmode="decimal" placeholder="chưa khai" value="${e0&&e0.vat!==null&&e0.vat!==undefined?e0.vat:''}" style="width:76px;flex:none">
       <span style="font-size:11.5px;color:var(--txt-3)">% (8, 10… để trống nếu chưa rõ)</span>
     </div>
-    ${sua?'':`<input class="ninp" data-nf="ton" type="text" inputmode="decimal" placeholder="Tồn kho thật sau khi nhập (kg) — để trống: app tự cộng số kg mua vào tồn" value="" style="width:100%;margin-top:6px">`}
+    ${sua?'':`<div class="log" style="margin:6px 0 0">Tồn kho tự cộng số kg vừa mua. Kho thật lệch thì bấm <b>Kiểm kê</b> (không cần nhập tồn ở đây).</div>`}
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="addbtn" data-luunguon="${esc(key)}" style="flex:1;margin:0">${sua?'Lưu sửa':'Lưu nguồn · giá'+(sua?'':' · tồn kho')}</button>
+      <button class="addbtn" data-luunguon="${esc(key)}" style="flex:1;margin:0">${sua?'Lưu sửa':'Lưu lần mua'}</button>
       <button class="addbtn" data-huynguon="${esc(key)}" style="flex:none;width:auto;padding:0 16px;margin:0;background:transparent;border:1px solid var(--line-2);color:var(--txt-3)">Huỷ</button>
     </div>
   </div>`;
@@ -4494,7 +4584,9 @@ function veTonKhoHuong(h){
   else o+=`<span style="color:var(--txt-3)">Chưa đủ 30 ngày dữ liệu ghi mẻ để ước tính</span>`;
   // số nhập tay CŨ (trước khi gộp 1 con số) — không tự trừ theo mẻ, nên chỉ nhắc để khách chốt lại bằng Kiểm kê
   const tay=tonKhoHuong[h], tayKg=tay&&tay.con!==undefined&&tay.con!==''?num(tay.con)/1000:null;
-  if(coDong&&tayKg!==null&&!tay.daAp&&Math.abs(tayKg-(tk.con/1000))>0.001){const sau=tonSauApTay(h);
+  // 19/10/2026: khung nhắc số tay cũ TỰ ẨN khi tổng số kg các lần mua đã ≥ số từng điền (đã khai đúng theo hoá đơn → khỏi làm 2 lần)
+  const tongMua=(nguonHuong[h]||[]).reduce((a,e)=>a+num(e.soKg),0);
+  if(coDong&&tayKg!==null&&!tay.daAp&&tongMua<tayKg-0.001&&Math.abs(tayKg-(tk.con/1000))>0.001){const sau=tonSauApTay(h);
     o+=`</div><div class="tk-row" style="display:block;background:var(--warnBg);color:var(--warnTx);margin-top:6px">Số tồn bạn đã điền lúc khai: <b>${fmtSo(tayKg)} kg</b>${tay.capNhat?' (ngày '+esc(tay.capNhat)+')':''} — <b>chưa được tính</b> vào tồn ở trên. Nếu đó là số kho thật lúc khai, bấm <b>Áp dụng</b>: app coi lúc đó kho có ${fmtSo(tayKg)} kg rồi trừ các mẻ đã pha từ đó → tồn thực còn <b>${sau<0?'âm '+fmtSo(-sau):fmtSo(sau)} kg</b>.
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button type="button" class="ctsxb on" data-aptay="${esc(h)}">Áp dụng ${fmtSo(tayKg)} kg</button><button type="button" class="ctsxb" data-botay="${esc(h)}">Bỏ qua số này</button></div>`}
   const noDs=noMeHuong(h);
@@ -6502,7 +6594,7 @@ $('rows').addEventListener('click',async e=>{
     sp[i].congThucNL.push({ten:'',kg:0});bumpRecipeVersion(sp[i]);luu();ve();return}
   const nld=e.target.closest('[data-nldel]');
   if(nld){e.stopPropagation();const [i,j]=nld.dataset.nldel.split(':').map(Number);
-    sp[i].congThucNL.splice(j,1);bumpRecipeVersion(sp[i]);dongBoThanhPhanTuNL(sp[i]);luu();ve();return}
+    sp[i].congThucNL.splice(j,1);dongBoMeChuan(sp[i]);bumpRecipeVersion(sp[i]);dongBoThanhPhanTuNL(sp[i]);luu();ve();return}
   const xh=e.target.closest('[data-xh]');
   if(xh){e.stopPropagation();const h=xh.dataset.xh;
     const dung=sp.filter(p=>(p.huongs||[]).includes(h)).length;
@@ -6636,6 +6728,7 @@ $('rows').addEventListener('click',async e=>{
   if(hy){e.stopPropagation();const i=+hy.dataset.huyh;
     sp[i].tam=[...(sp[i].huongs||[])];luu();ve();bao('Đã hủy thay đổi');return}
 
+  const mtn=e.target.closest('[data-meTheoNL]'); if(mtn){e.stopPropagation();const p=sp[+mtn.dataset.metheonl];if(dongBoMeChuan(p)){bumpRecipeVersion(p);luu();ve();bao('Mẻ chuẩn = '+fmt(num(p.kg))+' kg')}return}
   const sv=e.target.closest('[data-savh]');
   if(sv){e.stopPropagation();const i=+sv.dataset.savh,p=sp[i],tam=[...(p.tam||[])].filter(h=>h&&String(h).trim());
     if(nhuNhau(p.huongs,tam)){bao('Không có thay đổi');return}
@@ -6651,7 +6744,7 @@ $('rows').addEventListener('click',async e=>{
     dongBoThanhPhanTuNL(p);
     luuNgay();ve();bao(`Đã lưu · ${p.ten} · ${p.ngay}`);return}
   const kh=e.target.closest('[data-hkhonghuong]');
-  if(kh){e.stopPropagation();const i=+kh.dataset.hkhonghuong,p=sp[i];p.tam=[UNSCENTED_LABEL];luu();ve();return}
+  if(kh){e.stopPropagation();const i=+kh.dataset.hkhonghuong,p=sp[i];p.tam=[UNSCENTED_LABEL];luuHuongTuDong(p);ve();return}
   const ch=e.target.closest('[data-hcohuong]');
   if(ch){e.stopPropagation();const i=+ch.dataset.hcohuong,p=sp[i];if((p.tam||[]).length===1&&isUnscented(p.tam[0]))p.tam=[];luu();ve();return}
   const dq=e.target.closest('[data-drqc]');
@@ -6666,7 +6759,7 @@ $('rows').addEventListener('click',async e=>{
   const h=e.target.closest('[data-h]');
   if(h){e.stopPropagation();const i=+h.dataset.i,v=h.dataset.h,p=sp[i];
     const t=new Set(p.tam||[]);t.has(v)?t.delete(v):t.add(v);
-    p.tam=kho.filter(x=>t.has(x));luu();ve();return}
+    p.tam=kho.filter(x=>t.has(x));luuHuongTuDong(p);ve();return}
   const d=e.target.closest('[data-d]');
   if(d){e.stopPropagation();const i=+d.dataset.d;
     const c=await hoi('Xoá mặt hàng',`Xoá <b>${esc(sp[i].ten||'mặt hàng này')}</b> khỏi bảng?<br>Nhật ký sản xuất cũ vẫn được giữ.`,
@@ -6761,6 +6854,7 @@ $('rows').addEventListener('input',e=>{
     const [i,j]=el.dataset.nlkg.split(':').map(Number);
     const it=sp[i].congThucNL[j]; if(!it)return;
     it.kg=num(el.value);
+    dongBoMeChuan(sp[i]);
     bumpRecipeVersion(sp[i]);
     luu();
     const pos=el.selectionStart;ve();

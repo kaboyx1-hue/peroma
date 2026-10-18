@@ -1035,6 +1035,17 @@ const s26=await E(()=>{ const g=JSON.stringify(canhBaoHuong), p=sp[0], hCu=JSON.
 ok('S26: màn chính hiện "Thông báo kho hương" khi Admin báo vượt tồn', s26.banner, JSON.stringify(s26));
 ok('S26: chọn đúng hương đó khi pha → nhắc "báo quản lý", nút hương có ⚠', s26.choChon);
 ok('S26: không còn cảnh báo thì ẩn thông báo', s26.hetThiAn);
+/* R43 — 19/10/2026: nhiều quy cách → dòng cuối TỰ = tổng mẻ − các dòng trên (khỏi tự trừ rồi gõ lần 2) */
+const r43=await E(()=>{ const i=sp.findIndex(p=>(p.dauRa||[]).length>=2); if(i<0)return {bo:1}; const p=sp[i], g=JSON.stringify({pb:p.pb,sl:p.sl}), kq={};
+  moSP=i; tab='me'; p.sl='100'; p.pb=[{qc:p.dauRa[0],kg:''},{qc:p.dauRa[1],kg:''}]; ve();
+  const o=document.querySelector('[data-pbk="0"]'); o.value='60'; o.dispatchEvent(new Event('input',{bubbles:true}));
+  kq.conLai=p.pb[1].kg==='40'&&document.querySelector('[data-pbk="1"]').value==='40';
+  const t=document.querySelector('[data-pbk="1"]'); t.value='30'; t.dispatchEvent(new Event('input',{bubbles:true}));
+  o.value='50'; o.dispatchEvent(new Event('input',{bubbles:true})); kq.tayGiu=p.pb[1].kg==='30';
+  Object.assign(p,JSON.parse(g)); moSP=-1; ve(); return kq;
+});
+ok('R43: gõ dòng quy cách đầu 60/100 kg → dòng cuối tự 40 kg', r43.bo||r43.conLai, JSON.stringify(r43));
+ok('R43: đã tự sửa dòng cuối thì không bị ghi đè', r43.bo||r43.tayGiu);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
