@@ -408,13 +408,41 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 :root:not(.toi) h1{font-weight:800}
 @media (prefers-reduced-motion:reduce){.oke::before{animation:none!important}}
 @media print{.oke::before{display:none}}
+#thanhChuaGui{position:fixed;left:8px;right:8px;bottom:8px;z-index:9000;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  background:#B42318;color:#fff;padding:10px 12px;border-radius:14px;font-size:13.5px;box-shadow:0 10px 24px -10px rgba(0,0,0,.5)}
+#thanhChuaGui button{font:inherit;font-weight:800;border:0;border-radius:999px;padding:8px 16px;background:#fff;color:#B42318;cursor:pointer}
+@media print{#thanhChuaGui{display:none}}
+
+/* ═══ 19/10/2026 — R46 HOẠT ẢNH (đồng bộ với Admin S79): huy hiệu khi ghi mẻ (số lô quay như máy đếm), số "hương cần đổ" nảy khi đổi,
+   thanh "mẻ chưa gửi" trượt lên + nhịp, đèn đồng bộ nhịp xanh, ô sai rung. Tắt khi "giảm chuyển động", khi chạy kiểm tra (hv-tat), khi in. */
+#huyHieu{position:fixed;left:50%;top:12px;z-index:9500;transform:translate(-50%,-160%);display:flex;gap:12px;align-items:center;width:max-content;max-width:calc(100vw - 24px);
+  background:var(--card);color:var(--tx);border:1.5px solid #FAC1B7;border-radius:18px;padding:10px 16px 10px 10px;box-shadow:0 22px 40px -18px rgba(0,0,0,.45);transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+#huyHieu.hien{transform:translate(-50%,0)}
+#huyHieu .ic{width:42px;height:42px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:22px;background:linear-gradient(135deg,#F3654A,#FFB9AC)}
+#huyHieu.hien .ic{animation:hhXoay .7s .15s both}@keyframes hhXoay{from{transform:rotateY(180deg) scale(.4)}to{transform:none}}
+#huyHieu b{display:block;font-size:15px}#huyHieu small{display:block;font-size:12.5px;color:var(--tx3)}
+#huyHieu .hh-lo{font:800 20px/1.15 var(--mono);letter-spacing:.04em;color:#C63D23;margin-top:2px}
+.so-quay{display:inline-flex;gap:.04em}.so-quay .qs{display:inline-block!important;height:1.15em;overflow:hidden;vertical-align:bottom}.so-quay .qs>span{display:flex!important;flex-direction:column;transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
+.so-quay .qs>span>.sqd{display:block!important;width:auto!important;background:none!important;height:1.15em;line-height:1.15em;font-size:inherit;font-weight:inherit;font-style:normal}.so-quay .qs{line-height:1.15em}
+.xv-lo.dang-quay{background:none!important;-webkit-text-fill-color:currentColor!important;color:#E8664A!important}.so-quay .cach{width:.35em}
+@keyframes soNay{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+.big .v.nay{animation:soNay .35s ease}
+@keyframes rung{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}.rung{animation:rung .36s ease}
+@keyframes thanhLen{from{transform:translateY(120%)}to{transform:none}}
+@keyframes thanhTho{50%{box-shadow:0 0 0 5px rgba(180,35,24,.25),0 10px 24px -10px rgba(0,0,0,.5)}}
+#thanhChuaGui{animation:thanhLen .45s cubic-bezier(.3,1.4,.5,1) both,thanhTho 2.4s 1s ease-in-out infinite}
+@keyframes denNhip{0%{box-shadow:0 0 0 0 rgba(46,158,75,.55)}100%{box-shadow:0 0 0 12px rgba(46,158,75,0)}}
+@keyframes denCho{50%{opacity:.45}}
+#dbDen{border-radius:999px;padding:2px 8px}#dbDen[data-tt="ok"].nhay{animation:denNhip 1s ease-out}#dbDen[data-tt="dang"]{animation:denCho 1s ease-in-out infinite}
+.pbi b{display:inline-block}.pbi .tu-tinh{animation:soNay .4s ease}
+@media print{#huyHieu{display:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 19/10/2026-R44</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 19/10/2026-R46</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -491,8 +519,53 @@ let DONGBO_URL=String(docKetNoi().url||'');
 let LEGACY_SHARED_TOKEN=String(docKetNoi().mk||'');
 let dbTT='tat', dbDangKeo=false;
 function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+
+/* ═══ 19/10/2026 — R45 ĐỒNG BỘ CHẮC HƠN + NHỊP MÁY (khách: "dữ liệu không đồng bộ kịp thời, chậm hoặc không nhận tín hiệu";
+   "không có phần kiểm tra số lot nhân viên đã khởi tạo").
+   1) Gửi mẻ còn kẹt NGAY khi: có mạng lại · mở lại app · app bị ẩn/tắt (sendBeacon — trình duyệt tự gửi nốt kể cả khi đã rời trang).
+      Máy chủ bỏ qua mẻ trùng mã nên gửi lặp vẫn an toàn.
+   2) Mỗi ~1 phút báo NHỊP lên máy chủ: tên NV, bản app, các lô CHƯA gửi được → Admin thấy lô nào còn kẹt trên máy nào.
+      Máy chủ cũ chưa có chức năng nhịp thì tự tắt, không báo lỗi.
+   3) Thanh nhắc "N mẻ CHƯA lên hệ thống" + nút Gửi ngay. */
+const MA_MAY=(()=>{try{let m=localStorage.getItem('peroma_may');if(!m){m='NV-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);localStorage.setItem('peroma_may',m)}return m}catch(e){return 'NV-tam'}})();
+let nhipTat=false, lanGuiOk=0;
+const meChuaGui=()=>nk.filter(r=>!r.daGui);
+async function guiNhip(){
+  if(!DONGBO_URL||nhipTat)return;
+  const cho=meChuaGui(), d={nv:typeof toi!=='undefined'?toi:'',ban:(document.querySelector('h1 i')||{}).textContent||'',soChua:cho.length,tong:nk.length,lanGuiOk:lanGuiOk?new Date(lanGuiOk).toISOString():'',
+    chua:cho.slice(-25).map(r=>({id:r.id,lot:r.lot||'',sp:r.sp||'',ngay:r.ngaysx||'',kg:num(r.sl)}))};
+  try{await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhip&may='+encodeURIComponent(MA_MAY)+'&d='+encodeURIComponent(JSON.stringify(d)),{},15000)}
+  catch(e){if(/không được phép/i.test(e&&e.message||''))nhipTat=true}
+}
+function guiNgay(){const c=meChuaGui(); if(c.length)dbDayMe(c); guiNhip()}
+function guiBeacon(){try{const c=meChuaGui(); if(!DONGBO_URL||!c.length||!navigator.sendBeacon)return;
+  navigator.sendBeacon(DONGBO_URL,new Blob([JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:c})],{type:'text/plain;charset=UTF-8'}))}catch(e){}}
+addEventListener('online',guiNgay);
+addEventListener('pagehide',guiBeacon);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')guiBeacon(); else guiNgay()});
+function veThanhChuaGui(){
+  let el=document.getElementById('thanhChuaGui'); const c=meChuaGui().length;
+  if(!c){if(el)el.remove();return}
+  if(!el){el=document.createElement('div');el.id='thanhChuaGui';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.innerHTML=`<span>⏳ <b>${c} mẻ CHƯA lên hệ thống</b> — Admin chưa thấy${lanGuiOk?' · gửi được lần cuối '+new Date(lanGuiOk).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):''}</span><button type="button" id="guiNgayBtn">Gửi ngay</button>`;
+}
+document.addEventListener('click',e=>{if(e.target.closest('#guiNgayBtn')){e.target.textContent='Đang gửi…';guiNgay()}});
+setInterval(guiNhip,60000); setTimeout(guiNhip,8000); setInterval(veThanhChuaGui,5000);
+
+
+/* R46 — hoạt ảnh dùng chung */
+const hvTat=()=>document.documentElement.classList.contains('hv-tat')||matchMedia('(prefers-reduced-motion: reduce)').matches;
+function soQuayHTML(t){return '<span class="so-quay" aria-label="'+esc(t)+'">'+[...t].map((c,k)=>{if(!/\d/.test(c))return c===' '?'<span class="cach"></span>':esc(c);
+  const d=+c,n=8+k,seq=Array.from({length:n},(_,j)=>(d+j+1)%10).concat([d]);return `<span class="qs"><span>${seq.map(x=>'<i class="sqd">'+x+'</i>').join('')}</span></span>`}).join('')+'</span>'}
+function chayQuay(root){requestAnimationFrame(()=>requestAnimationFrame(()=>root.querySelectorAll('.so-quay .qs>span').forEach(sp=>{sp.style.transform=`translateY(-${(sp.children.length-1)*1.15}em)`})))}
+function huyHieu(ic,ten,ghi,lo){let el=document.getElementById('huyHieu'); if(!el){el=document.createElement('div');el.id='huyHieu';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.innerHTML=`<span class="ic">${ic}</span><span><b>${esc(ten)}</b>${lo?`<div class="hh-lo">${hvTat()?esc(lo):soQuayHTML(lo)}</div>`:''}${ghi?`<small>${esc(ghi)}</small>`:''}</span>`;
+  el.classList.remove('hien'); void el.offsetWidth; el.classList.add('hien'); if(lo&&!hvTat())chayQuay(el); clearTimeout(el._h); el._h=setTimeout(()=>el.classList.remove('hien'),3800)}
+function rungO(el){if(!el||hvTat())return; el.classList.remove('rung'); void el.offsetWidth; el.classList.add('rung'); setTimeout(()=>el.classList.remove('rung'),400)}
+
 function dbVeTT(t,ghiChu){
-  dbTT=t; const el=document.getElementById('dbDen'); if(!el)return;
+  {const d=document.getElementById('dbDen'); if(d){d.dataset.tt=t; if(t==='ok'&&!hvTat()){d.classList.remove('nhay');void d.offsetWidth;d.classList.add('nhay')}}}
+  dbTT=t; if(t==='ok')lanGuiOk=Date.now(); if(typeof veThanhChuaGui==='function')setTimeout(veThanhChuaGui,0); const el=document.getElementById('dbDen'); if(!el)return;
   const map={tat:['⚪','Đồng bộ tắt'],dang:['🟡','Đang gửi…'],ok:['🟢','Đã đồng bộ '+dbGio()],loi:['🔴','Mất mạng — đang giữ lại'+(ghiChu?' ('+ghiChu+')':'')]};
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
 }
@@ -527,7 +600,7 @@ async function dbDayMe(banGhi){
     await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:banGhi})});
     banGhi.forEach(r=>{const x=nk.find(y=>y.id===r.id); if(x)x.daGui=1});
     luu(); if(typeof ve==='function')ve();
-    dbVeTT('ok');
+    dbVeTT('ok'); guiNhip(); if(banGhi.some(r=>Date.now()-Date.parse(r.ts||0)>15000)&&!document.hidden)huyHieu('☁️',`${banGhi.length} mẻ đã lên hệ thống`,'Admin đã nhận được');
   }catch(e){ dbVeTT('loi', e.message); }
 }
 /* 27/08/2026 (phản hồi lần 3): "Xác nhận số thực tế" (bcNgay) trước đây KHÔNG có kênh tự đẩy
@@ -1878,6 +1951,7 @@ async function kiemRoiGhi(){
   await luu(); dangGhi=false; ve();
   dbDayMe(nk.filter(r=>r.id.startsWith(goc)));
   bao(`Đã lưu ${kq.length} lô: `+kq.map(x=>lotDep(x.r.lot)).join(', ')+' — sang tab Tra lô để in/sửa tem.');
+  huyHieu('🏷️',`Đã ghi ${kq.length} lô · ${p.ten}`,kq.length>1?'và '+kq.slice(1).map(x=>lotDep(x.r.lot)).join(', '):'mở tab Tra lô để in / sửa tem',lotDep(kq[0].r.lot));
 }
 
 /* ═══ Sự kiện ═══ */
@@ -2044,7 +2118,7 @@ function capNhat(){
   const p=sp[moSP]; if(!p)return;
   const kg=num(p.sl), ml=fragranceDoseG(p,kg,p.huongMe);
   const big=document.querySelector('.big');
-  if(big){big.querySelector('.v').textContent=kg>0?fmt(Math.round(ml*10)/10):'—';
+  if(big){const v=big.querySelector('.v'), moi=kg>0?fmt(Math.round(ml*10)/10):'—'; if(v.textContent!==moi&&!hvTat()){v.classList.remove('nay');void v.offsetWidth;v.classList.add('nay')} v.textContent=moi;
     big.querySelector('.s').textContent=isUnscented(p.huongMe)?'Không mùi · không dùng hương liệu':(kg>0?`g · cho ${fmt(kg)} kg`:'Nhập số kg ở trên')}
   document.querySelectorAll('.pbi').forEach((el,k)=>{
     const d=(p.pb||[])[k]; if(!d)return;

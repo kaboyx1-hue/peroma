@@ -47,11 +47,12 @@ function taoMoiTruong({ matKhau = '', hongGhiManh = 0 } = {}) {
     };
     return sh;
   }
+  const kho = {};
   const ss = { getSheetByName: t => trang[t] || null, insertSheet: t => (trang[t] = taoTrang(t)), toast() {} };
   const ctx = {
     trang, console,
     SpreadsheetApp: { getActiveSpreadsheet: () => ss, flush() {} },
-    PropertiesService: { getScriptProperties: () => ({ getProperty: k => (k === 'MATKHAU' && matKhau) ? matKhau : null }) },
+    PropertiesService: { getScriptProperties: () => ({ getProperty: k => (k === 'MATKHAU' && matKhau) ? matKhau : (kho[k] ?? null), setProperty: (k, v) => { kho[k] = v }, getProperties: () => ({ ...kho, ...(matKhau ? { MATKHAU: matKhau } : {}) }) }) },
     LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
     ContentService: { MimeType: { JSON: 'json' }, createTextOutput: s => ({ s, setMimeType() { return this } }) },
     HtmlService: {},
@@ -177,6 +178,16 @@ console.log('\n── E. NHIỀU MÁY ADMIN (12/10/2026 S53) — chống ghi đ�
   ok('Sổ "mẻ đã trừ tồn kho" (meDaTru) được lưu', JSON.stringify(c.meDaTru.ids) === '["m1","m2"]');
   m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'PC' }] } });
   ok('Bản Admin cũ không gửi meDaTru → giữ sổ đang lưu (không xoá)', m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.meDaTru.ids.length === 2);
+}
+console.log('── S78. NHỊP MÁY NHÂN VIÊN ──');
+{
+  const m = taoMoiTruong({ matKhau: 'k' });
+  const r = m.get({ a: 'nhip', mk: 'k', may: 'NV-a1', d: JSON.stringify({ nv: 'Toàn', soChua: 2, chua: [{ lot: '1104106', id: 'x1' }] }) });
+  ok('a=nhip ghi nhịp của 1 máy (cần mật khẩu)', r.ok === 1, JSON.stringify(r));
+  ok('a=nhip sai mật khẩu bị chặn', !!m.get({ a: 'nhip', mk: 'sai', may: 'NV-a1', d: '{}' }).loi);
+  m.get({ a: 'nhip', mk: 'k', may: 'NV b2!!', d: '{"nv":"Cảnh"}' });
+  const ds = m.get({ a: 'dsnhip', mk: 'k' });
+  ok('a=dsnhip trả từng máy kèm lúc báo + số lô chưa gửi, không lộ mật khẩu', ds.ok === 1 && ds.may['NV-a1'].soChua === 2 && !!ds.may['NV-a1'].luc && ds.may['NVb2'].nv === 'Cảnh' && !JSON.stringify(ds).includes('"k"') && typeof ds.soMe === 'number', JSON.stringify(ds));
 }
 console.log(`\nKẾT QUẢ MÁY CHỦ:  ${dat} đạt · ${hong} hỏng${hong ? '\nCẦN SỬA:\n  - ' + loi.join('\n  - ') : ''}`);
 process.exit(hong ? 1 : 0);

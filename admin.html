@@ -1640,6 +1640,7 @@ body{font-feature-settings:"lnum" 1}
 @media (prefers-reduced-motion:reduce){:root.toi :is(.bigbtn,.nh-nhap)::before{animation:none}:root.toi :is(.khoi,.addbtn,.bigbtn,.nh-nhap):hover{transform:none}}
 
 /* S76 — bảng sửa hàng loạt */
+.bsl-mo .bigbtn{width:auto!important;margin:0!important;padding:10px 20px!important;flex:none}
 .bsl-mo{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 12px 14px}.bsl-mo span{font-size:12.5px;color:var(--txt-3)}
 html.bsl-on body{overflow:hidden}
 #bsl{position:fixed;inset:0;z-index:55;display:none;background:rgba(20,14,16,.55);padding:16px;align-items:stretch;justify-content:center}
@@ -1724,15 +1725,149 @@ html.bsl-on body{overflow:hidden}
 .gt-hero small{display:block;font-size:12px;color:var(--txt-3)}.gt-hero b{display:block;font:800 30px/1.1 var(--disp);font-variant-numeric:tabular-nums}.gt-hero span{font-size:12.5px;color:var(--txt-2)}
 .ctsec[data-sec="gt"] .gt-dau-t,.ctsec[data-sec="gt"] .gt-bang-t{display:none}.ctsec[data-sec="gt"] .gt-dau{justify-content:flex-end}
 .gt-hero-tt{font-size:13px;font-weight:700;color:#1F7A3E;max-width:420px}.gt-hero.thieu .gt-hero-tt{color:var(--warnTx)}
+
+/* S78 — đối soát số lô */
+.ds-tong{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}.ds-tong>span{background:var(--c2);border-radius:999px;padding:6px 12px;font-size:13px;display:inline-flex;gap:6px;align-items:center}
+.ds-tong .ds-c{background:var(--warnBg);color:var(--warnTx)}.ds-tong .ds-k{background:#FFEBD2;color:#A04C00}
+.ds-may{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:0 0 10px}
+.ds-m{display:grid;gap:2px;padding:10px 12px;border-radius:14px;background:var(--c2);border-left:4px solid #2E9E4B;font-size:12.5px}.ds-m small{color:var(--txt-3)}
+.ds-m.ds-vang{border-left-color:#E8A93A}.ds-m.ds-do{border-left-color:#C4351F}
+.ds-bang tr.ket td{background:#FFF4E5}:root.toi .ds-bang tr.ket td{background:rgba(255,170,90,.1)}
+
+/* S78 — silo / bồn ở Tổng quan */
+.tqbon h4 small{font-weight:500;color:var(--txt-3);font-size:12px;margin-left:6px}
+.bon-ds{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:6px}
+.bon-o{display:flex;flex-direction:column;align-items:center;width:108px;font:inherit;color:var(--tx);background:none;border:0;padding:4px 2px 6px;border-radius:14px;cursor:pointer;text-align:center}
+.bon-o:hover{background:var(--c2)}.bon-o:hover .bon{transform:translateY(-3px)}
+.bon-ten{font-size:12.5px;font-weight:700;line-height:1.25}.bon-so{font-size:12px;color:var(--txt-3);font-variant-numeric:tabular-nums}.bon-so.am{color:var(--badTx);font-weight:700}
+.bon{--c:#2BB3A3;width:100px;height:auto;overflow:visible;transition:transform .25s}.bon.hl{--c:#9C7BEA}.bon.thap{--c:#E8543E}
+.bon .vo{fill:none;stroke:var(--line2);stroke-width:2;stroke-linejoin:round}.bon .chan{fill:var(--line2)}
+.bon .lvf{fill:var(--c)}.bon .lvs{fill:#fff;opacity:.28}
+.bon .lv{transform:translateY(var(--y,160px));transition:transform 1.6s cubic-bezier(.2,.75,.2,1)}
+.bon .pct{font:800 11px var(--sans);fill:var(--tx);paint-order:stroke;stroke:var(--card);stroke-width:3px;text-anchor:middle}
+.bon .mn{stroke:var(--tx);stroke-width:1.2;stroke-dasharray:3 3;opacity:.7}.bon .vk{stroke:var(--line2);stroke-width:1}.bon .vt{font:7.5px var(--sans);fill:var(--txt-3)}
+.bon.thap .vo{stroke:#E8543E;animation:bonSang 1.3s ease-in-out infinite}@keyframes bonSang{50%{filter:drop-shadow(0 0 5px #E8543E)}}
+.bon .giot{fill:var(--c);opacity:0}.bon.chay .giot{animation:bonGiot .9s linear infinite}.bon.chay .g2{animation-delay:.3s}.bon.chay .g3{animation-delay:.6s}
+@keyframes bonGiot{0%{transform:translateY(0);opacity:.95}100%{transform:translateY(14px);opacity:0}}
+.bon .w1{fill:var(--c);animation:bonSong 3.2s linear infinite}.bon .w2{fill:#fff;opacity:.22;animation:bonSong 4.6s linear infinite reverse}@keyframes bonSong{to{transform:translateX(-60px)}}
+.bon .bot{fill:#fff;opacity:0;animation:bonBot 3.6s ease-in infinite}@keyframes bonBot{0%{transform:translateY(0);opacity:0}15%{opacity:.55}100%{transform:translateY(-62px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bon *{animation:none!important}.bon .lv{transition:none}}
+
+/* ═══ 19/10/2026 — S79 HOẠT ẢNH (khách: "tạo toàn bộ hoạt ảnh mới cho project"; thích "sự sinh động" như trang Xưởng Cát).
+   Nguyên tắc: chỉ chạy khi VỪA vào trang / vừa có sự kiện (lớp .vao 0,9 s, .vuamo, .moi), KHÔNG lặp lại mỗi lần gõ phím;
+   tự tắt khi máy bật "giảm chuyển động", khi chạy bộ kiểm tra (html.hv-tat) và khi in. Có công tắc ở tab Hệ thống. */
+/* 1. tiêu đề trang: dấu "/" quét vào, chữ trượt lên */
+@keyframes tdQuet{from{transform:translateX(-26px) skewX(-18deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes tdLen{from{transform:translateY(14px);opacity:0;filter:blur(3px)}to{transform:none;opacity:1;filter:none}}
+.td-trang.td-vao i{display:inline-block;animation:tdQuet .5s cubic-bezier(.2,.9,.2,1) both}
+.td-trang.td-vao{animation:tdLen .45s cubic-bezier(.2,.9,.2,1) both}
+/* 2. khối & dòng bảng xuất hiện so le */
+.vao .khoi:not(.vao),.vao .nh-r:not(.nh-tde),.vao .bon-o,.vao .ds-m,.vao .ds-bang tbody tr{animation:hvLen .42s cubic-bezier(.2,.7,.2,1) both}
+.vao .khoi:nth-of-type(2),.vao .nh-r:nth-child(3),.vao .bon-o:nth-child(2),.vao .ds-bang tr:nth-child(2){animation-delay:.04s}
+.vao .khoi:nth-of-type(3),.vao .nh-r:nth-child(4),.vao .bon-o:nth-child(3),.vao .ds-bang tr:nth-child(3){animation-delay:.08s}
+.vao .khoi:nth-of-type(4),.vao .nh-r:nth-child(5),.vao .bon-o:nth-child(4),.vao .ds-bang tr:nth-child(4){animation-delay:.12s}
+.vao .khoi:nth-of-type(5),.vao .nh-r:nth-child(6),.vao .bon-o:nth-child(5),.vao .ds-bang tr:nth-child(5){animation-delay:.16s}
+.vao .khoi:nth-of-type(n+6),.vao .nh-r:nth-child(n+7),.vao .bon-o:nth-child(n+6),.vao .ds-bang tr:nth-child(n+6){animation-delay:.2s}
+/* 3. biểu đồ sản lượng: đường vẽ dần, vùng tô hiện dần, chấm cuối bật ra · đồng hồ "Sẵn sàng" quét từ 0 */
+@keyframes veDuong{from{stroke-dashoffset:2200}to{stroke-dashoffset:0}}
+@keyframes hienDan{from{opacity:0}to{opacity:1}}
+@keyframes chamBat{0%{transform:scale(0)}70%{transform:scale(1.6)}100%{transform:scale(1)}}
+.vao .tqchart .duong{stroke-dasharray:2200;animation:veDuong 1.4s .15s cubic-bezier(.3,.7,.2,1) both}
+.vao .tqchart path[fill]{animation:hienDan .9s .5s both}
+.vao .tqchart .cham{transform-box:fill-box;transform-origin:center;animation:chamBat .5s 1.4s both}
+@keyframes gaugeQuet{from{stroke-dashoffset:var(--p)}to{stroke-dashoffset:0}}
+.vao .gauge .gt{animation:gaugeQuet 1.2s .2s cubic-bezier(.2,.8,.2,1) both}
+/* 4. thanh tiến độ mọc ra từ trái */
+@keyframes thanhMoc{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.vao .tcon>i,.vao .nlbar>i,.vao .nlbar i,.r.vuamo .tcon>i{transform-origin:left;animation:thanhMoc .9s .2s cubic-bezier(.2,.7,.2,1) both}
+/* 5. Xưởng (vừa mở mặt hàng): vạch chỉ số bật lần lượt như bảng thông số xe đua */
+@keyframes vachBat{0%{transform:scaleY(.2);opacity:0}60%{transform:scaleY(1.7);opacity:1}100%{transform:none;opacity:1}}
+.r.vuamo .xv-vach i{animation:vachBat .32s cubic-bezier(.2,.8,.2,1) both}
+.r.vuamo .xv-vach i:nth-child(2){animation-delay:.04s}.r.vuamo .xv-vach i:nth-child(3){animation-delay:.08s}.r.vuamo .xv-vach i:nth-child(4){animation-delay:.12s}
+.r.vuamo .xv-vach i:nth-child(5){animation-delay:.16s}.r.vuamo .xv-vach i:nth-child(6){animation-delay:.2s}.r.vuamo .xv-vach i:nth-child(7){animation-delay:.24s}
+.r.vuamo .xv-vach i:nth-child(8){animation-delay:.28s}.r.vuamo .xv-vach i:nth-child(9){animation-delay:.32s}.r.vuamo .xv-vach i:nth-child(10){animation-delay:.36s}
+.r.vuamo .xv-vach i:nth-child(11){animation-delay:.4s}.r.vuamo .xv-vach i:nth-child(12){animation-delay:.44s}
+.r.vuamo .xv-cs,.r.vuamo .xv-s,.r.vuamo .xv-g,.r.vuamo .mh-dau2,.r.vuamo .ctnv{animation:hvLen .4s cubic-bezier(.2,.7,.2,1) both}
+/* số lô quay như máy đếm */
+.so-quay{display:inline-flex;gap:.04em}.so-quay .qs{display:inline-block!important;height:1.15em;overflow:hidden;vertical-align:bottom}.so-quay .qs>span{display:flex!important;flex-direction:column;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.so-quay .qs>span>.sqd{display:block!important;width:auto!important;background:none!important;height:1.15em;line-height:1.15em;font-size:inherit;font-weight:inherit;font-style:normal}.so-quay .qs{line-height:1.15em}
+.xv-lo.dang-quay{background:none!important;-webkit-text-fill-color:currentColor!important;color:#E8664A!important}.so-quay .cach{width:.35em}
+/* 6. chip hương vừa chọn bật lên */
+@keyframes chipBat{0%{transform:scale(.7)}60%{transform:scale(1.12)}100%{transform:none}}
+.hset .h.bat{animation:chipBat .38s cubic-bezier(.3,1.6,.5,1)}
+/* 7. ô nhập sai rung */
+@keyframes rung{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.rung{animation:rung .36s ease}
+/* 8. cảnh báo gấp: thở nhẹ · biểu tượng kho âm nhịp tim */
+@keyframes canhTho{50%{box-shadow:0 0 0 4px rgba(232,84,62,.18),0 14px 30px -20px rgba(232,102,74,.45)}}
+.tqcb[role=alert]{animation:canhTho 2.6s ease-in-out infinite}
+@keyframes nhipTim{0%,100%{transform:none}15%{transform:scale(1.18)}30%{transform:none}45%{transform:scale(1.1)}}
+.tti-am{animation:nhipTim 2.2s ease-in-out infinite}
+/* 9. mẻ vừa nhận: trượt vào + nền sáng rồi tắt dần */
+@keyframes meMoi{0%{transform:translateX(-14px);opacity:0;background:rgba(243,101,74,.25)}30%{transform:none;opacity:1}100%{background:transparent}}
+.tqr.moi{animation:meMoi 2.4s ease-out both;border-radius:12px}
+/* 10. đèn đồng bộ: nhịp xanh khi vừa đồng bộ, nhấp nháy khi đang gửi */
+@keyframes denNhip{0%{box-shadow:0 0 0 0 rgba(46,158,75,.55)}100%{box-shadow:0 0 0 12px rgba(46,158,75,0)}}
+@keyframes denCho{50%{opacity:.45}}
+#dbDen{border-radius:999px;padding:2px 8px}#dbDen[data-tt="ok"].nhay{animation:denNhip 1s ease-out}#dbDen[data-tt="dang"]{animation:denCho 1s ease-in-out infinite}
+/* 11. huy hiệu sự kiện (nhận mẻ, lưu hàng loạt…) trượt xuống từ trên */
+#huyHieu{position:fixed;left:50%;top:14px;z-index:70;transform:translate(-50%,-150%);display:flex;gap:12px;align-items:center;max-width:calc(100vw - 32px);
+  background:var(--card);color:var(--tx);border:1.5px solid #FAC1B7;border-radius:18px;padding:10px 18px 10px 12px;box-shadow:0 22px 40px -18px rgba(0,0,0,.45);transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+#huyHieu.hien{transform:translate(-50%,0)}
+#huyHieu .ic{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:21px;background:linear-gradient(135deg,#F3654A,#FFB9AC)}
+#huyHieu.hien .ic{animation:hhXoay .7s .15s both}@keyframes hhXoay{from{transform:rotateY(180deg) scale(.4)}to{transform:none}}
+#huyHieu b{display:block;font-size:14.5px}#huyHieu small{display:block;font-size:12.5px;color:var(--txt-3)}
+/* 12. toast nảy lên */
+@keyframes toastNay{0%{transform:translate(-50%,24px) scale(.9);opacity:0}60%{transform:translate(-50%,-4px) scale(1.02);opacity:1}100%{transform:translate(-50%,0)}}
+@media print{#huyHieu{display:none}}
+html.hv-tat #huyHieu{transition:none}
+
+/* ═══ 19/10/2026 — S80 thẻ Chi tiết lô gọn (theLoHTML). Đỏ chỉ cho việc cần xử lý & nút huỷ; xanh dương = hương. ═══ */
+.lo-the{max-width:760px;margin-inline:auto!important;padding:18px 20px!important;display:grid;gap:12px}
+.lo-the .lo-dau{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.lo-the .lo-dau h5{margin:0!important;font-size:24px!important;color:var(--tx)!important;font-family:var(--mono)!important;letter-spacing:.06em!important}
+.lo-the .lo-co{font-size:12px;font-weight:800;color:var(--warnTx);letter-spacing:.06em;font-family:var(--sans)}.lo-the .lo-co.huy{color:var(--red)}
+.lo-tt{font-size:12.5px;font-weight:700;padding:4px 11px;border-radius:999px;border:1px solid}
+.lo-tt.cho{color:var(--warnTx);background:var(--warnBg);border-color:var(--warnLine)}
+.lo-tt.xong{color:var(--ok);background:var(--okBg);border-color:var(--okLine)}
+.lo-tt.huy{color:var(--tx3);background:transparent;border-color:var(--line)}
+.lo-the .lo-phu{color:var(--tx2);font-size:14px;margin-top:-6px}
+.lo-the .lo-h{color:var(--infoTx)!important;font-weight:700}
+.lo-the .lo-gm{font-size:12px;color:var(--tx3);margin-top:-8px}
+.lo-so{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lo-so>div{border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:grid;gap:2px;background:var(--card,transparent)}
+.lo-so span{font-size:12px;color:var(--tx3)}.lo-so b{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--tx)}
+.lo-so small{font-size:12px;color:var(--tx2)}.lo-so .h b{color:var(--infoTx)}
+.lo-viec{border:1.5px solid var(--bad);border-radius:14px;padding:10px 12px;display:grid;gap:4px;font-size:13.5px;background:var(--badBg)}
+.lo-viec>b{color:var(--badTx)}
+.lo-sua{font-size:13px;color:var(--warnTx);background:var(--warnBg);border-radius:10px;padding:6px 10px}
+.lo-nhom{display:grid}.lo-nhom h6{margin:4px 0 2px;font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--tx3)}
+.lo-the .kv{display:grid!important;grid-template-columns:minmax(150px,38%) 1fr;gap:12px;align-items:baseline}
+.lo-the .kv b{text-align:left!important}.lo-the .kv small,.lo-the .lo-hd small{font-weight:500;color:var(--tx3)}
+.lo-the .lo-chua{color:var(--warnTx);font-weight:700}
+.lo-hd{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.lo-hd:last-child{border-bottom:none}.lo-mua{font-size:12.5px;color:var(--tx3)}
+.lo-nhan{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.lo-nhan.co{color:var(--ok);background:var(--okBg)}.lo-nhan.chua{color:var(--badTx);background:var(--badBg);border:1px solid var(--bad)}
+.lo-rong{font-size:13px;color:var(--tx3);margin-top:6px}.lo-rong summary{cursor:pointer}
+.lo-nut{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lo-nut .inbtn{width:auto!important;margin-top:0!important}
+.lo-the .lo-nut .inbtn.lo-chinh{flex:1 1 220px;background:linear-gradient(90deg,#F3654A,#FF8C73)!important;color:#fff!important;border-color:transparent!important}
+.lo-nut .lo-phu2{flex:0 1 auto}
+.lo-the .lo-nut .inbtn.lo-huybtn{margin-left:auto!important;font-size:12.5px!important;padding:8px 14px!important;border-color:var(--bad)!important;color:var(--badTx)!important}
+.lo-the .lo-nut .inbtn.lo-huybtn.bo{border-color:var(--line2)!important;color:var(--tx2)!important}
+.lo-huy{opacity:.7}
+@media (max-width:520px){.lo-the{padding:14px!important}.lo-so{grid-template-columns:1fr 1fr}.lo-so .h{grid-column:1/-1}
+  .lo-the .kv{grid-template-columns:1fr!important;gap:2px}.lo-nut .lo-huybtn{margin-left:0!important}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S77</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S80</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 19/10/2026-S77</div>
+      <div class="verFoot">BẢN 19/10/2026-S80</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -1879,6 +2014,7 @@ function laDienThoai(){
 let dbTT='tat', dbHen2=null, dbDangKeo=false, dbDangKeoBc=false, dbDangKeoLt=false, dongBoCauHinhTs='';
 function dbGio(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function dbVeTT(t,ghiChu){
+  {const d=document.getElementById('dbDen'); if(d){d.dataset.tt=t; if(t==='ok'&&!hvTat()){d.classList.remove('nhay');void d.offsetWidth;d.classList.add('nhay')}}}
   dbTT=t; const el=document.getElementById('dbDen'); if(!el)return;
   const map={tat:['⚪','Đồng bộ tắt'],dang:['🟡','Đang gửi…'],ok:['🟢','Đã đồng bộ '+dbGio()],loi:['🔴','Mất mạng — đang giữ lại'+(ghiChu?' ('+ghiChu+')':'')]};
   const [dot,txt]=map[t]||map.tat; el.textContent=dot+' '+txt;
@@ -2182,10 +2318,10 @@ async function dbKeoNhatKy(){
     const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky');
     if(j.ok && Array.isArray(j.nk)){
       let them=0;
-      j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ ghiNhanMeLanDau(r); nk.push(r); them++; if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
+      j.nk.forEach(r=>{ if(!nk.some(x=>x.id===r.id)){ ghiNhanMeLanDau(r); nk.push(r); them++; meMoiIds.add(r.id); setTimeout(()=>meMoiIds.delete(r.id),6000); if(r.nv&&!nvDS.includes(r.nv))nvDS.push(r.nv); } });
       if(them){apTrangThaiMe();apTraNo()}
       const bot=gonTheoMayChu('nk',j.nk);
-      if(them||bot){ luuNgay(); if(typeof ve==='function')ve(); bao(them?'🟢 Nhận '+them+' mẻ mới từ máy nhân viên':'Đã bỏ '+bot+' mẻ cũ không còn trên Google Sheet'); }
+      if(them||bot){ luuNgay(); if(typeof ve==='function')ve(); if(them)huyHieu('📦','Nhận '+them+' mẻ mới','từ máy nhân viên · số lô đã vào sổ'); else bao('Đã bỏ '+bot+' mẻ cũ không còn trên Google Sheet'); }
       dbVeTT('ok');
     }
   }catch(e){ dbVeTT('loi', e.message); }
@@ -2235,10 +2371,7 @@ async function dbKeoTienDoLenh(){
    không tốn thêm hạn ngạch chạy của Apps Script (gói miễn phí ~90 phút/ngày) khi máy để tab ẩn
    qua đêm/khoá màn hình. Không thay cơ chế đẩy khi sửa (dbDayChoDL, vẫn tức thời như cũ) — đây là
    chiều NGƯỢC LẠI: máy này KÉO về những gì máy khác vừa đẩy lên. */
-function dbBatDauVongLapCauHinh(){
-  if(!DONGBO_URL)return;
-  setInterval(()=>{ if(!document.hidden) dbKeoCauHinhNeuMoiHon(); },9000);
-}
+function dbBatDauVongLapCauHinh(){} // S78: đã gộp vào dbVong()
 /* 30/09/2026: khách báo "đã khai báo (6 hương) nhưng không hiện bên nhân viên". Nguyên nhân tìm ra: còn 1 máy chủ
    Apps Script CŨ (dự án khác, Google Sheet khác — link …8Rc/exec trong tài liệu bàn giao cũ) vẫn chạy song song máy
    chủ thật; máy nào lỡ nối link cũ thì đọc/ghi một kho dữ liệu riêng, lệch hẳn với các máy khác. Máy chủ thật trả
@@ -2252,12 +2385,34 @@ function baoMayChuCu(){if(document.getElementById('mayChuCu'))return;const d=doc
 async function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
   if(await laMayChuCu(DONGBO_URL)){DONGBO_URL='';baoMayChuCu();dbVeTT('loi','máy chủ cũ');return}
-  dbKeoNhatKy();dbKeoBaoCao();dbKeoTienDoLenh();
-  setInterval(dbKeoNhatKy,20000);
-  setInterval(dbKeoBaoCao,20000);
-  setInterval(dbKeoTienDoLenh,20000);
-  dbBatDauVongLapCauHinh();
+  /* 19/10/2026 S78 (khách: "đồng bộ rời rạc, chậm hoặc không nhận tín hiệu"): trước đây 4 vòng riêng bắn CÙNG LÚC (cấu hình 9 s tải
+     nguyên khối, nhật ký mẻ 20 s tải TOÀN BỘ, báo cáo, tiến độ) → máy chủ Apps Script xếp hàng, chậm/hết giờ. Nay 1 vòng tuần tự 10 s:
+     hỏi "tomtat" (rất nhẹ: mốc cấu hình + số mẻ) → chỉ tải cấu hình khi mốc đổi, chỉ tải nhật ký khi số mẻ đổi (hoặc 3 phút 1 lần để
+     dọn), báo cáo/tiến độ/nhịp máy 30 s 1 lần. Mở lại tab hoặc có mạng lại → chạy ngay. */
+  dbVong(true); setInterval(()=>dbVong(false),10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)dbVong(true)});
+  addEventListener('online',()=>dbVong(true));
+  setInterval(dbDenCu,15000);
 }
+let dbVongDang=false, dbVongSo=0, dbSoMeMayChu=null, dbLanKeoNk=0, dbLanOk=0, nhipMay=null, nhipHoTro=null;
+async function dbVong(nhanh){
+  if(!DONGBO_URL||dbVongDang)return; dbVongDang=true; dbVongSo++;
+  try{
+    let tt=null; try{tt=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=tomtat',{},15000)}catch(e){dbVeTT('loi',e.message)}
+    if(tt&&tt.ok)dbLanOk=Date.now();
+    if(nhanh||!tt||!dongBoCauHinhTs||String(tt.ts)!==String(dongBoCauHinhTs))await dbKeoCauHinhNeuMoiHon();
+    if(nhanh||!tt||tt.soMe!==dbSoMeMayChu||Date.now()-dbLanKeoNk>180000){await dbKeoNhatKy(); dbLanKeoNk=Date.now(); if(tt)dbSoMeMayChu=tt.soMe}
+    if(nhanh||dbVongSo%3===0){await dbKeoBaoCao(); await dbKeoTienDoLenh(); await dbKeoNhip()}
+  }finally{dbVongDang=false}
+}
+async function dbKeoNhip(){
+  if(!DONGBO_URL||nhipHoTro===false)return;
+  try{const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=dsnhip',{},15000); if(j.ok){nhipMay=j.may||{}; nhipHoTro=true; if(typeof j.soMe==='number')dbSoMeMayChu=j.soMe; if(tab==='sx')veDoiSoat()}}
+  catch(e){if(/không được phép/i.test(e&&e.message||''))nhipHoTro=false}
+}
+// đèn tín hiệu: quá 2 phút chưa liên lạc được máy chủ → vàng, kèm số phút
+function dbDenCu(){const el=document.getElementById('dbDen'); if(!el||!DONGBO_URL||!dbLanOk)return; const ph=Math.floor((Date.now()-dbLanOk)/60000);
+  if(ph>=2&&dbTT!=='loi')el.textContent='🟡 Chưa liên lạc được máy chủ '+ph+' phút'}
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('dbDen');
   /* 12/09/2026: trước đây 4 lệnh này bắn đồng thời khi bấm — tranh nhau 1 lượt thực thi Apps
@@ -2795,7 +2950,7 @@ let nlDM=[];
 /* ── S23/R16: chuyển động giao diện (xem khối CSS cùng tên) ──
    Tắt khi máy bật "giảm chuyển động", và khi trình duyệt do máy điều khiển (navigator.webdriver = bộ kiểm tra
    tự động) để các phép đo/đếm giờ trong test không lệch; test riêng về chuyển động tự bật lại. */
-const HV_TAT=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||!!navigator.webdriver}catch(e){return false}})();
+const HV_TAT=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches||!!navigator.webdriver||localStorage.getItem('peroma_hv')==='tat'}catch(e){return false}})();
 if(HV_TAT)document.documentElement.classList.add('hv-tat');
 let hvTab='';
 function hieuUngVao(el){
@@ -3286,7 +3441,7 @@ async function huyLo(id){
   const c=await hoi('Huỷ lô này?',
     `Lô <b>${lotDep(r.lot)}</b> · ${esc(r.sp)} · ${fmt(r.sl)} kg sẽ KHÔNG còn tính vào báo cáo/sản lượng và KHÔNG in tem được nữa.`
     +`<br><br>Dữ liệu vẫn còn để tra soát — có thể bỏ huỷ lại bất cứ lúc nào, không mất.`,
-    {nutOK:'Huỷ lô này',nguyHiem:true});
+    {nutOK:'Huỷ lô này',nguyHiem:true,nutHuy:'Giữ lại'});
   if(!c)return;
   r.huy=true; r.huyLuc=new Date().toISOString(); chinhTonHuongMe(r,-num(r.mlDung)); ghiTrangThaiMe(r); // 17/10: huỷ → trả lại tồn hương
   ghiAudit('batch',r.id,'CANCEL',{huy:false},{huy:true});
@@ -5548,7 +5703,7 @@ const LOP_CH={
   ma:{nhom:{'Mặt hàng':'Mã số lô','Nguyên liệu':'Khác'}},
   kho:{nhom:{'Nguồn hương liệu':'Mua vào & tồn kho','Số hoá đơn đầu vào':'Chứng từ'},gop:['Nguồn nguyên liệu']},
   bc:{giu:['Khoảng thời gian'],nhom:{'Sản lượng theo sản phẩm':'Kết quả trong kỳ'}},
-  sx:{nhom:{'Lệnh sản xuất theo lô':'Theo dõi sản xuất','Khổ in tem phụ':'In tem & tra lô'},gop:['Đang mở','Đã hoàn thành']},
+  sx:{nhom:{'Đối soát số lô':'Đồng bộ','Lệnh sản xuất theo lô':'Theo dõi sản xuất','Khổ in tem phụ':'In tem & tra lô'},gop:['Đang mở','Đã hoàn thành']},
   gv:{giu:['Bảng giá vốn nhanh']},
   sl:{nhom:{'Kết nối &amp; đồng bộ':'Thường dùng','Dọn dữ liệu thử':'Ít dùng'}},
 };
@@ -5601,6 +5756,42 @@ Element.prototype.scrollIntoView=function(...a){const k=this.closest&&this.close
 /* 19/10/2026 S74 — tab KHO: mọi việc MUA VÀO ở 1 chỗ (khách: "logic thao tác, các bước và tính tiện dụng").
    Trước đây nằm rải ở Danh mục (nguồn, tồn, bao bì) + Báo cáo (số hoá đơn). Vẽ vào khung viewMA nên dùng lại nguyên
    bộ xử lý sự kiện của Danh mục; khối số HĐ dùng bộ xử lý của Báo cáo (gắn thêm cho viewMA, xem ngheCa). */
+/* 19/10/2026 S78 — ĐỐI SOÁT SỐ LÔ: lô nào đã về Admin, lô nào còn kẹt trên máy nhân viên (theo nhịp máy), máy chủ còn mẻ nào Admin chưa tải. */
+const phutTruoc=t=>{const p=Math.floor((Date.now()-Date.parse(t||0))/60000);return !(p>=0)?'—':p<1?'vừa xong':p<60?p+' phút trước':p<1440?Math.floor(p/60)+' giờ trước':Math.floor(p/1440)+' ngày trước'};
+function htmlDoiSoat(){
+  const veAdmin=nk.filter(r=>r&&r.lot&&!r.huy), coId=new Set(nk.map(r=>r.id));
+  let o=`<div class="ds-tong"><span>✅ <b>${veAdmin.length}</b> mẻ đã về Admin</span>`;
+  const conMC=typeof dbSoMeMayChu==='number'?Math.max(0,dbSoMeMayChu-nk.filter(r=>r&&r.id).length):0;
+  o+=conMC?`<span class="ds-c">⚠ <b>${conMC}</b> mẻ trên máy chủ chưa tải về <button type="button" class="ctsxb on" data-dstai="1">Tải ngay</button></span>`:'<span>☁️ máy chủ và Admin khớp số mẻ</span>';
+  const may=Object.entries(nhipMay||{}).sort((a,b)=>String(b[1].luc||'').localeCompare(String(a[1].luc||'')));
+  const ket=may.flatMap(([id,m])=>(m.chua||[]).filter(x=>!coId.has(x.id)).map(x=>({...x,may:id,nv:m.nv})));
+  o+=ket.length?`<span class="ds-k">⏳ <b>${ket.length}</b> mẻ còn kẹt trên máy nhân viên</span>`:'';
+  o+='</div>';
+  if(nhipHoTro===false)o+=`<div class="sd-canh">Máy chủ (Code.gs) đang là bản cũ nên chưa biết lô nào còn kẹt trên máy nhân viên. Cập nhật Code.gs theo hướng dẫn để bật phần này — các phần khác vẫn chạy bình thường.</div>`;
+  else if(!may.length)o+=`<div class="sd-ghi">Chưa nhận được nhịp từ máy nhân viên nào. Máy nhân viên tự báo khoảng 1 phút một lần khi đang mở app (bản Nhân viên R45 trở lên).</div>`;
+  if(may.length)o+=`<div class="ds-may">${may.map(([id,m])=>{const ph=(Date.now()-Date.parse(m.luc||0))/60000, cls=ph>30?'ds-do':ph>5?'ds-vang':'ds-xanh', c=(m.chua||[]).filter(x=>!coId.has(x.id)).length;
+    return `<div class="ds-m ${cls}"><b>${esc(m.nv||'(chưa chọn tên)')}</b><small>${esc(id)} · ${esc(m.ban||'')}</small><span>${ph>30?'🔴':ph>5?'🟡':'🟢'} liên lạc ${phutTruoc(m.luc)}</span><span>${c?'⏳ còn <b>'+c+'</b> mẻ chưa gửi':'✅ không còn mẻ kẹt'}</span></div>`}).join('')}</div>`;
+  const ds=[...ket.map(x=>({lot:x.lot,sp:x.sp,nv:x.nv,ngay:x.ngay,kg:x.kg,tt:'ket',may:x.may})),
+    ...veAdmin.slice().sort((a,b)=>String(b.ts||'').localeCompare(String(a.ts||''))).slice(0,40).map(r=>({lot:r.lot,sp:r.sp,nv:r.nv,ngay:r.ngaysx,kg:num(r.sl),tt:'ve',ts:r.ts}))];
+  o+=`<div class="gt-cuon"><table class="tb ds-bang"><thead><tr><th>Số lô</th><th>Mặt hàng</th><th>Nhân viên</th><th>Ngày SX</th><th class="n">Kg</th><th>Trạng thái</th></tr></thead><tbody>${ds.map(x=>`<tr class="${x.tt==='ket'?'ket':''}"><td><b>${esc(lotDep(x.lot||''))||'—'}</b></td><td>${esc(x.sp||'')}</td><td>${esc(x.nv||'')}</td><td>${esc(vnNgay(x.ngay||''))}</td><td class="n">${fmt(x.kg||0)}</td><td>${x.tt==='ket'?'<span class="ttc tti-sap">⏳ còn trên máy '+esc(x.may)+'</span>':'<span class="ttc tti-ok">✅ đã về Admin</span>'}</td></tr>`).join('')||'<tr><td colspan="6" class="none">Chưa có lô nào.</td></tr>'}</tbody></table></div>`;
+  return o;
+}
+function veDoiSoat(){const k=document.getElementById('doiSoatThan'); if(k)k.innerHTML=htmlDoiSoat()}
+document.addEventListener('click',async e=>{if(e.target.closest('[data-dstai]')){dbLanKeoNk=0; await dbKeoNhatKy(); veDoiSoat()}});
+
+/* S79 — các hàm hoạt ảnh dùng chung */
+const hvTat=()=>document.documentElement.classList.contains('hv-tat')||matchMedia('(prefers-reduced-motion: reduce)').matches;
+function huyHieu(ic,ten,ghi){let el=document.getElementById('huyHieu'); if(!el){el=document.createElement('div');el.id='huyHieu';el.setAttribute('role','status');document.body.appendChild(el)}
+  el.innerHTML=`<span class="ic">${ic}</span><span><b>${esc(ten)}</b>${ghi?`<small>${esc(ghi)}</small>`:''}</span>`;
+  el.classList.remove('hien'); void el.offsetWidth; el.classList.add('hien'); clearTimeout(el._h); el._h=setTimeout(()=>el.classList.remove('hien'),3200)}
+function rungO(el){if(!el||hvTat())return; el.classList.remove('rung'); void el.offsetWidth; el.classList.add('rung'); setTimeout(()=>el.classList.remove('rung'),400)}
+// số lô quay như máy đếm: mỗi chữ số cuộn qua 8–14 số rồi dừng đúng số thật
+function quaySo(el){if(!el||el.dataset.quay||hvTat())return; const t=el.dataset.goc||el.textContent; el.dataset.goc=t; el.dataset.quay='1'; el.classList.add('dang-quay');
+  el.innerHTML='<span class="so-quay" aria-label="'+esc(t)+'">'+[...t].map((c,k)=>{if(!/\d/.test(c))return c===' '?'<span class="cach"></span>':esc(c);
+    const d=+c, n=8+k, seq=Array.from({length:n},(_,j)=>(d+j+1)%10).concat([d]);return `<span class="qs"><span style="transform:translateY(0)">${seq.map(x=>'<i class="sqd">'+x+'</i>').join('')}</span></span>`}).join('')+'</span>';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>el.querySelectorAll('.qs>span').forEach(sp=>{const n=sp.children.length-1;sp.style.transform=`translateY(-${n*1.15}em)`})))}
+let quayDaXem=new Set(), meMoiIds=new Set();
+
 function veKho(){
   // S76: khung lần mua trước đây ghi "Số tiền đã trả" + "Ứng bao nhiêu kg" → dễ hiểu là đơn giá cho 1 kg, không phải số kg nhập kho.
   // Liệt kê các lần mua đang ghi ≤ 1 kg để khách xem lại 1 lần; bấm "Đúng là 1 kg" thì không hỏi lại dòng đó (cờ dung1kg đi theo cấu hình).
@@ -5753,6 +5944,73 @@ function veMa(){
    không tạo hệ thống trạng thái song song với nk[]/bcNgay[] đã có (đúng yêu cầu "dùng batchId,
    nk[] và bcNgay[] hiện có làm bridge"). PLANNED/CONFIRMED là chuyện của phía Nhân viên trước
    khi ghi mẻ (p.daInPhieu/p.xacNhanCT) — Admin chỉ thấy record TỪ RECORDED trở đi. */
+
+/* 19/10/2026 — S80: THẺ "CHI TIẾT LÔ" làm gọn. Trước: 18 dòng cùng trọng lượng, trạng thái nằm dòng 16, đỏ dùng bừa,
+   dòng lặp/rỗng, "NaN g / NaN kg" ở mẻ ghi trước khi có định mức. Nay: số lô + trạng thái lên đầu, 3 ô số chính
+   (số bao & % hương SUY RA từ dữ liệu mẻ), khung "Còn N việc" chỉ khi thiếu số HĐ, 3 nhóm có tiêu đề, trường rỗng gộp
+   vào <details>. Màu: đỏ CHỈ cho việc cần xử lý + nút huỷ · xanh dương = hương · cam = chờ · xanh lá = xong.
+   Định mức lúc SX là ẢNH CHỤP lúc ghi — thiếu thì hiện "Chưa ghi", KHÔNG bù bằng định mức hiện tại. */
+function theLoHTML(r){
+  const pp=sp.find(x=>x.ten===r.sp), tt=trangThaiSXCua(r), T=TRANG_THAI_SX[tt], ttCls={CANCELLED:'huy',RECORDED:'cho',COMPLETED:'xong'}[tt]||'cho';
+  const gio=t=>esc(String(t||'').replace('T',' ').slice(0,16)), nho=t=>` <small>${t}</small>`;
+  const kv=(k,v)=>`<div class="kv"><span>${k}</span><b>${v}</b></div>`;
+  const sl=num(r.sl), ml=num(r.mlDung), qcKg=kgCua(r.quyCach)||doanKg(r.quyCach||'');
+  const coBao=r.soBao!==''&&r.soBao!==undefined;
+  const bao=coBao?`${esc(r.soBao)} bao × ${fmt(num(r.kgBao)||qcKg)} kg${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}`:(qcKg>0&&sl>0?`≈ ${fmt(Math.round(sl/qcKg*10)/10)} bao`:'');
+  const pt=sl>0&&ml>0?`${(Math.round(ml/sl/10*1000)/1000).toString().replace('.',',')} % · ${fmt(Math.round(ml/sl*10)/10)} g/kg`:'';
+  const dm=num(r.mlChuan)>0&&num(r.meChuan)>0?`${fmt(num(r.mlChuan))} g / ${fmt(num(r.meChuan))} kg`
+    :`<span class="lo-chua">Chưa ghi</span>${nho('mẻ ghi trước khi lưu định mức — không bù bằng định mức hiện tại')}`;
+  const tp=pp&&pp.hstem&&pp.hstem.thanhPhan||'';
+  const dsHD=hdCuaMe(r), thieu=r.huy?[]:dsHD.filter(d=>!d.soHD);
+  const nutMua=(d,chu)=>d.mua?` <button type="button" class="lnk" data-suadongmua="${d.mua.loai}:${esc(d.ten)}:${d.mua.ix}">${chu}</button>`:'';
+  const hd=dsHD.map(d=>`<div class="lo-hd${d.soHD?'':' thieu'}"><div><b>${esc(d.ten)}</b>${d.ncc?nho(esc(d.ncc)):''}
+      ${d.mua?`<div class="lo-mua">Lần mua ${esc(d.mua.e.ngay||'')} · ${fmt(num(d.mua.e.soKg))} kg · ${fmt(num(d.mua.e.gia))} đ${nutMua(d,'Sửa lần mua')}</div>`:''}</div>
+      <span class="lo-nhan ${d.soHD?'co':'chua'}">${d.soHD?'HĐ '+esc(d.soHD)+(d.boSung?' · bổ sung':d.theoLanMua?' · theo lần mua':''):'Chưa có số HĐ'}</span>${d.hopDong?`<div class="lo-mua">Hợp đồng ${esc(d.hopDong)}</div>`:''}</div>`).join('');
+  const cp=chiPhiHuongRecord(r), coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null, cb=chiPhiBaoBiRecord(r);
+  const dsBB=cb?(r.baoBiLucSX||tinhBaoBiMe(r).ds||[]):[];
+  const rong=[['Thành phần',tp],['Trạng thái lúc SX',r.trangThai],['Nhân viên thực hiện',r.nv],['Quy cách đóng gói',r.quyCach]].filter(x=>!String(x[1]||'').trim());
+  const ls=auditEvents.filter(a=>a.entityId===r.id||a.entityId===r.batchId).slice().reverse();
+  const tem=!r.huy&&khongTem(pp);
+  return `<div class="lot lo-the${r.huy?' lo-huy':''}">
+    <div class="lo-dau"><h5>${esc(r.lot)}${r.huy?' <span class="lo-co huy">· ĐÃ HUỶ</span>':''}${r.ngungSX?' <span class="lo-co">· NGỪNG SẢN XUẤT</span>':''}</h5>
+      <span class="lo-tt ${ttCls}" title="Trạng thái chốt thực tế">${T.n}</span></div>
+    <div class="lo-phu">${esc(r.sp)} · <span class="lo-h">${esc(r.huong)||'—'}</span> · ${vnNgay(r.ngaysx)}${r.nv?' · '+esc(r.nv):''}${r.soLenh?' · lệnh '+esc(r.soLenh):''}</div>
+    ${[7,8,10].includes(String(r.lot||'').length)?`<div class="lo-gm">Giải mã số lô: ${lotDep(r.lot)}</div>`:''}
+    <div class="lo-so">
+      <div><span>Số lượng</span><b>${fmt(sl)} kg</b>${bao?`<small>${bao}</small>`:''}</div>
+      <div><span>Quy cách đóng gói</span><b>${esc(r.quyCach)||'—'}</b>${qcKg>0?`<small>${fmt(qcKg)} kg/bao</small>`:''}</div>
+      <div class="h"><span>Hương đã dùng</span><b>${fmt(ml)} g</b>${pt?`<small>${pt}</small>`:''}</div>
+    </div>
+    ${thieu.length?`<div class="lo-viec" role="note"><b>Còn ${thieu.length} việc</b>${thieu.map(d=>`<div>Nhập số hoá đơn cho <b>${esc(d.ten)}</b>${d.ncc?' ('+esc(d.ncc)+')':''}${nutMua(d,'Nhập số HĐ →')}</div>`).join('')}</div>`:''}
+    ${r.suaLuc?`<div class="lo-sua">Đã sửa số liệu: ${fmt(num(r.slGoc))} → ${fmt(num(r.sl))} kg${r.suaLyDo?' · '+esc(r.suaLyDo):''} · ${gio(r.suaLuc)}</div>`:''}
+    <div class="lo-nhom"><h6>Hương liệu và chi phí</h6>
+      ${kv('Hương liệu đã dùng',`<span class="lo-h">${fmt(ml)} g / ${fmt(sl)} kg thành phẩm</span>`)}
+      ${kv('Định mức lúc SX',dm)}
+      ${cp>0?kv(coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu',`${fmt(Math.round(cp))} đ${coSnap?'':nho('ước tính theo giá hiện tại')}`):''}
+      ${cb?kv(cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì',`${fmt(cb.v)} đ${dsBB.length?nho(dsBB.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')):''}${cb.snap?'':nho('ước tính')}`):''}
+      ${kv('Phun khử bụi',r.pkb?('Có'+(r.pkbPhut?` · ${esc(r.pkbPhut)} phút`:'')+(r.pkbChat?` · ${esc(r.pkbChat)}`:'')):'Không')}
+      ${r.pkb&&r.pkbCT?`<div class="kv"><span>Công thức pha${r.pkbCTRieng?' (riêng)':' (chung)'}</span><b style="white-space:pre-wrap">${esc(r.pkbCT)}</b></div>`:''}
+    </div>
+    <div class="lo-nhom"><h6>Hoá đơn đầu vào</h6>${hd||'<div class="lo-mua">Mẻ này chưa gắn vật tư nào.</div>'}</div>
+    <div class="lo-nhom"><h6>Ghi chép</h6>
+      ${tp?kv('Thành phần',esc(tp)):''}
+      ${r.trangThai?kv('Trạng thái lúc SX',esc(r.trangThai)):''}
+      ${r.xacNhanCTBoi?kv('Xác nhận công thức',esc(r.xacNhanCTBoi)+(r.xacNhanCTLuc?' · '+gio(r.xacNhanCTLuc):'')):''}
+      ${kv('Thời điểm ghi',gio(r.ts))}
+      ${r.huy?kv('Huỷ lúc',gio(r.huyLuc)):''}
+      ${r.ngungSX?kv('Lý do ngừng',esc(r.ngungLyDo)||'—')+kv('Thực tế đã dùng (trước khi ngừng)',`${fmt(num(r.slThucTe))} kg${r.kgVao!==undefined&&num(r.kgVao)>num(r.slThucTe)?` · còn dư <span class="lo-h">${fmt(Math.round((num(r.kgVao)-num(r.slThucTe))*1000)/1000)}</span> kg đưa sang dự án khác`:''}`)+kv('Ngừng lúc',gio(r.ngungLuc)):''}
+      ${tem?kv('Tem phụ','Không in — bao bì đã có đủ thông tin'):''}
+      ${rong.length?`<details class="lo-rong"><summary>${rong.length} mục chưa có dữ liệu</summary>${rong.map(x=>x[0]).join(' · ')}</details>`:''}
+      ${ls.length?`<details class="lo-rong"><summary>Lịch sử thao tác (${ls.length})</summary>${ls.map(a=>kv(`${gio(a.at)} · ${esc(a.actor||'?')} · ${a.source==='employee'?'nhân viên':'quản lý'}`,esc(a.action))).join('')}</details>`:''}
+    </div>
+    ${r.huy||khongTem(pp)?'':`<div class="lo-tem"><button class="inbtn" data-intem="${esc(r.id)}">In tem phụ cho lô này</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button></div>`}
+    <div class="lo-nut">
+      ${r.huy?'':`<button class="inbtn lo-chinh" data-suame="${esc(r.id)}">Sửa số liệu mẻ (đầu vào kg)</button>`}
+      ${r.huy?'':`<button class="inbtn lo-phu2" data-ngunglo="${esc(r.id)}">${r.ngungSX?'Tiếp tục sản xuất lại':'Ngừng sản xuất — điều chỉnh'}</button>`}
+      <button class="inbtn lo-huybtn${r.huy?' bo':''}" data-huylo="${esc(r.id)}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
+    </div>
+  </div>`;
+}
 const TRANG_THAI_SX={CANCELLED:{n:'Đã huỷ',mau:'var(--red)'},RECORDED:{n:'Đã ghi — chờ chốt thực tế',mau:'var(--amber)'},COMPLETED:{n:'Đã chốt thực tế',mau:'var(--cyan)'}};
 function trangThaiSXCua(r){
   if(!r)return null;
@@ -5862,6 +6120,7 @@ function veBC(){
   o+=veBCHuong(gom(ls,r=>r.huong),ls);
   o+=veBCNguyenLieu(ls);
   if(!ls.length)o+=`<div class="none">Chưa có mẻ nào trong khoảng này.</div>`;
+  sx+=`<div class="sec">Đối soát số lô — máy nhân viên ↔ Admin</div><div id="doiSoatThan">${htmlDoiSoat()}</div>`;
   sx+=veLenhSX()+veBaoCaoNgay();
   sx+=`<div class="sec">Khổ in tem phụ</div>
    <div class="tk-kho" role="group" aria-label="Khổ giấy in tem">
@@ -5896,49 +6155,7 @@ function veBC(){
     if(!hit.length)o+=`<div class="none">Không tìm thấy lot nào.</div>`;
     /* 25/08/2026: tô màu ưu tiên hương/quy cách/số bao — 3 mục nhân viên hay tra để đối chiếu
        lúc pha, tô nổi bật để dễ nhớ (đồng bộ đúng 3 màu với bản Nhân viên, xem veLo() bên đó). */
-    else sx+=hit.slice().reverse().slice(0,10).map(r=>`<div class="lot"${r.huy?' style="opacity:.6"':''}><h5>${esc(r.lot)}${r.huy?' <span style="font-size:12px;font-weight:800;color:var(--red);letter-spacing:.06em">· ĐÃ HUỶ</span>':''}${r.ngungSX?' <span style="font-size:12px;font-weight:800;color:var(--amber);letter-spacing:.06em">· NGỪNG SẢN XUẤT</span>':''}</h5>
-      <div class="kv"><span>Sản phẩm</span><b>${esc(r.sp)}</b></div>
-      <div class="kv"><span>Ngày sản xuất</span><b>${vnNgay(r.ngaysx)}</b></div>
-      ${r.soLenh?`<div class="kv"><span>Lệnh sản xuất</span><b>${esc(r.soLenh)}</b></div>`:''}
-      ${[7,8,10].includes(String(r.lot||'').length)?`<div class="kv"><span>Giải mã số lô</span><b>${lotDep(r.lot)}</b></div>`:''}
-      <div class="kv"><span>Số lượng</span><b>${fmt(r.sl)} kg</b></div>
-      ${r.suaLuc?`<div class="kv"><span>Đã sửa số liệu</span><b style="color:var(--amber)">${fmt(num(r.slGoc))} → ${fmt(num(r.sl))} kg${r.suaLyDo?' · '+esc(r.suaLyDo):''} · ${esc(String(r.suaLuc).replace('T',' ').slice(0,16))}</b></div>`:''}
-      ${r.soBao!==''&&r.soBao!==undefined?`<div class="kv"><span>Đầu ra</span><b style="color:var(--pur)">${esc(r.soBao)} × ${fmt(num(r.kgBao))} kg${num(r.kgDu)>0?` · dư ${fmt(num(r.kgDu))} kg`:''}</b></div>`:''}
-      <div class="kv"><span>Quy cách đóng gói</span><b style="color:var(--amber)">${esc(r.quyCach)||'—'}</b></div>
-      <div class="kv"><span>Nhân viên thực hiện</span><b>${esc(r.nv)||'—'}</b></div>
-      <div class="kv"><span>Hương sử dụng</span><b style="color:var(--cyan)">${esc(r.huong)||'—'}</b></div>
-      <div class="kv"><span>Hương liệu đã dùng</span><b style="color:var(--cyan)">${fmt(r.mlDung)} g / ${fmt(r.sl)} kg thành phẩm</b></div>
-      ${(()=>{const cp=chiPhiHuongRecord(r);const coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null;
-        return cp>0?`<div class="kv"><span>${coSnap?'Chi phí hương liệu lúc sản xuất':'Chi phí hương liệu ~ giá ước tính hiện tại'}</span><b>${fmt(Math.round(cp))} đ</b></div>`:''})()}
-      ${(()=>{const dsHD=hdCuaMe(r), nho=t=>' <small style="font-weight:500;color:var(--tx3)">'+t+'</small>';
-        const hd=`<div class="kv kv-hd"><span>Hoá đơn đầu vào</span><b>${dsHD.length?dsHD.map(d=>`<span class="hd-vt">${esc(d.ten)}${d.ncc?nho('('+esc(d.ncc)+')'):''}: ${d.soHD?esc(d.soHD)+(d.boSung?nho('(bổ sung)'):d.theoLanMua?nho('(theo lần mua)'):''):'<span style="color:var(--amber)">chưa có số HĐ</span>'}${d.hopDong?' · hợp đồng '+esc(d.hopDong):''}`
-          +(d.mua?`<br><small style="font-weight:500;color:var(--tx3)">Lần mua ${esc(d.mua.e.ngay||'')} · ${fmt(num(d.mua.e.soKg))} kg · ${fmt(num(d.mua.e.gia))} đ</small> <button type="button" class="lnk" data-suadongmua="${d.mua.loai}:${esc(d.ten)}:${d.mua.ix}">Sửa lần mua →</button>`:'')+'</span>').join(''):'—'}</b></div>`;
-        // 14/10/2026: hoá đơn hiện cả khi mẻ chưa gán bao bì (trước đó lỡ nằm sau dòng return sớm của bao bì)
-        const cb=chiPhiBaoBiRecord(r);if(!cb)return hd;const ds=r.baoBiLucSX||tinhBaoBiMe(r).ds||[];
-        return hd+`<div class="kv"><span>${cb.snap?'Chi phí bao bì lúc sản xuất':'Chi phí bao bì ~ giá ước tính hiện tại'}</span><b>${fmt(cb.v)} đ${ds.length?` <small style="font-weight:500;color:var(--tx3)">(${ds.map(d=>esc(d.ten)+' × '+fmt(d.soCai)).join(', ')})</small>`:''}</b></div>`})()}
-      <div class="kv"><span>Định mức lúc SX</span><b>${fmt(r.mlChuan)} g / ${fmt(r.meChuan)} kg</b></div>
-      <div class="kv"><span>Phun khử bụi</span><b>${r.pkb?('Có'+(r.pkbPhut?` · ${esc(r.pkbPhut)} phút`:'')+(r.pkbChat?` · ${esc(r.pkbChat)}`:'')):'Không'}</b></div>
-      ${r.pkb&&r.pkbCT?`<div class="kv"><span>Công thức pha${r.pkbCTRieng?' (riêng)':' (chung)'}</span><b style="white-space:pre-wrap;text-align:right">${esc(r.pkbCT)}</b></div>`:''}
-      <div class="kv"><span>Thành phần</span><b>${(()=>{const pp=sp.find(x=>x.ten===r.sp);return esc(pp&&pp.hstem&&pp.hstem.thanhPhan||'—')})()}</b></div>
-      <div class="kv"><span>Trạng thái lúc SX</span><b>${esc(r.trangThai)||'—'}</b></div>
-      <div class="kv"><span>Trạng thái chốt thực tế</span><b style="color:${TRANG_THAI_SX[trangThaiSXCua(r)].mau}">${TRANG_THAI_SX[trangThaiSXCua(r)].n}</b></div>
-      ${(()=>{const ls=auditEvents.filter(a=>a.entityId===r.id||a.entityId===r.batchId).slice().reverse();
-        if(!ls.length)return '';
-        return `<details><summary style="cursor:pointer;color:var(--txt-2);font-size:13px;margin-top:6px">Lịch sử thao tác (${ls.length})</summary>`
-          +ls.map(a=>`<div class="kv" style="font-size:12px"><span>${esc(String(a.at||'').replace('T',' ').slice(0,19))} · ${esc(a.actor||'?')} · ${esc(a.source==='employee'?'nhân viên':'quản lý')}</span><b>${esc(a.action)}</b></div>`).join('')
-          +`</details>`})()}
-      ${r.xacNhanCTBoi?`<div class="kv"><span>Xác nhận công thức</span><b>${esc(r.xacNhanCTBoi)}${r.xacNhanCTLuc?' · '+esc(String(r.xacNhanCTLuc).replace('T',' ').slice(0,19)):''}</b></div>`:''}
-      <div class="kv"><span>Thời điểm ghi</span><b>${esc(String(r.ts||'').replace('T',' ').slice(0,19))}</b></div>
-      ${r.huy?`<div class="kv"><span>Huỷ lúc</span><b>${esc(String(r.huyLuc||'').replace('T',' ').slice(0,19))}</b></div>`:''}
-      ${r.ngungSX?`<div class="kv"><span>Lý do ngừng</span><b style="color:var(--amber)">${esc(r.ngungLyDo)||'—'}</b></div>
-      <div class="kv"><span>Thực tế đã dùng (trước khi ngừng)</span><b>${fmt(num(r.slThucTe))} kg${r.kgVao!==undefined&&num(r.kgVao)>num(r.slThucTe)?` · còn dư <b style="color:var(--cyan)">${fmt(Math.round((num(r.kgVao)-num(r.slThucTe))*1000)/1000)}</b> kg đưa sang dự án khác`:''}</b></div>
-      <div class="kv"><span>Ngừng lúc</span><b>${esc(String(r.ngungLuc||'').replace('T',' ').slice(0,19))}</b></div>`:''}
-      ${!r.huy&&khongTem(sp.find(x=>x.ten===r.sp))?`<div class="kv"><span>Tem phụ</span><b>Không in — bao bì đã có đủ thông tin</b></div>`:''}
-      ${r.huy||khongTem(sp.find(x=>x.ten===r.sp))?'':`<button class="inbtn" data-intem="${esc(r.id)}">In tem phụ cho lô này</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-dantem="1">Dàn trang &amp; sửa tem lần cuối (xem trước)</button><button class="inbtn ghe" data-intem="${esc(r.id)}" data-quafile="1">Máy in hỏng? Lưu file tem để in ở máy khác</button>`}
-      ${r.huy?'':`<button class="inbtn" data-suame="${esc(r.id)}" style="border-color:var(--amber);color:var(--amber)">Sửa số liệu mẻ (đầu vào kg)</button>`}
-      <button class="inbtn" data-huylo="${esc(r.id)}" style="${r.huy?'':'border-color:var(--red-dim);color:var(--red)'}">${r.huy?'Bỏ huỷ lô này':'Huỷ lô này'}</button>
-      ${r.huy?'':`<button class="inbtn" data-ngunglo="${esc(r.id)}" style="${r.ngungSX?'':'border-color:var(--amber);color:var(--amber)'};margin-top:6px">${r.ngungSX?'Tiếp tục sản xuất lại':'Ngừng sản xuất — điều chỉnh'}</button>`}
-      </div>`).join('');
+    else sx+=hit.slice().reverse().slice(0,10).map(theLoHTML).join('');
   }
 
   $('viewBC').innerHTML=tab==='sx'?'<div class="bsl-mo"><button type="button" class="bigbtn" data-bslmo="me">▦ Sửa hàng loạt</button><span>Sửa số kg nhiều mẻ đã ghi cùng lúc (bắt ghi lý do)</span></div>'+lopHoa('sx',sx):lopHoa('bc',o+'<div class="log" style="margin:4px 12px 16px">Lệnh sản xuất, chốt thực tế, tra số lô và in tem nằm ở tab <button type="button" class="lnk" data-dentab="sx">Sản xuất →</button></div>');
@@ -6028,7 +6245,7 @@ $('viewHO').addEventListener('click',async e=>{
 });
 function veSL(){
   let cx=0;try{cx=JSON.stringify({sp,kho,cp,dr,nk,maHuong,maQC}).length}catch(e){}
-  $('viewSL').innerHTML=lopHoa('sl',`<div class="sec">Kết nối &amp; đồng bộ</div>
+  $('viewSL').innerHTML='<div class="bsl-mo"><button type="button" class="addbtn" data-hvbat="1" style="width:auto;margin:0">'+(document.documentElement.classList.contains('hv-tat')?'✨ Bật hiệu ứng động':'⏸ Tắt hiệu ứng động')+'</button><span>Hiệu ứng chuyển động (bồn chứa, biểu đồ, huy hiệu…) — tắt nếu máy chậm. Nhớ riêng trên máy này.</span></div>'+lopHoa('sl',`<div class="sec">Kết nối &amp; đồng bộ</div>
    <div class="bk"><h5>Kết nối Google Sheet ${DONGBO_URL?'<span class="bdg" style="background:var(--cyan-dim);color:var(--cyan)">ĐÃ NỐI</span>':'<span class="bdg" style="background:var(--red-dim);color:var(--red)">CHƯA NỐI</span>'}</h5>
      <p>Địa chỉ Apps Script và mật khẩu <b>không nằm trong mã nguồn</b> — mỗi máy nhập một lần, lưu trong trình duyệt của máy đó. Bỏ trống thì app vẫn chạy bình thường nhưng <b>không đồng bộ</b>: dữ liệu chỉ nằm trên máy này.</p>
      <label style="display:block;font-size:12px;color:var(--txt-2);margin:8px 0 3px">Địa chỉ Apps Script (kết thúc bằng <code>/exec</code>)</label>
@@ -6145,9 +6362,44 @@ function tqGauge(pct){
   const p=Math.max(0,Math.min(100,pct));
   return '<svg class="gauge" viewBox="0 0 200 118" role="img" aria-label="'+p+'%">'
     +'<path class="nen" d="M22 104 A78 78 0 0 1 178 104" fill="none" stroke-width="18" stroke-linecap="round"/>'
-    +(p>0?'<path class="gt" d="M22 104 A78 78 0 0 1 178 104" fill="none" stroke-width="18" stroke-linecap="round" pathLength="100" stroke-dasharray="'+p+' 100"/>':'')
+    +(p>0?'<path class="gt" d="M22 104 A78 78 0 0 1 178 104" fill="none" stroke-width="18" stroke-linecap="round" pathLength="100" stroke-dasharray="'+p+' 100" style="--p:'+p+'"/>':'')
     +'<text x="100" y="100" text-anchor="middle">'+p+'%</text></svg>';
 }
+/* 19/10/2026 S78 — TỒN KHO DẠNG SILO / BỒN (khách gửi mẫu "Tồn silo và bồn hương", thích "sự sinh động"):
+   nguyên liệu = silo phễu (hạt), hương = bồn trụ (sóng + bọt). Mực = tồn còn / tổng nhập của các lần mua còn hàng.
+   Vạch đứt = mức cảnh báo = tốc độ dùng 30 ngày × số ngày cảnh báo. Dưới vạch → đỏ, viền nhấp nháy.
+   Giọt rơi = đang có lệnh sản xuất mở dùng vật tư này. Bấm bồn → mở đúng vật tư ở tab Kho. Mực dâng lên khi vào trang. */
+function bonSvg(loai,ten,ton,cap,minKg,chay){
+  const pc=cap>0?Math.max(0,Math.min(100,ton/cap*100)):0, thap=minKg>0?ton<minKg:ton<=0, trong=loai==='h';
+  const top=trong?28:8, bot=trong?132:140, h=bot-top, y=(bot-pc/100*h).toFixed(1), my=minKg>0&&cap>0?(bot-Math.min(1,minKg/cap)*h).toFixed(1):null;
+  const lab=ten+': '+fmtSo(ton)+' / '+fmtSo(cap)+' kg ('+Math.round(pc)+'%)';
+  let o=`<svg class="bon ${trong?'hl':'nl'}${thap?' thap':''}${chay?' chay':''}" viewBox="0 0 96 160" role="img" aria-label="${esc(lab)}"><title>${esc(lab)}</title>`;
+  const lv=`<g class="lv" data-y="${y}" style="--y:160px">`;
+  if(!trong) o+=`<g clip-path="url(#bonSilo)">${lv}<rect class="lvf" x="0" y="0" width="96" height="170"/><rect x="0" y="0" width="96" height="170" fill="url(#bonHat)" opacity=".22"/><ellipse class="lvs" cx="44" cy="0" rx="28" ry="3"/></g></g>
+    <path class="vo" d="M16 18 Q16 8 26 8 H62 Q72 8 72 18 V100 L50 132 V140 H38 V132 L16 100 Z"/><path d="M22 20 V96" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".12" fill="none"/><rect x="35" y="140" width="18" height="4" rx="1.5" class="chan"/>`;
+  else{const song='M-60 5 q7.5 -6 15 0'+' t15 0'.repeat(15)+' V24 H-60Z';
+    o+=`<g clip-path="url(#bonTru)">${lv}<rect class="lvf" x="0" y="5" width="96" height="170"/><path class="w1" d="${song}"/><path class="w2" d="${song.replace('M-60 5','M-60 7')}"/>
+      <circle class="bot" cx="30" cy="66" r="2"/><circle class="bot" cx="46" cy="72" r="1.6" style="animation-delay:1.1s"/><circle class="bot" cx="58" cy="62" r="2.2" style="animation-delay:2.1s"/><circle class="bot" cx="38" cy="78" r="1.4" style="animation-delay:2.8s"/></g></g>
+      <rect class="vo" x="16" y="28" width="56" height="104" rx="9"/><ellipse class="vo" cx="44" cy="28" rx="28" ry="5"/><path class="vo" d="M16 56 H72 M16 104 H72" opacity=".45"/>
+      <path d="M22 36 V122" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".14" fill="none"/><rect x="38" y="18" width="12" height="8" rx="2" class="chan"/><rect x="39" y="132" width="10" height="6" rx="1.5" class="chan"/>`}
+  [25,50,75].forEach(p=>{const yy=(bot-p/100*h).toFixed(1);o+=`<line class="vk" x1="72" x2="76" y1="${yy}" y2="${yy}"/><text class="vt" x="78" y="${(+yy+2.6).toFixed(1)}">${p}</text>`});
+  if(my)o+=`<line class="mn" x1="16" x2="72" y1="${my}" y2="${my}"/>`;
+  o+=`<text class="pct" x="44" y="${(top+bot)/2+4}">${Math.round(pc)}%</text>`;
+  const dy=trong?141:146; o+=`<circle class="giot" cx="44" cy="${dy}" r="1.8"/><circle class="giot g2" cx="41" cy="${dy}" r="1.5"/><circle class="giot g3" cx="47" cy="${dy}" r="1.5"/></svg>`;
+  return o;
+}
+function veBonKho(){
+  const dang=lenhDangMo().map(l=>sp.find(x=>x.ten===l.sp)).filter(Boolean), soNgay=nguongCanhBaoNgay||30;
+  const hs=kho.filter(h=>!isUnscented(h)&&(nguonHuong[h]||[]).some(e=>num(e.soKg)>0)).map(h=>{const t=tonThucKg(h)||0, cap=Math.max(t,(nguonHuong[h]||[]).filter(e=>conLaiNguon(e)>0.0005).reduce((a,e)=>a+num(e.soKg),0));
+    return {loai:'h',ten:h,ton:t,cap:cap||Math.max(t,1),min:tieuHaoNgay(h)/1000*soNgay,chay:dang.some(p=>(p.huongs||[]).includes(h))}});
+  const nls=nlDM.filter(t=>tonNLKg(t)!==null).map(t=>{const tk=tonKhoNguyenLieu[t]||{}, ton=tonNLKg(t), cap=Math.max(ton,num(tk.con)+(nguonNguyenLieu[t]||[]).filter(e=>e.ts&&e.ts>(tk.moc||'')).reduce((a,e)=>a+num(e.soKg),0));
+    return {loai:'nl',ten:t,ton,cap:cap||Math.max(ton,1),min:tieuHaoNLNgay(t)*soNgay,chay:dang.some(p=>(p.congThucNL||[]).some(x=>x&&x.ten===t))}});
+  const ds=[...nls,...hs]; if(!ds.length)return '';
+  return `<div class="w w-12 tqbon"><h4>Tồn kho nguyên liệu &amp; hương <small>vạch đứt = mức cảnh báo (đủ dùng ${soNgay} ngày) · giọt rơi = đang có lệnh sản xuất dùng · bấm để mở ở Kho</small></h4>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><clipPath id="bonSilo"><path d="M16 18 Q16 8 26 8 H62 Q72 8 72 18 V100 L50 132 V140 H38 V132 L16 100 Z"/></clipPath><clipPath id="bonTru"><rect x="16" y="28" width="56" height="104" rx="9"/></clipPath><pattern id="bonHat" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r=".8" fill="#000"/><circle cx="4.5" cy="4.5" r=".6" fill="#000"/></pattern></defs></svg>
+    <div class="bon-ds">${ds.map(x=>`<button type="button" class="bon-o" data-tqnguon="${x.loai}|||${esc(x.ten)}">${bonSvg(x.loai,x.ten,x.ton,x.cap,x.min,x.chay)}<span class="bon-ten">${esc(x.ten)}</span><span class="bon-so${x.ton<0?' am':''}">${fmtSo(x.ton)} kg</span></button>`).join('')}</div></div>`;
+}
+function bonDang(){requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.tqbon .lv[data-y]').forEach(g=>g.style.setProperty('--y',g.dataset.y+'px'))))}
 function veTQ(){
   const song=nk.filter(r=>!r.huy);
   const hn=ngayTruoc(0);
@@ -6170,6 +6422,7 @@ function veTQ(){
   if(cbH.length)o+='<div class="w w-12 tqcb" role="alert"><h4>⚠ '+cbH.length+' hương đang dùng vượt tồn thực tế — cần điều chỉnh</h4><div class="tqcb-ds">'
     +cbH.map(x=>'<button type="button" data-tqnguon="h|||'+esc(x.h)+'" class="tqcb-mon"><b>'+esc(x.h)+'</b><span>'+(x.vuotKg?'vượt '+fmtSo(x.vuotKg)+' kg':'')+(x.vuotKg&&x.noMe?' · ':'')+(x.noMe?'nợ '+x.noMe+' mẻ':'')+'</span></button>').join('')
     +'</div><div class="tqcb-g">Bấm vào hương → mở thẳng ở tab Kho: <b>Kiểm kê</b> (kho thật còn) · <b>Nhập thêm hàng</b> (đã mua thêm) · <b>Trả nợ</b> (chốt giá mẻ pha khi chưa khai lần mua). Nhân viên cũng thấy thông báo này.</div></div>';
+  o+=veBonKho();
   o+='<div class="w w-3"><h4>Mẻ hôm nay</h4><div class="so"><span data-dem="'+meHN.length+'">'+meHN.length+'</span> '+tqXuHuong(meHN.length,meHQ.length)+'</div>'
     +'<div class="mo">'+fmt(kg(meHN))+' kg · hôm qua '+meHQ.length+' mẻ</div><button class="xem" data-tqgo="bc">Xem báo cáo →</button></div>';
   o+='<div class="w w-3"><h4>Sản lượng 7 ngày</h4><div class="so"><span data-dem="'+kg(d7)+'" data-dem-gon="1">'+tqGon(kg(d7))+'</span><small>kg</small> '+tqXuHuong(kg(d7),kg(d7t))+'</div>'
@@ -6183,7 +6436,7 @@ function veTQ(){
   // Mẻ gần nhất — như khối "Customers" của mẫu
   const gan=song.slice().sort((a,b)=>String(b.ts||b.ngaysx||'').localeCompare(String(a.ts||a.ngaysx||''))).slice(0,6);
   o+='<div class="w w-5"><h4>Mẻ gần nhất <small>'+song.length+' mẻ đã ghi</small></h4>';
-  o+=gan.length?gan.map(r=>'<div class="tqr" data-tqlot="'+esc(r.lot||'')+'" title="Mở lô này ở tab Báo cáo">'
+  o+=gan.length?gan.map(r=>'<div class="tqr'+(meMoiIds.has(r.id)?' moi':'')+'" data-tqlot="'+esc(r.lot||'')+'" title="Mở lô này ở tab Báo cáo">'
       +'<span class="av" style="background:'+icSP(r.sp).mau+'" title="'+icSP(r.sp).ten+'">'+icSP(r.sp).svg+'</span>'
       +'<span class="t"><b>'+esc(r.sp)+'</b><span>'+esc(r.huong||'—')+' · lô '+esc(lotDep(r.lot))+'</span></span>'
       +'<span class="k">'+fmt(num(r.sl))+' kg<span>'+esc(vnNgay(r.ngaysx))+'</span></span></div>').join('')
@@ -6274,8 +6527,8 @@ function ve(){
     : tab==='ct'
     ? `<b>${sp.length}</b> mặt hàng${chan?` · <b>${chan}</b> đình chỉ`:''}${thieu?` · <b>${thieu}</b> chưa hương`:''}${chuaLuu?` · <b>${chuaLuu}</b> chưa lưu`:''} · <b>${nk.length}</b> mẻ${sua?' · HIỆN NÚT XOÁ':''}`
     : `<b>${nk.length}</b> mẻ · <b>${fmt(tKg)}</b> kg thành phẩm`;
-  if(tab==='tq')veTQ(); else if(tab==='ct')veCT(); else if(tab==='ma'||tab==='kho')veMa(); else if(tab==='bc'||tab==='sx')veBC(); else if(tab==='gv')veGV(); else if(tab==='ho')veHoSo(); else veSL();
-  if(tab!==hvTab){hvTab=tab;hieuUngVao({tq:'viewTQ',sx:'viewBC',ct:'viewCT',kho:'viewMA',ma:'viewMA',bc:'viewBC',gv:'viewGV',sl:'viewSL',ho:'viewHO'}[tab])} // S23: chỉ khi ĐỔI tab, không phải mỗi lần vẽ lại
+  if(tab==='tq'){veTQ();bonDang()} else if(tab==='ct'){veCT();requestAnimationFrame(()=>document.querySelectorAll('.r.open .xv-lo').forEach(el=>{const k=el.textContent;if(!quayDaXem.has(k)){quayDaXem.add(k);quaySo(el)}}))} else if(tab==='ma'||tab==='kho')veMa(); else if(tab==='bc'||tab==='sx')veBC(); else if(tab==='gv')veGV(); else if(tab==='ho')veHoSo(); else veSL();
+  if(tab!==hvTab){quayDaXem=new Set();const td=$('tdTrang');if(td&&!hvTat()){td.classList.remove('td-vao');void td.offsetWidth;td.classList.add('td-vao')}hvTab=tab;hieuUngVao({tq:'viewTQ',sx:'viewBC',ct:'viewCT',kho:'viewMA',ma:'viewMA',bc:'viewBC',gv:'viewGV',sl:'viewSL',ho:'viewHO'}[tab])} // S23: chỉ khi ĐỔI tab, không phải mỗi lần vẽ lại
 }
 
 /* ═══ Sự kiện ═══ */
@@ -6701,11 +6954,11 @@ function bslGhi(ds){const rows=bslHien(),cs=bslL().cot,buoc=[];
     if(col.bat)v=v===true||/^(1|x|có|co|true|yes|✓)$/i.test(String(v).trim());
     if(col.chon){const t=String(v).trim().replace('%','');const o=col.chon.find(x=>x[0]===t||x[1].toLowerCase()===t.toLowerCase());if(!o)return;v=o[0]}
     if(String(row.moi[col.k])===String(v))return; buoc.push({l:bslLoai,id:row.id,k:col.k,cu:row.moi[col.k]}); row.moi[col.k]=v});
-  if(buoc.length)bslLS.push(buoc); bslVe(); return buoc.length}
+  if(buoc.length)bslLS.push(buoc); bslVe(); ds.forEach(({r,c})=>{const td=document.querySelector(`#bslT td[data-r="${r}"][data-c="${c}"]`);if(td&&td.classList.contains('loi'))rungO(td)}); return buoc.length}
 function bslO(){const td=document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"]`);if(td){td.querySelector('.o').focus({preventScroll:true});td.scrollIntoView({block:'nearest',inline:'nearest'})}}
 function bslDi(dr,dc,mo){const n=bslHien().length,m=bslL().cot.length;if(mo){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r:Math.max(0,Math.min(n-1,bslDang.r+dr)),c:Math.max(0,Math.min(m-1,bslDang.c+dc))};bslVe();bslO()}
 function bslMoSua(kt){const row=bslHien()[bslDang.r],col=bslL().cot[bslDang.c];if(!row||!col)return;
-  if(bslKhoa(col,row)){bao(col.tinh?'Ô tự tính — chỉ xem':'🔒 '+bslKhoa(col,row));return}
+  if(bslKhoa(col,row)){bao(col.tinh?'Ô tự tính — chỉ xem':'🔒 '+bslKhoa(col,row));rungO(document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"]`));return}
   if(col.bat){bslGhi([{r:bslDang.r,c:bslDang.c,v:!row.moi[col.k]}]);bslO();return}
   const td=document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"] .o`);bslSua={r:bslDang.r,c:bslDang.c};
   if(col.chon){td.innerHTML=`<select>${col.chon.map(([v,t])=>`<option value="${esc(v)}"${row.moi[col.k]===v?' selected':''}>${esc(t)}</option>`).join('')}</select>`;const sl=td.querySelector('select');sl.focus();
@@ -6730,7 +6983,7 @@ async function bslXemLuu(){const d=bslDemSua(); let h='',canEe=new Set(), coMe=f
     L.ap(r,String(ok).trim()); if(L.doi&&r.moi.ten!==r.goc.ten)doi.push(L.doi(r))}));
   doi.forEach(([l,cu,moi])=>doiTen(l,cu,moi));
   ghiAudit('config','bang-sua-hang-loat','SUA_HANG_LOAT',null,{o:n,doiTen:doi.length});
-  luuNgay(); bao('Đã lưu '+n+' ô'); bslMo(bslNhom); bslLoai=bslLoai; ve()}
+  luuNgay(); huyHieu('✅','Đã lưu '+n+' ô','sửa hàng loạt · đã ghi lịch sử'); bslMo(bslNhom); bslLoai=bslLoai; ve()}
 document.addEventListener('click',e=>{const m=e.target.closest('[data-bslmo]');if(m){bslMo(m.dataset.bslmo);return}
   if(!document.documentElement.classList.contains('bsl-on'))return;
   const l=e.target.closest('[data-bslloai]');if(l){bslLoai=l.dataset.bslloai;bslDang={r:0,c:0};bslGoc=null;bslChon.clear();$('bslTim').value='';bslVe();return}
@@ -6765,6 +7018,9 @@ document.addEventListener('click',e=>{const k=e.target.closest('[data-kieu]'); i
 document.addEventListener('change',async e=>{const t=e.target; if(t.dataset.ttsel===undefined)return; const i=+t.dataset.ttsel, p=sp[i], k=t.value; if(!p||p.tt===k)return;
   if(k==='dinh'&&!await hoi('Đình chỉ sản xuất',`Đình chỉ <b>${esc(p.ten)}</b>?<br>Nhân viên sẽ không ghi được mẻ cho mặt hàng này.`,{nutOK:'Đình chỉ',nguyHiem:true})){ve();return}
   p.tt=k;p.ttNgay=homNay();luu();ve();bao(`${p.ten}: ${TT[k].n}`)});
+document.addEventListener('click',e=>{if(e.target.closest('[data-hvbat]')){const t=!document.documentElement.classList.contains('hv-tat');document.documentElement.classList.toggle('hv-tat',t);try{localStorage.setItem('peroma_hv',t?'tat':'bat')}catch(x){}ve();return}
+  const l=e.target.closest('[data-luunguon]'); if(l){const k=l.dataset.luunguon; setTimeout(()=>{const f=document.querySelector(`[data-nguonform="${CSS.escape(k)}"]`); if(f)rungO(f)},60)}
+  const h=e.target.closest('.hset [data-h]'); if(h&&!h.dataset.xh){const k=h.dataset.h,i=h.dataset.i; setTimeout(()=>{const c=document.querySelector(`.hset [data-h="${CSS.escape(k)}"][data-i="${i}"]`); if(c&&c.classList.contains('on')&&!hvTat())c.classList.add('bat')},0)}});
 const ngheCa=(ids,ev,fn)=>ids.forEach(id=>$(id).addEventListener(ev,id==='viewMA'?(e=>{if(e.target.closest('.hdbs'))return fn(e)}):fn));
 // nút "→ tab X" ở cuối Danh mục / Báo cáo (chỉ chỗ mới cho người quen chỗ cũ)
 document.addEventListener('click',e=>{const d=e.target.closest('[data-dentab]');if(d)chuyenTab(d.dataset.dentab)});

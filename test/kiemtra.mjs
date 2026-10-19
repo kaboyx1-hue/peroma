@@ -1406,8 +1406,9 @@ const aeLot=await E(()=>{tab='sx';traLot='';ve();
   return [...document.querySelectorAll('#traLot option')].map(o=>o.textContent).join('|')});
 ok('dropdown Tra cứu số lot có kèm tên hương', /Chanh tươi/.test(aeLot), aeLot);
 const aeKv=await E(()=>{traLot=nk.find(r=>r.huong==='Chanh tươi')?.lot||''; ve(); return $('viewBC').innerHTML});
-ok('thẻ chi tiết lô ở Tra lô tô màu ưu tiên Hương/Quy cách/Số bao (đồng bộ đúng 3 màu với bản Nhân viên)',
-  /color:var\(--cyan\)/.test(aeKv)&&/color:var\(--amber\)/.test(aeKv)&&/color:var\(--pur\)/.test(aeKv), 'có đủ 3 màu ưu tiên');
+// 19/10/2026 S80: quy tắc màu mới — hương xanh dương (.lo-h), số lô/quy cách KHÔNG tô đỏ/cam (đỏ chỉ cho việc cần xử lý)
+ok('thẻ chi tiết lô: hương tô xanh dương, số lô & quy cách không tô màu cảnh báo',
+  /class="lo-h"/.test(aeKv)&&!/color:var\(--(amber|red)\)/.test(aeKv), 'quy tắc màu S80');
 
 console.log('\n── AF. NGỪNG SẢN XUẤT — LÝ DO + TRẢ NGUYÊN LIỆU DƯ VỀ TỒN KHO (25/08/2026-H) ──');
 /* Khách chốt: "ngừng sản xuất" KHÁC "huỷ lô" — không xoá dữ liệu, bắt buộc lý do, và số
@@ -3534,6 +3535,38 @@ ok('CK: tình trạng hiện bằng biểu tượng, mỗi loại 1 màu riêng'
 ok('CK: lọc theo nhà cung cấp', ck.locNcc);
 ok('CK: Kiểu mặt hàng 📦 Đóng gói lại → lô 7 số + hiện nguồn hàng; 🏭 Sản xuất → lô 10 số, ẩn nguồn hàng', ck.kieu&&ck.kieuVe);
 ok('CK: trạng thái thu gọn ở đầu trang, tạm ngưng thì hỏi lý do', ck.tt);
+/* CL — 19/10/2026 S78: silo/bồn ở Tổng quan · đối soát số lô · vòng đồng bộ 1 luồng */
+const cl=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[4], g={nh:JSON.stringify(nguonHuong),nk:nk.slice(),nm:nhipMay};
+  nguonHuong[H]=[{ncc:'A',gia:500000,soKg:10,ngay:'01/10/2026',daDungKg:9.9}];
+  chuyenTab('tq'); await cho(120);
+  const b=document.querySelector(`.tqbon [data-tqnguon="h|||${CSS.escape(H)}"]`);
+  kq.bon=!!b&&!!b.querySelector('svg.bon.hl')&&/1%/.test(b.textContent);
+  kq.dang=getComputedStyle(b.querySelector('.lv')).getPropertyValue('--y').trim()!=='160px';
+  b.click(); await cho(80); kq.moKho=tab==='kho';
+  nk=[{id:'CL-1',sp:'X',huong:H,lot:'1104106',sl:10,ngaysx:'2026-10-19',ts:'2026-10-19T01:00:00Z'}];
+  nhipMay={'NV-cl':{nv:'Toàn',ban:'R45',luc:new Date().toISOString(),soChua:2,chua:[{id:'CL-1',lot:'1104106'},{id:'CL-2',lot:'1115106',sp:'Citycat',ngay:'2026-10-19',kg:300}]}}; nhipHoTro=true;
+  chuyenTab('sx'); await cho(60); const v=document.getElementById('doiSoatThan').innerHTML;
+  kq.doiSoat=/1<\/b> mẻ còn kẹt/.test(v)&&/11 15 106/.test(v)&&/còn trên máy NV-cl/.test(v)&&/✅ đã về Admin/.test(v);
+  kq.vong=typeof dbVong==='function'&&typeof dbKeoNhip==='function';
+  nguonHuong=JSON.parse(g.nh); nk=g.nk; nhipMay=g.nm; luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('CL: Tổng quan có silo/bồn từng vật tư, mực dâng lên khi mở trang', cl.bon&&cl.dang, JSON.stringify(cl));
+ok('CL: bấm bồn → mở đúng vật tư ở Kho', cl.moKho);
+ok('CL: đối soát số lô — lô đã về Admin vs lô còn kẹt trên máy nhân viên (bỏ lô đã về)', cl.doiSoat);
+ok('CL: đồng bộ chạy 1 vòng tuần tự (hỏi tomtat trước, có mới mới tải)', cl.vong);
+/* CM — 19/10/2026 S80: thẻ Chi tiết lô gọn — mẻ thiếu định mức không ra NaN, thiếu số HĐ hiện "Còn N việc" */
+const cm=await E(async()=>{ const kq={}, g=nk.slice(), c=sp.find(x=>!isUnscented(x.huongMe))||sp[0];
+  nk=[{id:'CM-1',sp:c.ten,huong:'Hương Kem',lot:'1115106',sl:500,mlDung:500,quyCach:'5 kg',nv:'Toàn',ngaysx:'2026-10-15',ts:'2026-10-15T08:00:00Z'}];
+  tab='sx'; traLot='1115106'; ve(); const t=document.querySelector('.lo-the'), h=t?t.innerHTML:'';
+  kq.coThe=!!t; kq.khongNaN=!/NaN/.test(h); kq.chuaGhi=/Chưa ghi/.test(h);
+  kq.so=/≈ 100 bao/.test(h)&&/0,1 %/.test(h);
+  kq.nut=!!t.querySelector('.lo-nut .lo-chinh[data-suame]')&&!!t.querySelector('.lo-nut .lo-huybtn[data-huylo]');
+  nk[0].mlChuan=500; nk[0].meChuan=500; ve(); kq.coDM=/500 g \/ 500 kg/.test(document.querySelector('.lo-the').innerHTML);
+  nk=g; traLot=''; ve(); return kq;
+});
+ok('CM: thẻ lô với mẻ thiếu định mức KHÔNG chứa "NaN", hiện "Chưa ghi"', cm.coThe&&cm.khongNaN&&cm.chuaGhi, JSON.stringify(cm));
+ok('CM: 3 ô số chính có số bao ≈ kg ÷ quy cách và % hương suy ra từ mẻ', cm.so);
+ok('CM: nút Sửa số liệu mẻ là nút chính, Huỷ lô tách riêng; có định mức thì hiện đúng số', cm.nut&&cm.coDM);
 console.log('\n────────────────────────────');
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);

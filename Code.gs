@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-15-S63';
+const PHIEN_BAN_MAYCHU = '2026-10-19-S78';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -68,7 +68,7 @@ const COT_HS = ['Số lô','Ngày SX','Mặt hàng','Quy cách','KG',
    không kiểm được đầu kia thì rủi ro hơn là để nguyên. Xem PATCH-REPORT.md — mục này đánh dấu
    BLOCKED FOR SERVER VERIFICATION. Toàn bộ log lỗi vẫn KHÔNG in ra token/mật khẩu. */
 const SCHEMA_VERSION = 1;
-const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo','lenhtiendo','themLenhTienDo'];
+const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo','lenhtiendo','themLenhTienDo','nhip','dsnhip'];
 
 /* ── Đọc ── */
 /* 29/08/2026 — bản S6 (khách yêu cầu: mở Admin từ BẤT KỲ máy nào, ở bất kỳ đâu, không cần đã
@@ -107,6 +107,22 @@ function doGet(e){
     // lại nhiều lần vẫn an toàn (xem dongBoHoSoLoTuMe — không đụng cột kế toán, không trùng dòng).
     if(p.a === 'backfillHosoLo') return ra(Object.assign({ok:1}, backfillHosoLoTuNhatKy()));
     if(p.a === 'tomtat')  return ra({ok:1, ts: tsCauHinh(), soMe: soDong()});
+    /* 19/10/2026 — S78 NHỊP MÁY NHÂN VIÊN (khách: "không có phần kiểm tra số lot nhân viên đã khởi tạo; đồng bộ rời rạc").
+       Mỗi máy nhân viên ~1 phút báo 1 lần: tên NV, bản app, các lô CHƯA gửi lên được. Ghi vào khoá RIÊNG của máy đó
+       (NHIP_<mã máy>) trong ScriptProperties → không tranh khoá với ghi mẻ/cấu hình (doGet không giữ LockService).
+       Admin đọc danh sách (dsnhip) để biết lô nào còn kẹt trên máy nào. Chỉ là trạng thái, không phải dữ liệu sản xuất. */
+    if(p.a === 'nhip'){
+      const may = String(p.may || '').replace(/[^\w-]/g,'').slice(0,40); if(!may) return ra({loi:'Thiếu mã máy'});
+      let v = {}; try{ v = JSON.parse(p.d || '{}') || {} }catch(x){ v = {} }
+      v.luc = new Date().toISOString();
+      PropertiesService.getScriptProperties().setProperty('NHIP_'+may, JSON.stringify(v).slice(0,8500));
+      return ra({ok:1});
+    }
+    if(p.a === 'dsnhip'){
+      const tat = PropertiesService.getScriptProperties().getProperties(), may = {};
+      Object.keys(tat).forEach(function(k){ if(k.indexOf('NHIP_')===0){ try{ may[k.slice(5)] = JSON.parse(tat[k]) }catch(x){} } });
+      return ra({ok:1, may: may, soMe: soDong()});
+    }
     return ra({ok:1, ten:'Peroma'});
   }catch(err){ return ra({loi:String(err)}) }
 }
