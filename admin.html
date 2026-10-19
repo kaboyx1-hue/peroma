@@ -1866,9 +1866,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S81</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S82</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 19/10/2026-S81</div>
+      <div class="verFoot">BẢN 19/10/2026-S82</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -6775,6 +6775,7 @@ $('viewMA').addEventListener('click',async e=>{
     }else{
       const e0=nguonM[ten][ix]; if(!e0){bao('Không tìm thấy dòng này');return}
       const nccCu=e0.ncc;
+      if(loai==='h')doiSoKgGiuTon(e0,soKg);
       nguonM[ten][ix]={...e0,ncc,gia,soKg,vat,soHD,soHopDong};
       if(dungM[ten]===nccCu&&nccCu!==ncc)dungM[ten]=ncc; // đổi tên NCC đang dùng thì cập nhật theo
       moThemNguon.delete(loai+':'+ten+':'+ix);
@@ -6853,19 +6854,26 @@ const BSL_TT=[['ok','Đang sản xuất'],['tam','Tạm ngưng'],['dinh','Đình
 const bslMa2=v=>/^\d{2}$/.test(String(v).trim()), bslSo=v=>{const t=String(v??'').trim();return t===''?NaN:num(t)};
 const bslTrung=(ds,k,v,id)=>String(v).trim()!==''&&ds.some(r=>r.id!==id&&String(r.moi[k]).trim().toLowerCase()===String(v).trim().toLowerCase());
 const bslNgay=v=>/^\d{2}\/\d{2}\/\d{4}$/.test(String(v).trim())?'':'Dạng ngày/tháng/năm, VD 02/10/2026';
+/* 19/10/2026 S82 (khách: "sao vẫn để 1 kg trong khi hoá đơn ghi 25 kg?"): lần mua khai kiểu cũ = 1 kg + tồn thật nằm ở
+   dieuChinhKg. Sửa số kg cho đúng hoá đơn thì phần TĂNG được trừ vào điều chỉnh trước → tồn giữ nguyên; chỉ phần vượt
+   điều chỉnh mới là hàng thêm thật. Có ghi nhật ký dcLog. */
+const dcSauDoiKg=(e,soKgMoi)=>{const d=num(soKgMoi)-num(e.soKg),dc=num(e.dieuChinhKg||0);return d>0&&dc>0?Math.round(Math.max(0,dc-d)*1000)/1000:dc};
+function doiSoKgGiuTon(e,soKgMoi){const dc=num(e.dieuChinhKg||0),moi=dcSauDoiKg(e,soKgMoi);if(moi===dc)return;
+  e.dieuChinhKg=moi;e.dcLog=[...(Array.isArray(e.dcLog)?e.dcLog:[]),{ngay:homNay(),truocKg:null,sauKg:null,lyDo:'Sửa số kg mua '+fmtSo(num(e.soKg))+' → '+fmtSo(num(soKgMoi))+' kg theo hoá đơn — trừ vào điều chỉnh tồn đã khai, tồn giữ nguyên'}].slice(-30)}
 function bslCotMua(loai){return [
   {k:'ten',t:loai==='h'?'Hương':'Nguyên liệu',w:190,khoa:()=>'Đổi '+(loai==='h'?'hương':'nguyên liệu')+' của lần mua: xoá rồi khai lại ở Kho'},
   {k:'ncc',t:'Nhà cung cấp',w:130,kt:v=>String(v).trim()?'':'Không được để trống'},
   {k:'ngay',t:'Ngày mua',g:'dd/mm/yyyy',w:100,kt:bslNgay},
   {k:'soHD',t:'Số hoá đơn',w:110},{k:'soHopDong',t:'Số hợp đồng',w:110},
-  {k:'soKg',t:'Số kg nhập kho',so:1,w:100,kt:(v,r)=>!(bslSo(v)>0)?'Phải lớn hơn 0':(loai==='h'&&bslSo(v)<num(r.ref.daDungKg||0)-0.0005?'Nhỏ hơn số đã dùng ('+fmtSo(num(r.ref.daDungKg))+' kg) — kho sẽ âm':'')},
+  {k:'soKg',t:'Số kg nhập kho',so:1,w:100,kt:(v,r)=>!(bslSo(v)>0)?'Phải lớn hơn 0':(loai==='h'&&bslSo(v)+dcSauDoiKg(r.ref,bslSo(v))<num(r.ref.daDungKg||0)-0.0005?'Nhỏ hơn số đã dùng ('+fmtSo(num(r.ref.daDungKg))+' kg) — kho sẽ âm':'')},
   {k:'donGia',t:'Đơn giá',g:'đ / kg',so:1,w:110,kt:v=>!(bslSo(v)>0)?'Phải lớn hơn 0':''},
   {k:'tt',t:'Thành tiền',g:'tự tính',so:1,w:120,tinh:r=>fmt(Math.round(bslSo(r.moi.soKg)*bslSo(r.moi.donGia)))+' đ'},
   {k:'vat',t:'VAT',w:90,chon:BSL_VAT},
-  {k:'dd',t:'Đã dùng',g:'chỉ xem',so:1,w:90,tinh:r=>loai==='h'?fmtSo(num(r.ref.daDungKg||0))+' kg':'—'}]}
+  {k:'dd',t:'Đã dùng',g:'chỉ xem',so:1,w:90,tinh:r=>loai==='h'?fmtSo(num(r.ref.daDungKg||0))+' kg':'—'},
+  ...(loai==='h'?[{k:'con',t:'Còn trong lần mua',g:'tự tính',so:1,w:110,tinh:r=>{const k=bslSo(r.moi.soKg);return isFinite(k)?fmtSo(Math.round((k-num(r.ref.daDungKg||0)+dcSauDoiKg(r.ref,k))*1000)/1000)+' kg':'—'}}]:[])]}
 function bslMuaNap(loai){const m=nguonMapCua(loai),ds=[];Object.entries(m||{}).forEach(([t,a])=>(a||[]).forEach((e,ix)=>{const d={ten:t,ncc:e.ncc||'',ngay:e.ngay||'',soHD:e.soHD||'',soHopDong:e.soHopDong||'',soKg:String(num(e.soKg)),donGia:num(e.soKg)>0?String(Math.round(num(e.gia)/num(e.soKg))):'',vat:e.vat===null||e.vat===undefined?'':String(e.vat)};ds.push({id:loai+':'+t+':'+ix,ref:e,goc:{...d},moi:{...d}})}));return ds}
 function bslMuaAp(r){const e=r.ref,m=r.moi;e.ncc=String(m.ncc).trim();e.ngay=String(m.ngay).trim();e.soHD=String(m.soHD).trim();e.soHopDong=String(m.soHopDong).trim();
-  e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat)}
+  if(String(r.id).startsWith('h:'))doiSoKgGiuTon(e,bslSo(m.soKg));e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat)}
 const BSL={
  sp:{ten:'Mặt hàng',cot:[
    {k:'ten',t:'Tên mặt hàng',w:200,kt:(v,r,ds)=>!String(v).trim()?'Không được để trống':bslTrung(ds,'ten',v,r.id)?'Trùng tên với mặt hàng khác':''},
@@ -6935,7 +6943,7 @@ function bslMo(nhom){bslNhom=nhom;bslDs={};BSL_NHOM[nhom].forEach(k=>bslDs[k]=BS
   w.innerHTML=`<div class="bsl-k" role="dialog" aria-label="Sửa hàng loạt"><div class="bsl-dau"><b>Sửa hàng loạt</b><span>Ô vàng = đã sửa, chưa lưu · Ô đỏ = sai, phải sửa · Ô xám = khoá</span><button type="button" class="lop-luib" id="bslDong">Đóng</button></div>
    <div class="bsl-loai" id="bslLoaiW"></div><div class="bsl-cong"><input type="search" id="bslTim" placeholder="Lọc dòng…" aria-label="Lọc dòng"><div class="bsl-ap" id="bslAp"><span id="bslApDem"></span><select id="bslApCot" aria-label="Cột cần áp"></select><input id="bslApGt" placeholder="giá trị" aria-label="Giá trị áp"><button type="button" class="ctsxb on" id="bslApNut">Áp cho các dòng đã chọn</button></div></div>
    <div class="bsl-w" id="bslW"><table id="bslT"></table></div>
-   <div class="bsl-goi">↑↓←→ di chuyển · Enter/gõ chữ để sửa · Shift+bấm: chọn vùng · Ctrl+V dán từ Excel · Ctrl+C chép · Ctrl+D chép ô trên xuống · Delete xoá · Ctrl+Z hoàn tác</div>
+   <div class="bsl-goi">↑↓←→ di chuyển · bấm 2 lần vào ô, Enter hoặc gõ chữ để sửa · Shift+bấm: chọn vùng · Ctrl+V dán từ Excel · Ctrl+C chép · Ctrl+D chép ô trên xuống · Delete xoá · Ctrl+Z hoàn tác</div>
    <div class="bsl-chan"><span id="bslDem"></span><button type="button" class="lop-luib" id="bslHT">Hoàn tác</button><button type="button" class="lop-luib" id="bslBo">Bỏ hết</button><button type="button" class="bigbtn" id="bslLuu">Xem &amp; lưu</button></div></div>`;
   w.style.display='flex'; document.documentElement.classList.add('bsl-on'); bslVe()}
 function bslDongLai(){const n=bslDemSua().o; if(n&&!confirm('Đang có '+n+' ô sửa chưa lưu. Đóng và bỏ các thay đổi này?'))return; $('bsl').style.display='none'; document.documentElement.classList.remove('bsl-on')}
@@ -6955,7 +6963,7 @@ function bslVe(){if(!$('bslT'))return; const ds=bslHien(), cs=bslL().cot;
   $('bslT').innerHTML=h+'</tbody>';
   const n=ds.filter(r=>bslChon.has(r.id)).length; $('bslAp').classList.toggle('hien',n>0); $('bslApDem').textContent=n+' dòng đã chọn';
   const giu=$('bslApCot').value; $('bslApCot').innerHTML=cs.filter(c=>!c.tinh&&c.k!=='ten'&&!(c.khoa&&ds.filter(r=>bslChon.has(r.id)).every(r=>c.khoa(r)))).map(c=>`<option value="${c.k}">${esc(c.t)}</option>`).join(''); if([...$('bslApCot').options].some(o=>o.value===giu))$('bslApCot').value=giu;
-  const d=bslDemSua(); $('bslDem').innerHTML=d.o?`<b>${d.o}</b> ô đã sửa trên <b>${d.d}</b> dòng${d.l?` · <span class="lo">${d.l} ô sai cần sửa</span>`:''}`:'Chưa sửa gì. Bấm vào ô để bắt đầu.';
+  const d=bslDemSua(); $('bslDem').innerHTML=d.o?`<b>${d.o}</b> ô đã sửa trên <b>${d.d}</b> dòng${d.l?` · <span class="lo">${d.l} ô sai cần sửa</span>`:''}`:'Chưa sửa gì. Bấm vào ô rồi gõ số (hoặc bấm 2 lần vào ô) để sửa.';
   $('bslLuu').disabled=!d.o; $('bslBo').disabled=!d.o; $('bslHT').disabled=!bslLS.length}
 function bslGhi(ds){const rows=bslHien(),cs=bslL().cot,buoc=[];
   ds.forEach(({r,c,v})=>{const row=rows[r],col=cs[c];if(!row||!col||bslKhoa(col,row))return;
@@ -6999,7 +7007,8 @@ document.addEventListener('click',e=>{const m=e.target.closest('[data-bslmo]');i
   if(e.target.closest('#bslBo')){Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc}));bslLS=[];bslVe();return}
   if(e.target.closest('#bslLuu')){bslXemLuu();return}
   if(e.target.closest('#bslApNut')){const k=$('bslApCot').value,ci=bslL().cot.findIndex(c=>c.k===k),ds=[];bslHien().forEach((r,ri)=>{if(bslChon.has(r.id))ds.push({r:ri,c:ci,v:$('bslApGt').value})});const n=bslGhi(ds);bao(n?'Đã áp cho '+n+' dòng':'Giá trị không hợp lệ hoặc không đổi');return}});
-document.addEventListener('mousedown',e=>{const td=e.target.closest('#bslT td[data-r]');if(!td||e.target.closest('input,select'))return;const r=+td.dataset.r,c=+td.dataset.c;if(e.shiftKey){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r,c};e.preventDefault();bslVe();bslO()});
+document.addEventListener('mousedown',e=>{const td=e.target.closest('#bslT td[data-r]');if(!td||e.target.closest('input,select'))return;const r=+td.dataset.r,c=+td.dataset.c,lai=!e.shiftKey&&bslDang.r===r&&bslDang.c===c&&!bslGoc;if(e.shiftKey){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r,c};e.preventDefault();bslVe();bslO();
+  if(lai)bslMoSua()}); // S82: bấm lần nữa vào ô đang chọn = mở sửa (như Excel/Sapo)
 document.addEventListener('dblclick',e=>{if(e.target.closest('#bslT td[data-r]'))bslMoSua()});
 document.addEventListener('change',e=>{if(!document.documentElement.classList.contains('bsl-on'))return;const c=e.target.dataset&&e.target.dataset.bslchon;if(c){e.target.checked?bslChon.add(c):bslChon.delete(c);bslVe();return}
   if(e.target.id==='bslHet'){bslHien().forEach(r=>e.target.checked?bslChon.add(r.id):bslChon.delete(r.id));bslVe()}});
@@ -7013,6 +7022,9 @@ document.addEventListener('keydown',e=>{if(!document.documentElement.classList.c
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();bslHoanTac();return}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault();const ds=[];for(let c=v.c1;c<=v.c2;c++){const top=rows[v.r1].moi[cs[c].k];for(let r=v.r1+1;r<=v.r2;r++)ds.push({r,c,v:top})}bslGhi(ds);bslO();return}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='c'){const t=[];for(let r=v.r1;r<=v.r2;r++){const d=[];for(let c=v.c1;c<=v.c2;c++)d.push(cs[c].tinh?cs[c].tinh(rows[r]):String(rows[r].moi[cs[c].k]));t.push(d.join('\t'))}navigator.clipboard&&navigator.clipboard.writeText(t.join('\n')).then(()=>bao('Đã chép '+(v.r2-v.r1+1)+' × '+(v.c2-v.c1+1)+' ô')).catch(()=>{});e.preventDefault();return}
+  /* S82 (khách: "không thể sửa gì cả"): bộ gõ tiếng Việt (Unikey/EVKey/Telex Windows) báo phím là "Process" (keyCode 229),
+     không phải chữ → trước đây bị bỏ qua. Nay mở ô sửa trống, ký tự bộ gõ đưa vào sẽ rơi vào ô đó. */
+  if(e.key==='Process'||e.keyCode===229){const col=cs[bslDang.c],row=rows[bslDang.r];if(col&&!col.chon&&!col.bat&&row&&!bslKhoa(col,row))bslMoSua('');return}
   if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){const col=cs[bslDang.c],row=rows[bslDang.r];if(col&&!col.chon&&!col.bat&&row&&!bslKhoa(col,row)){e.preventDefault();bslMoSua(e.key)}else if(e.key===' '){e.preventDefault();bslMoSua()}}});
 document.addEventListener('paste',e=>{if(!document.documentElement.classList.contains('bsl-on')||bslSua)return;const a=document.activeElement;if(!a||!a.closest('#bslT'))return;
   const t=(e.clipboardData||window.clipboardData).getData('text');if(!t)return;e.preventDefault();
