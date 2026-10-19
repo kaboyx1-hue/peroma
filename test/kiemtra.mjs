@@ -3467,7 +3467,7 @@ const ci=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.motLan=truTonKhoConThieu()===0&&nguonHuong[H][0].daDungKg===2;
   dat(2); kq.cachCuDaTru=truTonKhoConThieu()===0&&nguonHuong[H][0].daDungKg===2&&meDaTru.ids.length===5; // cách cũ đã trừ đủ 2 kg → không trừ lần 2
   dat(0); truTonKhoConThieu(); moNguonCua('h',H); await cho(80); const v=$('viewMA').innerHTML;
-  kq.soDung=/Đã nhập/.test(v)&&/Đã dùng/.test(v)&&/nhập 15 · dùng 2 kg/.test(v)&&!document.querySelector('[data-trubu]');
+  kq.soDung=/Đã nhập/.test(v)&&/Đã dùng/.test(v)&&/nhập 15 · đã dùng 2 kg/.test(v)&&!document.querySelector('[data-trubu]');
   nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('CI: mẻ đã có trong nhật ký (đã ra số lô) tự trừ kho hương 1 lần — mẻ trước ngày mua đầu tiên không trừ', ci.tuTru&&ci.motLan, JSON.stringify(ci));
@@ -3514,7 +3514,7 @@ const ck=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nguonHuong[H][1].daDungKg=2; kq.fifo2=loDangDung('h',H).ncc==='NCC Cũ'&&loDangDung('h',H).con===3&&loDangDung('h',H).sau===1;
   chuyenTab('kho'); moNguonCua('h',H); await cho(60);
   const row=document.querySelector(`[data-nhchon="h:${CSS.escape(H)}"]`);
-  kq.cot=/3 \/ 5 kg/.test(row.textContent)&&!!row.querySelector('.tcon')&&!/ngày/.test(row.querySelector('.nh-ngay').textContent);
+  kq.cot=/Còn 3 kg/.test(row.textContent)&&/đã mua 5 kg/.test(row.textContent)&&!!row.querySelector('.tcon')&&!/ngày/.test(row.querySelector('.nh-ngay').textContent);
   kq.icon=!!row.querySelector('.tti')&&new Set([...document.querySelectorAll('.tti')].map(x=>[...x.classList].find(c=>c.startsWith('tti-')))).size>=2;
   const sel=document.querySelector('[data-nhncc="h"]'); sel.value='NCC Cũ'; sel.dispatchEvent(new Event('change',{bubbles:true})); await cho(60);
   kq.locNcc=!![...document.querySelectorAll('.nh[data-nh="h"] [data-nhchon]')].length&&[...document.querySelectorAll('.nh[data-nh="h"] [data-nhchon]')].every(b=>(nguonHuong[b.dataset.nhchon.slice(2)]||[]).some(e=>e.ncc==='NCC Cũ'));
@@ -3530,7 +3530,7 @@ const ck=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nguonHuong=JSON.parse(g.nh); sp.splice(0,sp.length,...JSON.parse(g.sp)); mo.clear(); luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('CK: lần mua đang dùng = lần mua cũ nhất còn hàng (hết mới sang lần sau)', ck.fifo&&ck.fifo2, JSON.stringify(ck));
-ok('CK: bảng nguồn: cột "Lần mua đang dùng còn/nhập" thay cho số ngày', ck.cot);
+ok('CK: bảng nguồn: cột "Lần mua đang dùng" ghi bằng chữ (Còn X kg · đã mua Y kg) thay cho số ngày', ck.cot);
 ok('CK: tình trạng hiện bằng biểu tượng, mỗi loại 1 màu riêng', ck.icon);
 ok('CK: lọc theo nhà cung cấp', ck.locNcc);
 ok('CK: Kiểu mặt hàng 📦 Đóng gói lại → lô 7 số + hiện nguồn hàng; 🏭 Sản xuất → lô 10 số, ẩn nguồn hàng', ck.kieu&&ck.kieuVe);
@@ -3562,12 +3562,29 @@ const cm=await E(async()=>{ const kq={}, g=nk.slice(), c=sp.find(x=>!isUnscented
   kq.so=/≈ 100 bao/.test(h)&&/0,1 %/.test(h);
   kq.nut=!!t.querySelector('.lo-nut .lo-chinh[data-suame]')&&!!t.querySelector('.lo-nut .lo-huybtn[data-huylo]');
   nk[0].mlChuan=500; nk[0].meChuan=500; ve(); kq.coDM=/500 g \/ 500 kg/.test(document.querySelector('.lo-the').innerHTML);
-  nk=g; traLot=''; ve(); return kq;
+  nk=g; traLot=''; ve();
+  // S81: lần mua khai kiểu cũ (1 kg + điều chỉnh tồn) không còn hiện "5 / 1 kg"; trừ cả mẻ nợ cho khớp cột Còn
+  const H=kho.filter(h=>!isUnscented(h))[3], gh=JSON.stringify(nguonHuong[H]||null), g2=nk.slice();
+  nguonHuong[H]=[{ncc:'Peroma',gia:518400,soKg:1,ngay:'15/10/2026',daDungKg:0,dieuChinhKg:4}];
+  nk=[...nk,{id:'CM-NO',sp:c.ten,huong:H,lot:'1101101026',sl:100,mlDung:2240,ngaysx:'2026-10-14',ts:'2026-10-14T08:00:00Z',giaHuongTheoGLucSX:null}];
+  const lh=loHTML({...ttNguon('h',H),ten:H},1); kq.lo=/Còn 2,76 kg/.test(lh)&&!/\/ 1 kg/.test(lh)&&!/đã mua 1 kg/.test(lh)&&/đã trừ 2,24 kg mẻ chưa gắn/.test(lh);
+  kq.bon=veBonKho().includes(H+': 2,76 / 5 kg (55%)');
+  nguonHuong[H]=JSON.parse(gh)||undefined; if(!nguonHuong[H])delete nguonHuong[H]; nk=g2; ve(); return kq;
 });
+ok('CM: lần mua khai kiểu cũ ghi "Còn 2,76 kg" bằng chữ, không còn "5 / 1 kg"', cm.lo, JSON.stringify(cm));
+ok('CM: silo của lần mua khai kiểu cũ hiện đúng % còn (2,76/5 kg = 55%), không còn 100%', cm.bon);
 ok('CM: thẻ lô với mẻ thiếu định mức KHÔNG chứa "NaN", hiện "Chưa ghi"', cm.coThe&&cm.khongNaN&&cm.chuaGhi, JSON.stringify(cm));
 ok('CM: 3 ô số chính có số bao ≈ kg ÷ quy cách và % hương suy ra từ mẻ', cm.so);
 ok('CM: nút Sửa số liệu mẻ là nút chính, Huỷ lô tách riêng; có định mức thì hiện đúng số', cm.nut&&cm.coDM);
 console.log('\n────────────────────────────');
+/* S81: ô cột Tên cố định đang chọn không bị lệch 40px trong bảng sửa hàng loạt */
+const cn=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms));
+  chuyenTab('ma'); await cho(30); document.querySelector('[data-bslmo="sp"]').click(); await cho(80);
+  const td=document.querySelector('#bslT tbody td.ten'), th=document.querySelector('#bslT thead th.ten'); if(!td||!th)return {co:false};
+  td.classList.add('dang'); const l=td.getBoundingClientRect().left, l0=th.getBoundingClientRect().left;
+  document.querySelector('#bslDong').click(); await cho(30); return {co:true,lech:Math.round(l-l0)};
+});
+ok('CN: bảng sửa hàng loạt — ô cột Tên đang chọn không bị lệch', cn.co&&Math.abs(cn.lech)<=1, JSON.stringify(cn));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
