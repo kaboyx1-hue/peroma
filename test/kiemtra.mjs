@@ -729,7 +729,7 @@ await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="ncc"]`,'NCC UI H');
 await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="gia"]`,'518400');
 await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="soKg"]`,'1');
 await p.fill(`[data-nguonform="h:${s29uiH}"] [data-nf="vat"]`,'8');
-await p.click(`[data-luunguon="h:${s29uiH}"]`); await p.waitForTimeout(200);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="h:${s29uiH}"]`); await p.waitForTimeout(200);
 const s29resH=await Ea(h=>({vat:nguonHuong[h][0].vat,gia:giaHuongHienTaiCT(h).gia}),s29uiH);
 ok('S29: form khai nguồn hương liệu có ô "Thuế suất VAT", lưu đúng và quy đổi đúng giá chưa VAT', s29resH.vat===8&&Math.abs(s29resH.gia-480)<1e-6, JSON.stringify(s29resH));
 await Ea(h=>{kho.splice(kho.indexOf(h),1);delete nguonHuong[h];delete huongDangDung[h]},s29uiH);
@@ -741,7 +741,7 @@ await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="ncc"]`,'NCC UI NL');
 await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="gia"]`,'35200');
 await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="soKg"]`,'10');
 await p.fill(`[data-nguonform="nl:${s29uiNl}"] [data-nf="vat"]`,'10');
-await p.click(`[data-luunguon="nl:${s29uiNl}"]`); await p.waitForTimeout(200);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="nl:${s29uiNl}"]`); await p.waitForTimeout(200);
 const s29resNl=await Ea(v=>({vat:nguonNguyenLieu[v][0].vat,gia:giaNLHienTaiCT(v).gia}),s29uiNl);
 ok('S29: form khai nguồn nguyên liệu có ô "Thuế suất VAT", lưu đúng và quy đổi đúng giá chưa VAT', s29resNl.vat===10&&Math.abs(s29resNl.gia-3200)<1e-6, JSON.stringify(s29resNl));
 await Ea(v=>{nlDM.splice(nlDM.indexOf(v),1);delete nguonNguyenLieu[v];delete nlDangDung[v]},s29uiNl);
@@ -1284,7 +1284,7 @@ await p.fill(`[data-nguonform="h:${aaH}"] [data-nf="gia"]`,'600000');
 await p.fill(`[data-nguonform="h:${aaH}"] [data-nf="soKg"]`,'5');
 // ô "ton" giờ nhập theo KG (trước là gram) — nhập '5000' (kg) để ra đúng con=5.000.000 gram
 // nội bộ như kỳ vọng ở assertion bên dưới (dvTonKho() đổi 'g'→'kg').
-await p.click(`[data-luunguon="h:${aaH}"]`); await p.waitForTimeout(300);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="h:${aaH}"]`); await p.waitForTimeout(300);
 ok('lưu đúng 1 nguồn: NCC, giá, số kg', (await Ea(x=>nguonHuong[x]&&nguonHuong[x].length,aaH))===1);
 const aaE1=await Ea(x=>nguonHuong[x][0],aaH);
 ok('nguồn ghi đúng NCC/giá/số kg', aaE1.ncc==='Công ty ABC'&&aaE1.gia===600000&&aaE1.soKg===5, JSON.stringify(aaE1));
@@ -1303,7 +1303,7 @@ await p.click(`[data-themnguon="h:${aaH}"]`); await p.waitForTimeout(250);
 await p.fill(`[data-nguonform="h:${aaH}"] [data-nf="ncc"]`,'Công ty XYZ');
 await p.fill(`[data-nguonform="h:${aaH}"] [data-nf="gia"]`,'500000');
 await p.fill(`[data-nguonform="h:${aaH}"] [data-nf="soKg"]`,'5');
-await p.click(`[data-luunguon="h:${aaH}"]`); await p.waitForTimeout(300);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="h:${aaH}"]`); await p.waitForTimeout(300);
 ok('có 2 nguồn, không mất nguồn cũ (lưu lịch sử)', (await Ea(x=>nguonHuong[x].length,aaH))===2);
 ok('thêm nguồn mới thì tự chuyển "đang dùng" sang nguồn vừa thêm', (await Ea(x=>huongDangDung[x],aaH))==='Công ty XYZ');
 ok('S73: thêm lần mua thứ 2 (5 kg) → tồn tự cộng thành 10 kg', (await Ea(x=>tonThucKg(x),aaH))===10);
@@ -1458,7 +1458,7 @@ await p.click(`[data-suanguon="h:${agH}:0"]`); await p.waitForTimeout(250);
 await p.fill(`[data-nguonform="h:${agH}:0"] [data-nf="ncc"]`,'Công ty ABC (sửa)');
 await p.fill(`[data-nguonform="h:${agH}:0"] [data-nf="gia"]`,'660000');
 await p.fill(`[data-nguonform="h:${agH}:0"] [data-nf="soKg"]`,'6');
-await p.click(`[data-luunguon="h:${agH}:0"]`); await p.waitForTimeout(300);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="h:${agH}:0"]`); await p.waitForTimeout(300);
 const agSau=await Ea(h=>({soDong:nguonHuong[h].length,d0:nguonHuong[h][0]}),agH);
 ok('sửa giá KHÔNG tạo thêm dòng lịch sử mới (chỉ sửa tại chỗ)', agSau.soDong===agSoDongTruoc, `${agSoDongTruoc} → ${agSau.soDong}`);
 ok('sửa đúng NCC/giá/kg của dòng đã chọn', agSau.d0.ncc==='Công ty ABC (sửa)'&&agSau.d0.gia===660000&&agSau.d0.soKg===6, JSON.stringify(agSau.d0));
@@ -2279,7 +2279,7 @@ await p.click(`[data-themnguon="nl:${atNl}"]`); await p.waitForTimeout(250);
 await p.fill(`[data-nguonform="nl:${atNl}"] [data-nf="ncc"]`,'NCC Nguyên Liệu A');
 await p.fill(`[data-nguonform="nl:${atNl}"] [data-nf="gia"]`,'2000000');
 await p.fill(`[data-nguonform="nl:${atNl}"] [data-nf="soKg"]`,'500');
-await p.click(`[data-luunguon="nl:${atNl}"]`); await p.waitForTimeout(300);
+await p.evaluate(()=>document.querySelectorAll('[data-nguonform]').forEach(f=>{const b=f.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''})); /* S91: test gõ giá kiểu cũ (gồm VAT) */ await p.click(`[data-luunguon="nl:${atNl}"]`); await p.waitForTimeout(300);
 ok('lưu đúng 1 nguồn nguyên liệu: NCC, giá, số kg', (await Ea(v=>nguonNguyenLieu[v]&&nguonNguyenLieu[v].length,atNl))===1);
 const atE1=await Ea(v=>nguonNguyenLieu[v][0],atNl);
 ok('nguồn nguyên liệu ghi đúng NCC/giá/số kg', atE1.ncc==='NCC Nguyên Liệu A'&&atE1.gia===2000000&&atE1.soKg===500, JSON.stringify(atE1));
@@ -3126,7 +3126,7 @@ const bu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   the.querySelector('[data-nhapthemnl]').click(); await cho(80);
   const f=document.querySelector(`[data-nguonform="${CSS.escape('nl:'+N)}"]`); kq.moKhung=tab==='kho'&&!!f;
   f.querySelector('[data-nf="ncc"]').value='NCC mới'; f.querySelector('[data-nf="gia"]').value='1000000'; f.querySelector('[data-nf="soKg"]').value='200';
-  f.querySelector('[data-luunguon]').click(); await cho(80);
+  document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(80);
   kq.nhapThem=tonNLKg(N)===160;
   // kiểm kê → số mới, mốc mới (mẻ cũ không trừ lại), có nhật ký
   const tl=['300','đếm kho']; window.hoi=async()=>tl.shift();
@@ -3172,7 +3172,7 @@ const bv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   moThemNguon.add('h:'+H); ve(); await cho(60);
   const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`); kq.oTrong=!f.querySelector('[data-nf="ton"]'); const truoc=tonThucKg(H);
   f.querySelector('[data-nf="ncc"]').value='Việt Đức'; f.querySelector('[data-nf="gia"]').value='2200000'; f.querySelector('[data-nf="soKg"]').value='5';
-  window.hoi=async()=>false; f.querySelector('[data-luunguon]').click(); await cho(120);
+  window.hoi=async()=>false; document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(120);
   kq.dien=tonThucKg(H)===Math.round((truoc+5)*1000)/1000;
   window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); tonKhoHuong=JSON.parse(g.tk); huongDangDung=JSON.parse(g.hd); meDaTru=JSON.parse(g.md); nk=g.nk; moThemNguon.clear(); luuNgay(); chuyenTab('tq');
   return kq;
@@ -3343,7 +3343,7 @@ const cc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   document.querySelector(`[data-suadongmua="h:${CSS.escape(H)}:0"]`).click(); await cho(80);
   const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H+':0')}"]`); kq.moKhung=tab==='kho'&&!!f;
   f.querySelector('[data-nf="soHD"]').value='2148'; f.querySelector('[data-nf="soHopDong"]').value='HĐMB-09'; f.querySelector('[data-nf="soKg"]').value='30';
-  f.querySelector('[data-luunguon]').click(); await cho(80);
+  document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(80);
   kq.luu=nguonHuong[H][0].soHD==='2148'&&nguonHuong[H][0].soHopDong==='HĐMB-09'&&nguonHuong[H][0].soKg===30&&nguonHuong[H][0].daDungKg===0.05;
   const x=d().find(y=>y.ten===H); kq.theoLanMua=x.soHD==='2148'&&x.theoLanMua&&x.hopDong==='HĐMB-09';
   tab='sx'; ve(); await cho(30); kq.the=/HĐMB-09/.test($('viewBC').textContent)&&/theo lần mua/.test($('viewBC').textContent);
@@ -3440,12 +3440,12 @@ const ch=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   moSuaDongMua('h:'+H+':0'); await cho(80); let f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H+':0')}"]`);
   kq.nhan=/Số kg mua/.test(f.textContent)&&/Đơn giá/.test(f.textContent)&&/Thành tiền/.test(f.textContent)&&gO(f,'donGia').value==='670000';
   go(f,'soKg','5'); kq.tuTinh=gO(f,'gia').value==='3350000';
-  f.querySelector('[data-luunguon]').click(); await cho(80);
+  document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(80);
   kq.luu=nguonHuong[H][0].soKg===5&&nguonHuong[H][0].gia===3350000&&!document.querySelector(`.kl1 [data-suadongmua="h:${H}:0"]`);
   // khai mới chỉ bằng số kg + đơn giá (để trống thành tiền vẫn lưu đúng)
   moThemNguon.add('h:'+H); ve(); await cho(60); f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`);
   f.querySelector('[data-nf="ncc"]').value='NCC CH'; go(f,'soKg','2'); go(f,'donGia','100000'); gO(f,'gia').value='';
-  f.querySelector('[data-luunguon]').click(); await cho(80); const m=nguonHuong[H][nguonHuong[H].length-1]; kq.moi=m.ncc==='NCC CH'&&m.soKg===2&&m.gia===200000;
+  document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(80); const m=nguonHuong[H][nguonHuong[H].length-1]; kq.moi=m.ncc==='NCC CH'&&m.soKg===2&&m.gia===200000;
   // "Đúng là 1 kg" → không hỏi lại
   nguonHuong[H].push({ncc:'X',gia:50000,soKg:1,ngay:'19/10/2026',daDungKg:0}); ve(); await cho(40);
   const ix=nguonHuong[H].length-1; document.querySelector(`[data-dung1kg="h:${H}:${ix}"]`).click(); await cho(60);
@@ -3725,6 +3725,19 @@ const cw=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CW: Excel tô màu theo loại (hương / nguyên liệu), ô thiếu số HĐ đỏ, trang HƯỚNG DẪN có chú thích màu', cw.hd&&cw.nen, JSON.stringify(cw));
 ok('CW: bảng trong app có vạch màu theo loại, ô cần xử lý tô đỏ, có chú thích màu', cw.app);
+/* CX — S91: khung khai lần mua chọn giá CHƯA VAT (như in trên hoá đơn, mặc định) / ĐÃ GỒM VAT — app tự quy đổi, hiện dòng đối chiếu */
+const cx=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[1], g=JSON.stringify(nguonHuong[H]||null);
+  moNguonCua('h',H); moThemNguon.add('h:'+H); ve(); await cho(60); let f=[...document.querySelectorAll(`[data-nguonform="h:${CSS.escape(H)}"]`)].find(x=>x.offsetParent)||document.querySelector(`[data-nguonform="h:${CSS.escape(H)}"]`);
+  const o=n=>f.querySelector(`[data-nf="${n}"]`), go=(n,v)=>{o(n).value=v;o(n).dispatchEvent(new Event('input',{bubbles:true}))};
+  kq.macDinh=o('cach').value==='truoc'&&o('vat').value==='8'&&f.querySelector('[data-nfcach="truoc"]').classList.contains('on');
+  go('ncc','Peroma'); go('soKg','5'); go('donGia','420000');
+  kq.doiChieu=/Tổng phải trả 2\.268\.000/.test(f.querySelector('[data-nftinh]').textContent)&&/453\.600 đ\/kg/.test(f.querySelector('[data-nftinh]').textContent);
+  const n0=(nguonHuong[H]||[]).length; f.querySelector('[data-luunguon]').click(); await cho(80); const e=nguonHuong[H][n0];
+  kq.luu=!!e&&e.gia===2268000&&e.vat===8&&Math.round(giaHuongHienTaiCT(H).gia*1000)===420000;
+  nguonHuong[H]=JSON.parse(g)||undefined; if(!nguonHuong[H])delete nguonHuong[H]; moThemNguon.clear(); ve(); return kq;
+});
+ok('CX: khai mới mặc định "giá CHƯA VAT" + VAT 8% (đúng như in trên hoá đơn)', cx.macDinh, JSON.stringify(cx));
+ok('CX: gõ 5 kg × 420.000 chưa VAT → hiện đối chiếu Tổng phải trả 2.268.000, lưu đúng gồm VAT, giá vốn = 420.000 đ/kg', cx.doiChieu&&cx.luu);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

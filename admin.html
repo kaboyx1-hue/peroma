@@ -1905,15 +1905,21 @@ html.hv-tat #huyHieu{transition:none}
 #bslT td.xl-do:not(.sua):not(.loi):not(.dang){background:#FDE2DE!important}#bslT td.xl-luc:not(.sua):not(.loi):not(.dang){background:#E3F4E8!important}
 .bsl-mau{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:6px}.bsl-mau span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
 .bsl-mau span::before{content:'';width:14px;height:14px;border-radius:4px;background:var(--mc)}.bsl-mau .m-huong{--mc:#CFE3F7}.bsl-mau .m-nl{--mc:#F7E2B5}.bsl-mau .m-do{--mc:#F7C9C0}.bsl-mau .m-luc{--mc:#C7E9D1}
+/* S91 chọn giá chưa / đã gồm VAT trong khung khai lần mua */
+.nf-cach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--tx2)}
+.nf-cach button{border:1.5px solid var(--line2);background:var(--card);color:var(--tx2);border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;cursor:pointer;line-height:1.2}
+.nf-cach button small{display:block;font-weight:500;font-size:10.5px;opacity:.8}.nf-cach button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.nf-cach label{display:inline-flex;align-items:center;gap:4px;margin-left:auto;font-weight:700}.nf-cach label input{width:56px}
+.nf-tinh{margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--okBg,#E6F6EA);color:var(--tx);font-size:12.5px;line-height:1.45}.nf-tinh:empty{display:none}.nf-tinh small{color:var(--tx2)}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S90</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S91</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 21/10/2026-S90</div>
+      <div class="verFoot">BẢN 21/10/2026-S91</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -4905,6 +4911,13 @@ function giaTrenDonVi(loai,e){ // đ/g cho hương (mua theo kg nhưng dùng the
 // hiển thị giá NCC hương liệu dùng nhầm dvTonKho() làm nhãn, sau khi dvTonKho() đổi thành 'kg'
 // thì giá "đ/g" bị ghi nhãn sai thành "đ/kg" (sai 1000 lần) — lỗi thật do sửa ở trên gây ra.
 function dvGia(loai){ return loai==='h'?'g':'kg'; }
+/* 21/10/2026 S91 (khách: "khai theo số chưa tính 8% VAT hay đã VAT? phải có cách tích gọn chỗ này, đỡ mất thời gian tính lại giá trước và sau VAT"):
+   nút chọn giá đang gõ là CHƯA VAT (như in trên hoá đơn — mặc định khi thêm mới) hay ĐÃ GỒM VAT; app tự quy về giá gồm VAT để lưu (giữ quy ước cũ:
+   e.gia = tổng tiền gồm VAT, e.vat = %), và hiện ngay dòng đối chiếu: chưa VAT · tiền thuế · tổng phải trả. */
+function nfTinhHTML(kg,tien,cach,vat){const v=num(vat), coV=String(vat??'').trim()!==''&&v>=0; if(!(kg>0&&tien>0))return '';
+  const gom=cach==='truoc'&&coV?tien*(1+v/100):tien, truoc=coV?gom/(1+v/100):null;
+  return `<b>Lưu vào hệ thống:</b> ${fmtSo(kg)} kg × ${fmt(Math.round(gom/kg))} đ/kg (gồm VAT) = <b>${fmt(Math.round(gom))} đ</b>`
+    +(coV?`<br><small>Chưa VAT ${fmt(Math.round(truoc))} đ (${fmt(Math.round(truoc/kg))} đ/kg) + thuế ${fmtSo(v)}% ${fmt(Math.round(gom-truoc))} đ = <b>Tổng phải trả ${fmt(Math.round(gom))} đ</b></small>`:'<br><small>Chưa khai VAT — giá được coi là giá cuối cùng đã trả.</small>')}
 function veThemNguonPanel(loai,ten,ix){
   const key=loai+':'+ten+(ix!==undefined?':'+ix:'');
   if(!moThemNguon.has(key))return '';
@@ -4923,12 +4936,15 @@ function veThemNguonPanel(loai,ten,ix){
       <label><span>Đơn giá (đ/kg)</span><input class="ninp" data-nf="donGia" type="text" inputmode="decimal" placeholder="VD 670.000" value="${e0&&num(e0.soKg)>0?Math.round(num(e0.gia)/num(e0.soKg)):''}"></label>
       <label><span>Thành tiền (đ)</span><input class="ninp" data-nf="gia" type="text" inputmode="decimal" placeholder="tự tính" value="${e0?e0.gia:''}"></label>
     </div>
-    <div class="nf-ghi">Ghi như 1 dòng trên hoá đơn: <b>số kg thật nhập vào kho</b> lần này × đơn giá = thành tiền (gồm VAT). Điền 2 ô, ô thứ 3 tự tính. Tồn kho cộng thêm đúng số kg này.</div>
-    <div style="display:flex;gap:6px;align-items:center;margin-top:6px">
-      <label style="font-size:11.5px;color:var(--txt-3);white-space:nowrap">Thuế suất VAT</label>
-      <input class="ninp" data-nf="vat" type="text" inputmode="decimal" placeholder="chưa khai" value="${e0&&e0.vat!==null&&e0.vat!==undefined?e0.vat:''}" style="width:76px;flex:none">
-      <span style="font-size:11.5px;color:var(--txt-3)">% (8, 10… để trống nếu chưa rõ)</span>
+    <div class="nf-cach" role="group" aria-label="Đơn giá và thành tiền đang gõ là">
+      <span>Số vừa gõ là giá</span>
+      <button type="button" class="${sua?'':'on'}" data-nfcach="truoc">CHƯA VAT <small>như in trên hoá đơn</small></button>
+      <button type="button" class="${sua?'on':''}" data-nfcach="sau">ĐÃ GỒM VAT</button>
+      <input type="hidden" data-nf="cach" value="${sua?'sau':'truoc'}">
+      <label>VAT <input class="ninp" data-nf="vat" type="text" inputmode="decimal" placeholder="chưa rõ" value="${e0?(e0.vat!==null&&e0.vat!==undefined?e0.vat:''):'8'}"${e0?'':' data-macdinh="1"'}> %</label>
     </div>
+    <div class="nf-tinh" data-nftinh>${sua?nfTinhHTML(num(e0.soKg),Math.round(num(e0.gia)),'sau',e0.vat):''}</div>
+    <div class="nf-ghi">Gõ đúng như 1 dòng trên hoá đơn: <b>số kg</b> × <b>đơn giá</b> = <b>thành tiền</b> (điền 2 ô, ô thứ 3 tự tính), chọn giá đó là <b>chưa VAT</b> hay <b>đã gồm VAT</b> — app tự quy đổi, không phải tự nhân 1,08. Đối chiếu dòng "Tổng phải trả" với hoá đơn.</div>
     ${sua?'':`<div class="log" style="margin:6px 0 0">Kho thật lệch thì bấm <b>Kiểm kê</b> (không cần nhập tồn ở đây).</div>`}
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="addbtn nh-chinh" data-luunguon="${esc(key)}" style="flex:1;margin:0">${sua?'Lưu sửa':'Lưu lần mua'}</button>
@@ -6925,9 +6941,10 @@ $('viewMA').addEventListener('click',async e=>{
     if(!ncc){bao('Chưa nhập tên nhà cung cấp');return}
     const soKg=num(gv('soKg'));
     if(!(soKg>0)){bao('Chưa nhập số kg nhập kho');return}
-    const gia=num(gv('gia'))>0?num(gv('gia')):Math.round(soKg*num(gv('donGia')));
+    let gia=num(gv('gia'))>0?num(gv('gia')):Math.round(soKg*num(gv('donGia')));
     if(!(gia>0)){bao('Chưa nhập đơn giá hoặc thành tiền');return}
     const vatRaw=String(gv('vat')||'').trim(), vat=vatRaw===''?null:num(vatRaw);
+    if(gv('cach')==='truoc'&&vat>0)gia=Math.round(gia*(1+vat/100)); // S91: giá gõ là CHƯA VAT → quy về gồm VAT để lưu
     const soHD=String(gv('soHD')||'').trim(); // 14/10/2026: số hoá đơn đầu vào — chụp vào từng mẻ để đối soát
     const soHopDong=String(gv('soHopDong')||'').trim(); // 17/10/2026: số hợp đồng (nếu có)
     if(vat!==null&&!(vat>=0&&vat<=100)){bao('Thuế suất VAT từ 0 đến 100 %');return}
@@ -7021,10 +7038,15 @@ $('viewMA').addEventListener('click',async e=>{
 let henBC=null;
 // viewMA (tab Kho) chỉ nhận phần thuộc khối số HĐ — tránh xử lý trùng các nút Kho đã có bộ xử lý riêng (kiểm kê, trả nợ…)
 // 19/10/2026 S76: khung lần mua = 1 dòng hoá đơn (kg × đơn giá = thành tiền) — điền 2 ô, ô thứ 3 tự tính
-document.addEventListener('input',e=>{const t=e.target, k=t.dataset&&t.dataset.nf, f=k&&t.closest('[data-nguonform]'); if(!f||!['soKg','donGia','gia'].includes(k))return;
+const nfVeTinh=f=>{const o=n=>f.querySelector(`[data-nf="${n}"]`), el=f.querySelector('[data-nftinh]'); if(el)el.innerHTML=nfTinhHTML(num(o('soKg').value),num(o('gia').value)||Math.round(num(o('soKg').value)*num(o('donGia').value)),o('cach')?o('cach').value:'sau',o('vat')?o('vat').value:'')};
+document.addEventListener('input',e=>{const t=e.target, k=t.dataset&&t.dataset.nf, f=k&&t.closest('[data-nguonform]'); if(!f||!['soKg','donGia','gia','vat'].includes(k))return;
   const o=n=>f.querySelector(`[data-nf="${n}"]`), kg=num(o('soKg').value), dg=num(o('donGia').value), tt=num(o('gia').value);
-  if(k!=='soKg')f.dataset.goc=k; // ô người dùng vừa gõ (đơn giá hay thành tiền) được giữ, ô còn lại tự tính
-  if(f.dataset.goc==='gia'){if(kg>0&&tt>0)o('donGia').value=Math.round(tt/kg)} else if(kg>0&&dg>0)o('gia').value=Math.round(kg*dg)});
+  if(k==='vat')delete t.dataset.macdinh;
+  if(k==='donGia'||k==='gia')f.dataset.goc=k; // ô người dùng vừa gõ (đơn giá hay thành tiền) được giữ, ô còn lại tự tính
+  if(k!=='vat'){if(f.dataset.goc==='gia'){if(kg>0&&tt>0)o('donGia').value=Math.round(tt/kg)} else if(kg>0&&dg>0)o('gia').value=Math.round(kg*dg)}
+  nfVeTinh(f)});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-nfcach]'); if(!b)return; const f=b.closest('[data-nguonform]'); if(!f)return;
+  f.querySelectorAll('[data-nfcach]').forEach(x=>x.classList.toggle('on',x===b)); f.querySelector('[data-nf="cach"]').value=b.dataset.nfcach; nfVeTinh(f)});
 document.addEventListener('click',e=>{const sd=e.target.closest('.kl1 [data-suadongmua]'); if(sd){moSuaDongMua(sd.dataset.suadongmua);return} const d=e.target.closest('[data-dung1kg]'); if(!d)return; const {loai,ten,ix}=parseNguonKey(d.dataset.dung1kg), x=(nguonMapCua(loai)[ten]||[])[ix]; if(x){x.dung1kg=true; luuNgay(); ve(); bao('Đã ghi nhận: lần mua này đúng 1 kg')}});
 
 /* ═══ 19/10/2026 S76 — BẢNG SỬA HÀNG LOẠT (khách: "như phần mềm Sapo, chỉnh sửa cùng lúc nhiều loại trong cùng danh mục"; "rất quan
