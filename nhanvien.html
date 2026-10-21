@@ -442,7 +442,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 20/10/2026-R47</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 21/10/2026-R48</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -919,7 +919,9 @@ function pbTuDong(p){
 /* 16/10/2026 (khách: "Citycat việc tích không in tem phụ là không cần thiết, phải là MẶC ĐỊNH, theo quy tắc số lô ra luôn
    sau khi nhân viên khai pha mẻ"): mặt hàng thương hiệu CITYCAT (chữ số đầu mã SP = 1 theo quy ước, hoặc tên có "Citycat")
    luôn coi là không in tem phụ → lô 7 số tự sinh lúc ghi mẻ. Mặt hàng khác vẫn tự tích được. */
-const laCitycat=p=>{const m=hai(p&&p.maSP);return (m&&m[0]==='1')||/citycat/i.test(String(p&&p.ten||''))};
+/* 21/10/2026 (khách: Sand Hambii mã 10 KHÔNG phải Citycat): trước đây mọi mã SP bắt đầu bằng 1 bị coi là Citycat → lô 7 số, không tem phụ.
+   Nay chỉ: tên có chữ "Citycat" hoặc mã SP đúng 11. Mặt hàng khác muốn bỏ tem phụ thì chọn Kiểu 📦 Đóng gói lại (khongTemPhu). */
+const laCitycat=p=>hai(p&&p.maSP)==='11'||/citycat/i.test(String(p&&p.ten||''));
 const khongTem=p=>!!(p&&(p.khongTemPhu||laCitycat(p)));
 function sinhLot(p,huong,qc,ngaysx){
   const t=[];const ss=hai(p&&p.maSP);if(!ss)t.push('mã sản phẩm');

@@ -1889,15 +1889,23 @@ html.hv-tat #huyHieu{transition:none}
 #bslT td.tk{background:repeating-linear-gradient(135deg,var(--c2,#FFF3EE) 0 6px,transparent 6px 12px)!important}
 #bslT td.tk .o{font-style:italic;color:var(--tx3);opacity:.9}#bslT td.tk .o::before{content:'≈ ';opacity:.6}
 #bslT td.tk.duong .o{color:var(--ok)}#bslT td.tk.am .o{color:var(--badTx)}
+/* S84 (khách: "tràn viền ô bên phải · kéo xuống mất 1 phần, không cố định theo"): ô số trong khung chi tiết co theo khung
+   (nhãn trên, số dưới, không đẩy tràn); khung chi tiết ghim khi kéo nhưng tự cuộn bên trong nếu cao hơn màn hình. */
+.nh-ct{top:66px!important;max-height:calc(100vh - 66px - 82px);overflow-y:auto;overscroll-behavior:contain} /* chừa thanh "Quay lại" phía trên + thanh trạng thái phía dưới */
+.nh-ct small{white-space:normal!important}
+.nh-ct .nh-so4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.nh-ct .nh-o{display:flex!important;flex-direction:column;gap:3px;min-width:0;overflow:hidden}
+.nh-ct .nh-o>span{white-space:normal}.nh-ct .nh-o>b{min-width:0;overflow-wrap:anywhere;word-break:normal}
+.nh-ct .nh-o>b small{display:block;font-weight:500;font-size:11.5px;line-height:1.35}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 19/10/2026-S83</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S84</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 19/10/2026-S83</div>
+      <div class="verFoot">BẢN 21/10/2026-S84</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2833,7 +2841,9 @@ const mmyy=iso=>{const m=String(iso||'').match(/^(\d{4})-(\d{2})-/);return m?m[2
 /* 16/10/2026 (khách: "Citycat việc tích không in tem phụ là không cần thiết, phải là MẶC ĐỊNH, theo quy tắc số lô ra luôn
    sau khi nhân viên khai pha mẻ"): mặt hàng thương hiệu CITYCAT (chữ số đầu mã SP = 1 theo quy ước, hoặc tên có "Citycat")
    luôn coi là không in tem phụ → lô 7 số tự sinh lúc ghi mẻ. Mặt hàng khác vẫn tự tích được. */
-const laCitycat=p=>{const m=hai(p&&p.maSP);return (m&&m[0]==='1')||/citycat/i.test(String(p&&p.ten||''))};
+/* 21/10/2026 (khách: Sand Hambii mã 10 KHÔNG phải Citycat): trước đây mọi mã SP bắt đầu bằng 1 bị coi là Citycat → lô 7 số, không tem phụ.
+   Nay chỉ: tên có chữ "Citycat" hoặc mã SP đúng 11. Mặt hàng khác muốn bỏ tem phụ thì chọn Kiểu 📦 Đóng gói lại (khongTemPhu). */
+const laCitycat=p=>hai(p&&p.maSP)==='11'||/citycat/i.test(String(p&&p.ten||''));
 const khongTem=p=>!!(p&&(p.khongTemPhu||laCitycat(p)));
 function sinhLot(p,huong,quyCach,ngaysx){
   const thieu=[];

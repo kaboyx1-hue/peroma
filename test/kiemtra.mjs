@@ -3246,7 +3246,7 @@ ok('BX: Công thức lớp 1 = bảng mặt hàng + khung chi tiết; bấm dòn
 const by=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
   maHuong.__t='01'; maQC.__q='07';
   const cc={ten:'Citycat Plus',maSP:'12'}, ma1={ten:'Cát gì đó',maSP:'15'}, khac={ten:'Cát Zaka',maSP:'41'};
-  kq.lo=sinhLot(cc,'__t','__q','2026-10-16').lot==='1201106'&&sinhLot(ma1,'__t','__q','2026-10-16').lot.length===7&&sinhLot(khac,'__t','__q','2026-10-16').lot==='4101071026';
+  kq.lo=sinhLot(cc,'__t','__q','2026-10-16').lot==='1201106'&&sinhLot(ma1,'__t','__q','2026-10-16').lot.length===10&&sinhLot({ten:'Cát lót chuồng hamster Sand Hambii',maSP:'10'},'__t','__q','2026-10-16').lot.length===10&&sinhLot({ten:'Bao 11',maSP:'11'},'__t','__q','2026-10-16').lot.length===7&&sinhLot(khac,'__t','__q','2026-10-16').lot==='4101071026';
   kq.tenChu=khongTem({ten:'Bao Citycat',maSP:''})&&!khongTem({ten:'Bigpaw',maSP:''});
   sp.push(napSP([{ten:'Citycat BY',kg:100,ml:0,me:0,pkb:false,maSP:'19'}])[0]); const i=sp.length-1; kq.coCitycat=true;
   if(i>=0){ mo.clear(); mo.add(i); moTem.add(i); chuyenTab('ct'); await cho(60);
@@ -3258,7 +3258,7 @@ const by=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const mau=t=>icSP(t).ten.split(' · ')[0]; kq.loai=mau('Citycat')==='Cát vệ sinh mèo'&&mau('Gỗ thông nén')==='Gỗ – mùn cưa'&&mau('Hạt khử mùi')==='Khử mùi'&&mau('Cát Zaka pro')==='Cát';
   chuyenTab('tq'); return kq;
 });
-ok('BY: Citycat (mã SP đầu 1 hoặc tên Citycat) tự ra lô 7 số, mặt hàng khác giữ 10 số', by.lo&&by.tenChu, JSON.stringify(by));
+ok('BY: Citycat (tên Citycat hoặc mã SP 11) tự ra lô 7 số; Sand Hambii (mã 10) và mặt hàng khác giữ 10 số', by.lo&&by.tenChu, JSON.stringify(by));
 ok('BY: hồ sơ tem Citycat không còn ô tích, chỉ ghi chú mặc định', by.coCitycat&&by.khongTich);
 ok('BY: Citycat không bắt buộc hồ sơ tem để sẵn sàng sản xuất', by.sanSang);
 ok('BY: thẻ mặt hàng dùng icon theo loại hàng, không còn chữ viết tắt', by.icon&&by.loai);
