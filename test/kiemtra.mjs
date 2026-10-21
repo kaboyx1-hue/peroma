@@ -3413,8 +3413,10 @@ const cg=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const cb=[...document.querySelectorAll('.tqcb-mon')].find(b=>b.textContent.includes(H)); kq.coCb=!!cb; cb&&cb.click(); await cho(80);
   kq.denDung=tab==='kho'&&document.querySelector('.nh[data-nh="h"] .nh-ct .ncc-ten')?.textContent===H&&hien(document.querySelector(`[data-suatk="${CSS.escape(H)}"]`));
   // Tổng quan nhắc lần mua chưa có số HĐ → bấm tới khối số HĐ ở Kho
-  chuyenTab('tq'); await cho(40); const hd=document.querySelector('[data-tqhd]'); kq.nhacHD=!!hd&&/1 lần mua chưa có số hoá đơn/.test(document.querySelector('.tqhd').textContent);
-  hd&&hd.click(); await cho(100); kq.denHD=tab==='kho'&&hien(document.querySelector('#viewMA .hdbs'));
+  // S85: bấm → mở bảng sửa NGAY TẠI CHỖ (Tất cả vật tư, chỉ dòng chưa có HĐ), con trỏ ở ô Số hoá đơn
+  chuyenTab('tq'); await cho(40); const hd=document.querySelector('.tqhd [data-suanhanh]'); kq.nhacHD=!!hd&&/1 lần mua chưa có số hoá đơn/.test(document.querySelector('.tqhd').textContent);
+  hd&&hd.click(); await cho(120); kq.denHD=document.documentElement.classList.contains('bsl-on')&&bslLoai==='tatca'&&bslChiThieuHD&&bslHien().length>=1&&bslHien().every(r=>!String(r.goc.soHD||'').trim())&&!!document.querySelector('#bslT td .o input');
+  bslSua=null; bslDongLai(); await cho(30);
   // nguồn không còn nút thứ 3 trùng việc
   kq.motNut=!/Thêm hoặc đổi nhà cung cấp và giá/.test($('viewMA').innerHTML);
   // thêm mặt hàng ở Danh mục → mở luôn công thức của nó
@@ -3426,7 +3428,7 @@ const cg=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('CG: Kho gom nguồn + bao bì + số HĐ; Danh mục chỉ còn tên & mã, có lối "Kho →"', cg.kho&&cg.dm, JSON.stringify(cg));
 ok('CG: Sản xuất có lệnh SX + tra lô; Báo cáo chỉ còn số liệu theo kỳ', cg.sx&&cg.bc);
 ok('CG: bấm cảnh báo vượt tồn ở Tổng quan → mở thẳng đúng hương ở Kho, thấy ngay nút Kiểm kê', cg.coCb&&cg.denDung);
-ok('CG: Tổng quan nhắc lần mua chưa có số HĐ, bấm → tới khối số HĐ', cg.nhacHD&&cg.denHD);
+ok('CG: Tổng quan nhắc lần mua chưa có số HĐ, bấm → mở bảng sửa ngay tại chỗ, đúng các dòng thiếu HĐ', cg.nhacHD&&cg.denHD);
 ok('CG: nguồn chỉ còn 1 kiểu nút nhập hàng (bỏ "Thêm hoặc đổi…")', cg.motNut);
 ok('CG: thêm mặt hàng ở Danh mục → hỏi luôn mã, mở luôn công thức của nó', cg.moCT);
 /* CH — 19/10/2026 S76: khung lần mua = 1 dòng hoá đơn (khách: "ghi số tiền ứng với bao nhiêu kg thì đó là đơn giá") */
@@ -3653,6 +3655,19 @@ const cr=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CR: Sửa hàng loạt có thẻ "Kiểm kê kho" + chú giải dễ hiểu dưới bảng', cr.the&&cr.chu, JSON.stringify(cr));
 ok('CR: gõ số đếm thực tế (hương 6→8 kg, nguyên liệu 2000→27000 kg) → tồn khớp đúng số đếm, có lý do trong lịch sử', cr.chenh&&cr.h&&cr.nl&&cr.log);
+/* CS — S85: Tất cả vật tư (hương + nguyên liệu 1 bảng, cột Dùng cho) · nút "Điền số HĐ ngay" ở Kho mở đúng vật tư, con trỏ ô Số HĐ */
+const cs=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[0], N=nlDM[0], g={nh:JSON.stringify(nguonHuong),nn:JSON.stringify(nguonNguyenLieu)};
+  nguonHuong[H]=[{ncc:'A',gia:1000,soKg:10,ngay:'01/10/2026',daDungKg:0}]; if(N)nguonNguyenLieu[N]=[{ncc:'B',gia:5000,soKg:100,ngay:'01/10/2026',ts:new Date().toISOString()}];
+  chuyenTab('kho'); await cho(30); document.querySelector('[data-bslmo="mua"]').click(); await cho(60);
+  kq.the=bslLoai==='tatca'&&!document.querySelector('[data-bslloai="mua"]')&&!document.querySelector('[data-bslloai="muanl"]');
+  const rs=bslHien(); kq.ca2=rs.some(r=>r.moi.loai==='Hương'&&r.goc.ten===H)&&(!N||rs.some(r=>r.moi.loai==='Nguyên liệu'&&r.goc.ten===N));
+  const cd=BSL.tatca.cot.find(c=>c.k==='dung'), rh=rs.find(r=>r.goc.ten===H); kq.dung=typeof cd.tinh(rh)==='string';
+  bslDongLai(); moNguonCua('h',H); await cho(80); const nut=[...document.querySelectorAll('[data-suanhanh]')].find(b=>b.dataset.suanhanh===H&&b.offsetParent);
+  nut&&nut.click(); await cho(120); kq.nhanh=!!nut&&document.documentElement.classList.contains('bsl-on')&&bslHien().every(r=>r.goc.ten===H||Object.values(r.moi).join(' ').includes(H))&&bslL().cot[bslDang.c].k==='soHD'&&!!document.querySelector('#bslT td .o input');
+  bslSua=null; bslDongLai(); nguonHuong=JSON.parse(g.nh); nguonNguyenLieu=JSON.parse(g.nn); ve(); return kq;
+});
+ok('CS: Sửa hàng loạt có thẻ "Tất cả vật tư" — hương + nguyên liệu chung 1 bảng, có cột Dùng cho', cs.the&&cs.ca2&&cs.dung, JSON.stringify(cs));
+ok('CS: ở Kho bấm "Điền số HĐ ngay" → mở bảng sửa đúng vật tư đó, con trỏ ở ô Số hoá đơn', cs.nhanh);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

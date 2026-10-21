@@ -1897,15 +1897,16 @@ html.hv-tat #huyHieu{transition:none}
 .nh-ct .nh-o{display:flex!important;flex-direction:column;gap:3px;min-width:0;overflow:hidden}
 .nh-ct .nh-o>span{white-space:normal}.nh-ct .nh-o>b{min-width:0;overflow-wrap:anywhere;word-break:normal}
 .nh-ct .nh-o>b small{display:block;font-weight:500;font-size:11.5px;line-height:1.35}
+.bsl-loc{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;padding:6px 12px;border:1.5px solid var(--line2);border-radius:999px;margin-right:6px;cursor:pointer}.bsl-loc input{accent-color:var(--acc)}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S84</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S85</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 21/10/2026-S84</div>
+      <div class="verFoot">BẢN 21/10/2026-S85</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -5024,7 +5025,7 @@ function veKhoiNguon(loai,ten){
     <div class="nh-so4">${o1('Tồn kho thực',x.ton===null?'—':(x.ton<0?'−':'')+fmtSo(Math.abs(x.ton))+' kg',x.ton!==null&&x.ton<0?'am':'')}${o1('Lần mua đang dùng',loHTML({...x,ten}))}${o1('Nhà cung cấp',ds.length?esc(dung||'— chưa chọn —'):'—')}${o1('Giá / kg',x.gia!==null?fmt(x.gia)+' đ/kg':'—')}</div>
     ${veSoDung(loai,ten,x)}
     <div class="nh-ton">${loai==='h'?veTonKhoHuong(ten):veTonKhoNguyenLieu(ten)}</div>
-    ${ds.length?`<div class="nh-hdon${x.thieuHD?' thieu':''}">${x.thieuHD?`<b>⚠ ${x.thieuHD} lần mua chưa có số hoá đơn</b> — bấm <b>Sửa</b> ở dòng mua bên dưới để điền số HĐ (để đối soát lô).`:x.khongHD?'Đã tắt nhắc hoá đơn cho '+(loai==='h'?'hương':'nguyên liệu')+' này.':'<b>✓ Các lần mua đều đã có số hoá đơn.</b>'}
+    ${ds.length?`<div class="nh-hdon${x.thieuHD?' thieu':''}">${x.thieuHD?`<b>⚠ ${x.thieuHD} lần mua chưa có số hoá đơn</b> — <button type="button" class="ctsxb on" data-suanhanh="${esc(ten)}" data-thieuhd="1">✏️ Điền số HĐ ngay</button> (mở bảng sửa ngay tại đây).`:x.khongHD?'Đã tắt nhắc hoá đơn cho '+(loai==='h'?'hương':'nguyên liệu')+' này.':'<b>✓ Các lần mua đều đã có số hoá đơn.</b>'}
       <label><input type="checkbox" data-khonghd="${loai}:${esc(ten)}"${x.khongHD?' checked':''}> ${loai==='h'?'Hương':'Nguyên liệu'} này không cần hoá đơn (tắt nhắc)</label></div>`:''}
     <div class="nh-ls"><b class="nh-lst">Lịch sử nhà cung cấp và giá</b>`;
   if(!ds.length)r+=`<div class="log" style="margin:6px 0 0">Chưa khai nhà cung cấp nào — bấm "+ Khai nhà cung cấp đầu tiên" ở trên.</div>`;
@@ -5037,7 +5038,7 @@ function veKhoiNguon(loai,ten){
             <span class="nr-nut"><button class="xosua" data-suanguon="${loai}:${esc(ten)}:${ix}" title="Sửa số kg, đơn giá, hoá đơn">Sửa</button><button class="xosua" data-xoanguon="${loai}:${esc(ten)}:${ix}" title="Xoá lần mua này" style="color:var(--red)">Xoá</button></span></div>
           <div class="nr-so"><span><small>Nhập</small><b>${fmtSo(num(e.soKg))} kg</b></span><span><small>Đơn giá</small><b>${fmt(dgKg)} đ/kg</b></span><span><small>Thành tiền</small><b>${fmt(num(e.gia))} đ</b></span>${loai==='h'?`<span><small>Còn</small><b class="${conLai<=0?'am':''}">${fmtSo(conLai)} kg</b></span>`:''}</div>
           ${loai==='h'?thanhCon({nhap:num(e.soKg),con:conLai}):''}
-          <div class="nr-phu">${e.soHD?'🧾 HĐ <b>'+esc(e.soHD)+'</b>':'<span class="nr-thieu">🧾 chưa có số HĐ</span>'}${e.soHopDong?' · hợp đồng <b>'+esc(e.soHopDong)+'</b>':''} · ${q&&q.daQuy?'chưa VAT '+fmt(Math.round(q.gia))+' đ/kg (VAT '+q.vat+'%)':'<span class="nr-thieu">chưa khai VAT</span>'}${loai==='h'&&dd?' · đã dùng '+fmtSo(dd)+' kg':''}${hetHang?' · <b>lần mua này đã dùng hết</b>':''}</div>
+          <div class="nr-phu">${e.soHD?'🧾 HĐ <b>'+esc(e.soHD)+'</b>':`<button type="button" class="lnk nr-thieu" data-suanhanh="${esc(ten)}" data-thieuhd="1">🧾 chưa có số HĐ — điền ngay</button>`}${e.soHopDong?' · hợp đồng <b>'+esc(e.soHopDong)+'</b>':''} · ${q&&q.daQuy?'chưa VAT '+fmt(Math.round(q.gia))+' đ/kg (VAT '+q.vat+'%)':'<span class="nr-thieu">chưa khai VAT</span>'}${loai==='h'&&dd?' · đã dùng '+fmtSo(dd)+' kg':''}${hetHang?' · <b>lần mua này đã dùng hết</b>':''}</div>
         </div>`+veThemNguonPanel(loai,ten,ix)}).join('')+`</div>`;
       r+=`<select data-nguondung="${loai}:${esc(ten)}">
         <option value=""${dung?'':' selected'}>— chưa chọn ${loai==='h'?'hương':'nguyên liệu'} đang dùng —</option>
@@ -6129,7 +6130,7 @@ function theLoHTML(r){
     :`<span class="lo-chua">Chưa ghi</span>${nho('mẻ ghi trước khi lưu định mức — không bù bằng định mức hiện tại')}`;
   const tp=pp&&pp.hstem&&pp.hstem.thanhPhan||'';
   const dsHD=hdCuaMe(r), thieu=r.huy?[]:dsHD.filter(d=>!d.soHD);
-  const nutMua=(d,chu)=>d.mua?` <button type="button" class="lnk" data-suadongmua="${d.mua.loai}:${esc(d.ten)}:${d.mua.ix}">${chu}</button>`:'';
+  const nutMua=(d,chu)=>d.mua?(/HĐ/.test(chu)?` <button type="button" class="lnk" data-suanhanh="${esc(d.ten)}" data-thieuhd="1">${chu}</button>`:` <button type="button" class="lnk" data-suadongmua="${d.mua.loai}:${esc(d.ten)}:${d.mua.ix}">${chu}</button>`):'';
   const hd=dsHD.map(d=>`<div class="lo-hd${d.soHD?'':' thieu'}"><div><b>${esc(d.ten)}</b>${d.ncc?nho(esc(d.ncc)):''}
       ${d.mua?`<div class="lo-mua">Lần mua ${esc(d.mua.e.ngay||'')} · ${fmt(num(d.mua.e.soKg))} kg · ${fmt(num(d.mua.e.gia))} đ${nutMua(d,'Sửa lần mua')}</div>`:''}</div>
       <span class="lo-nhan ${d.soHD?'co':'chua'}">${d.soHD?'HĐ '+esc(d.soHD)+(d.boSung?' · bổ sung':d.theoLanMua?' · theo lần mua':''):'Chưa có số HĐ'}</span>${d.hopDong?`<div class="lo-mua">Hợp đồng ${esc(d.hopDong)}</div>`:''}</div>`).join('');
@@ -6587,7 +6588,7 @@ function veTQ(){
     +cbN.map(x=>'<button type="button" data-tqnguon="nl|||'+esc(x.ten)+'" class="tqcb-mon"><b>'+esc(x.ten)+'</b><span>vượt '+fmtSo(x.vuotKg)+' kg</span></button>').join('')
     +'</div><div class="tqcb-g">Bấm vào nguyên liệu → mở thẳng ở tab Kho: <b>Kiểm kê</b> (kho thật còn) · <b>Nhập thêm hàng</b> (đã mua thêm).</div></div>';
   {const th=new Map(); nk.filter(r=>!r.huy).forEach(r=>hdCuaMe(r).forEach(d=>{if(!d.soHD&&d.mua){const k=d.mua.loai+':'+d.ten+':'+d.mua.ix;th.set(k,(th.get(k)||0)+1)}}));
-    if(th.size)o+='<div class="w w-12 tqcb tqhd"><h4>'+th.size+' lần mua chưa có số hoá đơn — '+[...th.values()].reduce((a,b)=>a+b,0)+' mẻ đang chờ</h4><div class="tqcb-g"><button type="button" class="ctsxb on" data-tqgo="kho" data-tqhd="1">Điền số HĐ →</button> Điền 1 lần ở lần mua là tự gắn vào mọi mẻ.</div></div>';}
+    if(th.size)o+='<div class="w w-12 tqcb tqhd"><h4>'+th.size+' lần mua chưa có số hoá đơn — '+[...th.values()].reduce((a,b)=>a+b,0)+' mẻ đang chờ</h4><div class="tqcb-g"><button type="button" class="ctsxb on" data-suanhanh="" data-thieuhd="1">✏️ Điền số HĐ ngay</button> Điền 1 lần ở lần mua là tự gắn vào mọi mẻ.</div></div>';}
   if(cbH.length)o+='<div class="w w-12 tqcb" role="alert"><h4>⚠ '+cbH.length+' hương đang dùng vượt tồn thực tế — cần điều chỉnh</h4><div class="tqcb-ds">'
     +cbH.map(x=>'<button type="button" data-tqnguon="h|||'+esc(x.h)+'" class="tqcb-mon"><b>'+esc(x.h)+'</b><span>'+(x.vuotKg?'vượt '+fmtSo(x.vuotKg)+' kg':'')+(x.vuotKg&&x.noMe?' · ':'')+(x.noMe?'nợ '+x.noMe+' mẻ':'')+'</span></button>').join('')
     +'</div><div class="tqcb-g">Bấm vào hương → mở thẳng ở tab Kho: <b>Kiểm kê</b> (kho thật còn) · <b>Nhập thêm hàng</b> (đã mua thêm) · <b>Trả nợ</b> (chốt giá mẻ pha khi chưa khai lần mua). Nhân viên cũng thấy thông báo này.</div></div>';
@@ -7032,6 +7033,24 @@ function bslCotMua(loai){return [
   {k:'vat',t:'VAT',w:90,chon:BSL_VAT},
   {k:'dd',t:'Đã dùng',g:'kg đã đổ vào mẻ · máy tự ra số',so:1,w:90,tinh:r=>loai==='h'?fmtSo(num(r.ref.daDungKg||0))+' kg':'—'},
   ...(loai==='h'?[{k:'con',t:'Còn lại',g:'kg chưa dùng · máy tự ra số',so:1,w:110,tinh:r=>{const k=bslSo(r.moi.soKg);return isFinite(k)?fmtSo(Math.round((k-num(r.ref.daDungKg||0)+dcSauDoiKg(r.ref,k))*1000)/1000)+' kg':'—'}}]:[])]}
+/* 21/10/2026 S85 (khách: "liên kết giữa các danh mục chưa tốt — cần 1 bản sửa hàng loạt mà nguyên liệu tới hương liệu đều liên kết
+   để nhìn tổng quan"): gộp lần mua hương + nguyên liệu vào 1 bảng, thêm cột "Dùng cho" (mặt hàng nào dùng vật tư đó). Áp dụng đúng
+   bslMuaAp (hương: sửa số kg giữ tồn). Lọc nhanh "chỉ dòng chưa có số HĐ". */
+const dungChoVT=(laH,ten)=>sp.filter(p=>laH?(p.huongs||[]).includes(ten):(p.congThucNL||[]).some(x=>x&&x.ten===ten)).map(p=>p.ten);
+function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>String(r.id).startsWith('h:');
+  return [{k:'ten',t:'Tên vật tư',w:200,khoa:()=>'Đổi tên ở thẻ Danh mục'},
+    {k:'loai',t:'Loại',w:100,khoa:()=>'Chỉ xem'},
+    {k:'dung',t:'Dùng cho',g:'mặt hàng đang dùng',w:200,tinh:r=>{const d=dungChoVT(laH(r),r.ref._ten);return d.length?d.join(', '):'— chưa mặt hàng nào'}},
+    c('ncc'),c('ngay'),c('soHD'),c('soHopDong'),
+    {...c('soKg'),kt:(v,r)=>laH(r)?c('soKg').kt(v,r):(!(bslSo(v)>0)?'Phải lớn hơn 0':'')},
+    c('donGia'),c('tt'),c('vat'),
+    {...c('dd'),tinh:r=>laH(r)?c('dd').tinh(r):'—'},{...c('con'),tinh:r=>laH(r)?c('con').tinh(r):'—'}]}
+function bslTatCaNap(){return [...bslMuaNap('h'),...bslMuaNap('nl')].map(r=>{const laH=r.id.startsWith('h:');r.ref._ten=r.goc.ten;r.goc.loai=r.moi.loai=laH?'Hương':'Nguyên liệu';return r})}
+let bslChiThieuHD=false;
+/* mở bảng sửa NGAY TẠI CHỖ cho 1 vật tư (hoặc mọi dòng chưa có HĐ), con trỏ đặt sẵn ở ô Số hoá đơn */
+function moSuaNhanh(ten,chiThieuHD){bslMo('mua'); bslLoai='tatca'; bslChiThieuHD=!!chiThieuHD; $('bslTim').value=ten||'';
+  const ci=bslL().cot.findIndex(c=>c.k==='soHD'), rs=bslHien(); let r=rs.findIndex(x=>!String(x.moi.soHD||'').trim()); if(r<0)r=0;
+  bslDang={r,c:ci}; bslVe(); bslO(); if(rs.length)setTimeout(()=>bslMoSua(),40)}
 function bslMuaNap(loai){const m=nguonMapCua(loai),ds=[];Object.entries(m||{}).forEach(([t,a])=>(a||[]).forEach((e,ix)=>{const d={ten:t,ncc:e.ncc||'',ngay:e.ngay||'',soHD:e.soHD||'',soHopDong:e.soHopDong||'',soKg:String(num(e.soKg)),donGia:num(e.soKg)>0?String(Math.round(num(e.gia)/num(e.soKg))):'',vat:e.vat===null||e.vat===undefined?'':String(e.vat)};ds.push({id:loai+':'+t+':'+ix,ref:e,goc:{...d},moi:{...d}})}));return ds}
 function bslMuaAp(r){const e=r.ref,m=r.moi;e.ncc=String(m.ncc).trim();e.ngay=String(m.ngay).trim();e.soHD=String(m.soHD).trim();e.soHopDong=String(m.soHopDong).trim();
   if(String(r.id).startsWith('h:'))doiSoKgGiuTon(e,bslSo(m.soKg));e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat)}
@@ -7071,6 +7090,7 @@ const BSL={
  nl:{ten:'Nguyên liệu',cot:[{k:'ten',t:'Tên nguyên liệu',w:240,kt:(v,r,ds)=>!String(v).trim()?'Không được để trống':bslTrung(ds,'ten',v,r.id)?'Trùng tên':''},
    {k:'ton',t:'Tồn kho',g:'chỉ xem',so:1,w:110,tinh:r=>{const t=tonNLKg(r.goc.ten);return t===null?'—':fmtSo(t)+' kg'}}],
    nap:()=>nlDM.map(t=>({id:'nl:'+t,ref:t,goc:{ten:t},moi:{ten:t}})), ap:()=>{}, doi:r=>['nl',r.goc.ten,r.moi.ten]},
+ tatca:{ten:'Tất cả vật tư',cot:bslCotTatCa(),nap:bslTatCaNap,ap:bslMuaAp},
  mua:{ten:'Lần mua hương',cot:bslCotMua('h'),nap:()=>bslMuaNap('h'),ap:bslMuaAp},
  muanl:{ten:'Lần mua nguyên liệu',cot:bslCotMua('nl'),nap:()=>bslMuaNap('nl'),ap:bslMuaAp},
  bb:{ten:'Bao bì',cot:[
@@ -7102,14 +7122,14 @@ const BSL={
    nap:()=>nk.filter(r=>!r.huy).slice().sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))).map(r=>{const d={lot:lotDep(r.lot||''),ngay:vnNgay(r.ngaysx),sp:r.sp,huong:r.huong||'',sl:String(num(r.sl)),nv:r.nv||''};return {id:'me:'+r.id,ref:r,goc:{...d},moi:{...d}}}),
    ap:(r,ly)=>{const x=bslSo(r.moi.sl);if(x!==num(r.ref.sl))apSuaMe(r.ref,x,ly)}},
 };
-const BSL_NHOM={sp:['sp','h','q','nl'],mua:['mua','muanl','kk','bb'],me:['me']};
+const BSL_NHOM={sp:['sp','h','q','nl'],mua:['tatca','kk','bb'],me:['me']};
 let bslLoai='sp', bslDs={}, bslDang={r:0,c:0}, bslGoc=null, bslSua=null, bslLS=[], bslChon=new Set(), bslNhom='sp';
 const bslL=()=>BSL[bslLoai];
-const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))};
+const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!String(r.goc.soHD||'').trim()))};
 const bslKhoa=(c,r)=>c.tinh?'tinh':c.khoa?c.khoa(r):'';
 const bslLoi=(c,r)=>c.kt?c.kt(String(r.moi[c.k]??''),r,bslDs[bslLoai]):'';
 const bslDaSua=(c,r)=>!c.tinh&&String(r.moi[c.k])!==String(r.goc[c.k]);
-function bslMo(nhom){bslNhom=nhom;bslDs={};BSL_NHOM[nhom].forEach(k=>bslDs[k]=BSL[k].nap());bslLoai=BSL_NHOM[nhom][0];bslDang={r:0,c:0};bslGoc=null;bslLS=[];bslChon.clear();
+function bslMo(nhom){bslChiThieuHD=false;bslNhom=nhom;bslDs={};BSL_NHOM[nhom].forEach(k=>bslDs[k]=BSL[k].nap());bslLoai=BSL_NHOM[nhom][0];bslDang={r:0,c:0};bslGoc=null;bslLS=[];bslChon.clear();
   let w=$('bsl'); if(!w){w=document.createElement('div');w.id='bsl';document.body.appendChild(w)}
   w.innerHTML=`<div class="bsl-k" role="dialog" aria-label="Sửa hàng loạt"><div class="bsl-dau"><b>Sửa hàng loạt</b><span>Ô vàng = đã sửa, chưa lưu · Ô đỏ = sai, phải sửa · Ô xám = khoá</span><button type="button" class="lop-luib" id="bslDong">Đóng</button></div>
    <div class="bsl-loai" id="bslLoaiW"></div><div class="bsl-cong"><input type="search" id="bslTim" placeholder="Lọc dòng…" aria-label="Lọc dòng"><div class="bsl-ap" id="bslAp"><span id="bslApDem"></span><select id="bslApCot" aria-label="Cột cần áp"></select><input id="bslApGt" placeholder="giá trị" aria-label="Giá trị áp"><button type="button" class="ctsxb on" id="bslApNut">Áp cho các dòng đã chọn</button></div></div>
@@ -7132,6 +7152,11 @@ const BSL_CHU={
    tt:'Máy tự nhân: số kg × giá 1 kg. Không cần gõ.',vat:'Thuế ghi trên hoá đơn, thường là 8%. Chưa biết thì để "chưa khai".',
    dd:'Bao nhiêu kg của lần mua này đã đổ vào các mẻ đã làm. Máy tự cộng, không cần gõ.',con:'Lần mua này còn bao nhiêu kg chưa đụng tới. Máy tự trừ: mua − đã dùng.',
    ngay:'Ngày ghi trên hoá đơn. Máy dùng hết lần mua cũ rồi mới dùng sang lần mua mới.',soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn.'},
+ tatca:{dung:'Những mặt hàng đang dùng vật tư này (hương chọn trong công thức, nguyên liệu trong bảng nguyên liệu). Chỉ xem.',
+   soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn. Điền 1 lần ở đây là tự gắn vào mọi mẻ đã dùng lần mua này.',
+   soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Hương trước đây khai 1 kg thì sửa thành số thật, số còn trong kho không bị cộng dư.',
+   donGia:'Giá của 1 kg, tính luôn tiền thuế: tổng tiền phải trả trên hoá đơn chia cho số kg.',tt:'Máy tự nhân: số kg × giá 1 kg.',
+   dd:'Hương: số kg đã đổ vào các mẻ đã làm (nguyên liệu xem ở thẻ Điều chỉnh kho).',con:'Hương: lần mua này còn bao nhiêu kg chưa dùng.'},
  muanl:{soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn.',donGia:'Giá của 1 kg, tính luôn tiền thuế.',tt:'Máy tự nhân: số kg × giá 1 kg.'},
  kk:{ht:'Số kg hệ thống đang tính là còn trong kho: lấy số đã mua trừ đi số đã đổ vào các mẻ đã làm. Chỉ để xem, không gõ.',
    that:'Số kg hàng ĐANG CÓ THẬT trong kho lúc này — ra kho cân (hoặc đếm số bao × kg mỗi bao) rồi gõ vào. Bấm lưu thì hệ thống lấy đúng số này làm số còn trong kho. Hàng nào không đi cân thì để trống, hệ thống giữ nguyên.',
@@ -7144,7 +7169,7 @@ const BSL_CHU={
 function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai]||{}, cs=bslL().cot.filter(c=>m[c.k]);
   el.innerHTML=cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):''}
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;
-  $('bslLoaiW').innerHTML=BSL_NHOM[bslNhom].map(k=>{const n=(bslDs[k]||[]).filter(r=>BSL[k].cot.some(c=>bslDaSua(c,r))).length;return `<button type="button" class="${k===bslLoai?'on':''}" data-bslloai="${k}">${BSL[k].ten} <small>${(bslDs[k]||[]).length}</small>${n?`<b>${n}</b>`:''}</button>`}).join('');
+  $('bslLoaiW').innerHTML=(bslLoai==='tatca'?`<label class="bsl-loc"><input type="checkbox" id="bslThieuHD"${bslChiThieuHD?' checked':''}> 🧾 Chỉ dòng chưa có số HĐ</label>`:'')+BSL_NHOM[bslNhom].map(k=>{const n=(bslDs[k]||[]).filter(r=>BSL[k].cot.some(c=>bslDaSua(c,r))).length;return `<button type="button" class="${k===bslLoai?'on':''}" data-bslloai="${k}">${BSL[k].ten} <small>${(bslDs[k]||[]).length}</small>${n?`<b>${n}</b>`:''}</button>`}).join('');
   let h=`<thead><tr><th class="chk"><input type="checkbox" id="bslHet" aria-label="Chọn tất cả" ${ds.length&&ds.every(r=>bslChon.has(r.id))?'checked':''}></th>`+cs.map((c,ci)=>`<th class="${ci===0?'ten':''}${c.thamKhao?' tk':''}">${esc(c.t)}${c.g?`<small>${esc(c.g)}</small>`:''}</th>`).join('')+'</tr></thead><tbody>';
   ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
     cs.forEach((c,ci)=>{const kh=bslKhoa(c,r),lo=kh?'':bslLoi(c,r);
@@ -7177,7 +7202,7 @@ function bslHoanTac(){const b=bslLS.pop();if(!b)return;b.slice().reverse().forEa
 async function bslXemLuu(){const d=bslDemSua(); let h='',canEe=new Set(), coMe=false;
   const CANH={ten:'Đổi tên: cập nhật theo tên mới ở mọi lịch sử, mã và nguồn mua; số lô đã in giữ nguyên.',ma:'Đổi mã: chỉ áp cho mẻ ghi từ nay — số lô đã in giữ mã cũ.',ml:'Đổi định lượng: tạo phiên bản công thức mới, mẻ cũ giữ định mức lúc pha.',kg:'Đổi mẻ chuẩn / khối lượng: định mức tính lại theo số mới.',soKg:'Đổi số kg / đơn giá lần mua: tồn kho đổi theo; giá vốn mẻ đã ghi giữ giá lúc pha.',donGia:'Đổi số kg / đơn giá lần mua: tồn kho đổi theo; giá vốn mẻ đã ghi giữ giá lúc pha.',sl:'Sửa đầu vào mẻ: lượng hương dùng, số bao và tồn kho hương tính lại; giữ số gốc + lý do trong lịch sử thao tác của lô.'};
   Object.entries(bslDs).forEach(([k,ds])=>{const L=BSL[k],rs=ds.filter(r=>L.cot.some(c=>bslDaSua(c,r)));if(!rs.length)return;if(L.lyDo)coMe=true;
-    h+=`<div class="bsl-nh">${L.ten} · ${rs.length} dòng</div>`+rs.map(r=>`<div class="bsl-ds"><b>${esc(r.goc.ten||r.goc.lot||'')}${k==='mua'||k==='muanl'?' · '+esc(r.goc.ncc)+' '+esc(r.goc.ngay):''}</b>`+L.cot.filter(c=>bslDaSua(c,r)).map(c=>{if(CANH[c.k])canEe.add(CANH[c.k]);const lo=c.kt?c.kt(String(r.moi[c.k]??''),r,ds):'';
+    h+=`<div class="bsl-nh">${L.ten} · ${rs.length} dòng</div>`+rs.map(r=>`<div class="bsl-ds"><b>${esc(r.goc.ten||r.goc.lot||'')}${k==='mua'||k==='muanl'||k==='tatca'?' · '+esc(r.goc.ncc)+' '+esc(r.goc.ngay):''}</b>`+L.cot.filter(c=>bslDaSua(c,r)).map(c=>{if(CANH[c.k])canEe.add(CANH[c.k]);const lo=c.kt?c.kt(String(r.moi[c.k]??''),r,ds):'';
       const t=v=>c.bat?(v?'có':'không'):c.chon?((c.chon.find(o=>o[0]===v)||[])[1]||v):(v===''?'(trống)':c.so&&isFinite(bslSo(v))?fmt(bslSo(v)):v);
       return `<div>${esc(c.t)}: <s>${esc(t(r.goc[c.k]))}</s> → <ins>${esc(t(r.moi[c.k]))}</ins>${lo?` <em>· ${esc(lo)}</em>`:''}</div>`}).join('')+'</div>').join('')});
   const msg=(d.l?`<div class="bsl-canh lo">Còn <b>${d.l}</b> ô sai — sửa hết rồi mới lưu được (không lưu một nửa).</div>`:'')+[...canEe].map(c=>`<div class="bsl-canh">${esc(c)}</div>`).join('')+`<div class="bsl-xem">${h}</div>`;
@@ -7191,7 +7216,8 @@ async function bslXemLuu(){const d=bslDemSua(); let h='',canEe=new Set(), coMe=f
   doi.forEach(([l,cu,moi])=>doiTen(l,cu,moi));
   ghiAudit('config','bang-sua-hang-loat','SUA_HANG_LOAT',null,{o:n,doiTen:doi.length});
   luuNgay(); huyHieu('✅','Đã lưu '+n+' ô','sửa hàng loạt · đã ghi lịch sử'); bslMo(bslNhom); bslLoai=bslLoai; ve()}
-document.addEventListener('click',e=>{const m=e.target.closest('[data-bslmo]');if(m){bslMo(m.dataset.bslmo);return}
+document.addEventListener('click',e=>{const sn=e.target.closest('[data-suanhanh]');if(sn){moSuaNhanh(sn.dataset.suanhanh,!!sn.dataset.thieuhd);return}
+  const m=e.target.closest('[data-bslmo]');if(m){bslMo(m.dataset.bslmo);return}
   if(!document.documentElement.classList.contains('bsl-on'))return;
   const l=e.target.closest('[data-bslloai]');if(l){bslLoai=l.dataset.bslloai;bslDang={r:0,c:0};bslGoc=null;bslChon.clear();$('bslTim').value='';bslVe();return}
   if(e.target.closest('#bslDong')){bslDongLai();return} if(e.target.closest('#bslHT')){bslHoanTac();return}
@@ -7202,6 +7228,7 @@ document.addEventListener('mousedown',e=>{const td=e.target.closest('#bslT td[da
   if(lai)bslMoSua()}); // S82: bấm lần nữa vào ô đang chọn = mở sửa (như Excel/Sapo)
 document.addEventListener('dblclick',e=>{if(e.target.closest('#bslT td[data-r]'))bslMoSua()});
 document.addEventListener('change',e=>{if(!document.documentElement.classList.contains('bsl-on'))return;const c=e.target.dataset&&e.target.dataset.bslchon;if(c){e.target.checked?bslChon.add(c):bslChon.delete(c);bslVe();return}
+  if(e.target.id==='bslThieuHD'){bslChiThieuHD=e.target.checked;bslDang={r:0,c:0};bslVe();return}
   if(e.target.id==='bslHet'){bslHien().forEach(r=>e.target.checked?bslChon.add(r.id):bslChon.delete(r.id));bslVe()}});
 document.addEventListener('input',e=>{if(e.target.id==='bslTim'){bslDang={r:0,c:0};bslGoc=null;bslVe()}});
 document.addEventListener('keydown',e=>{if(!document.documentElement.classList.contains('bsl-on')||bslSua)return;const a=document.activeElement;
