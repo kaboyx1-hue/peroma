@@ -207,6 +207,13 @@ ok('thanh trên đếm mẻ hôm nay', /Hôm nay đã ghi/.test(await E(()=>$('h
 
 console.log('\n── L. TRA LÔ & IN TEM ──');
 await p.click('[data-tab="lo"]'); await p.waitForTimeout(300);
+// R47: mẻ trên vẫn đang dở (đã ra số lô, bấm "bấm nhầm" nên chưa ghi) → rời tab phải hỏi lại ngay, liệt kê số lô
+const r47hoi=await E(()=>({t:$('dlgT').textContent,m:$('dlgM').innerText,o:$('dlgO').textContent,c:$('dlgC').textContent,mo:$('mask').classList.contains('show')}));
+ok('R47: rời tab khi mẻ đã ra số lô mà chưa ghi → hiện hộp hỏi ngay, có số lô, nút "Ở lại ghi mẻ" / "Vẫn rời đi"',
+  /CHƯA được ghi/.test(r47hoi.t)&&/lô/.test(r47hoi.m)&&r47hoi.o==='Ở lại ghi mẻ'&&r47hoi.c==='Vẫn rời đi', JSON.stringify(r47hoi));
+await p.click('#dlgO'); await p.waitForTimeout(250);
+ok('R47: bấm "Ở lại ghi mẻ" → quay về đúng mặt hàng đang dở', await E(()=>tab==='me'&&moSP>=0));
+await p.click('[data-tab="lo"]'); await p.waitForTimeout(300); await p.click('#dlgC'); await p.waitForTimeout(300);
 await p.selectOption('#oLot',LOT_UI); await p.waitForTimeout(400);
 ok('tra ra lô', /Cát Test/.test(await E(()=>$('view').innerText)));
 const lHuongDaDung=await Ea(lot=>{const r=nk.find(x=>x.lot===lot);return `${fmt(num(r.mlDung))} g`},LOT_UI);
@@ -1047,6 +1054,20 @@ const r43=await E(()=>{ const i=sp.findIndex(p=>(p.dauRa||[]).length>=2); if(i<0
 ok('R43: gõ dòng quy cách đầu 60/100 kg → dòng cuối tự 40 kg', r43.bo||r43.conLai, JSON.stringify(r43));
 ok('R43: đã tự sửa dòng cuối thì không bị ghi đè', r43.bo||r43.tayGiu);
 console.log('\n────────────────────────────');
+/* R47: vòng đồng bộ 1 luồng — gửi mẻ TRƯỚC, hỏi tomtat, chỉ tải cấu hình/nhật ký khi có thay đổi */
+const r47=await E(async()=>{ const g={u:DONGBO_URL,d:window.dbGoi,nk:nk.slice()}, goi=[];
+  DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; nvVongDang=false; nvVongSo=0; nvTs=''; nvSoMe=-1; nvLanCh=0; nvLanNk=0;
+  window.dbGoi=async(u,o)=>{const a=o&&o.body?JSON.parse(o.body).a:(String(u).match(/[?&]a=(\w+)/)||[])[1]; goi.push(a);
+    if(a==='tomtat')return {ok:1,ts:'T1',soMe:5}; if(a==='cauhinh')return {ok:1}; if(a==='nhatky')return {ok:1,nk:[]}; if(a==='lenhtiendo')return {ok:1,lt:[]}; return {ok:1}};
+  nk.push({id:'R47-1',sp:'X',lot:'1101101026',sl:1,ts:new Date().toISOString(),daGui:0});
+  await nvVong(); const l1=goi.slice(); goi.length=0; await nvVong(); const l2=goi.slice();
+  const kq={l1,l2,truoc:l1[0]==='themMe'&&l1.indexOf('themMe')<l1.indexOf('tomtat'),daGui:nk.find(r=>r.id==='R47-1').daGui===1,
+    lan2:l2.includes('tomtat')&&!l2.includes('cauhinh')&&!l2.includes('nhatky')&&!l2.includes('themMe')};
+  window.dbGoi=g.d; DONGBO_URL=g.u; nk=g.nk; luu(); return kq;
+});
+ok('R47: vòng đồng bộ gửi mẻ trước, rồi mới hỏi máy chủ; lần sau không đổi gì thì không tải lại cấu hình/nhật ký', r47.truoc&&r47.daGui&&r47.lan2, JSON.stringify(r47));
+const mkLoai=await E(()=>{tab='dl';ve();const i=document.getElementById('knMk');return i?i.type:''});
+ok('R47: ô mật khẩu kết nối hiện dạng che (•••)', mkLoai==='password', mkLoai);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong)console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

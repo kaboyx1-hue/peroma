@@ -442,7 +442,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 19/10/2026-R46</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 20/10/2026-R47</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -537,7 +537,7 @@ async function guiNhip(){
   try{await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhip&may='+encodeURIComponent(MA_MAY)+'&d='+encodeURIComponent(JSON.stringify(d)),{},15000)}
   catch(e){if(/không được phép/i.test(e&&e.message||''))nhipTat=true}
 }
-function guiNgay(){const c=meChuaGui(); if(c.length)dbDayMe(c); guiNhip()}
+function guiNgay(){if(typeof nvVong==='function'&&DONGBO_URL){nvVong();return} const c=meChuaGui(); if(c.length)dbDayMe(c)}
 function guiBeacon(){try{const c=meChuaGui(); if(!DONGBO_URL||!c.length||!navigator.sendBeacon)return;
   navigator.sendBeacon(DONGBO_URL,new Blob([JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:c})],{type:'text/plain;charset=UTF-8'}))}catch(e){}}
 addEventListener('online',guiNgay);
@@ -550,7 +550,7 @@ function veThanhChuaGui(){
   el.innerHTML=`<span>⏳ <b>${c} mẻ CHƯA lên hệ thống</b> — Admin chưa thấy${lanGuiOk?' · gửi được lần cuối '+new Date(lanGuiOk).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):''}</span><button type="button" id="guiNgayBtn">Gửi ngay</button>`;
 }
 document.addEventListener('click',e=>{if(e.target.closest('#guiNgayBtn')){e.target.textContent='Đang gửi…';guiNgay()}});
-setInterval(guiNhip,60000); setTimeout(guiNhip,8000); setInterval(veThanhChuaGui,5000);
+setInterval(veThanhChuaGui,5000); // R47: nhịp gửi trong nvVong (1 phút/lần), không chạy song song nữa
 
 
 /* R46 — hoạt ảnh dùng chung */
@@ -593,15 +593,17 @@ async function guiLaiMotLan(){
     ds.forEach(r=>r.daGui=1); try{localStorage.setItem('peroma_guiLai_R42','1')}catch(e){} luu(); if(typeof ve==='function')ve();
   }catch(e){}
 }
+let dbDangDayMe=false;
 async function dbDayMe(banGhi){
-  if(!DONGBO_URL||!banGhi||!banGhi.length)return;
-  dbVeTT('dang');
+  if(!DONGBO_URL||!banGhi||!banGhi.length||dbDangDayMe)return;
+  dbDangDayMe=true; dbVeTT('dang');
   try{
     await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themMe',nk:banGhi})});
     banGhi.forEach(r=>{const x=nk.find(y=>y.id===r.id); if(x)x.daGui=1});
     luu(); if(typeof ve==='function')ve();
-    dbVeTT('ok'); guiNhip(); if(banGhi.some(r=>Date.now()-Date.parse(r.ts||0)>15000)&&!document.hidden)huyHieu('☁️',`${banGhi.length} mẻ đã lên hệ thống`,'Admin đã nhận được');
+    dbVeTT('ok'); if(banGhi.some(r=>Date.now()-Date.parse(r.ts||0)>15000)&&!document.hidden)huyHieu('☁️',`${banGhi.length} mẻ đã lên hệ thống`,'Admin đã nhận được');
   }catch(e){ dbVeTT('loi', e.message); }
+  finally{ dbDangDayMe=false; }
 }
 /* 27/08/2026 (phản hồi lần 3): "Xác nhận số thực tế" (bcNgay) trước đây KHÔNG có kênh tự đẩy
    — bấm xong phải tự nhớ qua tab Dữ liệu xuất file .json gửi tay, khách phản hồi không biết
@@ -745,14 +747,26 @@ function baoMayChuCu(){if(document.getElementById('mayChuCu'))return;const d=doc
 async function dbBatDauVongLap(){
   if(!DONGBO_URL)return;
   if(await laMayChuCu(DONGBO_URL)){DONGBO_URL='';baoMayChuCu();dbVeTT('loi','máy chủ cũ');return}
-  dbKeoCauHinh();dbKeoTienDoLenh();
-  setTimeout(()=>taiLoHeThong(true),3000); setInterval(()=>taiLoHeThong(true),120000);
-  setTimeout(guiLaiMotLan,6000);
-  setInterval(dbKeoCauHinh,20000);
-  setInterval(dbKeoTienDoLenh,20000);
-  setInterval(()=>{ const cho=nk.filter(r=>!r.daGui); if(cho.length)dbDayMe(cho);
-    const choBc=bcNgay.filter(r=>!r.daGui); if(choBc.length)dbDayBaoCao(choBc);
-    const choLt=lenhTienDo.filter(r=>!r.daGui); if(choLt.length)dbDayTienDoLenh(choLt); },15000);
+  /* 20/10/2026 — R47 (khách: "đồng bộ thành công nhưng thực chất thường không nhanh, thậm chí thất bại"). Trước đây 6 bộ đếm
+     giờ độc lập cùng gọi Apps Script (tải TOÀN BỘ cấu hình mỗi 20 giây dù không đổi, tiến độ 20 giây, gửi mẻ 15 giây, nhật ký
+     2 phút, nhịp 1 phút) → chồng lên nhau, quá giờ chờ, mẻ chờ gửi bị kẹt sau các lượt tải vô ích. Nay MỘT vòng tuần tự
+     (giống Admin S78): gửi mẻ TRƯỚC → hỏi "tomtat" (rất nhẹ) → chỉ tải cấu hình / nhật ký khi có thay đổi (cấu hình tải lại
+     ít nhất 2 phút/lần để vẫn nhận lệnh "xoá dữ liệu mô phỏng" ở ô B4) → tiến độ lệnh 30 giây → nhịp 1 phút. */
+  dbKeoCauHinh(); setTimeout(guiLaiMotLan,6000); setTimeout(nvVong,2500); setInterval(nvVong,15000);
+}
+let nvVongDang=false, nvVongSo=0, nvTs='', nvSoMe=-1, nvLanCh=0, nvLanNk=0;
+async function nvVong(){
+  if(!DONGBO_URL||nvVongDang)return; nvVongDang=true; nvVongSo++;
+  try{
+    const cho=meChuaGui(); if(cho.length)await dbDayMe(cho);
+    const choBc=bcNgay.filter(r=>!r.daGui); if(choBc.length)await dbDayBaoCao(choBc);
+    const choLt=lenhTienDo.filter(r=>!r.daGui); if(choLt.length)await dbDayTienDoLenh(choLt);
+    let tt=null; try{tt=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=tomtat',{},15000); if(tt&&tt.ok){lanGuiOk=lanGuiOk||Date.now(); dbVeTT('ok')}}catch(e){dbVeTT('loi',e.message)}
+    if(!tt||String(tt.ts)!==nvTs||Date.now()-nvLanCh>120000){await dbKeoCauHinh(); nvLanCh=Date.now(); if(tt)nvTs=String(tt.ts)}
+    if(!tt||tt.soMe!==nvSoMe||Date.now()-nvLanNk>300000){await taiLoHeThong(true); nvLanNk=Date.now(); if(tt)nvSoMe=tt.soMe}
+    if(nvVongSo%2===1)await dbKeoTienDoLenh();
+    if(nvVongSo%4===1)await guiNhip();
+  }finally{nvVongDang=false}
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const el=document.getElementById('dbDen');
@@ -1333,7 +1347,7 @@ function veDL(){
       <div class="note" style="margin-bottom:9px">Quản lý cho địa chỉ và mật khẩu, máy này nhập <b>một lần</b>. Bỏ trống thì vẫn ghi mẻ bình thường, chỉ không tự gửi lên — phải gửi file tay như cũ.</div>
       <input id="knUrl" type="url" inputmode="url" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
              placeholder="https://script.google.com/macros/s/..../exec" value="${esc(DONGBO_URL)}" style="width:100%;font-size:12px;margin-bottom:6px">
-      <input id="knMk" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="off"
+      <input id="knMk" type="password" spellcheck="false" autocapitalize="off" autocorrect="off" autocomplete="new-password"
              placeholder="mật khẩu" value="${esc(LEGACY_SHARED_TOKEN)}" style="width:100%;font-size:12px">
       <button class="add" id="knLuu" style="margin-top:8px;width:100%">Lưu &amp; kiểm tra</button>
       <div id="knKq" class="note" style="margin-top:7px"></div></div>
@@ -1955,8 +1969,22 @@ async function kiemRoiGhi(){
 }
 
 /* ═══ Sự kiện ═══ */
-document.querySelector('.tabs').addEventListener('click',e=>{
-  const t=e.target.closest('[data-tab]'); if(!t)return; tab=t.dataset.tab; ve()});
+document.querySelector('.tabs').addEventListener('click',async e=>{
+  const t=e.target.closest('[data-tab]'); if(!t)return; if(tab==='me'&&t.dataset.tab!=='me'&&moSP>=0&&!(await hoiRoiMeDo(moSP)))return; tab=t.dataset.tab; ve()});
+
+/* 20/10/2026 — R47 (khách: "nhân viên đã lên số lô mà không xác nhận mẻ thì phải hiện thông báo ngay trước khi rời trang / tắt
+   trang" — 19/10 có 5 lô Citycat chỉ mới hiện số lô, chưa bấm ghi). Mẻ "đang dở" = đã chọn hương + số kg + quy cách → đã ra số lô
+   mà chưa ghi. Rời mặt hàng / đổi tab trong app → hộp hỏi liệt kê số lô; tắt / tải lại trang → hộp "Rời khỏi trang?" của trình
+   duyệt (trình duyệt không cho tự đặt chữ trong hộp này). Dữ liệu đang nhập vẫn được lưu trên máy, không mất. */
+function meDangDo(){return sp.map((p,i)=>({p,i})).filter(({p})=>p&&p.huongMe&&num(p.sl)>0&&(p.pb||[]).some(d=>d.qc&&num(d.kg)>0))
+  .map(({p,i})=>({p,i,lot:(p.pb||[]).filter(d=>d.qc&&num(d.kg)>0).map(d=>sinhLot(p,p.huongMe,d.qc,p.ngaysx||isoNay()).lot).filter(Boolean)}))}
+async function hoiRoiMeDo(chiMo){const ds=meDangDo().filter(x=>chiMo===undefined||x.i===chiMo); if(!ds.length)return true;
+  const c=await hoi('Mẻ này CHƯA được ghi',`Đã ra số lô nhưng <b>chưa bấm Xác nhận</b> — hệ thống và quản lý <b>chưa có</b> mẻ này:<br>`
+    +ds.map(x=>`<b>${esc(x.p.ten)}</b> · ${esc(x.p.huongMe)} · ${fmt(num(x.p.sl))} kg${x.lot.length?' · lô <b>'+x.lot.map(lotDep).join(', ')+'</b>':''}`).join('<br>')
+    +`<br><br>Đã pha / đóng bao rồi thì quay lại bấm <b>Xác nhận</b> để ghi mẻ.`,{nutOK:'Ở lại ghi mẻ',nutHuy:'Vẫn rời đi'});
+  if(c){tab='me'; moSP=ds[0].i; ve(); scrollTo(0,0); return false} return true}
+addEventListener('beforeunload',e=>{if(!navigator.webdriver&&meDangDo().length){ // bỏ qua khi chạy kiểm tra tự động (hộp này chặn tải lại trang)
+  e.preventDefault(); e.returnValue=''}});
 $('dlgC').addEventListener('click',()=>dongDlg(null));
 $('dlgO').addEventListener('click',()=>dongDlg(true));
 $('mask').addEventListener('click',e=>{if(e.target.id==='mask')dongDlg(null)});
@@ -2057,8 +2085,8 @@ $('view').addEventListener('click',async e=>{
     const tt=thucTeLenh(l.id), kh=num(l.keHoach);
     bao(tt>=kh?`Đã ghi tiến độ — lệnh "${l.sp}" ĐỦ kế hoạch, tự động chốt.`:`Đã ghi tiến độ — lệnh "${l.sp}" còn thiếu ${fmt(kh-tt)} kg.`);
     return}
-  const back=e.target.closest('[data-back]'); if(back){moSP=-1;ve();return}
-  const r=e.target.closest('[data-sp]'); if(r){moSP=+r.dataset.sp;
+  const back=e.target.closest('[data-back]'); if(back){if(!(await hoiRoiMeDo(moSP)))return; moSP=-1;ve();return}
+  const r=e.target.closest('[data-sp]'); if(r){if(moSP>=0&&+r.dataset.sp!==moSP&&!(await hoiRoiMeDo(moSP)))return; moSP=+r.dataset.sp;
     const p=sp[moSP]; if(!p.ngaysx)p.ngaysx=isoNay(); ngaysxTuSua(p); pbTuDong(p); ve(); scrollTo(0,0); return}
   const h=e.target.closest('[data-h]'); if(h){const p=sp[moSP];
     p.huongMe = p.huongMe===h.dataset.h?'':h.dataset.h; luu(); ve(); return}
