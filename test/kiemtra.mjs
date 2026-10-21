@@ -3596,12 +3596,13 @@ const co=await E(()=>{ const hs=kho.filter(h=>!isUnscented(h)), A=hs[0], B=hs[1]
   ra.moi.soKg='25'; rb.moi.soKg='5';
   kq.khongLoi=!BSL.mua.cot.find(c=>c.k==='soKg').kt('25',ra);
   kq.con=BSL.mua.cot.find(c=>c.k==='con').tinh(ra)==='19,01 kg';
+  kq.dcTruoc=BSL.mua.cot.find(c=>c.k==='dc').tinh({...ra,moi:{...ra.moi,soKg:'1'}})==='+24 kg'&&BSL.mua.cot.find(c=>c.k==='dc').tinh(ra)==='0 kg'; // S88: cột Điều chỉnh hiện rõ phép tính
   bslMuaAp(ra); bslMuaAp(rb); const e=nguonHuong[A][0];
   kq.a=e.soKg===25&&num(e.dieuChinhKg)===0&&tonThucKg(A)===t0&&e.gia===25*440000&&/theo hoá đơn/.test((e.dcLog||[]).slice(-1)[0].lyDo);
   kq.b=tonThucKg(B)===5;
   nguonHuong[A]=JSON.parse(g.a)||undefined; if(!nguonHuong[A])delete nguonHuong[A]; nguonHuong[B]=JSON.parse(g.b)||undefined; if(!nguonHuong[B])delete nguonHuong[B]; nk=nkG; return kq;
 });
-ok('CO: sửa 1 → 25 kg theo hoá đơn ở lần mua khai kiểu cũ: tồn giữ nguyên, điều chỉnh về 0, không báo lỗi', co.khongLoi&&co.con&&co.a, JSON.stringify(co));
+ok('CO: sửa 1 → 25 kg theo hoá đơn ở lần mua khai kiểu cũ: tồn giữ nguyên, điều chỉnh về 0 (cột Điều chỉnh +24 → 0), không báo lỗi', co.khongLoi&&co.con&&co.a&&co.dcTruoc, JSON.stringify(co));
 ok('CO: lần mua thật sự khai thiếu kg (không có điều chỉnh) → sửa 1 → 5 kg thì tồn tăng đúng', co.b);
 /* CP — S82: bảng sửa hàng loạt sửa được khi bật bộ gõ tiếng Việt (phím "Process"/229) và khi bấm lần nữa vào ô đang chọn */
 const cp=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[0], gh=JSON.stringify(nguonHuong[H]||null);
@@ -3687,15 +3688,16 @@ const cu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const ks=BSL_NHOM[bslNhom], sheets=ks.map(k=>{const L=BSL[k],ds=bslDs[k]||[];return {name:L.ten,dauBang:0,rows:[[BSL_MA,...L.cot.map(c=>c.t+(c.tinh?' (chỉ xem)':''))],...ds.map(r=>[r.id,...L.cot.map(c=>bslXGT(c,r))])]}});
   const doc=await docXlsx(xlsxBytes(sheets).buffer); kq.docLai=doc.length===ks.length&&doc[0].rows[0][0]===BSL_MA;
   const t=doc.find(x=>x.name==='Tất cả vật tư'), dau=t.rows[0].map(x=>String(x).replace(/ \(chỉ xem\)$/,'')), r=t.rows.find(x=>x[0]==='h:'+H+':0');
-  r[dau.indexOf('Số hoá đơn')]='HĐ-EXCEL-1'; r[dau.indexOf('Số kg mua')]=12; r[dau.indexOf('Ngày mua')]=46310; r[dau.indexOf('VAT')]='10%'; r[dau.indexOf('Đã dùng')]='999 kg';
+  r[dau.indexOf('Số hoá đơn')]='HĐ-EXCEL-1'; r[dau.indexOf('Số kg mua')]=12; r[dau.indexOf('Ngày mua')]=46310; r[dau.indexOf('VAT')]=0.1; r[dau.indexOf('Đã dùng')]='999 kg';
   t.rows.push(['h:KHONG-CO:0','x']);
+  kq.dinhDang=bslXGT(BSL.tatca.cot.find(c=>c.k==='vat'),bslDs.tatca[0]).s===6&&bslXGT(BSL.tatca.cot.find(c=>c.k==='donGia'),bslDs.tatca[0]).s===4;
   const tep=new File([xlsxBytes(doc.map(x=>({name:x.name,rows:x.rows,dauBang:0})))],'sua.xlsx'); let hoiMsg=''; window.hoi=async(a,m)=>{hoiMsg=m;return true};
   await bslNapExcel(tep); await cho(40); const row=bslDs.tatca.find(x=>x.id==='h:'+H+':0');
   kq.nap=row.moi.soHD==='HĐ-EXCEL-1'&&bslSo(row.moi.soKg)===12&&/^\d{2}\/\d{2}\/\d{4}$/.test(row.moi.ngay)&&row.moi.vat==='10'&&/Bỏ qua <b>1<\/b>/.test(hoiMsg);
   kq.chuaLuu=nguonHuong[H][0].soHD!=='HĐ-EXCEL-1'&&bslDemSua().o>=4; bslHoanTac(); kq.hoanTac=row.moi.soHD===row.goc.soHD;
   window.hoi=async()=>true; await bslDongLai(); window.hoi=th; nguonHuong=JSON.parse(g); ve(); return kq;
 });
-ok('CU: Tải Excel ra đủ trang tính theo thẻ, có cột MÃ DÒNG; đọc lại được', cu.docLai, JSON.stringify(cu));
+ok('CU: Tải Excel ra đủ trang tính theo thẻ, có cột MÃ DÒNG; đọc lại được; VAT dạng %, đơn giá có dấu phẩy', cu.docLai&&cu.dinhDang, JSON.stringify(cu));
 ok('CU: Nạp Excel đã sửa → đổ đúng ô vào bảng (số HĐ, số kg, ngày Excel, VAT), bỏ cột chỉ xem & dòng lạ, CHƯA lưu, Hoàn tác được', cu.nap&&cu.chuaLuu&&cu.hoanTac);
 /* CV — S87: thẻ "Công thức nguyên liệu" trong Sửa hàng loạt — xem tỉ lệ pha, sửa kg/mẻ chuẩn → tổng mẻ tự cộng, lên 1 phiên bản */
 const cv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, N1=nlDM[0]||'NL1', N2=nlDM[1]||'NL2';
@@ -3710,6 +3712,19 @@ const cv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CV: Sửa hàng loạt có thẻ "Công thức nguyên liệu" — tỉ lệ % và hương/100 kg theo số đang gõ', cv.co&&cv.truoc, JSON.stringify(cv));
 ok('CV: lưu → kg nguyên liệu đổi, tổng mẻ chuẩn tự cộng, công thức lên đúng 1 phiên bản', cv.luu);
+/* CW — S90: màu theo loại / tình trạng — Excel (nền hương / nguyên liệu, ô thiếu số HĐ đỏ) + bảng trong app (vạch màu, ô cần xử lý) */
+const cw=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H=kho.filter(h=>!isUnscented(h))[0], N=nlDM[0], g={nh:JSON.stringify(nguonHuong),nn:JSON.stringify(nguonNguyenLieu)};
+  nguonHuong[H]=[{ncc:'A',gia:1000,soKg:10,ngay:'01/10/2026',daDungKg:0,soHD:''}]; if(N)nguonNguyenLieu[N]=[{ncc:'B',gia:5000,soKg:100,ngay:'01/10/2026',soHD:'HD9',ts:new Date().toISOString()}];
+  moSuaNhanh('',false); await cho(60); bslSua=null; bslVe();
+  let out=null; const tg=window.taiVe; window.taiVe=(n,d)=>{out=d;return true}; bslTaiExcel(); window.taiVe=tg;
+  const doc=await docXlsx(out.buffer); kq.hd=doc[0].name==='HƯỚNG DẪN'&&doc[0].rows.some(r=>/MÀU TRONG FILE/.test(r[0]||''));
+  const x=new TextDecoder().decode(out); const m=x.match(/<sheetData>[\s\S]*?<\/sheetData>/g)||[]; const tc=m[1]||'';
+  const co=a=>a.some(n=>tc.includes(' s="'+n+'"')); kq.nen=co([8,9,10,11])&&(!N||co([12,13,14,15]))&&co([16,17,18,19]);
+  const tr=[...document.querySelectorAll('#bslT tbody tr')]; kq.app=tr.some(t=>t.classList.contains('m-huong'))&&(!N||tr.some(t=>t.classList.contains('m-nl')))&&!!document.querySelector('#bslT td.xl-do')&&!!document.querySelector('.bsl-mau');
+  await bslDongLai(); nguonHuong=JSON.parse(g.nh); nguonNguyenLieu=JSON.parse(g.nn); ve(); return kq;
+});
+ok('CW: Excel tô màu theo loại (hương / nguyên liệu), ô thiếu số HĐ đỏ, trang HƯỚNG DẪN có chú thích màu', cw.hd&&cw.nen, JSON.stringify(cw));
+ok('CW: bảng trong app có vạch màu theo loại, ô cần xử lý tô đỏ, có chú thích màu', cw.app);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

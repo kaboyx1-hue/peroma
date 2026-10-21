@@ -1899,15 +1899,21 @@ html.hv-tat #huyHieu{transition:none}
 .nh-ct .nh-o>b small{display:block;font-weight:500;font-size:11.5px;line-height:1.35}
 .bsl-loc{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;padding:6px 12px;border:1.5px solid var(--line2);border-radius:999px;margin-right:6px;cursor:pointer}.bsl-loc input{accent-color:var(--acc)}
 .bsl-chonsp{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+/* S90 màu theo loại / tình trạng trong Sửa hàng loạt */
+#bslT tr.m-huong td.ten{box-shadow:inset 5px 0 0 #6FA8F5,2px 0 0 var(--line2)!important}#bslT tr.m-nl td.ten{box-shadow:inset 5px 0 0 #E9B23F,2px 0 0 var(--line2)!important}
+#bslT tr.m-huong td.ten .o{color:#2E6DA8}#bslT tr.m-nl td.ten .o{color:#9A6400}
+#bslT td.xl-do:not(.sua):not(.loi):not(.dang){background:#FDE2DE!important}#bslT td.xl-luc:not(.sua):not(.loi):not(.dang){background:#E3F4E8!important}
+.bsl-mau{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:6px}.bsl-mau span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.bsl-mau span::before{content:'';width:14px;height:14px;border-radius:4px;background:var(--mc)}.bsl-mau .m-huong{--mc:#CFE3F7}.bsl-mau .m-nl{--mc:#F7E2B5}.bsl-mau .m-do{--mc:#F7C9C0}.bsl-mau .m-luc{--mc:#C7E9D1}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S87</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S90</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 21/10/2026-S87</div>
+      <div class="verFoot">BẢN 21/10/2026-S90</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3301,13 +3307,18 @@ function sheetXml(rows,cols,dauBang){
     +(cols&&cols.length?'<cols>'+cols.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('')+'</cols>':'')+'<sheetData>';
   rows.forEach((row,r)=>{x+=`<row r="${r+1}">`;
     const st=coDB&&r===dauBang?' s="1"':'';
-    row.forEach((v,c)=>{const ref=colL(c)+(r+1);
-      if(v===null||v===undefined||v==='')return;
-      if(typeof v==='number'&&isFinite(v))x+=`<c r="${ref}"${st}><v>${v}</v></c>`;
-      else x+=`<c r="${ref}"${st} t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;});
+    row.forEach((v0,c)=>{const ref=colL(c)+(r+1);
+      // S88: ô có thể là {v,s} — s = kiểu ô riêng (số có dấu phẩy, %, tiêu đề cam/xám…)
+      const o=v0&&typeof v0==='object'&&'v' in v0?v0:{v:v0}, v=o.v, st2=o.s!==undefined?` s="${o.s}"`:st;
+      if(v===null||v===undefined||v===''){if(o.s!==undefined)x+=`<c r="${ref}"${st2}/>`;return} // ô trống có màu (VD chưa có số HĐ) vẫn ghi để giữ nền
+      if(typeof v==='number'&&isFinite(v))x+=`<c r="${ref}"${st2}><v>${v}</v></c>`;
+      else x+=`<c r="${ref}"${st2} t="inlineStr"><is><t xml:space="preserve">${XE(v)}</t></is></c>`;});
     x+='</row>';});
   return x+'</sheetData>'+(coDB&&rows.length>dauBang+1?`<autoFilter ref="A${dauBang+1}:${colL(soCot-1)}${rows.length}"/>`:'')+'</worksheet>';
 }
+/* S90 (khách: "nên thêm hệ phân phối theo màu sắc cho dễ nhìn"): nền màu theo loại / tình trạng — kiểu ô = 8 + nền*4 + định dạng số */
+const XL_NEN=['E3F0FB','FBF0DC','FDE2DE','E3F4E8'], XL_TEN={huong:0,nl:1,do:2,luc:3}, XL_SO=[0,3,164,9];
+const xlKieu=(nen,s)=>8+XL_TEN[nen]*4+({4:1,5:2,6:3}[s]||0);
 function xlsxBytes(sheets){
   const files=[];const push=(n,s)=>files.push({name:n,data:U8(s)});
   let ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>';
@@ -3323,11 +3334,19 @@ function xlsxBytes(sheets){
   wr+=`<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
   push('xl/_rels/workbook.xml.rels',wr+'</Relationships>');
   push('xl/styles.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-    +'<fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font></fonts>'
-    +'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFCE9C2"/><bgColor indexed="64"/></patternFill></fill></fills>'
+    +'<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.###"/></numFmts>'
+    +'<fonts count="3"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FF666666"/><name val="Arial"/></font></fonts>'
+    +'<fills count="${5+XL_NEN.length}"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFCE9C2"/><bgColor indexed="64"/></patternFill></fill>'
+    +'<fill><patternFill patternType="solid"><fgColor rgb="FFF6B49F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE7E7E7"/><bgColor indexed="64"/></patternFill></fill>'
+    +XL_NEN.map(c=>`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`).join('')+'</fills>'
     +'<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>'
     +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-    +'<cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/></cellXfs>'
+    +'<cellXfs count="${8+XL_NEN.length*XL_SO.length}"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'
+    // 2 tiêu đề SỬA ĐƯỢC (cam) · 3 tiêu đề CHỈ XEM (xám) · 4 số #,##0 · 5 số lẻ #,##0.### · 6 phần trăm 0% · 7 chữ xuống dòng
+    +'<xf numFmtId="0" fontId="1" fillId="3" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="4" borderId="0" xfId="0" applyFont="1" applyFill="1"/>'
+    +'<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="9" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+    +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf>'
+    +XL_NEN.map((c,fi)=>XL_SO.map(n=>`<xf numFmtId="${n}" fontId="0" fillId="${5+fi}" borderId="0" xfId="0" applyFill="1" applyNumberFormat="1"/>`).join('')).join('')+'</cellXfs>'
     +'<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>');
   sheets.forEach((s,i)=>push(`xl/worksheets/sheet${i+1}.xml`,sheetXml(s.rows,s.cols,s.dauBang)));
   const parts=[],cen=[];let off=0;
@@ -7033,7 +7052,7 @@ function bslCotMua(loai){return [
   {k:'tt',t:'Thành tiền',g:'tự tính',so:1,w:120,tinh:r=>fmt(Math.round(bslSo(r.moi.soKg)*bslSo(r.moi.donGia)))+' đ'},
   {k:'vat',t:'VAT',w:90,chon:BSL_VAT},
   {k:'dd',t:'Đã dùng',g:'kg đã đổ vào mẻ · máy tự ra số',so:1,w:90,tinh:r=>loai==='h'?fmtSo(num(r.ref.daDungKg||0))+' kg':'—'},
-  ...(loai==='h'?[{k:'con',t:'Còn lại',g:'kg chưa dùng · máy tự ra số',so:1,w:110,tinh:r=>{const k=bslSo(r.moi.soKg);return isFinite(k)?fmtSo(Math.round((k-num(r.ref.daDungKg||0)+dcSauDoiKg(r.ref,k))*1000)/1000)+' kg':'—'}}]:[])]}
+  ...(loai==='h'?[{k:'dc',t:'Điều chỉnh',g:'tham khảo',thamKhao:1,so:1,w:110,tinh:r=>{const k=bslSo(r.moi.soKg),d=isFinite(k)?dcSauDoiKg(r.ref,k):num(r.ref.dieuChinhKg||0);return !d?'0 kg':(d>0?'+':'−')+fmtSo(Math.abs(d))+' kg'}},{k:'con',t:'Còn lại',g:'sửa ở thẻ Điều chỉnh kho',so:1,w:110,tinh:r=>{const k=bslSo(r.moi.soKg);return isFinite(k)?fmtSo(Math.round((k-num(r.ref.daDungKg||0)+dcSauDoiKg(r.ref,k))*1000)/1000)+' kg':'—'}}]:[])]}
 /* 21/10/2026 S85 (khách: "liên kết giữa các danh mục chưa tốt — cần 1 bản sửa hàng loạt mà nguyên liệu tới hương liệu đều liên kết
    để nhìn tổng quan"): gộp lần mua hương + nguyên liệu vào 1 bảng, thêm cột "Dùng cho" (mặt hàng nào dùng vật tư đó). Áp dụng đúng
    bslMuaAp (hương: sửa số kg giữ tồn). Lọc nhanh "chỉ dòng chưa có số HĐ". */
@@ -7047,6 +7066,7 @@ function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>S
     {...c('soKg'),kt:(v,r)=>laH(r)?c('soKg').kt(v,r):(!(bslSo(v)>0)?'Phải lớn hơn 0':'')},
     c('donGia'),c('tt'),c('vat'),
     {...c('dd'),tinh:r=>{if(laH(r))return c('dd').tinh(r); const t=r.ref._ten,tk=tonKhoNguyenLieu[t]; if(!tk||!tk.moc)return '—'; return fmtSo(Math.round(nk.filter(m=>!m.huy&&String(m.ts||'')>tk.moc).reduce((a,m)=>a+nlDungMe(m,t),0)*1000)/1000)+' kg · cả NL'}},
+    {...c('dc'),tinh:r=>laH(r)?c('dc').tinh(r):'—'},
     {...c('con'),tinh:r=>{if(laH(r))return c('con').tinh(r); const v=tonNLKg(r.ref._ten); return v===null?'—':fmtSo(v)+' kg · cả NL'}}]}
 function bslTatCaNap(){return [...bslMuaNap('h'),...bslMuaNap('nl')].map(r=>{const laH=r.id.startsWith('h:');r.ref._ten=r.goc.ten;r.goc.loai=r.moi.loai=laH?'Hương':'Nguyên liệu';return r})}
 let bslChiThieuHD=false;
@@ -7093,11 +7113,11 @@ const BSL={
  nl:{ten:'Nguyên liệu',cot:[{k:'ten',t:'Tên nguyên liệu',w:240,kt:(v,r,ds)=>!String(v).trim()?'Không được để trống':bslTrung(ds,'ten',v,r.id)?'Trùng tên':''},
    {k:'ton',t:'Tồn kho',g:'chỉ xem',so:1,w:110,tinh:r=>{const t=tonNLKg(r.goc.ten);return t===null?'—':fmtSo(t)+' kg'}}],
    nap:()=>nlDM.map(t=>({id:'nl:'+t,ref:t,goc:{ten:t},moi:{ten:t}})), ap:()=>{}, doi:r=>['nl',r.goc.ten,r.moi.ten]},
- tatca:{ten:'Tất cả vật tư',cot:bslCotTatCa(),nap:bslTatCaNap,ap:bslMuaAp},
+ tatca:{ten:'Tất cả vật tư',cot:bslCotTatCa(),nap:bslTatCaNap,ap:bslMuaAp,loaiMau:r=>String(r.id).startsWith('h:')?'huong':'nl'},
  /* 21/10/2026 S87 (khách: "phải xem được chi tiết dữ liệu của cả nguyên liệu, từ tỉ lệ pha mẻ… để điều chỉnh nếu cần"): mỗi dòng = 1 nguyên liệu
     trong công thức 1 mặt hàng. Sửa số kg/mẻ chuẩn → đúng như ô kg ở Công thức: tổng mẻ chuẩn tự cộng lại (dongBoMeChuan), tạo PHIÊN BẢN công
     thức mới đúng 1 lần mỗi mặt hàng (mẻ cũ giữ tỉ lệ lúc pha). Cột tỉ lệ % và "hương / 100 kg" tính theo số ĐANG GÕ để thấy trước ảnh hưởng. */
- ctnl:{ten:'Công thức nguyên liệu',cot:[
+ ctnl:{ten:'Công thức nguyên liệu',loaiMau:()=>'nl',cot:[
    {k:'sp',t:'Mặt hàng',w:200,khoa:()=>'Chỉ xem — đổi tên ở thẻ Mặt hàng'},
    {k:'ten',t:'Nguyên liệu',w:180,khoa:()=>'Đổi nguyên liệu: vào Công thức của mặt hàng'},
    {k:'kg',t:'Kg / mẻ chuẩn',g:'gõ số kg',so:1,w:110,kt:v=>!(bslSo(v)>=0)?'Phải là số từ 0 trở lên':''},
@@ -7109,8 +7129,8 @@ const BSL={
    nap:()=>{const ds=[]; sp.forEach(p=>(p.congThucNL||[]).forEach((x,j)=>{if(!x||!x.ten)return; const d={sp:p.ten,ten:x.ten,kg:String(num(x.kg))}; ds.push({id:'ctnl:'+p.ten+':'+j,ref:{p,x},goc:{...d},moi:{...d}})})); return ds},
    ap:r=>{const {p,x}=r.ref; x.kg=Math.round(bslSo(r.moi.kg)*1000)/1000; dongBoMeChuan(p); r._ap=1;
      if(!(bslDs.ctnl||[]).some(o=>o!==r&&o.ref.p===p&&!o._ap&&String(o.moi.kg)!==String(o.goc.kg)))bumpRecipeVersion(p)}},
- mua:{ten:'Lần mua hương',cot:bslCotMua('h'),nap:()=>bslMuaNap('h'),ap:bslMuaAp},
- muanl:{ten:'Lần mua nguyên liệu',cot:bslCotMua('nl'),nap:()=>bslMuaNap('nl'),ap:bslMuaAp},
+ mua:{ten:'Lần mua hương',cot:bslCotMua('h'),nap:()=>bslMuaNap('h'),ap:bslMuaAp,loaiMau:()=>'huong'},
+ muanl:{ten:'Lần mua nguyên liệu',cot:bslCotMua('nl'),nap:()=>bslMuaNap('nl'),ap:bslMuaAp,loaiMau:()=>'nl'},
  bb:{ten:'Bao bì',cot:[
    {k:'ten',t:'Loại bao bì',w:200,kt:(v,r,ds)=>!String(v).trim()?'Không được để trống':bslTrung(ds,'ten',v,r.id)?'Trùng tên':''},
    {k:'giaKg',t:'Giá',g:'đ / kg',so:1,w:100,kt:v=>!(bslSo(v)>0)?'Phải lớn hơn 0':''},
@@ -7123,7 +7143,7 @@ const BSL={
        b.lichSu=Array.isArray(b.lichSu)?b.lichSu:[];if(b.lichSu.length&&b.lichSu[b.lichSu.length-1].ngay===h)b.lichSu[b.lichSu.length-1]=moi;else b.lichSu.push(moi)}}},
  /* 21/10/2026 S83 (khách: "sửa hàng loạt sao không có phần điều chỉnh kho? VD ban đầu nhập 2000 mà thực chất 27000"): mỗi dòng 1 hương /
     nguyên liệu; gõ số ĐẾM THỰC TẾ → app chỉnh cho khớp đúng như nút Kiểm kê (không sửa số đã mua / đã dùng, ghi nhật ký), bắt buộc lý do. */
- kk:{ten:'Điều chỉnh kho',lyDo:1,cot:[
+ kk:{ten:'Điều chỉnh kho',lyDo:1,loaiMau:r=>r.ref.loai==='h'?'huong':'nl',cot:[
    {k:'ten',t:'Tên',w:210,khoa:()=>'Tên — đổi ở thẻ Danh mục'},
    {k:'loai',t:'Loại',w:100,khoa:()=>'Chỉ xem'},
    {k:'ht',t:'Hệ thống ghi nhận',g:'kg · chỉ xem',so:1,w:120,tinh:r=>{const v=r.ref.loai==='h'?tonThucKg(r.ref.ten):tonNLKg(r.ref.ten);return v===null?'chưa có':fmtSo(v)+' kg'}},
@@ -7177,14 +7197,15 @@ const BSL_CHU={
  mua:{soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Trước đây khai 1 kg thì cứ sửa thành số thật, số hàng còn trong kho không bị cộng dư.',
    donGia:'Giá của 1 kg, tính luôn tiền thuế. Cách tính: lấy tổng tiền phải trả trên hoá đơn chia cho số kg.',
    tt:'Máy tự nhân: số kg × giá 1 kg. Không cần gõ.',vat:'Thuế ghi trên hoá đơn, thường là 8%. Chưa biết thì để "chưa khai".',
-   dd:'Bao nhiêu kg của lần mua này đã đổ vào các mẻ đã làm. Máy tự cộng, không cần gõ.',con:'Lần mua này còn bao nhiêu kg chưa đụng tới. Máy tự trừ: mua − đã dùng.',
+   dd:'Bao nhiêu kg của lần mua này đã đổ vào các mẻ đã làm. Máy tự cộng, không cần gõ.',dc:'Phần đã sửa tồn bằng tay. Còn lại = Số kg mua − Đã dùng + Điều chỉnh. Sửa Số kg mua đúng hoá đơn thì điều chỉnh tự về 0.',con:'Lần mua này còn bao nhiêu kg chưa đụng tới. Máy tự trừ: mua − đã dùng.',
    ngay:'Ngày ghi trên hoá đơn. Máy dùng hết lần mua cũ rồi mới dùng sang lần mua mới.',soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn.'},
  tatca:{dung:'Những mặt hàng đang dùng vật tư này. Bấm 2 lần vào ô (hoặc Enter) để mở thẳng công thức của mặt hàng đó.',
    soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn. Điền 1 lần ở đây là tự gắn vào mọi mẻ đã dùng lần mua này.',
    soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Hương trước đây khai 1 kg thì sửa thành số thật, số còn trong kho không bị cộng dư.',
    donGia:'Giá của 1 kg, tính luôn tiền thuế: tổng tiền phải trả trên hoá đơn chia cho số kg.',tt:'Máy tự nhân: số kg × giá 1 kg.',
+   dc:'Phần đã sửa tồn bằng tay (khai tồn lúc nhập hàng hoặc Điều chỉnh kho). Còn lại = Số kg mua − Đã dùng + Điều chỉnh. Lần mua khai kiểu cũ (1 kg) sẽ có điều chỉnh lớn: sửa Số kg mua cho đúng hoá đơn thì điều chỉnh tự về 0, Còn lại giữ nguyên. Chỉ để tham khảo.',
    dd:'Hương: số kg của lần mua này đã đổ vào các mẻ. Nguyên liệu: tổng số kg đã dùng kể từ lần chốt kho gần nhất (cả nguyên liệu, không tách theo lần mua).',
-   con:'Hương: lần mua này còn bao nhiêu kg chưa dùng. Nguyên liệu: tổng số kg còn trong kho của nguyên liệu đó.'},
+   con:'Hương: lần mua này còn bao nhiêu kg chưa dùng. Nguyên liệu: tổng số kg còn trong kho. MUỐN SỬA SỐ KG ĐANG CÓ THẬT TRONG KHO → sang thẻ "Điều chỉnh kho", gõ vào cột "Tồn thực tế".'},
  ctnl:{kg:'Một mẻ chuẩn của mặt hàng này dùng bao nhiêu kg nguyên liệu đó. Sửa số này giống như sửa ở trang Công thức: tổng mẻ chuẩn tự cộng lại, công thức lên phiên bản mới — mẻ đã làm vẫn giữ tỉ lệ cũ.',
    tl:'Nguyên liệu này chiếm bao nhiêu phần trăm của mẻ (theo số đang gõ). Chỉ để tham khảo.',tong:'Cộng tất cả nguyên liệu của mặt hàng = số kg 1 mẻ chuẩn.',
    gk:'Lượng hương trên 100 kg sau khi đổi. Gam hương cho 1 mẻ chuẩn GIỮ NGUYÊN, nên tăng tổng kg thì hương bị loãng hơn — xem số này trước khi lưu.',
@@ -7204,13 +7225,33 @@ const BSL_CHU={
    cột chỉ xem ghi "(chỉ xem)". Nạp: đọc file .xlsx (giải nén bằng DecompressionStream của trình duyệt — không thư viện ngoài),
    đổ thay đổi vào bảng như sửa tay (ô vàng, ô sai đỏ, Hoàn tác được) — KHÔNG tự lưu: vẫn phải bấm "Xem & lưu". */
 const BSL_MA='MÃ DÒNG (đừng sửa)';
-const bslXGT=(c,r)=>{if(c.tinh)return String(c.tinh(r)); const v=r.moi[c.k];
-  if(c.bat)return v?'có':'không'; if(c.chon)return ((c.chon.find(o=>o[0]===String(v))||[])[1])||String(v??'');
-  if(c.so){const n=bslSo(v);return isFinite(n)?n:String(v??'')} return String(v??'')};
+const bslXGT=(c,r)=>{const so=n=>({v:n,s:Math.round(n)===n?4:5});
+  if(c.k==='tt'&&c.tinh){const n=bslSo(r.moi.soKg)*bslSo(r.moi.donGia);return isFinite(n)?so(Math.round(n)):''}
+  if(c.tinh)return String(c.tinh(r)); const v=r.moi[c.k];
+  if(c.bat)return v?'có':'không';
+  if(c.chon){if(c.k==='vat'){const n=bslSo(v);return isFinite(n)?{v:n/100,s:6}:''} return ((c.chon.find(o=>o[0]===String(v))||[])[1])||String(v??'')}
+  if(c.so){const n=bslSo(v);return isFinite(n)?so(n):String(v??'')} return String(v??'')};
+const BSL_HD=[['HƯỚNG DẪN SỬA BẰNG EXCEL'],[''],
+ ['1. Tiêu đề cột MÀU CAM = sửa được. Tiêu đề MÀU XÁM "(chỉ xem)" = hệ thống tự tính, sửa cũng không có tác dụng.'],
+ ['2. Muốn sửa số kg ĐÃ MUA (theo hoá đơn): trang "Tất cả vật tư" → cột "Số kg mua".'],
+ ['3. Muốn sửa số kg ĐANG CÒN TRONG KHO (ra kho cân được bao nhiêu): trang "Điều chỉnh kho" → cột "Tồn thực tế". Hàng nào không cân thì để trống.'],
+ ['4. Đơn giá = giá 1 kg ĐÃ GỒM THUẾ (tổng tiền phải trả trên hoá đơn ÷ số kg). VAT gõ 8% hoặc 8 đều được.'],
+ ['5. Sửa tỉ lệ pha (kg nguyên liệu cho 1 mẻ chuẩn): trang "Công thức nguyên liệu" → cột "Kg / mẻ chuẩn".'],
+ ['6. KHÔNG sửa cột A "MÃ DÒNG", KHÔNG thêm dòng mới (dòng mới sẽ bị bỏ qua — thêm trong app).'],
+ ['7. Sửa xong: Lưu file → vào app bấm "⬆ Nạp Excel" → kiểm các ô màu vàng → bấm "Xem & lưu". Chưa bấm "Xem & lưu" thì chưa có gì thay đổi.'],[''],
+ ['MÀU TRONG FILE'],['■ Xanh dương nhạt = dòng HƯƠNG'],['■ Vàng nhạt = dòng NGUYÊN LIỆU'],['■ Đỏ nhạt = cần xử lý: chưa có số hoá đơn · còn lại / tồn ≤ 0 · kho thật ÍT hơn hệ thống'],['■ Xanh lá nhạt = kho thật NHIỀU hơn hệ thống']];
 function bslTaiExcel(){
   const ks=BSL_NHOM[bslNhom], sheets=ks.map(k=>{const L=BSL[k], ds=bslDs[k]||[];
-    const dau=[BSL_MA,...L.cot.map(c=>c.t+(c.tinh||(c.khoa&&ds.length&&ds.every(r=>c.khoa(r)))?' (chỉ xem)':''))];
-    return {name:L.ten,dauBang:0,cols:[22,...L.cot.map(c=>Math.max(12,Math.round((c.w||110)/7)))],rows:[dau,...ds.map(r=>[r.id,...L.cot.map(c=>bslXGT(c,r))])]}});
+    const xem=c=>c.tinh||(c.khoa&&ds.length&&ds.every(r=>c.khoa(r))), dau=[{v:BSL_MA,s:3},...L.cot.map(c=>({v:c.t+(xem(c)?' (chỉ xem)':''),s:xem(c)?3:2}))];
+    const to=(o,nen)=>{const x=o&&typeof o==='object'&&'v' in o?o:{v:o}; return {v:x.v,s:xlKieu(nen,x.s)}};
+    const nenDong=r=>L.loaiMau?L.loaiMau(r):'', nenO=(c,r,o)=>{const v=o&&typeof o==='object'?o.v:o, t=String(v??'');
+      if(c.k==='soHD'&&!String(r.moi.soHD||'').trim()&&(k==='tatca'||k==='mua'||k==='muanl'))return 'do';
+      if(c.k==='chenh'&&/^\+/.test(t))return 'luc'; if(c.k==='chenh'&&/^−/.test(t))return 'do';
+      if((c.k==='con'||c.k==='ht')&&/^(−|-|0 kg$)/.test(t))return 'do'; return ''};
+    return {name:L.ten,dauBang:0,cols:[22,...L.cot.map(c=>Math.max(12,Math.round((c.w||110)/7)))],rows:[dau,...ds.map(r=>{const nd=nenDong(r);
+      return [nd?to(r.id,nd):r.id,...L.cot.map(c=>{const o=bslXGT(c,r), n=nenO(c,r,o)||nd; return n&&o!==''?to(o,n):(n?{v:'',s:xlKieu(n,0)}:o)})]})]}});
+  const mauHD={'■ Xanh dương nhạt = dòng HƯƠNG':'huong','■ Vàng nhạt = dòng NGUYÊN LIỆU':'nl','■ Xanh lá nhạt = kho thật NHIỀU hơn hệ thống':'luc'};
+  sheets.unshift({name:'HƯỚNG DẪN',cols:[130],rows:BSL_HD.map((r,i)=>[{v:r[0],s:i===0||r[0]==='MÀU TRONG FILE'?2:mauHD[r[0]]?xlKieu(mauHD[r[0]],0):/^■ Đỏ/.test(r[0])?xlKieu('do',0):7}])});
   const ten={sp:'danh-muc',mua:'kho',me:'me-da-ghi'}[bslNhom]||bslNhom;
   if(taiVe(`sua-hang-loat_${ten}_${isoNay()}.xlsx`,xlsxBytes(sheets)))bao('Đã tải file Excel — sửa xong bấm "⬆ Nạp Excel" để đưa lên bảng')}
 // đọc .xlsx → [{name, rows:[[...]]}]
@@ -7237,7 +7278,8 @@ async function bslNapExcel(file){let ds; try{ds=await docXlsx(await file.arrayBu
     sh.rows.slice(1).forEach(rw=>{const id=String(rw[0]??'').trim(); if(!id)return; const row=(bslDs[k]||[]).find(r=>r.id===id); if(!row){boQua++;return}
       L.cot.forEach((c,ci)=>{const j=vt[ci]; if(j<1||c.tinh||bslKhoa(c,row))return; let v=rw[j]; if(v===undefined)return;
         if(c.bat)v=v===true||/^(1|x|có|co|true|yes|✓)$/i.test(String(v).trim());
-        else if(c.chon){const t=String(v).trim(), o=c.chon.find(x=>x[1].toLowerCase()===t.toLowerCase()||x[0]===t.replace('%',''));if(!o)return;v=o[0]}
+        else if(c.chon){let t=String(v).trim(); if(typeof v==='number')t=String(Math.round((v>0&&v<1?v*100:v)*100)/100); else t=t.replace(',','.');
+          const o=c.chon.find(x=>x[1].toLowerCase()===t.toLowerCase()||x[0]===t.replace('%','').trim()||(isFinite(+t.replace('%',''))&&x[0]!==''&&+x[0]===+t.replace('%','')));if(!o)return;v=o[0]}
         else if(c.k==='ngay'&&typeof v==='number')v=ngaySerial(v);
         else v=typeof v==='number'?String(Math.round(v*1e6)/1e6):String(v).trim();
         const cu=row.moi[c.k]; if(c.so&&isFinite(bslSo(cu))&&isFinite(bslSo(v))&&bslSo(cu)===bslSo(v))return; if(String(cu??'')===String(v))return;
@@ -7251,14 +7293,19 @@ async function bslNapExcel(file){let ds; try{ds=await docXlsx(await file.arrayBu
     +(ok?'<br><br>Xem lại rồi bấm <b>Xem &amp; lưu</b>. Chưa có gì được lưu — bấm <b>Hoàn tác</b> nếu nạp nhầm file.':''),{nutOK:'Đã hiểu',nutHuy:'Đóng'})}
 document.addEventListener('click',e=>{if(e.target.closest('#bslTaiX')){bslTaiExcel();return} if(e.target.closest('#bslNapX')){$('bslFileX').click()}});
 document.addEventListener('change',e=>{if(e.target.id==='bslFileX'&&e.target.files&&e.target.files[0]){bslNapExcel(e.target.files[0]);e.target.value=''}});
+/* S90: ô cần xử lý trong bảng — đỏ nhạt (chưa có số HĐ · còn/tồn ≤ 0 · kho thật ít hơn), xanh lá (kho thật nhiều hơn) */
+function bslCanXL(c,r){const t=c.tinh?String(c.tinh(r)):'';
+  if(c.k==='soHD'&&(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!String(r.moi.soHD||'').trim())return 'xl-do';
+  if(c.k==='chenh')return /^\+/.test(t)?'xl-luc':/^−/.test(t)?'xl-do':'';
+  if((c.k==='con'||c.k==='ht')&&/^(−|-|0 kg$)/.test(t))return 'xl-do'; return ''}
 function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai]||{}, cs=bslL().cot.filter(c=>m[c.k]);
-  el.innerHTML=cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):''}
+  el.innerHTML=(bslL().loaiMau?'<div class="bsl-mau"><span class="m-huong">Hương</span><span class="m-nl">Nguyên liệu</span><span class="m-do">Cần xử lý (chưa có số HĐ · còn ≤ 0 · kho thật ít hơn)</span><span class="m-luc">Kho thật nhiều hơn</span></div>':'')+(cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):'')}
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;
   $('bslLoaiW').innerHTML=(bslLoai==='tatca'?`<label class="bsl-loc"><input type="checkbox" id="bslThieuHD"${bslChiThieuHD?' checked':''}> 🧾 Chỉ dòng chưa có số HĐ</label>`:'')+BSL_NHOM[bslNhom].map(k=>{const n=(bslDs[k]||[]).filter(r=>BSL[k].cot.some(c=>bslDaSua(c,r))).length;return `<button type="button" class="${k===bslLoai?'on':''}" data-bslloai="${k}">${BSL[k].ten} <small>${(bslDs[k]||[]).length}</small>${n?`<b>${n}</b>`:''}</button>`}).join('');
   let h=`<thead><tr><th class="chk"><input type="checkbox" id="bslHet" aria-label="Chọn tất cả" ${ds.length&&ds.every(r=>bslChon.has(r.id))?'checked':''}></th>`+cs.map((c,ci)=>`<th class="${ci===0?'ten':''}${c.thamKhao?' tk':''}">${esc(c.t)}${c.g?`<small>${esc(c.g)}</small>`:''}</th>`).join('')+'</tr></thead><tbody>';
-  ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
+  const Lm=bslL(); ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}${Lm.loaiMau?' m-'+Lm.loaiMau(r):''}${(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!String(r.moi.soHD||'').trim()?' thieuhd':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
     cs.forEach((c,ci)=>{const kh=bslKhoa(c,r),lo=kh?'':bslLoi(c,r);
-      const tkv=c.thamKhao&&c.tinh?String(c.tinh(r)):'', cl=[ci===0?'ten':'',c.thamKhao?'tk':'',tkv[0]==='+'?'duong':tkv[0]==='−'?'am':'',c.so?'so':'',kh==='tinh'?'tinh':kh?'khoa':'',!kh&&bslDaSua(c,r)?'sua':'',lo?'loi':'',bslTrong(ri,ci)?'vung':'',bslDang.r===ri&&bslDang.c===ci?'dang':''].filter(Boolean).join(' ');
+      const tkv=c.thamKhao&&c.tinh?String(c.tinh(r)):'', xl=bslCanXL(c,r), cl=[xl,ci===0?'ten':'',c.thamKhao?'tk':'',tkv[0]==='+'?'duong':tkv[0]==='−'?'am':'',c.so?'so':'',kh==='tinh'?'tinh':kh?'khoa':'',!kh&&bslDaSua(c,r)?'sua':'',lo?'loi':'',bslTrong(ri,ci)?'vung':'',bslDang.r===ri&&bslDang.c===ci?'dang':''].filter(Boolean).join(' ');
       h+=`<td class="${cl}" data-r="${ri}" data-c="${ci}"${lo?` title="${esc(lo)}"`:kh&&kh!=='tinh'?` title="🔒 ${esc(kh)}"`:''}><div class="o" style="--w:${c.w}px" tabindex="-1">${bslGT(c,r)}</div></td>`});h+='</tr>'});
   if(!ds.length)h+=`<tr><td colspan="${cs.length+1}" class="bsl-trong">Không có dòng nào.</td></tr>`;
   $('bslT').innerHTML=h+'</tbody>';
