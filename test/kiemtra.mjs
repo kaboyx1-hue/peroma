@@ -3420,9 +3420,10 @@ const cg=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   // nguồn không còn nút thứ 3 trùng việc
   kq.motNut=!/Thêm hoặc đổi nhà cung cấp và giá/.test($('viewMA').innerHTML);
   // thêm mặt hàng ở Danh mục → mở luôn công thức của nó
-  chuyenTab('ma'); await cho(30); const th=window.hoi, tl=['Cát CG Thử','77']; window.hoi=async()=>tl.shift();
-  document.querySelector('[data-them="sp"]').click(); await cho(80); window.hoi=th;
-  kq.moCT=tab==='ct'&&sp[sp.length-1].ten==='Cát CG Thử'&&sp[sp.length-1].maSP==='77'&&mo.has(sp.length-1);
+  // S92: bấm Thêm mặt hàng → phiếu khai đầy đủ (tên, mã, hương, quy cách, mẻ chuẩn…) → lưu mở luôn Công thức
+  chuyenTab('ma'); await cho(30); document.querySelector('[data-them="sp"]').click(); await cho(60);
+  kq.phieu=!!document.querySelector('#tsp.hien [data-tsp="ten"]'); Object.assign(tsp,{ten:'Cát CG Thử',ma:'77',qc:[dr[0]]}); tspLuu(); await cho(80);
+  kq.moCT=kq.phieu&&tab==='ct'&&sp[sp.length-1].ten==='Cát CG Thử'&&sp[sp.length-1].maSP==='77'&&mo.has(sp.length-1);
   sp.length=g.sp; mo.clear(); nguonHuong=JSON.parse(g.nh); nk=g.nk; luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('CG: Kho gom nguồn + bao bì + số HĐ; Danh mục chỉ còn tên & mã, có lối "Kho →"', cg.kho&&cg.dm, JSON.stringify(cg));
@@ -3738,6 +3739,36 @@ const cx=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CX: khai mới mặc định "giá CHƯA VAT" + VAT 8% (đúng như in trên hoá đơn)', cx.macDinh, JSON.stringify(cx));
 ok('CX: gõ 5 kg × 420.000 chưa VAT → hiện đối chiếu Tổng phải trả 2.268.000, lưu đúng gồm VAT, giá vốn = 420.000 đ/kg', cx.doiChieu&&cx.luu);
+/* CY — S92: phiếu Thêm mặt hàng — thông tin + NGUỒN HÀNG & CHỨNG TỪ (hoá đơn / tờ khai, giá thành); không có phần pha mẻ */
+const cy=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, n0=sp.length, g={nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice()}, Q=dr.find(q=>maQC[q])||dr[0];
+  tspMo(); await cho(30); kq.khongPha=!document.querySelector('#tsp [data-tspnl]')&&!/Gam hương/.test($('tsp').textContent)&&tspLoi().length>=2;
+  Object.assign(tsp,{ten:'__SP_CY__',ma:'93',qc:[Q],ncc:'Peroma',so:'4750',kg:'1000',dg:'25000',vat:'8',cach:'truoc'}); tspVe();
+  kq.gia=/Giá thành: 25\.000 đ\/kg/.test(document.querySelector('[data-tspgia]').textContent)&&/Tổng phải trả 27\.000\.000/.test(document.querySelector('[data-tspgia]').textContent)&&tspLoi().length===0;
+  tsp.ma=hai(sp[0].maSP)||'01'; kq.trungMa=tspLoi().some(x=>/đã có mặt hàng dùng/.test(x)); tsp.ma='93';
+  tspLuu(); await cho(80); const p=sp[sp.length-1], e=(nguonNguyenLieu['__SP_CY__']||[])[0];
+  kq.luu=sp.length===n0+1&&p.maSP==='93'&&p.khongTemPhu===true&&p.congThucNL[0].ten==='__SP_CY__'&&!!e&&e.gia===27000000&&e.vat===8&&e.soHD==='4750'&&tonNLKg('__SP_CY__')===1000&&tab==='ct';
+  sp.pop(); tspMo(); Object.assign(tsp,{ten:'__SP_CY2__',kieu:'nk',ct:'tk',qc:[Q],ncc:'Shanghai ABC',so:'10512345678',kg:'500',dg:'40000'}); tspLuu(); await cho(60);
+  const p2=sp[sp.length-1], e2=(nguonNguyenLieu['__SP_CY2__']||[])[0]; kq.nk=!p2.khongTemPhu&&e2&&e2.soHD==='TK 10512345678';
+  sp.pop(); nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; mo.clear(); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('CY: phiếu Thêm mặt hàng không có phần pha mẻ; có cổng nguồn hàng & chứng từ, hiện giá thành / tổng phải trả, chặn trùng mã', cy.khongPha&&cy.gia&&cy.trungMa, JSON.stringify(cy));
+ok('CY: lưu → mặt hàng + lần mua vào Kho (hoá đơn 4750, 1000 kg, gồm VAT 27.000.000), tồn hàng = 1000 kg; hàng nhập khẩu ghi "TK " + số tờ khai, có tem phụ', cy.luu&&cy.nk);
+/* CZ — S92: Danh sách lô đã làm ở đầu tab Sản xuất — luôn mở, tìm / lọc tháng, bấm dòng mở thẻ lô */
+const cz=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g=nk.slice();
+  nk=[...nk,{id:'CZ-1',sp:'__CZ__',huong:'Hương CZ',lot:'1199101026',sl:300,quyCach:'5 kg',soBao:60,nv:'Toàn',ngaysx:'2026-10-19',ts:'2026-10-19T03:00:00Z'},
+        {id:'CZ-2',sp:'__CZ__',huong:'Hương CZ',lot:'1198100926',sl:200,nv:'Loan',ngaysx:'2026-09-02',ts:'2026-09-02T03:00:00Z',huy:true}];
+  chuyenTab('sx'); await cho(60); const b=document.querySelector('.dslo-b'); kq.hien=!!b&&!!b.offsetParent&&!b.closest('.khoi');
+  const tim=$('dsLoTim'); tim.focus(); tim.value='11 99 10'; tim.dispatchEvent(new Event('input',{bubbles:true})); await cho(20);
+  const tr=[...document.querySelectorAll('#dsLoThan tr[data-dslomo]')]; kq.tim=tr.length===1&&tr[0].dataset.dslomo==='CZ-1'&&document.activeElement===tim;
+  tim.value=''; tim.dispatchEvent(new Event('input',{bubbles:true})); const th=$('dsLoThang'); th.value='2026-09'; th.dispatchEvent(new Event('change',{bubbles:true})); await cho(20);
+  kq.thang=[...document.querySelectorAll('#dsLoThan tr[data-dslomo]')].every(x=>nk.find(r=>r.id===x.dataset.dslomo).ngaysx.startsWith('2026-09'))&&!!document.querySelector('#dsLoThan tr.dslo-huy');
+  th.value=''; th.dispatchEvent(new Event('change',{bubbles:true})); dsLoThang=''; document.querySelector('#dsLoThan tr[data-dslomo="CZ-1"]').click(); await cho(150);
+  kq.mo=traLot==='1199101026'&&[...document.querySelectorAll('.lo-the')].some(t=>t.offsetParent&&/11 99 10 1026|1199101026/.test(t.textContent));
+  nk=g; traLot=''; dsLoTim=''; ve(); return kq;
+});
+ok('CZ: tab Sản xuất có bảng "Danh sách lô đã làm" luôn mở ở trên cùng', cz.hien, JSON.stringify(cz));
+ok('CZ: tìm theo số lô (gõ có dấu cách vẫn được, giữ con trỏ), lọc theo tháng, lô huỷ hiện mờ', cz.tim&&cz.thang);
+ok('CZ: bấm dòng → mở đúng thẻ chi tiết lô', cz.mo);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
