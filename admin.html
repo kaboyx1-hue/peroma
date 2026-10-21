@@ -1905,9 +1905,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S86</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S87</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 21/10/2026-S86</div>
+      <div class="verFoot">BẢN 21/10/2026-S87</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -7038,6 +7038,7 @@ function bslCotMua(loai){return [
    để nhìn tổng quan"): gộp lần mua hương + nguyên liệu vào 1 bảng, thêm cột "Dùng cho" (mặt hàng nào dùng vật tư đó). Áp dụng đúng
    bslMuaAp (hương: sửa số kg giữ tồn). Lọc nhanh "chỉ dòng chưa có số HĐ". */
 const dungChoVT=(laH,ten)=>sp.filter(p=>laH?(p.huongs||[]).includes(ten):(p.congThucNL||[]).some(x=>x&&x.ten===ten)).map(p=>p.ten);
+const bslCtnlTong=r=>Math.round((bslDs.ctnl||[]).filter(o=>o.ref.p===r.ref.p).reduce((a,o)=>a+(bslSo(o.moi.kg)||0),0)*1000)/1000;
 function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>String(r.id).startsWith('h:');
   return [{k:'ten',t:'Tên vật tư',w:200,khoa:()=>'Đổi tên ở thẻ Danh mục'},
     {k:'loai',t:'Loại',w:100,khoa:()=>'Chỉ xem'},
@@ -7045,7 +7046,8 @@ function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>S
     c('ncc'),c('ngay'),c('soHD'),c('soHopDong'),
     {...c('soKg'),kt:(v,r)=>laH(r)?c('soKg').kt(v,r):(!(bslSo(v)>0)?'Phải lớn hơn 0':'')},
     c('donGia'),c('tt'),c('vat'),
-    {...c('dd'),tinh:r=>laH(r)?c('dd').tinh(r):'—'},{...c('con'),tinh:r=>laH(r)?c('con').tinh(r):'—'}]}
+    {...c('dd'),tinh:r=>{if(laH(r))return c('dd').tinh(r); const t=r.ref._ten,tk=tonKhoNguyenLieu[t]; if(!tk||!tk.moc)return '—'; return fmtSo(Math.round(nk.filter(m=>!m.huy&&String(m.ts||'')>tk.moc).reduce((a,m)=>a+nlDungMe(m,t),0)*1000)/1000)+' kg · cả NL'}},
+    {...c('con'),tinh:r=>{if(laH(r))return c('con').tinh(r); const v=tonNLKg(r.ref._ten); return v===null?'—':fmtSo(v)+' kg · cả NL'}}]}
 function bslTatCaNap(){return [...bslMuaNap('h'),...bslMuaNap('nl')].map(r=>{const laH=r.id.startsWith('h:');r.ref._ten=r.goc.ten;r.goc.loai=r.moi.loai=laH?'Hương':'Nguyên liệu';return r})}
 let bslChiThieuHD=false;
 /* mở bảng sửa NGAY TẠI CHỖ cho 1 vật tư (hoặc mọi dòng chưa có HĐ), con trỏ đặt sẵn ở ô Số hoá đơn */
@@ -7092,6 +7094,21 @@ const BSL={
    {k:'ton',t:'Tồn kho',g:'chỉ xem',so:1,w:110,tinh:r=>{const t=tonNLKg(r.goc.ten);return t===null?'—':fmtSo(t)+' kg'}}],
    nap:()=>nlDM.map(t=>({id:'nl:'+t,ref:t,goc:{ten:t},moi:{ten:t}})), ap:()=>{}, doi:r=>['nl',r.goc.ten,r.moi.ten]},
  tatca:{ten:'Tất cả vật tư',cot:bslCotTatCa(),nap:bslTatCaNap,ap:bslMuaAp},
+ /* 21/10/2026 S87 (khách: "phải xem được chi tiết dữ liệu của cả nguyên liệu, từ tỉ lệ pha mẻ… để điều chỉnh nếu cần"): mỗi dòng = 1 nguyên liệu
+    trong công thức 1 mặt hàng. Sửa số kg/mẻ chuẩn → đúng như ô kg ở Công thức: tổng mẻ chuẩn tự cộng lại (dongBoMeChuan), tạo PHIÊN BẢN công
+    thức mới đúng 1 lần mỗi mặt hàng (mẻ cũ giữ tỉ lệ lúc pha). Cột tỉ lệ % và "hương / 100 kg" tính theo số ĐANG GÕ để thấy trước ảnh hưởng. */
+ ctnl:{ten:'Công thức nguyên liệu',cot:[
+   {k:'sp',t:'Mặt hàng',w:200,khoa:()=>'Chỉ xem — đổi tên ở thẻ Mặt hàng'},
+   {k:'ten',t:'Nguyên liệu',w:180,khoa:()=>'Đổi nguyên liệu: vào Công thức của mặt hàng'},
+   {k:'kg',t:'Kg / mẻ chuẩn',g:'gõ số kg',so:1,w:110,kt:v=>!(bslSo(v)>=0)?'Phải là số từ 0 trở lên':''},
+   {k:'tl',t:'Tỉ lệ trong mẻ',g:'tham khảo',thamKhao:1,so:1,w:110,tinh:r=>{const t=bslCtnlTong(r);return t>0?(Math.round(bslSo(r.moi.kg)/t*1000)/10).toString().replace('.',',')+' %':'—'}},
+   {k:'tong',t:'Tổng mẻ chuẩn',g:'máy tự cộng',so:1,w:110,tinh:r=>{const t=bslCtnlTong(r);return t>0?fmtSo(t)+' kg':'—'}},
+   {k:'gk',t:'Hương / 100 kg',g:'tham khảo',thamKhao:1,so:1,w:110,tinh:r=>{const t=bslCtnlTong(r),p=r.ref.p;return t>0&&num(p.ml)>0?fmt(Math.round(num(p.ml)/t*1000)/10)+' g':'—'}},
+   {k:'ton',t:'Tồn kho NL',g:'kg · chỉ xem',so:1,w:110,tinh:r=>{const v=tonNLKg(r.ref.x.ten);return v===null?'chưa có':fmtSo(v)+' kg'}},
+   {k:'gia',t:'Giá / kg',g:'chỉ xem',so:1,w:100,tinh:r=>{const g=giaNLHienTai(r.ref.x.ten);return g>0?fmt(Math.round(g))+' đ':'chưa có'}}],
+   nap:()=>{const ds=[]; sp.forEach(p=>(p.congThucNL||[]).forEach((x,j)=>{if(!x||!x.ten)return; const d={sp:p.ten,ten:x.ten,kg:String(num(x.kg))}; ds.push({id:'ctnl:'+p.ten+':'+j,ref:{p,x},goc:{...d},moi:{...d}})})); return ds},
+   ap:r=>{const {p,x}=r.ref; x.kg=Math.round(bslSo(r.moi.kg)*1000)/1000; dongBoMeChuan(p); r._ap=1;
+     if(!(bslDs.ctnl||[]).some(o=>o!==r&&o.ref.p===p&&!o._ap&&String(o.moi.kg)!==String(o.goc.kg)))bumpRecipeVersion(p)}},
  mua:{ten:'Lần mua hương',cot:bslCotMua('h'),nap:()=>bslMuaNap('h'),ap:bslMuaAp},
  muanl:{ten:'Lần mua nguyên liệu',cot:bslCotMua('nl'),nap:()=>bslMuaNap('nl'),ap:bslMuaAp},
  bb:{ten:'Bao bì',cot:[
@@ -7123,7 +7140,7 @@ const BSL={
    nap:()=>nk.filter(r=>!r.huy).slice().sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))).map(r=>{const d={lot:lotDep(r.lot||''),ngay:vnNgay(r.ngaysx),sp:r.sp,huong:r.huong||'',sl:String(num(r.sl)),nv:r.nv||''};return {id:'me:'+r.id,ref:r,goc:{...d},moi:{...d}}}),
    ap:(r,ly)=>{const x=bslSo(r.moi.sl);if(x!==num(r.ref.sl))apSuaMe(r.ref,x,ly)}},
 };
-const BSL_NHOM={sp:['sp','h','q','nl'],mua:['tatca','kk','bb'],me:['me']};
+const BSL_NHOM={sp:['sp','h','q','nl','ctnl'],mua:['tatca','ctnl','kk','bb'],me:['me']};
 let bslLoai='sp', bslDs={}, bslDang={r:0,c:0}, bslGoc=null, bslSua=null, bslLS=[], bslChon=new Set(), bslNhom='sp';
 const bslL=()=>BSL[bslLoai];
 const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!String(r.goc.soHD||'').trim()))};
@@ -7137,7 +7154,7 @@ function bslMo(nhom){bslChiThieuHD=false;bslNhom=nhom;bslDs={};BSL_NHOM[nhom].fo
    <div class="bsl-w" id="bslW"><table id="bslT"></table></div>
    <div class="bsl-chu" id="bslChu"></div>
    <div class="bsl-goi">↑↓←→ di chuyển · bấm 2 lần vào ô, Enter hoặc gõ chữ để sửa · Shift+bấm: chọn vùng · Ctrl+V dán từ Excel · Ctrl+C chép · Ctrl+D chép ô trên xuống · Delete xoá · Ctrl+Z hoàn tác</div>
-   <div class="bsl-chan"><span id="bslDem"></span><button type="button" class="lop-luib" id="bslHT">Hoàn tác</button><button type="button" class="lop-luib" id="bslBo">Bỏ hết</button><button type="button" class="bigbtn" id="bslLuu">Xem &amp; lưu</button></div></div>`;
+   <div class="bsl-chan"><span id="bslDem"></span><button type="button" class="lop-luib" id="bslTaiX" title="Tải bảng ra file Excel để sửa trên máy">⬇ Tải Excel</button><button type="button" class="lop-luib" id="bslNapX" title="Nạp file Excel đã sửa — thay đổi hiện màu vàng, chưa lưu">⬆ Nạp Excel</button><input type="file" id="bslFileX" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden><button type="button" class="lop-luib" id="bslHT">Hoàn tác</button><button type="button" class="lop-luib" id="bslBo">Bỏ hết</button><button type="button" class="bigbtn" id="bslLuu">Xem &amp; lưu</button></div></div>`;
   w.style.display='flex'; document.documentElement.classList.add('bsl-on'); bslVe()}
 async function bslDongLai(){const n=bslDemSua().o; // S86: bỏ confirm() (quy tắc app: chỉ dùng hoi())
   if(n&&!(await hoi('Đóng mà chưa lưu?','Đang có <b>'+n+'</b> ô đã sửa nhưng chưa lưu. Đóng thì các thay đổi này bị bỏ.',{nutOK:'Bỏ thay đổi & đóng',nutHuy:'Ở lại',nguyHiem:true})))return false;
@@ -7166,7 +7183,12 @@ const BSL_CHU={
    soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn. Điền 1 lần ở đây là tự gắn vào mọi mẻ đã dùng lần mua này.',
    soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Hương trước đây khai 1 kg thì sửa thành số thật, số còn trong kho không bị cộng dư.',
    donGia:'Giá của 1 kg, tính luôn tiền thuế: tổng tiền phải trả trên hoá đơn chia cho số kg.',tt:'Máy tự nhân: số kg × giá 1 kg.',
-   dd:'Hương: số kg đã đổ vào các mẻ đã làm (nguyên liệu xem ở thẻ Điều chỉnh kho).',con:'Hương: lần mua này còn bao nhiêu kg chưa dùng.'},
+   dd:'Hương: số kg của lần mua này đã đổ vào các mẻ. Nguyên liệu: tổng số kg đã dùng kể từ lần chốt kho gần nhất (cả nguyên liệu, không tách theo lần mua).',
+   con:'Hương: lần mua này còn bao nhiêu kg chưa dùng. Nguyên liệu: tổng số kg còn trong kho của nguyên liệu đó.'},
+ ctnl:{kg:'Một mẻ chuẩn của mặt hàng này dùng bao nhiêu kg nguyên liệu đó. Sửa số này giống như sửa ở trang Công thức: tổng mẻ chuẩn tự cộng lại, công thức lên phiên bản mới — mẻ đã làm vẫn giữ tỉ lệ cũ.',
+   tl:'Nguyên liệu này chiếm bao nhiêu phần trăm của mẻ (theo số đang gõ). Chỉ để tham khảo.',tong:'Cộng tất cả nguyên liệu của mặt hàng = số kg 1 mẻ chuẩn.',
+   gk:'Lượng hương trên 100 kg sau khi đổi. Gam hương cho 1 mẻ chuẩn GIỮ NGUYÊN, nên tăng tổng kg thì hương bị loãng hơn — xem số này trước khi lưu.',
+   ton:'Nguyên liệu này còn bao nhiêu kg trong kho (hệ thống ghi nhận).',gia:'Giá 1 kg của lần mua đang dùng.'},
  muanl:{soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn.',donGia:'Giá của 1 kg, tính luôn tiền thuế.',tt:'Máy tự nhân: số kg × giá 1 kg.'},
  kk:{ht:'Số kg hệ thống đang tính là còn trong kho: lấy số đã mua trừ đi số đã đổ vào các mẻ đã làm. Chỉ để xem, không gõ.',
    that:'Số kg hàng ĐANG CÓ THẬT trong kho lúc này — ra kho cân (hoặc đếm số bao × kg mỗi bao) rồi gõ vào. Bấm lưu thì hệ thống lấy đúng số này làm số còn trong kho. Hàng nào không đi cân thì để trống, hệ thống giữ nguyên.',
@@ -7176,6 +7198,59 @@ const BSL_CHU={
  h:{ma:'Hai số ở giữa số lô, dùng để biết là hương gì.',ton:'Hương này phần mềm đang tính là còn bao nhiêu kg. Muốn sửa cho khớp kho thật thì vào thẻ "Điều chỉnh kho".'},
  q:{kg:'Một bao / túi nặng bao nhiêu kg, để máy chia ra số bao.',ma:'Hai số chỉ quy cách trong số lô (với mặt hàng có in tem phụ).'},
  bb:{giaKg:'Giá bao bì tính theo kg.',caiKg:'Một kg bao bì được bao nhiêu cái.',gc:'Một cái bao bì giá bao nhiêu. Máy tự chia.'}};
+
+/* ═══ 21/10/2026 S87 — TẢI EXCEL / NẠP EXCEL cho Sửa hàng loạt (khách: "như Shopee: tải file excel đúng định dạng của hệ thống,
+   chỉnh rồi đẩy ngược lên"). Tải: mỗi thẻ của nhóm đang mở = 1 trang tính, cột A "MÃ DÒNG" để hệ thống nhận ra dòng (đừng sửa),
+   cột chỉ xem ghi "(chỉ xem)". Nạp: đọc file .xlsx (giải nén bằng DecompressionStream của trình duyệt — không thư viện ngoài),
+   đổ thay đổi vào bảng như sửa tay (ô vàng, ô sai đỏ, Hoàn tác được) — KHÔNG tự lưu: vẫn phải bấm "Xem & lưu". */
+const BSL_MA='MÃ DÒNG (đừng sửa)';
+const bslXGT=(c,r)=>{if(c.tinh)return String(c.tinh(r)); const v=r.moi[c.k];
+  if(c.bat)return v?'có':'không'; if(c.chon)return ((c.chon.find(o=>o[0]===String(v))||[])[1])||String(v??'');
+  if(c.so){const n=bslSo(v);return isFinite(n)?n:String(v??'')} return String(v??'')};
+function bslTaiExcel(){
+  const ks=BSL_NHOM[bslNhom], sheets=ks.map(k=>{const L=BSL[k], ds=bslDs[k]||[];
+    const dau=[BSL_MA,...L.cot.map(c=>c.t+(c.tinh||(c.khoa&&ds.length&&ds.every(r=>c.khoa(r)))?' (chỉ xem)':''))];
+    return {name:L.ten,dauBang:0,cols:[22,...L.cot.map(c=>Math.max(12,Math.round((c.w||110)/7)))],rows:[dau,...ds.map(r=>[r.id,...L.cot.map(c=>bslXGT(c,r))])]}});
+  const ten={sp:'danh-muc',mua:'kho',me:'me-da-ghi'}[bslNhom]||bslNhom;
+  if(taiVe(`sua-hang-loat_${ten}_${isoNay()}.xlsx`,xlsxBytes(sheets)))bao('Đã tải file Excel — sửa xong bấm "⬆ Nạp Excel" để đưa lên bảng')}
+// đọc .xlsx → [{name, rows:[[...]]}]
+async function docXlsx(buf){const b=new Uint8Array(buf), dv=new DataView(buf); let e=b.length-22; while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--; if(e<0)throw new Error('Không phải file Excel (.xlsx)');
+  const n=dv.getUint16(e+10,true); let p=dv.getUint32(e+16,true); const tep={};
+  for(let i=0;i<n;i++){const m=dv.getUint16(p+10,true), csz=dv.getUint32(p+20,true), ln=dv.getUint16(p+28,true), lx=dv.getUint16(p+30,true), lc=dv.getUint16(p+32,true), off=dv.getUint32(p+42,true);
+    const ten=new TextDecoder().decode(b.subarray(p+46,p+46+ln)); const d0=off+30+dv.getUint16(off+26,true)+dv.getUint16(off+28,true); tep[ten]={m,d:b.subarray(d0,d0+csz)}; p+=46+ln+lx+lc}
+  const doc=async t=>{const x=tep[t]; if(!x)return null; if(x.m===0)return new TextDecoder().decode(x.d);
+    const st=new Blob([x.d]).stream().pipeThrough(new DecompressionStream('deflate-raw')); return await new Response(st).text()};
+  const xml=t=>new DOMParser().parseFromString(t,'application/xml'), tat=(el,n)=>[...el.getElementsByTagNameNS('*',n)];
+  const ss=await doc('xl/sharedStrings.xml'), chuoi=ss?tat(xml(ss),'si').map(si=>tat(si,'t').map(t=>t.textContent).join('')):[];
+  const wb=xml(await doc('xl/workbook.xml')), rel=xml(await doc('xl/_rels/workbook.xml.rels')), dich={};
+  tat(rel,'Relationship').forEach(r=>{let t=r.getAttribute('Target');t=t.replace(/^\//,'');dich[r.getAttribute('Id')]=t.startsWith('xl/')?t:'xl/'+t});
+  const kq=[]; for(const sh of tat(wb,'sheet')){const id=sh.getAttribute('r:id')||sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id'), t=await doc(dich[id]); if(!t)continue;
+    const rows=[]; tat(xml(t),'row').forEach(rw=>{const ri=+rw.getAttribute('r')-1, a=[]; tat(rw,'c').forEach(c=>{const ref=c.getAttribute('r')||'', col=ref.replace(/\d+/g,'').split('').reduce((s2,ch)=>s2*26+ch.charCodeAt(0)-64,0)-1, ty=c.getAttribute('t');
+      const v=(tat(c,'v')[0]||{}).textContent; a[col]=ty==='s'?chuoi[+v]:ty==='inlineStr'?tat(c,'t').map(x=>x.textContent).join(''):ty==='b'?(v==='1'):v===undefined?'':(ty==='str'?v:(isFinite(+v)?+v:v))}); rows[ri]=a});
+    kq.push({name:sh.getAttribute('name'),rows:rows.map(r=>r||[])})}
+  return kq}
+const ngaySerial=v=>{const d=new Date(Date.UTC(1899,11,30)+Math.round(+v)*864e5);return z2(d.getUTCDate())+'/'+z2(d.getUTCMonth()+1)+'/'+d.getUTCFullYear()};
+async function bslNapExcel(file){let ds; try{ds=await docXlsx(await file.arrayBuffer())}catch(e){bao('Không đọc được file: '+(e&&e.message||e));return}
+  const ks=BSL_NHOM[bslNhom], buoc=[]; let ok=0,boQua=0,khongRo=0,dauTien='';
+  ds.forEach(sh=>{const k=ks.find(x=>BSL[x].ten===sh.name); if(!k){return} const L=BSL[k], dau=(sh.rows[0]||[]).map(x=>String(x??'').replace(/ \(chỉ xem\)$/,'').trim());
+    if(dau[0]!==BSL_MA){khongRo++;return} const vt=L.cot.map(c=>dau.indexOf(c.t));
+    sh.rows.slice(1).forEach(rw=>{const id=String(rw[0]??'').trim(); if(!id)return; const row=(bslDs[k]||[]).find(r=>r.id===id); if(!row){boQua++;return}
+      L.cot.forEach((c,ci)=>{const j=vt[ci]; if(j<1||c.tinh||bslKhoa(c,row))return; let v=rw[j]; if(v===undefined)return;
+        if(c.bat)v=v===true||/^(1|x|có|co|true|yes|✓)$/i.test(String(v).trim());
+        else if(c.chon){const t=String(v).trim(), o=c.chon.find(x=>x[1].toLowerCase()===t.toLowerCase()||x[0]===t.replace('%',''));if(!o)return;v=o[0]}
+        else if(c.k==='ngay'&&typeof v==='number')v=ngaySerial(v);
+        else v=typeof v==='number'?String(Math.round(v*1e6)/1e6):String(v).trim();
+        const cu=row.moi[c.k]; if(c.so&&isFinite(bslSo(cu))&&isFinite(bslSo(v))&&bslSo(cu)===bslSo(v))return; if(String(cu??'')===String(v))return;
+        buoc.push({l:k,id,k:c.k,cu}); row.moi[c.k]=v; ok++; if(!dauTien)dauTien=k})})});
+  if(buoc.length){bslLS.push(buoc); bslLoai=dauTien; bslDang={r:0,c:0}}
+  bslVe(); const d=bslDemSua();
+  await hoi(ok?'Đã nạp từ Excel':'Không có thay đổi',(ok?`<b>${ok}</b> ô thay đổi đã đưa vào bảng (ô màu vàng).`:'File không có ô nào khác với hệ thống.')
+    +(boQua?`<br>Bỏ qua <b>${boQua}</b> dòng có MÃ DÒNG không tìm thấy (dòng thêm mới trong Excel không được nhận — thêm ở app).`:'')
+    +(khongRo?`<br><b>${khongRo}</b> trang tính thiếu cột "${BSL_MA}" — hãy dùng đúng file tải từ nút "⬇ Tải Excel".`:'')
+    +(d.l?`<br><span style="color:var(--badTx)">Có <b>${d.l}</b> ô sai (màu đỏ) — sửa trước khi lưu.</span>`:'')
+    +(ok?'<br><br>Xem lại rồi bấm <b>Xem &amp; lưu</b>. Chưa có gì được lưu — bấm <b>Hoàn tác</b> nếu nạp nhầm file.':''),{nutOK:'Đã hiểu',nutHuy:'Đóng'})}
+document.addEventListener('click',e=>{if(e.target.closest('#bslTaiX')){bslTaiExcel();return} if(e.target.closest('#bslNapX')){$('bslFileX').click()}});
+document.addEventListener('change',e=>{if(e.target.id==='bslFileX'&&e.target.files&&e.target.files[0]){bslNapExcel(e.target.files[0]);e.target.value=''}});
 function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai]||{}, cs=bslL().cot.filter(c=>m[c.k]);
   el.innerHTML=cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):''}
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;

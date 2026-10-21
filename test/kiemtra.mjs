@@ -3680,6 +3680,36 @@ const ct=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CT: bấm ô "Dùng cho" ở Tất cả vật tư → mở thẳng công thức mặt hàng', ct.mo, JSON.stringify(ct));
 ok('CT: đóng bảng sửa khi còn ô chưa lưu → hỏi bằng hộp của app, chọn ở lại thì không đóng', ct.hoiDong);
+/* CU — S87: Tải Excel / Nạp Excel ở Sửa hàng loạt — file đúng định dạng (cột MÃ DÒNG), nạp lại đổ thay đổi vào bảng (chưa lưu) */
+const cu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H=kho.filter(h=>!isUnscented(h))[0], g=JSON.stringify(nguonHuong);
+  nguonHuong[H]=[{ncc:'A',gia:1000000,soKg:10,ngay:'01/10/2026',daDungKg:0,vat:8}];
+  moSuaNhanh(H,false); await cho(60); bslSua=null; bslVe();
+  const ks=BSL_NHOM[bslNhom], sheets=ks.map(k=>{const L=BSL[k],ds=bslDs[k]||[];return {name:L.ten,dauBang:0,rows:[[BSL_MA,...L.cot.map(c=>c.t+(c.tinh?' (chỉ xem)':''))],...ds.map(r=>[r.id,...L.cot.map(c=>bslXGT(c,r))])]}});
+  const doc=await docXlsx(xlsxBytes(sheets).buffer); kq.docLai=doc.length===ks.length&&doc[0].rows[0][0]===BSL_MA;
+  const t=doc.find(x=>x.name==='Tất cả vật tư'), dau=t.rows[0].map(x=>String(x).replace(/ \(chỉ xem\)$/,'')), r=t.rows.find(x=>x[0]==='h:'+H+':0');
+  r[dau.indexOf('Số hoá đơn')]='HĐ-EXCEL-1'; r[dau.indexOf('Số kg mua')]=12; r[dau.indexOf('Ngày mua')]=46310; r[dau.indexOf('VAT')]='10%'; r[dau.indexOf('Đã dùng')]='999 kg';
+  t.rows.push(['h:KHONG-CO:0','x']);
+  const tep=new File([xlsxBytes(doc.map(x=>({name:x.name,rows:x.rows,dauBang:0})))],'sua.xlsx'); let hoiMsg=''; window.hoi=async(a,m)=>{hoiMsg=m;return true};
+  await bslNapExcel(tep); await cho(40); const row=bslDs.tatca.find(x=>x.id==='h:'+H+':0');
+  kq.nap=row.moi.soHD==='HĐ-EXCEL-1'&&bslSo(row.moi.soKg)===12&&/^\d{2}\/\d{2}\/\d{4}$/.test(row.moi.ngay)&&row.moi.vat==='10'&&/Bỏ qua <b>1<\/b>/.test(hoiMsg);
+  kq.chuaLuu=nguonHuong[H][0].soHD!=='HĐ-EXCEL-1'&&bslDemSua().o>=4; bslHoanTac(); kq.hoanTac=row.moi.soHD===row.goc.soHD;
+  window.hoi=async()=>true; await bslDongLai(); window.hoi=th; nguonHuong=JSON.parse(g); ve(); return kq;
+});
+ok('CU: Tải Excel ra đủ trang tính theo thẻ, có cột MÃ DÒNG; đọc lại được', cu.docLai, JSON.stringify(cu));
+ok('CU: Nạp Excel đã sửa → đổ đúng ô vào bảng (số HĐ, số kg, ngày Excel, VAT), bỏ cột chỉ xem & dòng lạ, CHƯA lưu, Hoàn tác được', cu.nap&&cu.chuaLuu&&cu.hoanTac);
+/* CV — S87: thẻ "Công thức nguyên liệu" trong Sửa hàng loạt — xem tỉ lệ pha, sửa kg/mẻ chuẩn → tổng mẻ tự cộng, lên 1 phiên bản */
+const cv=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, N1=nlDM[0]||'NL1', N2=nlDM[1]||'NL2';
+  const p={ten:'__SP_CV__',maSP:'67',kg:100,ml:50,pkb:false,huongs:[],tam:[],dauRa:[],hstem:{},lichSu:[],congThucNL:[{ten:N1,kg:90},{ten:N2,kg:10}],tt:'ok',recipeVersion:3}; bumpRecipeVersion(p); sp.push(p);
+  chuyenTab('ma'); await cho(30); document.querySelector('[data-bslmo="sp"]').click(); await cho(60); bslLoai='ctnl'; bslVe();
+  const rs=bslHien().filter(r=>r.ref.p===p), tl=BSL.ctnl.cot.find(c=>c.k==='tl'), gk=BSL.ctnl.cot.find(c=>c.k==='gk');
+  kq.co=rs.length===2&&tl.tinh(rs[0])==='90 %'&&gk.tinh(rs[0])==='50 g';
+  rs[0].moi.kg='190'; rs[1].moi.kg='10'; kq.truoc=tl.tinh(rs[0])==='95 %'&&gk.tinh(rs[0])==='25 g';
+  const v0=num(p.recipeVersion); window.hoi=async()=>true; await bslXemLuu(); await cho(40);
+  kq.luu=p.congThucNL[0].kg===190&&num(p.kg)===200&&num(p.recipeVersion)===v0+1;
+  window.hoi=th; await bslDongLai(); sp=sp.filter(x=>x!==p); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('CV: Sửa hàng loạt có thẻ "Công thức nguyên liệu" — tỉ lệ % và hương/100 kg theo số đang gõ', cv.co&&cv.truoc, JSON.stringify(cv));
+ok('CV: lưu → kg nguyên liệu đổi, tổng mẻ chuẩn tự cộng, công thức lên đúng 1 phiên bản', cv.luu);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
