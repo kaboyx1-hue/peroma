@@ -3668,6 +3668,18 @@ const cs=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('CS: Sửa hàng loạt có thẻ "Tất cả vật tư" — hương + nguyên liệu chung 1 bảng, có cột Dùng cho', cs.the&&cs.ca2&&cs.dung, JSON.stringify(cs));
 ok('CS: ở Kho bấm "Điền số HĐ ngay" → mở bảng sửa đúng vật tư đó, con trỏ ở ô Số hoá đơn', cs.nhanh);
+/* CT — S86: ô "Dùng cho" → mở thẳng công thức mặt hàng; đóng bảng còn ô chưa lưu thì hỏi bằng hộp của app (không confirm) */
+const ct=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='__HUONG_CT__', g=JSON.stringify(nguonHuong);
+  kho.push(H); const p={ten:'__SP_CT__',maSP:'66',kg:100,ml:50,pkb:false,huongs:[H],tam:[H],dauRa:[],hstem:{},lichSu:[],congThucNL:[],tt:'ok'}; sp.push(p); nguonHuong[H]=[{ncc:'A',gia:1000,soKg:10,ngay:'01/10/2026',daDungKg:0}];
+  window.hoi=async()=>false; moSuaNhanh(H,false); await cho(80); bslSua=null; const rs=bslHien(); rs[0].moi.soHD='X1'; bslVe();
+  const dong=await bslDongLai(); kq.hoiDong=dong===false&&document.documentElement.classList.contains('bsl-on');
+  rs[0].moi.soHD=rs[0].goc.soHD; bslVe(); window.hoi=async()=>true;
+  const ci=bslL().cot.findIndex(c=>c.k==='dung'); bslDang={r:0,c:ci}; bslVe(); bslMoSua(); await cho(120);
+  const cac=dungChoVT(true,H); kq.mo=cac.length===1&&tab==='ct'&&sp[ctChon]&&sp[ctChon].ten==='__SP_CT__'&&!document.documentElement.classList.contains('bsl-on');
+  window.hoi=th; nguonHuong=JSON.parse(g); sp=sp.filter(x=>x!==p); kho=kho.filter(x=>x!==H); mo.clear(); chuyenTab('tq'); return kq;
+});
+ok('CT: bấm ô "Dùng cho" ở Tất cả vật tư → mở thẳng công thức mặt hàng', ct.mo, JSON.stringify(ct));
+ok('CT: đóng bảng sửa khi còn ô chưa lưu → hỏi bằng hộp của app, chọn ở lại thì không đóng', ct.hoiDong);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

@@ -1898,15 +1898,16 @@ html.hv-tat #huyHieu{transition:none}
 .nh-ct .nh-o>span{white-space:normal}.nh-ct .nh-o>b{min-width:0;overflow-wrap:anywhere;word-break:normal}
 .nh-ct .nh-o>b small{display:block;font-weight:500;font-size:11.5px;line-height:1.35}
 .bsl-loc{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;padding:6px 12px;border:1.5px solid var(--line2);border-radius:999px;margin-right:6px;cursor:pointer}.bsl-loc input{accent-color:var(--acc)}
+.bsl-chonsp{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S85</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 21/10/2026-S86</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 21/10/2026-S85</div>
+      <div class="verFoot">BẢN 21/10/2026-S86</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -7040,7 +7041,7 @@ const dungChoVT=(laH,ten)=>sp.filter(p=>laH?(p.huongs||[]).includes(ten):(p.cong
 function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>String(r.id).startsWith('h:');
   return [{k:'ten',t:'Tên vật tư',w:200,khoa:()=>'Đổi tên ở thẻ Danh mục'},
     {k:'loai',t:'Loại',w:100,khoa:()=>'Chỉ xem'},
-    {k:'dung',t:'Dùng cho',g:'mặt hàng đang dùng',w:200,tinh:r=>{const d=dungChoVT(laH(r),r.ref._ten);return d.length?d.join(', '):'— chưa mặt hàng nào'}},
+    {k:'dung',t:'Dùng cho',g:'bấm 2 lần → mở công thức',w:200,tinh:r=>{const d=dungChoVT(laH(r),r.ref._ten);return d.length?d.join(', '):'— chưa mặt hàng nào'}},
     c('ncc'),c('ngay'),c('soHD'),c('soHopDong'),
     {...c('soKg'),kt:(v,r)=>laH(r)?c('soKg').kt(v,r):(!(bslSo(v)>0)?'Phải lớn hơn 0':'')},
     c('donGia'),c('tt'),c('vat'),
@@ -7138,7 +7139,16 @@ function bslMo(nhom){bslChiThieuHD=false;bslNhom=nhom;bslDs={};BSL_NHOM[nhom].fo
    <div class="bsl-goi">↑↓←→ di chuyển · bấm 2 lần vào ô, Enter hoặc gõ chữ để sửa · Shift+bấm: chọn vùng · Ctrl+V dán từ Excel · Ctrl+C chép · Ctrl+D chép ô trên xuống · Delete xoá · Ctrl+Z hoàn tác</div>
    <div class="bsl-chan"><span id="bslDem"></span><button type="button" class="lop-luib" id="bslHT">Hoàn tác</button><button type="button" class="lop-luib" id="bslBo">Bỏ hết</button><button type="button" class="bigbtn" id="bslLuu">Xem &amp; lưu</button></div></div>`;
   w.style.display='flex'; document.documentElement.classList.add('bsl-on'); bslVe()}
-function bslDongLai(){const n=bslDemSua().o; if(n&&!confirm('Đang có '+n+' ô sửa chưa lưu. Đóng và bỏ các thay đổi này?'))return; $('bsl').style.display='none'; document.documentElement.classList.remove('bsl-on')}
+async function bslDongLai(){const n=bslDemSua().o; // S86: bỏ confirm() (quy tắc app: chỉ dùng hoi())
+  if(n&&!(await hoi('Đóng mà chưa lưu?','Đang có <b>'+n+'</b> ô đã sửa nhưng chưa lưu. Đóng thì các thay đổi này bị bỏ.',{nutOK:'Bỏ thay đổi & đóng',nutHuy:'Ở lại',nguyHiem:true})))return false;
+  $('bsl').style.display='none'; document.documentElement.classList.remove('bsl-on'); return true}
+/* S86 (liên kết 2 chiều): ô "Dùng cho" ở thẻ Tất cả vật tư — bấm 2 lần / Enter → mở công thức mặt hàng đó (nhiều mặt hàng thì chọn) */
+async function bslMoSP(row){const ds=dungChoVT(String(row.id).startsWith('h:'),row.ref._ten); if(!ds.length){bao('Chưa mặt hàng nào dùng vật tư này');return}
+  let ten=ds[0];
+  if(ds.length>1){ten=await new Promise(z=>{bslChonSP=z; hoi('Mở công thức mặt hàng nào?','<div class="bsl-chonsp">'+ds.map(t=>`<button type="button" class="ctsxb" data-bslsp="${esc(t)}">${esc(t)}</button>`).join('')+'</div>',{nutOK:'Đóng',nutHuy:'Huỷ'}).then(()=>z(null))}); bslChonSP=null; if(!ten)return}
+  if(!(await bslDongLai()))return; const i=sp.findIndex(p=>p.ten===ten); if(i<0)return; mo.clear(); mo.add(i); ctChon=i; chuyenTab('ct'); bao('Đã mở công thức '+ten)}
+let bslChonSP=null;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-bslsp]'); if(b&&bslChonSP){const z=bslChonSP; bslChonSP=null; z(b.dataset.bslsp); dongDlg(null)}});
 function bslDemSua(){let o=0,d=0,l=0;Object.entries(bslDs).forEach(([k,ds])=>ds.forEach(r=>{const c=BSL[k].cot.filter(c=>bslDaSua(c,r)&&!(c.khoa&&c.khoa(r))).length;o+=c;if(c)d++;BSL[k].cot.forEach(c=>{if(bslDaSua(c,r)&&!(c.khoa&&c.khoa(r))&&c.kt&&c.kt(String(r.moi[c.k]??''),r,ds))l++})}));return {o,d,l}} // chỉ chặn lưu khi CHÍNH ô vừa sửa bị sai; ô sai sẵn từ trước vẫn tô đỏ nhưng không chặn
 function bslTrong(r,c){if(!bslGoc)return false;return r>=Math.min(bslGoc.r,bslDang.r)&&r<=Math.max(bslGoc.r,bslDang.r)&&c>=Math.min(bslGoc.c,bslDang.c)&&c<=Math.max(bslGoc.c,bslDang.c)}
 function bslVung(){const a=bslGoc||bslDang;return {r1:Math.min(a.r,bslDang.r),r2:Math.max(a.r,bslDang.r),c1:Math.min(a.c,bslDang.c),c2:Math.max(a.c,bslDang.c)}}
@@ -7152,7 +7162,7 @@ const BSL_CHU={
    tt:'Máy tự nhân: số kg × giá 1 kg. Không cần gõ.',vat:'Thuế ghi trên hoá đơn, thường là 8%. Chưa biết thì để "chưa khai".',
    dd:'Bao nhiêu kg của lần mua này đã đổ vào các mẻ đã làm. Máy tự cộng, không cần gõ.',con:'Lần mua này còn bao nhiêu kg chưa đụng tới. Máy tự trừ: mua − đã dùng.',
    ngay:'Ngày ghi trên hoá đơn. Máy dùng hết lần mua cũ rồi mới dùng sang lần mua mới.',soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn.'},
- tatca:{dung:'Những mặt hàng đang dùng vật tư này (hương chọn trong công thức, nguyên liệu trong bảng nguyên liệu). Chỉ xem.',
+ tatca:{dung:'Những mặt hàng đang dùng vật tư này. Bấm 2 lần vào ô (hoặc Enter) để mở thẳng công thức của mặt hàng đó.',
    soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn. Điền 1 lần ở đây là tự gắn vào mọi mẻ đã dùng lần mua này.',
    soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Hương trước đây khai 1 kg thì sửa thành số thật, số còn trong kho không bị cộng dư.',
    donGia:'Giá của 1 kg, tính luôn tiền thuế: tổng tiền phải trả trên hoá đơn chia cho số kg.',tt:'Máy tự nhân: số kg × giá 1 kg.',
@@ -7190,6 +7200,7 @@ function bslGhi(ds){const rows=bslHien(),cs=bslL().cot,buoc=[];
 function bslO(){const td=document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"]`);if(td){td.querySelector('.o').focus({preventScroll:true});td.scrollIntoView({block:'nearest',inline:'nearest'})}}
 function bslDi(dr,dc,mo){const n=bslHien().length,m=bslL().cot.length;if(mo){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r:Math.max(0,Math.min(n-1,bslDang.r+dr)),c:Math.max(0,Math.min(m-1,bslDang.c+dc))};bslVe();bslO()}
 function bslMoSua(kt){const row=bslHien()[bslDang.r],col=bslL().cot[bslDang.c];if(!row||!col)return;
+  if(col.k==='dung'&&bslLoai==='tatca'){bslMoSP(row);return}
   if(bslKhoa(col,row)){bao(col.tinh?'Ô tự tính — chỉ xem':'🔒 '+bslKhoa(col,row));rungO(document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"]`));return}
   if(col.bat){bslGhi([{r:bslDang.r,c:bslDang.c,v:!row.moi[col.k]}]);bslO();return}
   const td=document.querySelector(`#bslT td[data-r="${bslDang.r}"][data-c="${bslDang.c}"] .o`);bslSua={r:bslDang.r,c:bslDang.c};
