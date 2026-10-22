@@ -3769,6 +3769,43 @@ const cz=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('CZ: tab Sản xuất có bảng "Danh sách lô đã làm" luôn mở ở trên cùng', cz.hien, JSON.stringify(cz));
 ok('CZ: tìm theo số lô (gõ có dấu cách vẫn được, giữ con trỏ), lọc theo tháng, lô huỷ hiện mờ', cz.tim&&cz.thang);
 ok('CZ: bấm dòng → mở đúng thẻ chi tiết lô', cz.mo);
+/* DA — S93: thẻ "Công thức hương" ở Sửa hàng loạt (Kho) — g hương / mẻ chuẩn, g / 100 kg, %, chi phí hương / 100 kg; sửa gam lên phiên bản */
+const da=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='__HUONG_DA__', g=JSON.stringify(nguonHuong);
+  kho.push(H); nguonHuong[H]=[{ncc:'P',gia:2268000,soKg:5,ngay:'01/10/2026',daDungKg:0,vat:8}]; huongDangDung[H]='P';
+  const p={ten:'__SP_DA__',maSP:'68',kg:100,ml:150,pkb:false,huongs:[H],tam:[H],dauRa:[],hstem:{},lichSu:[],congThucNL:[],tt:'ok',recipeVersion:2}; bumpRecipeVersion(p); sp.push(p);
+  chuyenTab('kho'); await cho(30); document.querySelector('[data-bslmo="mua"]').click(); await cho(60); bslLoai='cth'; bslVe();
+  const r=bslHien().find(x=>x.ref===p), C=k=>BSL.cth.cot.find(c=>c.k===k);
+  kq.the=!!document.querySelector('[data-bslloai="cth"]')&&C('gk').tinh(r)==='150 g'&&C('tl').tinh(r)==='0,15 %'&&C('cp').tinh(r)==='63.000 đ';
+  r.moi.ml='200'; const v0=num(p.recipeVersion); window.hoi=async()=>true; await bslXemLuu(); await cho(40); kq.luu=num(p.ml)===200&&num(p.recipeVersion)===v0+1;
+  window.hoi=th; await bslDongLai(); sp=sp.filter(x=>x!==p); kho=kho.filter(x=>x!==H); nguonHuong=JSON.parse(g); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DA: Sửa hàng loạt (Kho) có thẻ "Công thức hương" — 150 g/100 kg · 0,15 % · chi phí hương 63.000 đ/100 kg', da.the, JSON.stringify(da));
+ok('DA: sửa gam hương / mẻ chuẩn → lưu đúng, công thức lên 1 phiên bản', da.luu);
+/* DB — S93: "Tất cả vật tư" hiện cả hương / nguyên liệu CHƯA có lần mua (VD hương riêng Citycat) → Dùng cho thấy mặt hàng; gõ vào là thành lần mua */
+const db=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='Hương chanh (Citycat) __DB__', g=JSON.stringify(nguonHuong);
+  kho.push(H); const p={ten:'Citycat __DB__',maSP:'11',kg:100,ml:150,huongs:[H],tam:[H],dauRa:[],hstem:{},lichSu:[],congThucNL:[],tt:'ok'}; sp.push(p);
+  moSuaNhanh('',false); await cho(60); bslSua=null; const r=bslDs.tatca.find(x=>x.id==='moi:h:'+H);
+  kq.co=!!r&&BSL.tatca.cot.find(c=>c.k==='dung').tinh(r).includes('Citycat __DB__')&&bslDemSua().l===0&&!!document.querySelector('#bslT tr.m-chua');
+  Object.assign(r.moi,{ncc:'Peroma',soHD:'4999',soKg:'50',donGia:'486000'}); bslVe(); kq.khongLoi=bslDemSua().l===0;
+  window.hoi=async()=>true; await bslXemLuu(); await cho(40); const e=(nguonHuong[H]||[])[0];
+  kq.luu=!!e&&e.ncc==='Peroma'&&e.soKg===50&&e.gia===24300000&&e.soHD==='4999'&&huongDangDung[H]==='Peroma';
+  window.hoi=th; await bslDongLai(); sp=sp.filter(x=>x!==p); kho=kho.filter(x=>x!==H); delete huongDangDung[H]; nguonHuong=JSON.parse(g); luuNgay(); return kq;
+});
+ok('DB: Tất cả vật tư hiện hương chưa có lần mua (VD hương riêng Citycat), cột Dùng cho thấy mặt hàng, dòng trống không báo lỗi', db.co, JSON.stringify(db));
+ok('DB: gõ nhà cung cấp · số HĐ · số kg · đơn giá vào dòng "chưa khai lần mua" → lưu thành lần mua mới', db.khongLoi&&db.luu);
+/* DC — S93: hương ĐI KÈM NGUYÊN LIỆU (Citycat) — hết nợ dữ liệu, chi phí hương 0, không báo chưa khai NCC / thiếu HĐ, mẻ mới không thành nợ */
+const dc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H='Hương Lài (Citycat) __DC__', g={nk:nk.slice(),tk:JSON.stringify(tonKhoHuong)};
+  kho.push(H); nk=[...nk,{id:'DC-1',sp:'Citycat',huong:H,lot:'1117106',sl:1000,mlDung:1500,ngaysx:'2026-10-19',ts:'2026-10-20T04:21:04Z',giaHuongTheoGLucSX:null,chiPhiHuongLucSX:null}];
+  kq.truoc=noMeHuong(H).length===1&&ttNguon('h',H).nhom==='chua';
+  chuyenTab('kho'); moNguonCua('h',H); await cho(60); const ck=[...document.querySelectorAll(`[data-kemnl="${CSS.escape(H)}"]`)].find(x=>x.offsetParent)||document.querySelector(`[data-kemnl="${CSS.escape(H)}"]`);
+  kq.coNut=!!ck; ck.checked=true; ck.dispatchEvent(new Event('change',{bubbles:true})); await cho(40);
+  const t=ttNguon('h',H); kq.sau=huongKemNL(H)&&noMeHuong(H).length===0&&t.nhom==='ok'&&!t.can&&t.ttK[0][0]==='kem'&&nk.find(r=>r.id==='DC-1').giaHuongTheoGLucSX===0&&chiPhiHuongRecord(nk.find(r=>r.id==='DC-1'))===0;
+  const m={id:'DC-2',sp:'Citycat',huong:H,lot:'1117106',sl:500,mlDung:750,ngaysx:'2026-10-21',ts:new Date().toISOString(),giaHuongTheoGLucSX:null}; ghiNhanMeLanDau(m); kq.meMoi=m.giaHuongTheoGLucSX===0&&m.chiPhiHuongLucSX===0;
+  moSuaNhanh('',false); await cho(40); kq.khongDong=!bslDs.tatca.some(r=>r.id==='moi:h:'+H); bslSua=null; await bslDongLai();
+  nk=g.nk; tonKhoHuong=JSON.parse(g.tk); kho=kho.filter(x=>x!==H); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DC: hương Citycat chưa đánh dấu → bị coi là nợ dữ liệu / chưa khai (đúng như lỗi khách thấy)', dc.truoc, JSON.stringify(dc));
+ok('DC: tích "🎁 đi kèm nguyên liệu" ở Kho → hết nợ, chi phí hương 0, trạng thái Đi kèm NL, mẻ mới không thành nợ, không còn dòng "chưa khai lần mua"', dc.coNut&&dc.sau&&dc.meMoi&&dc.khongDong);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
