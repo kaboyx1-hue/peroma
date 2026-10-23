@@ -3806,6 +3806,60 @@ const dc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('DC: hương Citycat chưa đánh dấu → bị coi là nợ dữ liệu / chưa khai (đúng như lỗi khách thấy)', dc.truoc, JSON.stringify(dc));
 ok('DC: tích "🎁 đi kèm nguyên liệu" ở Kho → hết nợ, chi phí hương 0, trạng thái Đi kèm NL, mẻ mới không thành nợ, không còn dòng "chưa khai lần mua"', dc.coNut&&dc.sau&&dc.meMoi&&dc.khongDong);
+/* DD — S94: nút 💰 Giá thành ở Danh sách lô → cửa sổ liệt kê nguyên liệu · hương · bao bì, tổng, giá/kg, giá/bao */
+const dd=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),nl:JSON.stringify(nguonNguyenLieu),nd:JSON.stringify(nlDangDung||{})};
+  nguonNguyenLieu['Đá __DD__']=[{ncc:'NCC DD',gia:1080000,soKg:1000,vat:8,soHD:'777',ngay:'2026-10-01'}]; nlDangDung['Đá __DD__']='NCC DD';
+  nk=[...nk,{id:'DD-1',sp:'SP __DD__',huong:'Hương __DD__',lot:'9922106',sl:500,soBao:50,quyCach:'10kg',mlDung:250,ngaysx:'2026-10-22',ts:'2026-10-22T01:00:00Z',
+    nlLucSX:[{ten:'Đá __DD__',tl:1}],giaHuongTheoGLucSX:2,chiPhiHuongLucSX:500,baoBiLucSX:[{ten:'Túi 10kg',soCai:50,giaCai:3000}],chiPhiBaoBiLucSX:150000}];
+  const t=giaThanhMe(nk.find(r=>r.id==='DD-1'));
+  kq.tinh=Math.round(t.tong)===650500&&Math.round(t.giaKg)===1301&&Math.round(t.giaBao)===13010&&t.thieu.length===0;
+  chuyenTab('sx'); await cho(60);
+  const b=document.querySelector('[data-giathanh="DD-1"]'); kq.nut=!!b; const lo=traLot; b.click(); await cho(60);
+  const m=$('dlgM').textContent; kq.mo=$('mask').classList.contains('show')&&m.includes('Đá __DD__')&&m.includes('Túi 10kg')&&m.includes('650.500')&&$('dlgC').style.display==='none'&&traLot===lo;
+  dongDlg(true); await cho(20);
+  nk=g.nk; nguonNguyenLieu=JSON.parse(g.nl); nlDangDung=JSON.parse(g.nd); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DD: giá thành lô = NL (kg × giá lần mua chưa VAT) + hương (gam × giá lúc SX) + bao bì → tổng 650.500đ, 1.301 đ/kg, 13.010 đ/bao', dd.tinh, JSON.stringify(dd));
+ok('DD: bấm 💰 ở Danh sách lô mở cửa sổ 1 nút Đóng, liệt kê đủ khoản, không mở nhầm thẻ lô', dd.nut&&dd.mo);
+/* DE — S94: số HĐ ghi ở Báo cáo (theo mẻ) hiện ở Kho (theo lần mua), không báo thiếu, bấm "Đưa sang kho" ghi hẳn vào lần mua */
+const de=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H='Hương __DE__', g={nk:nk.slice(),nh:JSON.stringify(nguonHuong),bs:JSON.stringify(hoaDonBoSung)};
+  kho.push(H); nguonHuong[H]=[{ncc:'NCC DE',gia:5000000,soKg:10,vat:8,soHD:'',ngay:'2026-10-01',daDungKg:1}]; huongDangDung[H]='NCC DE';
+  nk=[...nk,{id:'DE-1',sp:'SP __DE__',huong:H,lot:'9923106',sl:100,mlDung:100,ngaysx:'2026-10-22',ts:'2026-10-22T02:00:00Z',giaHuongTheoGLucSX:500}];
+  meDaTru={...(meDaTru||{}),ids:[...((meDaTru&&meDaTru.ids)||[]),'DE-1']};
+  const e=nguonHuong[H][0]; kq.lienKet=!!(hdCuaMe(nk.find(r=>r.id==='DE-1')).find(d=>d.ten===H)||{}).mua;
+  hoaDonBoSung['DE-1']={[H]:'HD-DE-55'}; await cho(5);
+  kq.thay=hdTuMe(e).join()==='HD-DE-55'&&hdChuaSangKho().some(x=>x.e===e)&&ttNguon('h',H).thieuHD===0;
+  chuyenTab('kho'); await cho(40); kq.banner=!!document.querySelector('.hdbc [data-hdsangkho=""]');
+  document.querySelector('.hdbc [data-hdsangkho=""]').click(); await cho(40);
+  kq.ghi=nguonHuong[H][0].soHD==='HD-DE-55'&&!hdChuaSangKho().length;
+  nk=g.nk; nguonHuong=JSON.parse(g.nh); hoaDonBoSung=JSON.parse(g.bs); delete huongDangDung[H]; kho=kho.filter(x=>x!==H); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DE: số HĐ nhập ở Báo cáo hiện sang Kho đúng lần mua, không còn báo "chưa có HĐ"', de.lienKet&&de.thay, JSON.stringify(de));
+ok('DE: bấm "Đưa tất cả sang kho" → số HĐ ghi hẳn vào lần mua', de.banner&&de.ghi);
+/* DF — S94: mẻ pha trước khi khai (nợ dữ liệu) + khai lần mua qua Sửa hàng loạt → app hỏi trả nợ; chữ cảnh báo không bảo "khai lại" */
+const df=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='Hương phấn __DF__', g={nk:nk.slice(),nh:JSON.stringify(nguonHuong),md:JSON.stringify(meDaTru)};
+  kho.push(H); nk=[...nk,{id:'DF-1',sp:'Cát tắm __DF__',huong:H,lot:'0108041026',sl:5600,mlDung:2240,ngaysx:'2026-10-01',ts:'2026-10-01T07:08:09Z',giaHuongTheoGLucSX:null,chiPhiHuongLucSX:null}];
+  kq.no=noMeHuong(H).length===1&&loiNo(H).includes('khai lần mua');
+  moSuaNhanh('',false); await cho(60); bslSua=null; const r=bslDs.tatca.find(x=>x.id==='moi:h:'+H);
+  Object.assign(r.moi,{ncc:'Peroma',soHD:'4750',soKg:'5',donGia:'604800'}); bslVe();
+  const hoiDa=[]; window.hoi=async(t)=>{hoiDa.push(t);return true}; await bslXemLuu(); await cho(60);
+  kq.hoiTraNo=hoiDa.includes('Trả nợ dữ liệu')&&noMeHuong(H).length===0&&!!(meDaTru.traNo||{})['DF-1'];
+  window.hoi=th; await bslDongLai();
+  nk=g.nk; nguonHuong=JSON.parse(g.nh); meDaTru=JSON.parse(g.md); kho=kho.filter(x=>x!==H); delete huongDangDung[H]; luuNgay(); return kq;
+});
+ok('DF: hương có mẻ pha trước khi khai → báo nợ dữ liệu', df.no, JSON.stringify(df));
+ok('DF: khai lần mua qua Sửa hàng loạt → app hỏi trả nợ ngay, hết nợ (không bắt khai lại)', df.hoiTraNo);
+/* DG — S94: Tải toàn bộ dữ liệu → 1 file: Hướng dẫn + Danh sách lô (HĐ, giá thành) + mọi bảng Danh mục / Kho / Mẻ; bảng đang mở không bị đổi */
+const dg=await E(async()=>{ const kq={}, xb=window.xlsxBytes, tv=window.taiVe; let sh=null, tenF='';
+  window.xlsxBytes=x=>{sh=x;return xb(x)}; window.taiVe=(n)=>{tenF=n;return true}; const truoc=bslDs;
+  document.querySelector('[data-taitoanbo]')||chuyenTab('sx'); taiToanBo();
+  window.xlsxBytes=xb; window.taiVe=tv;
+  const ten=sh.map(x=>x.name), lo=sh.find(x=>x.name==='DANH SÁCH LÔ');
+  kq.ten=/toan-bo-du-lieu/.test(tenF)&&ten[0]==='HƯỚNG DẪN'&&ten[1]==='DANH SÁCH LÔ'&&new Set(ten).size===ten.length&&['sp','h','nl','tatca','bb','me'].every(k=>ten.includes(BSL[k].ten));
+  kq.lo=lo.rows.length===nk.length+1&&lo.rows[0].some(c=>c.v==='Tổng giá thành (đ)');
+  kq.giu=bslDs===truoc; return kq;
+});
+ok('DG: Tải toàn bộ dữ liệu → 1 file gồm Hướng dẫn, Danh sách lô (đủ mọi lô, có giá thành) và mọi bảng Danh mục / Kho / Mẻ, tên trang không trùng', dg.ten&&dg.lo&&dg.giu, JSON.stringify(dg));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
