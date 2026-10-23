@@ -97,7 +97,7 @@ console.log(`ℹ️  Phiên bản đang gửi — Admin: ${verAdmin||'?'} · Nh�
   const thieu=kc.filter(k=>!ks.includes(k));
   ok('Mọi trường mặt hàng Admin đồng bộ đều có trong Code.gs (không bị server cắt mất)', kc.length>10&&ks.length>10&&!thieu.length, thieu.length?'thiếu: '+thieu.join(', '):'không đọc được danh sách trường');
   /* S21: cả các trường CẤP TRÊN CÙNG Admin gửi lên (luuCauHinh) cũng phải được sachCauHinhServer() giữ lại */
-  const goi=(admin.match(/a:'luuCauHinh',(?:tsCu:[^,]*,)?cauhinh:\{([^}]*)\}\}/)||[])[1]||'';
+  const goi=(admin.match(/a:'luuCauHinh',(?:tsCu:[^,]*,)?cauhinh:\{([^}]*)\}[,}]/)||[])[1]||'';
   const kc2=goi.split(',').map(x=>(x.match(/^\s*([A-Za-z_]\w*)/)||[])[1]).filter(Boolean);
   const vs=khoang(gs,'sp: sp,','\n  };'), ks2=['sp',...new Set([...vs.matchAll(/(?:^|[{,])\s*([A-Za-z_]\w*)\s*:/gm)].map(m=>m[1]))];
   const thieu2=kc2.filter(k=>!ks2.includes(k));

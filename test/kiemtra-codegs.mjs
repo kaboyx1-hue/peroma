@@ -60,7 +60,9 @@ function taoMoiTruong({ matKhau = '', hongGhiManh = 0 } = {}) {
   vm.createContext(ctx);
   vm.runInContext(NGUON, ctx, { filename: 'Code.gs' });
   const get = p => JSON.parse(ctx.doGet({ parameter: p }).s);
-  const post = d => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(d) } }).s);
+  const postTho = d => JSON.parse(ctx.doPost({ postData: { contents: JSON.stringify(d) } }).s);
+  // S97: máy chủ từ chối lệnh ghi cấu hình không có tsCu → mặc định gửi kèm mốc hiện tại (như Admin mới); _cu:1 = giả lập bản Admin cũ
+  const post = d => { if (d && d.a === 'luuCauHinh' && !('tsCu' in d) && !d._cu) d = { ...d, tsCu: String(ctx.tsCauHinh()) }; if (d && d._cu) { d = { ...d }; delete d._cu } return postTho(d) };
   return { ctx, trang, get, post };
 }
 const cauHinhCo = (so, dai = 0) => ({ sp: Array.from({ length: so }, (_, i) => ({ ten: 'Mặt hàng ' + i, kg: 100, ml: 50, huongs: ['Hương ' + i],
@@ -168,7 +170,11 @@ console.log('\n── E. NHIỀU MÁY ADMIN (12/10/2026 S53) — chống ghi đ�
   const m = taoMoiTruong({ matKhau: 'k' }), cho = () => { const t = Date.now(); while (Date.now() - t < 3); };
   const r0 = m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'A' }], meDaTru: { tu: '2026-10-01', ids: ['m1'] } } }); cho();
   const ts0 = m.get({ a: 'cauhinh', mk: 'k' }).ts;
-  ok('Bản Admin cũ (không gửi tsCu) vẫn ghi như trước', r0.ok === 1 && !!ts0);
+  ok('Admin mới (gửi tsCu) ghi được', r0.ok === 1 && !!ts0);
+  const rc = m.post({ _cu: 1, a: 'luuCauHinh', mk: 'k', cauhinh: { sp: [{ ten: 'BAN CU DE MU' }] } });
+  ok('S97: bản Admin cũ (không gửi tsCu) bị TỪ CHỐI, không đè được cấu hình', !!rc.loi && m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.sp[0].ten === 'A' && m.get({ a: 'cauhinh', mk: 'k' }).ts === ts0, JSON.stringify(rc));
+  const nk = m.trang.NHATKY_CAUHINH, dong = r => [1,2,3,4,5,6].map(c => nk.getRange(r, c).getValue());
+  ok('S97: trang NHATKY_CAUHINH ghi lại cả lệnh ghi được lẫn lệnh bị từ chối (bản nào, kết quả gì)', nk && nk.getLastRow() >= 3 && dong(2)[1] === 'ĐÃ GHI' && /TỪ CHỐI/.test(dong(3)[1]) && /bản cũ/.test(dong(3)[2]), JSON.stringify([dong(2), dong(3)]));
   const r1 = m.post({ a: 'luuCauHinh', mk: 'k', tsCu: ts0, cauhinh: { sp: [{ ten: 'PC' }], meDaTru: { tu: '2026-10-01', ids: ['m1', 'm2'] } } }); cho();
   ok('Máy dựa đúng bản mới nhất (tsCu khớp) → ghi được, trả mốc mới', r1.ok === 1 && r1.ts && r1.ts !== ts0, JSON.stringify(r1));
   const r2 = m.post({ a: 'luuCauHinh', mk: 'k', tsCu: ts0, cauhinh: { sp: [{ ten: 'DIEN THOAI CU' }] } });

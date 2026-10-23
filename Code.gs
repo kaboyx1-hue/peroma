@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-19-S78';
+const PHIEN_BAN_MAYCHU = '2026-10-23-S97';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -139,9 +139,14 @@ function doPost(e){
        sửa thì máy gửi sau đè mất phần của máy kia. Máy Admin mới gửi kèm tsCu = mốc cấu hình nó đang dựa vào; mốc
        trên Sheet đã khác (máy khác vừa ghi) → TỪ CHỐI, trả mốc mới để máy đó tải bản mới về rồi làm lại. Kiểm tra
        + ghi nằm trong cùng khoá LockService nên không có kẽ hở. Bản Admin cũ không gửi tsCu → ghi như trước. */
+    /* 23/10/2026 S97 (khách: "số hoá đơn đã nhập rồi sao vẫn trống" — lưu xong F5 lại về số cũ): bản Admin trước S53 không gửi tsCu nên
+       máy chủ cho ghi MÙ — một bản cũ còn mở ở đâu đó (tab cũ, máy khác, file .html cũ trong Downloads) đè cả cấu hình bằng dữ liệu cũ.
+       Nay: không gửi tsCu → TỪ CHỐI. Mọi lệnh ghi cấu hình (ghi / xung đột / từ chối) chép 1 dòng vào trang NHATKY_CAUHINH: lúc nào,
+       bản Admin nào, máy nào, bao nhiêu lần mua có số HĐ — để truy được ai ghi đè. */
     if(d.a === 'luuCauHinh'){
-      if(d.tsCu !== undefined && String(d.tsCu) !== tsCauHinh()) return ra({ok:0, xungDot:1, ts: tsCauHinh()});
-      ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); return ra({ok:1, ts: tsCauHinh()}) }
+      if(d.tsCu === undefined){ ghiNhatKyCH('TỪ CHỐI — bản Admin cũ', d); return ra({loi:'Bản Admin này đã cũ, không được ghi lên Sheet nữa. Tải lại trang (Ctrl+F5) để dùng bản mới.'}) }
+      if(String(d.tsCu) !== tsCauHinh()){ ghiNhatKyCH('XUNG ĐỘT — máy khác ghi trước', d); return ra({ok:0, xungDot:1, ts: tsCauHinh()}) }
+      ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); ghiNhatKyCH('ĐÃ GHI', d); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themLenhTienDo'){ const r = themLenhTienDo(d.lt || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
@@ -265,6 +270,16 @@ function docCauHinh(){
     if(s.length !== +m[3]) return null;   // bộ mảnh không khớp độ dài đã ghi → coi như hỏng, không dùng bừa
   }
   try{ return JSON.parse(s) }catch(e){ return null }
+}
+const S_NHATKY_CH = 'NHATKY_CAUHINH';
+function ghiNhatKyCH(kq, d){
+  try{
+    const c = (d && d.cauhinh) || {}, dem = m => Object.keys(m || {}).reduce(function(a, k){ return a + ((m[k] || []).filter(function(e){ return e && String(e.soHD || '').trim() }).length) }, 0);
+    const sh = lay(S_NHATKY_CH);
+    if(sh.getLastRow() === 0) sh.appendRow(['Lúc', 'Kết quả', 'Bản Admin', 'Máy', 'Dựa trên mốc', 'Lần mua hương có số HĐ', 'Lần mua NL có số HĐ']);
+    sh.appendRow([new Date().toISOString(), kq, String(d.ban || '(bản cũ, không rõ)'), String(d.may || '').slice(0, 120), String(d.tsCu === undefined ? '(không gửi)' : d.tsCu), dem(c.nguonHuong), dem(c.nguonNguyenLieu)]);
+    const n = sh.getLastRow(); if(n > 600) sh.deleteRows(2, n - 500);
+  }catch(e){}
 }
 function tsCauHinh(){ return String(lay(S_CAUHINH).getRange('B2').getValue() || '') }
 function ghiCauHinh(c){

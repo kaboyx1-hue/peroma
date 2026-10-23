@@ -324,7 +324,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w:()]*\}\}/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w:()]*\}[,}]/.test(dbDayCauHinh.toString());
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
