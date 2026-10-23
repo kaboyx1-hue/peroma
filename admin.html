@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S95</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S96</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 23/10/2026-S95</div>
+      <div class="verFoot">BẢN 23/10/2026-S96</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2180,21 +2180,30 @@ async function dbDayCauHinh(){
          (trừ tồn kho phần mẻ còn thiếu, đẩy lại nếu có) và BÁO RÕ: thay đổi vừa làm trên máy này chưa được lưu. */
       dongBoCauHinhTs='';
       await dbKeoCauHinhNeuMoiHon(true);
-      baoXungDot();
+      const apLai=bslApLai(); if(apLai){ve(); if(document.getElementById('bsl')&&document.getElementById('bsl').style.display==='flex')bslMo(bslNhom)}
+      baoXungDot(apLai);
       return;
     }
-    if(j&&j.ts)dongBoCauHinhTs=j.ts;
+    if(j&&j.ts){dongBoCauHinhTs=j.ts; bslChoGui=null}
     dbVeTT('ok');
   }catch(e){ dbChoDay=false; dbVeTT('loi', e.message); }
 }
 // S53: đang chờ đẩy (dbChoDay) thì vòng kéo định kỳ KHÔNG áp bản server — kẻo đè mất sửa đổi chưa kịp gửi
 let dbChoDay=false;
 function dbDayChoDL(){ clearTimeout(dbHen2); if(DONGBO_URL)dbChoDay=true; dbHen2=setTimeout(dbDayCauHinh,1500); }
-function baoXungDot(){
+/* S95: phần Sửa hàng loạt vừa lưu mà máy chủ báo xung đột (máy khác lưu trước) → sau khi tải bản mới, TỰ ÁP LẠI đúng các ô vừa sửa lên bản
+   mới rồi gửi lại (tối đa 2 lần), thay vì bỏ hết như trước. Áp theo MÃ DÒNG trên dữ liệu mới nên không đè phần máy kia vừa đổi ở ô khác. */
+let bslChoGui=null;
+function bslApLai(){const g=bslChoGui; if(!g||g.lan>=2)return false; g.lan++; let n=0;
+  const theoK={}; g.ds.forEach(x=>(theoK[x.k]=theoK[x.k]||[]).push(x));
+  Object.entries(theoK).forEach(([k,xs])=>{const L=BSL[k], tuoi=new Map(L.nap().map(r=>[r.id,r]));
+    xs.forEach(x=>{const r=tuoi.get(x.id); if(!r)return; r.moi={...r.moi,...x.moi}; L.ap(r,x.lyDo); n++})});
+  if(n){luuNgay(); return true} return false}
+function baoXungDot(apLai){
   if(document.getElementById('xungDot'))return;
   const d=document.createElement('div'); d.id='xungDot'; d.setAttribute('role','alert');
   d.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:9999;background:#8a5300;color:#fff;padding:12px 14px;border-radius:12px;font-weight:600;line-height:1.35;box-shadow:0 4px 16px rgba(0,0,0,.25)';
-  d.innerHTML='Một máy Admin khác (máy tính hoặc điện thoại) vừa lưu trước. Máy này đã tải <u>bản mới nhất</u> về — thay đổi bạn vừa làm <u>chưa được lưu</u>, kiểm tra và làm lại giúp. <button type="button" style="margin-left:8px;font:inherit;padding:4px 10px;border-radius:8px;border:0">Đã hiểu</button>';
+  d.innerHTML=(apLai?'Một máy Admin khác (máy tính hoặc điện thoại) vừa lưu trước. Máy này đã tải bản mới nhất về và <u>tự áp lại phần bạn vừa sửa hàng loạt</u> rồi lưu lại — kiểm tra lại giúp. ':'Một máy Admin khác (máy tính hoặc điện thoại) vừa lưu trước. Máy này đã tải <u>bản mới nhất</u> về — thay đổi bạn vừa làm <u>chưa được lưu</u>, kiểm tra và làm lại giúp. ')+'<button type="button" style="margin-left:8px;font:inherit;padding:4px 10px;border-radius:8px;border:0">Đã hiểu</button>';
   d.querySelector('button').onclick=()=>d.remove(); document.body.appendChild(d);
 }
 /* 27/08/2026 — bản S2: "lưu trữ trên Google Sheet, không mất khi đổi bản phần mềm" (khách
@@ -2264,6 +2273,8 @@ function apDungCauHinhTuServer(c){
    nào đang được bấm vào (focus) thì BỎ QUA lượt này, đợi vòng kế tiếp (không quá 9-10 giây sau,
    nhẹ nhàng) khi đã rời khỏi ô đó rồi mới áp — không chặn mở app, không mất chữ đang gõ. */
 function dbCoDangGoTiepXuc(){
+  // S95: bảng Sửa hàng loạt đang có ô sửa chưa lưu cũng coi như "đang gõ" — không tự kéo cấu hình đè lên giữa chừng
+  const bk=document.getElementById('bsl'); if(bk&&bk.style.display==='flex'&&typeof bslDemSua==='function'&&bslDemSua().o>0)return true;
   const a=document.activeElement;
   if(!a)return false;
   const tag=(a.tagName||'').toUpperCase();
@@ -7640,9 +7651,17 @@ async function bslXemLuu(){const d=bslDemSua(); let h='',canEe=new Set(), coMe=f
   const ok=coMe?await hoi('Lý do (bắt buộc)',msg+'<br>Ghi 1 lý do chung cho các dòng mẻ / kiểm kê sửa trong đợt này — lưu vào lịch sử của từng dòng.',{nhap:true,goiY:'VD: kiểm kê cuối tháng · nhân viên gõ thiếu số 0',nutOK:'Lưu tất cả'})
     :await hoi('Xem lại trước khi lưu',msg,{nutOK:'Lưu tất cả'});
   if(ok===null||ok===false)return; if(coMe&&!String(ok).trim()){bao('Phải ghi lý do');return}
-  let n=0; const doi=[];
-  Object.entries(bslDs).forEach(([k,ds])=>ds.forEach(r=>{const L=BSL[k];if(!L.cot.some(c=>bslDaSua(c,r)))return;n+=L.cot.filter(c=>bslDaSua(c,r)).length;
-    L.ap(r,String(ok).trim()); if(L.doi&&r.moi.ten!==r.goc.ten)doi.push(L.doi(r))}));
+  let n=0; const doi=[], mat=[], cho=[];
+  /* 23/10/2026 S95 (khách: "số hoá đơn tôi đã nhập rồi tại sao vẫn trống"): mỗi dòng giữ TRỎ tới đúng đối tượng dữ liệu lúc mở bảng (r.ref).
+     Trong lúc bảng mở, vòng đồng bộ có thể tải cấu hình mới từ Sheet về (máy / tab Admin khác vừa lưu) → dữ liệu là đối tượng MỚI, r.ref
+     trỏ vào bản cũ đã bỏ → bấm Lưu ghi vào khoảng không, đẩy lên bản chưa sửa, không báo gì. Nay: lúc lưu nạp lại từng bảng, gắn r.ref
+     vào đối tượng ĐANG DÙNG theo MÃ DÒNG; dòng không còn (đã bị xoá ở máy khác) thì báo, không lặng lẽ bỏ. */
+  Object.entries(bslDs).forEach(([k,ds])=>{const L=BSL[k], sua=ds.filter(r=>L.cot.some(c=>bslDaSua(c,r))); if(!sua.length)return;
+    const tuoi=new Map(L.nap().map(x=>[x.id,x]));
+    sua.forEach(r=>{const f=tuoi.get(r.id); if(!f){mat.push(L.ten+': '+(r.goc.ten||r.goc.lot||r.id));return} r.ref=f.ref;
+      n+=L.cot.filter(c=>bslDaSua(c,r)).length; L.ap(r,String(ok).trim()); cho.push({k,id:r.id,moi:{...r.moi},lyDo:String(ok).trim()}); if(L.doi&&r.moi.ten!==r.goc.ten)doi.push(L.doi(r))})});
+  bslChoGui=cho.length?{ds:cho,lan:0}:null;
+  if(mat.length)setTimeout(()=>hoi('Có dòng không lưu được',`${mat.length} dòng không còn trong dữ liệu (có thể máy khác vừa xoá / đổi tên):<br><small>${mat.map(esc).join('<br>')}</small>`,{nutOK:'Đã hiểu',motNut:1}),50);
   doi.forEach(([l,cu,moi])=>doiTen(l,cu,moi));
   ghiAudit('config','bang-sua-hang-loat','SUA_HANG_LOAT',null,{o:n,doiTen:doi.length});
   luuNgay(); huyHieu('✅','Đã lưu '+n+' ô','sửa hàng loạt · đã ghi lịch sử'); bslMo(bslNhom); bslLoai=bslLoai; ve();

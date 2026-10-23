@@ -3874,6 +3874,21 @@ const dh=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   bslSua=null; bslLS=[]; Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc})); await bslDongLai(); window.hoi=th; return kq;
 });
 ok('DH: nạp lại file Toàn bộ dữ liệu ngay chỗ xuất → mở bảng mọi phần, nhận ô sửa ở cả Kho lẫn Danh mục (vàng), chưa lưu khi chưa bấm Lưu', dh.tenDuyNhat&&dh.coNut&&dh.nap&&dh.chuaLuu, JSON.stringify(dh));
+/* DI — S95: Sửa hàng loạt đang mở mà máy tải cấu hình mới từ Sheet về (tab / máy khác vừa lưu) → bấm Lưu vẫn ghi đúng vào dữ liệu ĐANG DÙNG;
+   có ô sửa chưa lưu thì không tự kéo cấu hình đè; máy chủ báo xung đột → tự áp lại phần sửa hàng loạt lên bản mới */
+const di=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='Hương __DI__', g=JSON.stringify(nguonHuong), gk=kho.slice();
+  kho.push(H); nguonHuong[H]=[{ncc:'Peroma',ngay:'12/10/2026',soHD:'',soKg:1,gia:455000,vat:8,daDungKg:0.5}]; huongDangDung[H]='Peroma';
+  window.hoi=async()=>true; bslMo('mua'); const r=bslDs.tatca.find(x=>x.id==='h:'+H+':0'); r.moi.soHD='4946'; r.moi.soKg='5';
+  kq.chan=dbCoDangGoTiepXuc()===true;
+  nguonHuong=JSON.parse(JSON.stringify(nguonHuong)); // giả lập: vòng đồng bộ vừa tải cấu hình mới về (đối tượng mới)
+  await bslXemLuu(); await cho(60); const e=nguonHuong[H][0];
+  kq.luu=e.soHD==='4946'&&e.soKg===5&&!!bslChoGui;
+  const cu=JSON.parse(JSON.stringify(nguonHuong)); cu[H][0].soHD=''; cu[H][0].soKg=1; nguonHuong=cu; // giả lập xung đột: bản máy khác chưa có phần sửa
+  kq.apLai=bslApLai()===true&&nguonHuong[H][0].soHD==='4946'&&nguonHuong[H][0].soKg===5;
+  bslChoGui=null; window.hoi=th; await bslDongLai(); nguonHuong=JSON.parse(g); kho=gk; delete huongDangDung[H]; luuNgay(); return kq;
+});
+ok('DI: đang mở Sửa hàng loạt mà cấu hình vừa được tải lại từ Sheet → bấm Lưu vẫn ghi đúng số HĐ / số kg vào dữ liệu đang dùng (trước: mất trắng, không báo)', di.luu, JSON.stringify(di));
+ok('DI: có ô sửa chưa lưu thì không tự kéo cấu hình đè; máy chủ báo xung đột thì tự áp lại phần vừa sửa lên bản mới', di.chan&&di.apLai);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
