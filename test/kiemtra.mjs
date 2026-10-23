@@ -3860,6 +3860,20 @@ const dg=await E(async()=>{ const kq={}, xb=window.xlsxBytes, tv=window.taiVe; l
   kq.giu=bslDs===truoc; return kq;
 });
 ok('DG: Tải toàn bộ dữ liệu → 1 file gồm Hướng dẫn, Danh sách lô (đủ mọi lô, có giá thành) và mọi bảng Danh mục / Kho / Mẻ, tên trang không trùng', dg.ten&&dg.lo&&dg.giu, JSON.stringify(dg));
+/* DH — S94: "⬆ Nạp lại file đã sửa" ngay cạnh nút tải — 1 file toàn bộ, sửa ở nhiều trang (Kho + Danh mục) → mở Sửa hàng loạt mọi bảng, ô sửa hiện vàng, chưa lưu */
+const dh=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, xb=window.xlsxBytes, tv=window.taiVe, th=window.hoi; let sh=null;
+  window.xlsxBytes=x=>{sh=x;return xb(x)}; window.taiVe=()=>true; taiToanBo(); window.xlsxBytes=xb; window.taiVe=tv;
+  kq.tenDuyNhat=new Set(BSL_NHOM.all.map(k=>BSL[k].ten)).size===BSL_NHOM.all.length;
+  const sua=(k,cot,v)=>{const t=sh.find(x=>x.name===BSL[k].ten), dau=t.rows[0].map(c=>String(c.v).replace(/ \(chỉ xem\)$/,'')), ci=dau.indexOf(BSL[k].cot.find(c=>c.k===cot).t); t.rows[1][ci]=v; return String(t.rows[1][0]&&t.rows[1][0].v||t.rows[1][0])};
+  const id1=sua('tatca','soHD','DH-777'), id2=sua('h','ma','97');
+  kq.coNut=!!document.querySelector('[data-naptoanbo]')||(chuyenTab('sx'),await cho(60),!!document.querySelector('[data-naptoanbo]'));
+  const goc=JSON.stringify(nguonHuong)+JSON.stringify(maHuong);
+  window.hoi=async()=>true; napToanBo(new File([xb(sh)],'toan-bo.xlsx')); await cho(400);
+  kq.nap=bslNhom==='all'&&bslDemSua().o===2&&bslDs.tatca.find(r=>r.id===id1).moi.soHD==='DH-777'&&bslDs.h.find(r=>r.id===id2).moi.ma==='97'&&!!$('bsl')&&$('bsl').style.display==='flex';
+  kq.chuaLuu=JSON.stringify(nguonHuong)+JSON.stringify(maHuong)===goc;
+  bslSua=null; bslLS=[]; Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc})); await bslDongLai(); window.hoi=th; return kq;
+});
+ok('DH: nạp lại file Toàn bộ dữ liệu ngay chỗ xuất → mở bảng mọi phần, nhận ô sửa ở cả Kho lẫn Danh mục (vàng), chưa lưu khi chưa bấm Lưu', dh.tenDuyNhat&&dh.coNut&&dh.nap&&dh.chuaLuu, JSON.stringify(dh));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

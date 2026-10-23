@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 22/10/2026-S94</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S95</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 22/10/2026-S94</div>
+      <div class="verFoot">BẢN 23/10/2026-S95</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -5933,14 +5933,14 @@ function dsLoThanHTML(){const ds=dsLoLoc(), toiDa=dsLoHet?ds.length:60;
   return ds.slice(0,toiDa).map(r=>{const [c,t]=dsLoTTs(r), th=r.huy?[]:hdCuaMe(r).filter(d=>!d.soHD);
     return `<tr class="dslo-${c}" data-dslomo="${esc(r.id)}" tabindex="0"><td>${esc(vnNgay(r.ngaysx))}</td><td class="dslo-lo">${esc(lotDep(r.lot||''))}</td><td>${esc(r.sp||'')}</td><td>${esc(r.huong||'')}</td><td>${esc(r.quyCach||'')}</td>
       <td class="n">${fmt(num(r.sl))}</td><td class="n">${r.soBao!==''&&r.soBao!==undefined?fmt(num(r.soBao)):'—'}</td><td>${esc(r.nv||'')}</td><td><span class="dslo-tt">${t}</span></td>
-      <td>${r.huy?'—':th.length?`<span class="dslo-thieu">thiếu ${th.length} HĐ</span>`:'<span class="dslo-du">✓ đủ</span>'}</td>
+      <td>${r.huy?'—':th.length?`<span class="dslo-thieu" title="Chưa có số hoá đơn của: ${esc(th.map(d=>d.ten).join(', '))}">thiếu HĐ: ${esc(th.map(d=>d.ten).join(', '))}</span>`:'<span class="dslo-du">✓ đủ</span>'}</td>
       <td>${r.huy?'—':`<button type="button" class="dslo-gt" data-giathanh="${esc(r.id)}" title="Xem giá thành lô này">💰 Xem</button>`}</td></tr>`}).join('')
     +(ds.length>toiDa?`<tr><td colspan="11" class="dslo-trong"><button type="button" class="lnk" data-dslohet>Xem tất cả ${ds.length} lô</button></td></tr>`:'')}
 function dsLoHTML(){const thang=[...new Set(nk.map(r=>String(r.ngaysx||'').slice(0,7)).filter(Boolean))].sort().reverse(), ds=dsLoLoc();
   const tong=ds.filter(r=>!r.huy), kg=tong.reduce((a,r)=>a+num(r.sl),0);
   return `<div class="dslo"><div class="dslo-loc"><input type="search" id="dsLoTim" placeholder="Tìm số lô, mặt hàng, hương, nhân viên…" value="${esc(dsLoTim)}" aria-label="Tìm lô">
     <select id="dsLoThang" aria-label="Lọc tháng"><option value="">Mọi tháng</option>${thang.map(m=>`<option value="${m}"${m===dsLoThang?' selected':''}>Tháng ${m.slice(5)}/${m.slice(0,4)}</option>`).join('')}</select>
-    <button type="button" class="dslo-gt" data-taitoanbo="1" title="1 file Excel gom mọi dữ liệu">⬇ Tải toàn bộ dữ liệu</button><span id="dsLoDem" class="dslo-dem"><b>${tong.length}</b> lô · ${fmtSo(kg)} kg${ds.length>tong.length?` · ${ds.length-tong.length} đã huỷ`:''}</span></div>
+    <button type="button" class="dslo-gt" data-taitoanbo="1" title="1 file Excel gom mọi dữ liệu">⬇ Tải toàn bộ dữ liệu</button><button type="button" class="dslo-gt" data-naptoanbo="1" title="Nạp file Excel đã sửa — xem lại rồi bấm Lưu">⬆ Nạp lại file đã sửa</button><span id="dsLoDem" class="dslo-dem"><b>${tong.length}</b> lô · ${fmtSo(kg)} kg${ds.length>tong.length?` · ${ds.length-tong.length} đã huỷ`:''}</span></div>
     <div class="dslo-w"><table class="dslo-b"><thead><tr><th>Ngày SX</th><th>Số lô</th><th>Mặt hàng</th><th>Hương</th><th>Quy cách</th><th class="n">Kg</th><th class="n">Số bao</th><th>Nhân viên</th><th>Trạng thái</th><th>Hoá đơn</th><th>Giá thành</th></tr></thead>
     <tbody id="dsLoThan">${dsLoThanHTML()}</tbody></table></div><div class="dslo-goi">Bấm vào 1 dòng để mở thẻ chi tiết lô (in tem, sửa số liệu, điều chỉnh lô).</div></div>`}
 function dsLoVeThan(){const t=$('dsLoThan'); if(t)t.innerHTML=dsLoThanHTML(); const d=$('dsLoDem'); if(d){const ds=dsLoLoc(),tg=ds.filter(r=>!r.huy);d.innerHTML=`<b>${tg.length}</b> lô · ${fmtSo(tg.reduce((a,r)=>a+num(r.sl),0))} kg${ds.length>tg.length?` · ${ds.length-tg.length} đã huỷ`:''}`}}
@@ -6604,8 +6604,10 @@ function veSL(){
 
    <div class="sec">Xuất file — Excel · quy ước · bản sao</div>
    <div class="bk"><h5>Toàn bộ dữ liệu (1 file Excel)</h5>
-     <p>Gom hết vào 1 file: danh sách lô (kèm số hoá đơn và giá thành từng lô), mặt hàng, hương, quy cách, công thức, mọi lần mua, kho, bao bì, mẻ đã ghi. Mỗi phần 1 trang.</p>
-     <button class="bigbtn" data-taitoanbo="1">⬇ Tải toàn bộ dữ liệu</button></div>
+     <p>Gom hết vào 1 file: danh sách lô (kèm số hoá đơn và giá thành từng lô), mặt hàng, hương, quy cách, công thức, mọi lần mua, kho, bao bì, mẻ đã ghi. Mỗi phần 1 trang.
+       Sửa trong Excel xong → bấm <b>Nạp lại file đã sửa</b> → ô đã sửa hiện vàng → bấm <b>Lưu</b>.</p>
+     <button class="bigbtn" data-taitoanbo="1">⬇ Tải toàn bộ dữ liệu</button>
+     <button class="bigbtn alt" data-naptoanbo="1" style="margin-top:6px">⬆ Nạp lại file đã sửa</button></div>
    <div class="bk"><h5>Xuất ra Excel</h5>
      <p>File .xlsx gồm 4 sheet: Công thức, Nhật ký sản xuất, Lịch sử hương, Danh mục hương. Dùng để lưu trữ, in ấn hoặc gửi cho kế toán.</p>
      <button class="bigbtn" id="xlBtn">Tải file Excel</button></div>
@@ -7354,6 +7356,7 @@ const BSL={
    ap:(r,ly)=>{const x=bslSo(r.moi.sl);if(x!==num(r.ref.sl))apSuaMe(r.ref,x,ly)}},
 };
 const BSL_NHOM={sp:['sp','h','q','nl','ctnl'],mua:['tatca','cth','ctnl','kk','bb'],me:['me']};
+BSL_NHOM.all=[...new Set([...BSL_NHOM.sp,...BSL_NHOM.mua,...BSL_NHOM.me])]; // S94: mọi bảng — dùng cho Nạp lại file Toàn bộ dữ liệu
 let bslLoai='sp', bslDs={}, bslDang={r:0,c:0}, bslGoc=null, bslSua=null, bslLS=[], bslChon=new Set(), bslNhom='sp';
 const bslL=()=>BSL[bslLoai];
 const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!String(r.goc.soHD||'').trim()))};
@@ -7437,7 +7440,7 @@ const BSL_HD=[['HƯỚNG DẪN SỬA BẰNG EXCEL'],[''],
  ['6. KHÔNG sửa cột A "MÃ DÒNG", KHÔNG thêm dòng mới (dòng mới sẽ bị bỏ qua — thêm trong app).'],
  ['7. Sửa xong: Lưu file → vào app bấm "⬆ Nạp Excel" → kiểm các ô màu vàng → bấm "Xem & lưu". Chưa bấm "Xem & lưu" thì chưa có gì thay đổi.'],[''],
  ['MÀU TRONG FILE'],['■ Xanh dương nhạt = dòng HƯƠNG'],['■ Vàng nhạt = dòng NGUYÊN LIỆU'],['■ Đỏ nhạt = cần xử lý: chưa có số hoá đơn · còn lại / tồn ≤ 0 · kho thật ÍT hơn hệ thống'],['■ Xanh lá nhạt = kho thật NHIỀU hơn hệ thống']];
-function bslTaiExcel(){
+function bslTaiExcel(){if(bslNhom==='all'){taiToanBo();return}
   const sheets=BSL_NHOM[bslNhom].map(k=>bslSheet(k,bslDs[k]||[]));
   const mauHD={'■ Xanh dương nhạt = dòng HƯƠNG':'huong','■ Vàng nhạt = dòng NGUYÊN LIỆU':'nl','■ Xanh lá nhạt = kho thật NHIỀU hơn hệ thống':'luc'};
   sheets.unshift({name:'HƯỚNG DẪN',cols:[130],rows:BSL_HD.map((r,i)=>[{v:r[0],s:i===0||r[0]==='MÀU TRONG FILE'?2:mauHD[r[0]]?xlKieu(mauHD[r[0]],0):/^■ Đỏ/.test(r[0])?xlKieu('do',0):7}])});
@@ -7455,20 +7458,24 @@ function bslSheet(k,ds){const L=BSL[k];
 /* 23/10/2026 S94 (khách: "muốn xem toàn bộ dữ liệu từ a-z thì thao tác thế nào" → "làm đi"): MỘT file Excel gom hết — Danh sách lô (kèm hoá đơn
    & giá thành từng lô) + mọi bảng của Sửa hàng loạt ở Danh mục / Kho / Mẻ đã ghi. Chỉ để XEM: muốn sửa thì dùng Sửa hàng loạt của từng tab
    (file đó mới nạp ngược được). bslDs tạm nạp đủ mọi bảng vì vài cột tự tính đọc chéo bảng khác, xong trả lại như cũ. */
-function loSheet(){const so=n=>({v:Math.round(n),s:4}), dau=['Ngày SX','Số lô','Mặt hàng','Hương','Quy cách','Kg','Số bao','Nhân viên','Trạng thái','Số hoá đơn đầu vào','Thiếu HĐ','Nguyên liệu (đ)','Hương (đ)','Bao bì (đ)','Tổng giá thành (đ)','Giá / kg (đ)','Giá / bao (đ)','Chưa có giá'].map(v=>({v,s:2}));
+function loSheet(){const so=n=>({v:Math.round(n),s:4}), dau=['Ngày SX','Số lô','Mặt hàng','Hương','Quy cách','Kg','Số bao','Nhân viên','Trạng thái','Số hoá đơn đầu vào','Còn thiếu hoá đơn','Nguyên liệu (đ)','Hương (đ)','Bao bì (đ)','Tổng giá thành (đ)','Giá / kg (đ)','Giá / bao (đ)','Chưa có giá'].map(v=>({v,s:2}));
   const ds=nk.slice().sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))||String(b.ts||'').localeCompare(String(a.ts||'')));
   return {name:'DANH SÁCH LÔ',dauBang:0,cols:[11,13,30,24,10,9,9,12,14,40,9,14,12,12,16,12,12,30],rows:[dau,...ds.map(r=>{const hd=hdCuaMe(r), g=r.huy?null:giaThanhMe(r), t=n=>g?so(g.dong.filter(x=>x.nhom===n).reduce((a,x)=>a+x.tien,0)):'';
     return [vnNgay(r.ngaysx),lotDep(r.lot||''),r.sp||'',r.huong||'',r.quyCach||'',so(num(r.sl)),r.soBao!==''&&r.soBao!==undefined?so(num(r.soBao)):'',r.nv||'',dsLoTTs(r)[1],
-      hd.map(d=>d.ten+': '+(d.soHD||'chưa có')).join(' · '),r.huy?'':hd.filter(d=>!d.soHD).length||'',t('Nguyên liệu'),t('Hương'),t('Bao bì'),g?so(g.tong):'',g&&g.giaKg?so(g.giaKg):'',g&&g.giaBao?so(g.giaBao):'',g?g.thieu.join(' · '):'']})]}}
+      hd.map(d=>d.ten+': '+(d.soHD||'chưa có')).join(' · '),r.huy?'Lô đã huỷ — không cần':!hd.length?'Không có vật tư cần hoá đơn':hd.some(d=>!d.soHD)?'Chưa có số HĐ của: '+hd.filter(d=>!d.soHD).map(d=>d.ten).join(', '):'✓ Đủ hoá đơn',t('Nguyên liệu'),t('Hương'),t('Bao bì'),g?so(g.tong):'',g&&g.giaKg?so(g.giaKg):'',g&&g.giaBao?so(g.giaBao):'',g?g.thieu.join(' · '):'']})]}}
 function taiToanBo(){const giu=bslDs, ks=[...new Set([...BSL_NHOM.sp,...BSL_NHOM.mua,...BSL_NHOM.me])];
   try{bslDs={}; ks.forEach(k=>bslDs[k]=BSL[k].nap());
-    const hd=[['TOÀN BỘ DỮ LIỆU PEROMA — xuất ngày '+vnNgay(isoNay())],[''],['File này để XEM / lưu trữ / gửi kế toán. Muốn sửa: vào từng tab → ▦ Sửa hàng loạt → Tải Excel (file đó mới nạp ngược được).'],[''],
+    const hd=[['TOÀN BỘ DỮ LIỆU PEROMA — xuất ngày '+vnNgay(isoNay())],[''],['Sửa thẳng trong file này rồi lưu lại (giữ đuôi .xlsx) → trong app bấm "⬆ Nạp lại file đã sửa" (ngay cạnh nút tải) → ô đã sửa hiện màu vàng → xem lại rồi bấm Lưu.'],['Không sửa: cột MÃ DÒNG, cột có chữ "(chỉ xem)", trang DANH SÁCH LÔ (chỉ để xem — sửa lô ở trang Mẻ đã ghi).'],[''],
       ['DANH SÁCH LÔ: mọi lô đã ghi, số hoá đơn đầu vào, giá thành (chưa VAT; chưa gồm nhân công, điện, khấu hao).'],...ks.map(k=>[BSL[k].ten+': giống thẻ "'+BSL[k].ten+'" trong Sửa hàng loạt.'])];
     const sheets=[{name:'HƯỚNG DẪN',cols:[130],rows:hd.map((r,i)=>[{v:r[0],s:i===0?2:7}])},loSheet(),...ks.map(k=>bslSheet(k,bslDs[k]))];
     const ten=new Set(); sheets.forEach(x=>{let n=x.name.slice(0,31),i=2; while(ten.has(n))n=x.name.slice(0,28)+' '+i++; ten.add(n); x.name=n});
     if(taiVe(`peroma_toan-bo-du-lieu_${isoNay()}.xlsx`,xlsxBytes(sheets)))bao('Đã tải file Excel toàn bộ dữ liệu ('+sheets.length+' trang)')}
   finally{bslDs=giu}}
-document.addEventListener('click',e=>{if(e.target.closest('[data-taitoanbo]'))taiToanBo()});
+/* S94 (khách: "tải về rồi sao cập nhật lên lại? quá rối, phải làm ngay tại nơi xuất ra"): nút ⬆ Nạp lại nằm cạnh nút tải — mở Sửa hàng loạt
+   với MỌI bảng, nạp file vào: ô đã sửa hiện vàng, sai hiện đỏ, xem lại rồi bấm Lưu (chưa Lưu thì chưa đổi gì). Trang Danh sách lô / Hướng dẫn bỏ qua. */
+function napToanBo(file){bslMo('all'); bslNapExcel(file)}
+document.addEventListener('click',e=>{if(e.target.closest('[data-taitoanbo]')){taiToanBo();return} if(e.target.closest('[data-naptoanbo]')){let i=$('napToanBoF'); if(!i){i=document.createElement('input');i.type='file';i.id='napToanBoF';i.accept='.xlsx';i.hidden=true;document.body.appendChild(i)} i.click()}});
+document.addEventListener('change',e=>{if(e.target.id==='napToanBoF'&&e.target.files&&e.target.files[0]){napToanBo(e.target.files[0]);e.target.value=''}});
 // đọc .xlsx → [{name, rows:[[...]]}]
 async function docXlsx(buf){const b=new Uint8Array(buf), dv=new DataView(buf); let e=b.length-22; while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--; if(e<0)throw new Error('Không phải file Excel (.xlsx)');
   const n=dv.getUint16(e+10,true); let p=dv.getUint32(e+16,true); const tep={};
