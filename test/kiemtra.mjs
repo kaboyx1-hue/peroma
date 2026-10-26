@@ -3889,6 +3889,20 @@ const di=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('DI: đang mở Sửa hàng loạt mà cấu hình vừa được tải lại từ Sheet → bấm Lưu vẫn ghi đúng số HĐ / số kg vào dữ liệu đang dùng (trước: mất trắng, không báo)', di.luu, JSON.stringify(di));
 ok('DI: có ô sửa chưa lưu thì không tự kéo cấu hình đè; máy chủ báo xung đột thì tự áp lại phần vừa sửa lên bản mới', di.chan&&di.apLai);
+/* DJ — S98: gõ dở 1 ô rồi BẤM CHUỘT sang ô khác (không Enter) → ô vừa gõ vẫn được ghi; ô mới gõ tiếp được (trước: mất số, bảng kẹt) */
+const dj=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H1='Hương __DJ1__', H2='Hương __DJ2__', g=JSON.stringify(nguonHuong), gk=kho.slice();
+  kho.push(H1,H2); nguonHuong[H1]=[{ncc:'Peroma',ngay:'12/10/2026',soHD:'',soKg:1,gia:455000,vat:8,daDungKg:0}]; nguonHuong[H2]=[{ncc:'Peroma',ngay:'12/10/2026',soHD:'',soKg:1,gia:430000,vat:8,daDungKg:0}];
+  bslMo('mua'); const ci=bslL().cot.findIndex(c=>c.k==='soHD'), r1=bslHien().findIndex(x=>x.id==='h:'+H1+':0'), r2=bslHien().findIndex(x=>x.id==='h:'+H2+':0');
+  bslDang={r:r1,c:ci}; bslVe(); bslO(); document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'4',bubbles:true})); await cho(10);
+  const i=document.querySelector('#bslT td .o input'); i.value='4946';
+  const td2=document.querySelector(`#bslT td[data-r="${r2}"][data-c="${ci}"]`); td2.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true})); await cho(10);
+  kq.ghi=bslDs.tatca.find(x=>x.id==='h:'+H1+':0').moi.soHD==='4946'&&!bslSua&&bslDang.r===r2;
+  document.activeElement.dispatchEvent(new KeyboardEvent('keydown',{key:'4',bubbles:true})); await cho(10);
+  const i2=document.querySelector('#bslT td .o input'); kq.goTiep=!!i2&&i2.closest('td').dataset.r===String(r2);
+  bslSua=null; bslLS=[]; Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc})); await bslDongLai(); nguonHuong=JSON.parse(g); kho=gk; luuNgay(); return kq;
+});
+ok('DJ: gõ số HĐ rồi bấm chuột sang ô khác (không Enter) → số vừa gõ vẫn được ghi (trước: mất trắng)', dj.ghi, JSON.stringify(dj));
+ok('DJ: sau khi bấm sang ô mới, gõ tiếp vẫn mở ô sửa (trước: bảng kẹt, gõ không ăn)', dj.goTiep);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

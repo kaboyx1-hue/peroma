@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S97</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S98</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 23/10/2026-S97</div>
+      <div class="verFoot">BẢN 23/10/2026-S98</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -7642,7 +7642,7 @@ function bslMoSua(kt){const row=bslHien()[bslDang.r],col=bslL().cot[bslDang.c];i
   const xong=()=>{if(!bslSua)return;const s=bslSua;bslSua=null;bslGhi([{r:s.r,c:s.c,v:i.value}])};
   i.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();xong();e.key==='Enter'?bslDi(e.shiftKey?-1:1,0):bslDi(0,e.shiftKey?-1:1)}else if(e.key==='Escape'){bslSua=null;bslVe();bslO()}};i.onblur=xong}
 function bslHoanTac(){const b=bslLS.pop();if(!b)return;b.slice().reverse().forEach(x=>{const r=bslDs[x.l].find(y=>y.id===x.id);r.moi[x.k]=x.cu});bslLoai=b[0].l;bslVe();bao('Đã hoàn tác '+b.length+' ô')}
-async function bslXemLuu(){const d=bslDemSua(); let h='',canEe=new Set(), coMe=false;
+async function bslXemLuu(){bslGhiODangGo();const d=bslDemSua(); let h='',canEe=new Set(), coMe=false;
   const CANH={ten:'Đổi tên: cập nhật theo tên mới ở mọi lịch sử, mã và nguồn mua; số lô đã in giữ nguyên.',ma:'Đổi mã: chỉ áp cho mẻ ghi từ nay — số lô đã in giữ mã cũ.',ml:'Đổi định lượng: tạo phiên bản công thức mới, mẻ cũ giữ định mức lúc pha.',kg:'Đổi mẻ chuẩn / khối lượng: định mức tính lại theo số mới.',soKg:'Đổi số kg / đơn giá lần mua: tồn kho đổi theo; giá vốn mẻ đã ghi giữ giá lúc pha.',donGia:'Đổi số kg / đơn giá lần mua: tồn kho đổi theo; giá vốn mẻ đã ghi giữ giá lúc pha.',sl:'Sửa đầu vào mẻ: lượng hương dùng, số bao và tồn kho hương tính lại; giữ số gốc + lý do trong lịch sử thao tác của lô.'};
   Object.entries(bslDs).forEach(([k,ds])=>{const L=BSL[k],rs=ds.filter(r=>L.cot.some(c=>bslDaSua(c,r)));if(!rs.length)return;if(L.lyDo)coMe=true;
     h+=`<div class="bsl-nh">${L.ten} · ${rs.length} dòng</div>`+rs.map(r=>`<div class="bsl-ds"><b>${esc(r.goc.ten||r.goc.lot||'')}${k==='mua'||k==='muanl'||k==='tatca'?' · '+esc(r.goc.ncc)+' '+esc(r.goc.ngay):''}</b>`+L.cot.filter(c=>bslDaSua(c,r)).map(c=>{if(CANH[c.k])canEe.add(CANH[c.k]);const lo=c.kt?c.kt(String(r.moi[c.k]??''),r,ds):'';
@@ -7676,14 +7676,18 @@ document.addEventListener('click',e=>{const sn=e.target.closest('[data-suanhanh]
   if(e.target.closest('#bslBo')){Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc}));bslLS=[];bslVe();return}
   if(e.target.closest('#bslLuu')){bslXemLuu();return}
   if(e.target.closest('#bslApNut')){const k=$('bslApCot').value,ci=bslL().cot.findIndex(c=>c.k===k),ds=[];bslHien().forEach((r,ri)=>{if(bslChon.has(r.id))ds.push({r:ri,c:ci,v:$('bslApGt').value})});const n=bslGhi(ds);bao(n?'Đã áp cho '+n+' dòng':'Giá trị không hợp lệ hoặc không đổi');return}});
-document.addEventListener('mousedown',e=>{const td=e.target.closest('#bslT td[data-r]');if(!td||e.target.closest('input,select'))return;const r=+td.dataset.r,c=+td.dataset.c,lai=!e.shiftKey&&bslDang.r===r&&bslDang.c===c&&!bslGoc;if(e.shiftKey){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r,c};e.preventDefault();bslVe();bslO();
+/* 23/10/2026 S98 (khách: "đã nhập số hoá đơn mà không thay đổi gì"): gõ dở 1 ô rồi BẤM CHUỘT sang ô khác (không Enter) — mousedown có
+   preventDefault nên ô đang gõ không mất focus → không chạy onblur → số vừa gõ BỊ BỎ, và bslSua kẹt lại khiến gõ tiếp ở ô mới cũng không ăn.
+   Nay: bấm sang ô khác thì ghi ô đang gõ trước (như Excel). */
+function bslGhiODangGo(){const i=document.querySelector('#bslT td .o input, #bslT td .o select'); if(bslSua&&i)i.blur(); else if(bslSua&&!i)bslSua=null}
+document.addEventListener('mousedown',e=>{const td=e.target.closest('#bslT td[data-r]');if(!td||e.target.closest('input,select'))return;bslGhiODangGo();const r=+td.dataset.r,c=+td.dataset.c,lai=!e.shiftKey&&bslDang.r===r&&bslDang.c===c&&!bslGoc;if(e.shiftKey){if(!bslGoc)bslGoc={...bslDang}}else bslGoc=null;bslDang={r,c};e.preventDefault();bslVe();bslO();
   if(lai)bslMoSua()}); // S82: bấm lần nữa vào ô đang chọn = mở sửa (như Excel/Sapo)
 document.addEventListener('dblclick',e=>{if(e.target.closest('#bslT td[data-r]'))bslMoSua()});
 document.addEventListener('change',e=>{if(!document.documentElement.classList.contains('bsl-on'))return;const c=e.target.dataset&&e.target.dataset.bslchon;if(c){e.target.checked?bslChon.add(c):bslChon.delete(c);bslVe();return}
   if(e.target.id==='bslThieuHD'){bslChiThieuHD=e.target.checked;bslDang={r:0,c:0};bslVe();return}
   if(e.target.id==='bslHet'){bslHien().forEach(r=>e.target.checked?bslChon.add(r.id):bslChon.delete(r.id));bslVe()}});
 document.addEventListener('input',e=>{if(e.target.id==='bslTim'){bslDang={r:0,c:0};bslGoc=null;bslVe()}});
-document.addEventListener('keydown',e=>{if(!document.documentElement.classList.contains('bsl-on')||bslSua)return;const a=document.activeElement;
+document.addEventListener('keydown',e=>{if(!document.documentElement.classList.contains('bsl-on'))return;if(bslSua&&!document.querySelector('#bslT td .o input, #bslT td .o select'))bslSua=null;if(bslSua)return;const a=document.activeElement;
   if(e.key==='Escape'&&!(a&&a.closest('#dlg,.dlg'))){bslDongLai();return} if(!a||!a.closest('#bslT'))return;
   const m={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];if(m){e.preventDefault();bslDi(...m,e.shiftKey);return}
   if(e.key==='Tab'){e.preventDefault();bslDi(0,e.shiftKey?-1:1);return} if(e.key==='Enter'||e.key==='F2'){e.preventDefault();bslMoSua();return}
