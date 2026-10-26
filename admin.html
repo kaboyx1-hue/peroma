@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 23/10/2026-S98</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 26/10/2026-S99</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 23/10/2026-S98</div>
+      <div class="verFoot">BẢN 26/10/2026-S99</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2525,11 +2525,33 @@ async function dbVong(nhanh){
     let tt=null; try{tt=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=tomtat',{},15000)}catch(e){dbVeTT('loi',e.message)}
     if(tt&&tt.ok)dbLanOk=Date.now();
     if(nhanh||!tt||!dongBoCauHinhTs||String(tt.ts)!==String(dongBoCauHinhTs))await dbKeoCauHinhNeuMoiHon();
+    if(tt&&tt.ok&&dongBoCauHinhTs&&!dbChoDay)await apPhieu2210();
     if(nhanh||!tt||tt.soMe!==dbSoMeMayChu||Date.now()-dbLanKeoNk>180000){await dbKeoNhatKy(); dbLanKeoNk=Date.now(); if(tt)dbSoMeMayChu=tt.soMe}
     if(nhanh||dbVongSo%3===0){await dbKeoBaoCao(); await dbKeoTienDoLenh(); await dbKeoNhip()}
     await dayMeAdmin();
   }finally{dbVongDang=false}
 }
+/* 26/10/2026 S99 — PHIẾU NẠP MỘT LẦN (khách: "tôi đã nhập rồi, giờ phải nhập lại sao? … nạp cho tôi luôn, tôi bận lắm"). Số khách đã nhập ở
+   file Excel 22/10 (sua-hang-loat_kho_2026-10-22.xlsx) chưa bao giờ lên Sheet vì lỗi Sửa hàng loạt (S96/S98 đã sửa). App tự áp đúng các ô đó
+   SAU khi đã kéo cấu hình mới nhất từ Sheet, qua đúng đường ap của Sửa hàng loạt (số kg đổi vẫn giữ tồn — doiSoKgGiuTon). Chỉ áp ô CÒN
+   TRỐNG / còn số cũ (soKg = 1) nên chạy lại không đè gì; xong thì không còn gì để áp → tự thôi. Ghi lịch sử từng dòng.
+   ponytail: một lần cho đúng lô dữ liệu này — xoá khối khi NHATKY_CAUHINH đã thấy số HĐ lên Sheet. */
+const PHIEU_2210=[['h:Hương Kem:0','Việt Đức','10/09/2026',{soKg:'15'}],['h:Hương Lài:0','Việt Đức','10/09/2026',{soKg:'25'}],['h:Hương tự nhiên:0','Hương không có hóa đơn','13/09/2026',{soKg:'5'}],
+  ['h:Hương lavender:0','Việt Đức','12/10/2026',{soKg:'5'}],['h:Hương Chanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4946'}],['h:Hương trà xanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4863'}],
+  ['h:Hương Hoa hồng:0','Peroma','12/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Táo:0','Peroma','15/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Socola:0','Sông Hồng','15/10/2026',{soKg:'5'}],
+  ['moi:h:Hương phấn Johnson',null,null,{ncc:'Peroma',ngay:'01/10/2026',soHD:'4750',soKg:'5',donGia:'604800',vat:'8'}]];
+let phieu2210Xong=false;
+async function apPhieu2210(){if(phieu2210Xong||document.documentElement.classList.contains('bsl-on'))return; phieu2210Xong=true;
+  const ds=BSL.tatca.nap(), da=[];
+  PHIEU_2210.forEach(([id,ncc,ngay,v])=>{const r=ds.find(x=>x.id===id); if(!r)return;
+    if(ncc&&(r.goc.ncc!==ncc||r.goc.ngay!==ngay))return;
+    const m={}; if(v.soHD&&!String(r.goc.soHD||'').trim())m.soHD=v.soHD; if(v.soKg&&(id.startsWith('moi:')||bslSo(r.goc.soKg)===1))m.soKg=v.soKg;
+    if(id.startsWith('moi:')){if(!m.soKg)return; Object.assign(m,v)}
+    if(!Object.keys(m).length)return; r.moi={...r.moi,...m}; BSL.tatca.ap(r,'Phiếu nạp 22/10 (file khách đã sửa)'); da.push(r.goc.ten)});
+  if(!da.length)return;
+  ghiAudit('config','phieu-nap-2210','AP_PHIEU_NAP',null,{dong:da});
+  const H='Hương phấn Johnson'; if(noMeHuong(H).length&&coMuaCon(H)){const th=hoi; hoi=async()=>true; try{await traNoHuong(H)}finally{hoi=th}}
+  luuNgay(); ve(); huyHieu('☁️','Đã tự nạp số liệu bạn nhập ngày 22/10',da.length+' lần mua · đang lưu lên Google Sheet')}
 async function dbKeoNhip(){
   if(!DONGBO_URL||nhipHoTro===false)return;
   try{const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=dsnhip',{},15000); if(j.ok){nhipMay=j.may||{}; nhipHoTro=true; if(typeof j.soMe==='number')dbSoMeMayChu=j.soMe; if(tab==='sx')veDoiSoat()}}

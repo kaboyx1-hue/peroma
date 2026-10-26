@@ -3903,6 +3903,17 @@ const dj=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 });
 ok('DJ: gõ số HĐ rồi bấm chuột sang ô khác (không Enter) → số vừa gõ vẫn được ghi (trước: mất trắng)', dj.ghi, JSON.stringify(dj));
 ok('DJ: sau khi bấm sang ô mới, gõ tiếp vẫn mở ô sửa (trước: bảng kẹt, gõ không ăn)', dj.goTiep);
+/* DK — S99: phiếu nạp 22/10 tự áp sau khi kéo cấu hình: điền số HĐ / số kg còn trống, tồn kho giữ nguyên, thêm lần mua Johnson; chạy lại không đổi gì */
+const dk=await E(async()=>{ const kq={}, g={nh:JSON.stringify(nguonHuong),k:kho.slice(),dd:JSON.stringify(huongDangDung)};
+  ['Hương Chanh','Hương phấn Johnson'].forEach(h=>{if(!kho.includes(h))kho.push(h)});
+  nguonHuong['Hương Chanh']=[{ncc:'Peroma',ngay:'12/10/2026',soHD:'',soKg:1,gia:455000,vat:8,daDungKg:1.5,dieuChinhKg:4}]; huongDangDung['Hương Chanh']='Peroma'; delete nguonHuong['Hương phấn Johnson'];
+  const tonTruoc=tonThucKg('Hương Chanh'); phieu2210Xong=false; await apPhieu2210(); const e=nguonHuong['Hương Chanh'][0], j=(nguonHuong['Hương phấn Johnson']||[])[0];
+  kq.ap=e.soHD==='4946'&&e.soKg===5&&tonThucKg('Hương Chanh')===tonTruoc&&!!j&&j.soHD==='4750'&&j.soKg===5&&j.gia===3024000;
+  const a=JSON.stringify(nguonHuong,(k,v)=>k==='_ten'?undefined:v); phieu2210Xong=false; await apPhieu2210(); kq.lap=JSON.stringify(nguonHuong,(k,v)=>k==='_ten'?undefined:v)===a;
+  nguonHuong=JSON.parse(g.nh); kho=g.k; huongDangDung=JSON.parse(g.dd); luuNgay(); return kq;
+});
+ok('DK: phiếu nạp 22/10 tự điền số HĐ + số kg còn trống (tồn kho giữ nguyên) và thêm lần mua hương phấn Johnson', dk.ap, JSON.stringify(dk));
+ok('DK: chạy lại phiếu nạp không đổi gì (không đè dữ liệu đã có)', dk.lap);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
