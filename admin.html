@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 26/10/2026-S99</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 26/10/2026-S100</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 26/10/2026-S99</div>
+      <div class="verFoot">BẢN 26/10/2026-S100</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2173,7 +2173,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong()},ban:BAN_HIEN_TAI,may:String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'').slice(0,110)})}); // S97: bản + máy → trang NHATKY_CAUHINH
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong()},ban:BAN_HIEN_TAI,may:('phiếu:'+phieuTT+' | '+String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'')).slice(0,118)})}); // S97: bản + máy → trang NHATKY_CAUHINH
     dbChoDay=false;
     if(j&&j.xungDot){
       /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
@@ -2517,6 +2517,7 @@ async function dbBatDauVongLap(){
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)dbVong(true)});
   addEventListener('online',()=>dbVong(true));
   setInterval(dbDenCu,15000);
+  setInterval(()=>{if(!phieu2210Xong&&dongBoCauHinhTs&&!dbChoDay)apPhieu2210()},15000); // S99b: phiếu nạp 22/10 — thử lại tới khi áp được
 }
 let dbVongDang=false, dbVongSo=0, dbSoMeMayChu=null, dbLanKeoNk=0, dbLanOk=0, nhipMay=null, nhipHoTro=null;
 async function dbVong(nhanh){
@@ -2540,14 +2541,17 @@ const PHIEU_2210=[['h:Hương Kem:0','Việt Đức','10/09/2026',{soKg:'15'}],[
   ['h:Hương lavender:0','Việt Đức','12/10/2026',{soKg:'5'}],['h:Hương Chanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4946'}],['h:Hương trà xanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4863'}],
   ['h:Hương Hoa hồng:0','Peroma','12/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Táo:0','Peroma','15/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Socola:0','Sông Hồng','15/10/2026',{soKg:'5'}],
   ['moi:h:Hương phấn Johnson',null,null,{ncc:'Peroma',ngay:'01/10/2026',soHD:'4750',soKg:'5',donGia:'604800',vat:'8'}]];
-let phieu2210Xong=false;
-async function apPhieu2210(){if(phieu2210Xong||document.documentElement.classList.contains('bsl-on'))return; phieu2210Xong=true;
-  const ds=BSL.tatca.nap(), da=[];
+let phieu2210Xong=false, phieuTT='chưa chạy';
+async function apPhieu2210(){if(phieu2210Xong)return; if(document.documentElement.classList.contains('bsl-on')){phieuTT='chờ đóng bảng';return}
+  try{await apPhieu2210Than()}catch(e){phieuTT='lỗi: '+String(e&&e.message||e).slice(0,60); phieu2210Xong=false}}
+async function apPhieu2210Than(){phieu2210Xong=true;
+  const ds=BSL.tatca.nap(), da=[], lech=[];
   PHIEU_2210.forEach(([id,ncc,ngay,v])=>{const r=ds.find(x=>x.id===id); if(!r)return;
-    if(ncc&&(r.goc.ncc!==ncc||r.goc.ngay!==ngay))return;
+    if(ncc&&(r.goc.ncc!==ncc||r.goc.ngay!==ngay)){lech.push(id.split(':')[1]);return}
     const m={}; if(v.soHD&&!String(r.goc.soHD||'').trim())m.soHD=v.soHD; if(v.soKg&&(id.startsWith('moi:')||bslSo(r.goc.soKg)===1))m.soKg=v.soKg;
     if(id.startsWith('moi:')){if(!m.soKg)return; Object.assign(m,v)}
     if(!Object.keys(m).length)return; r.moi={...r.moi,...m}; BSL.tatca.ap(r,'Phiếu nạp 22/10 (file khách đã sửa)'); da.push(r.goc.ten)});
+  phieuTT=da.length?'đã áp '+da.length:('không cần áp'+(lech.length?' · lệch '+lech.join(','):''));
   if(!da.length)return;
   ghiAudit('config','phieu-nap-2210','AP_PHIEU_NAP',null,{dong:da});
   const H='Hương phấn Johnson'; if(noMeHuong(H).length&&coMuaCon(H)){const th=hoi; hoi=async()=>true; try{await traNoHuong(H)}finally{hoi=th}}
