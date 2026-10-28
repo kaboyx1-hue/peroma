@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S103</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S105</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 28/10/2026-S103</div>
+      <div class="verFoot">BẢN 28/10/2026-S105</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2346,7 +2346,7 @@ function hoaDonCuaMe(r){
   if(r.huong&&!isUnscented(r.huong)){const n=pMh?nguonDangDungCuaMatHang(pMh,r.huong):null;
     ds.push({loai:'h',ten:r.huong,ncc:n?n.e.ncc:'',soHD:n?String(n.e.soHD||''):''})}
   ((pMh&&pMh.congThucNL)||[]).filter(x=>x&&x.ten).forEach(x=>{
-    const ncc=nlDangDung&&nlDangDung[x.ten], l=(nguonNguyenLieu[x.ten]||[]).filter(e=>num(e.soKg)>0&&(!ncc||e.ncc===ncc)), e=l[l.length-1];
+    const m=dongMuaCuaMe(r,{loai:'nl',ten:x.ten}), e=m&&m.e; // S104: cùng quy tắc chốt lần mua — lần đã chốt không nhận lô ghi sau
     ds.push({loai:'nl',ten:x.ten,ncc:e?e.ncc:'',soHD:e?String(e.soHD||''):''})});
   return ds;
 }
@@ -2363,15 +2363,22 @@ function hoaDonKhung(r){
    thì lấy theo lần mua đó (theoLanMua) — điền số HĐ ở lần mua 1 lần là mọi mẻ dùng nó đều có. Kèm số hợp đồng của lần mua (nếu có). */
 function dongMuaCuaMe(r,d){
   if(d.loai==='h'){if(r.huong!==d.ten)return null;const e=dongTruCua(r);return e?{loai:'h',ten:d.ten,ix:(nguonHuong[d.ten]||[]).indexOf(e),e}:null}
-  const ncc=nlDangDung&&nlDangDung[d.ten], ds=nguonNguyenLieu[d.ten]||[];
-  for(let i=ds.length-1;i>=0;i--)if(num(ds[i].soKg)>0&&(!ncc||ds[i].ncc===ncc))return {loai:'nl',ten:d.ten,ix:i,e:ds[i]};
+  /* S104 CHỐT LẦN MUA: mẻ ghi TRƯỚC lúc chốt thuộc lần mua đã chốt (chốt sớm nhất còn sau mẻ); mẻ ghi SAU mọi lần chốt thuộc lần mua
+     mới nhất CHƯA chốt; không có → null = "chờ lần mua mới" (lô in tem trước khi hàng về). Chưa chốt lần nào = như cũ (lần mua mới nhất). */
+  const ncc=nlDangDung&&nlDangDung[d.ten], ds=(nguonNguyenLieu[d.ten]||[]).map((e,i)=>({e,i})).filter(o=>num(o.e.soKg)>0&&(!ncc||o.e.ncc===ncc)), ts=String(r.ts||'');
+  const c=ds.filter(o=>o.e.chot&&String(o.e.chot.luc||'')>=ts).sort((a,b)=>String(a.e.chot.luc).localeCompare(String(b.e.chot.luc)))[0];
+  if(c)return {loai:'nl',ten:d.ten,ix:c.i,e:c.e};
+  const mo=ds.filter(o=>!o.e.chot); if(mo.length){const o=mo[mo.length-1]; return {loai:'nl',ten:d.ten,ix:o.i,e:o.e}}
   return null;
 }
+/* 28/10/2026 S105 (khách: "hợp đồng với hoá đơn được tính như nhau — hàng nhập khẩu không có hoá đơn, hệ thống phải hiểu"): lần mua có SỐ HỢP ĐỒNG
+   (hoặc tờ khai) mà không có số hoá đơn vẫn coi là ĐỦ chứng từ — không báo thiếu HĐ, lô hiện "Hợp đồng …". */
+const coChungTu=o=>!!(o&&(String(o.soHD||'').trim()||String(o.soHopDong||'').trim()));
 function hdCuaMe(r){
   const bs=hoaDonBoSung[r.id]||{};
   return (Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX:hoaDonKhung(r)).map(d=>{
     const m=dongMuaCuaMe(r,d), x=bs[d.ten]?{...d,soHD:bs[d.ten],boSung:true}:{...d};
-    if(m){x.mua=m; if(!x.soHD&&m.e.soHD){x.soHD=String(m.e.soHD);x.theoLanMua=true} if(!x.ncc)x.ncc=m.e.ncc; x.hopDong=String(m.e.soHopDong||'')}
+    if(m){x.mua=m; if(!x.soHD&&m.e.soHD){x.soHD=String(m.e.soHD);x.theoLanMua=true} else if(!x.soHD&&String(m.e.soHopDong||'').trim()){x.soHD='Hợp đồng '+String(m.e.soHopDong).trim();x.theoLanMua=true} if(!x.ncc)x.ncc=m.e.ncc; x.hopDong=String(m.e.soHopDong||'')}
     return x});
 }
 /* 22/10/2026 S94 (khách: "số liệu kho và báo cáo không liên kết — báo cáo đã có số hoá đơn nhưng qua kho chưa thấy"): số HĐ ghi ở Báo cáo
@@ -2381,7 +2388,7 @@ function hdCuaMe(r){
 let _hdMe=null;
 function hdTuMe(e){if(!_hdMe){_hdMe=new Map(); nk.forEach(r=>{if(r.huy)return; hdCuaMe(r).forEach(d=>{if(d.mua&&d.soHD&&!d.theoLanMua){const k=d.mua.e; _hdMe.has(k)||_hdMe.set(k,new Set()); _hdMe.get(k).add(String(d.soHD).trim())}})}); setTimeout(()=>{_hdMe=null})}
   return [...(_hdMe.get(e)||[])]}
-const hdChuaSangKho=()=>[['h',nguonHuong],['nl',nguonNguyenLieu]].flatMap(([l,m])=>Object.entries(m||{}).flatMap(([t,ds])=>(ds||[]).map((e,ix)=>({l,t,ix,e})))).filter(x=>!String(x.e.soHD||'').trim()&&hdTuMe(x.e).length);
+const hdChuaSangKho=()=>[['h',nguonHuong],['nl',nguonNguyenLieu]].flatMap(([l,m])=>Object.entries(m||{}).flatMap(([t,ds])=>(ds||[]).map((e,ix)=>({l,t,ix,e})))).filter(x=>!coChungTu(x.e)&&hdTuMe(x.e).length);
 function hdSangKho(ds){ds.forEach(({l,t,e})=>{const so=hdTuMe(e).join(', '); ghiAudit('stock',t,'HD_TU_BAO_CAO',{soHD:''},{loai:l,ncc:e.ncc,ngay:e.ngay,soHD:so}); e.soHD=so}); _hdMe=null; luuNgay(); veMa(); bao('Đã đưa '+ds.length+' số hoá đơn từ báo cáo sang kho')}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-hdsangkho]'); if(!b)return; const k=b.dataset.hdsangkho; hdSangKho(hdChuaSangKho().filter(x=>!k||k===x.l+':'+x.t+':'+x.ix))});
 const hoaDonTxt=r=>hdCuaMe(r).map(d=>d.ten+': '+(d.soHD||'chưa có số HĐ')).join(' · ');
@@ -5091,7 +5098,7 @@ function ttNguon(loai,ten){
   const sap=ngay!==null&&ngay<=nguongCanhBaoNgay, am=ton!==null&&ton<=0;
   /* 16/10/2026 (khách: "cần có mục cảnh báo chưa có hoá đơn, nếu không cần hoá đơn thì bên trong có dấu tích để cancel"): lần mua
      nào chưa ghi số HĐ → nhãn "Chưa có HĐ"; tích "không cần hoá đơn" (lưu ở tonKho…[tên].khongHD, đồng bộ cùng cấu hình) thì tắt. */
-  const kem=loai==='h'&&huongKemNL(ten), khongHD=!!((tonKhoMapCua(loai)[ten]||{}).khongHD), thieuHD=!khongHD&&!kem?ds.filter(e=>!String(e.soHD||'').trim()&&!hdTuMe(e).length).length:0;
+  const kem=loai==='h'&&huongKemNL(ten), khongHD=!!((tonKhoMapCua(loai)[ten]||{}).khongHD), thieuHD=!khongHD&&!kem?ds.filter(e=>!coChungTu(e)&&!hdTuMe(e).length).length:0;
   const nhom=kem?'ok':!ds.length?'chua':am?'am':(no||sap)?'sap':ton===null?'chua':'ok';
   const gia=eMoi&&num(eMoi.soKg)>0?Math.round(num(eMoi.gia)/num(eMoi.soKg)):null;
   const chip=(c,t)=>`<span class="nc-chip ${c}">${t}</span>`;
@@ -5178,7 +5185,7 @@ function veKhoiNguon(loai,ten){
             <span class="nr-nut"><button class="xosua" data-suanguon="${loai}:${esc(ten)}:${ix}" title="Sửa số kg, đơn giá, hoá đơn">Sửa</button><button class="xosua" data-xoanguon="${loai}:${esc(ten)}:${ix}" title="Xoá lần mua này" style="color:var(--red)">Xoá</button></span></div>
           <div class="nr-so"><span><small>Nhập</small><b>${fmtSo(num(e.soKg))} kg</b></span><span><small>Đơn giá</small><b>${fmt(dgKg)} đ/kg</b></span><span><small>Thành tiền</small><b>${fmt(num(e.gia))} đ</b></span>${loai==='h'?`<span><small>Còn</small><b class="${conLai<=0?'am':''}">${fmtSo(conLai)} kg</b></span>`:''}</div>
           ${loai==='h'?thanhCon({nhap:num(e.soKg),con:conLai}):''}
-          <div class="nr-phu">${e.soHD?'🧾 HĐ <b>'+esc(e.soHD)+'</b>':hdTuMe(e).length?`🧾 HĐ <b>${esc(hdTuMe(e).join(', '))}</b> <span class="nr-bc">ghi ở báo cáo</span> <button type="button" class="lnk" data-hdsangkho="${esc(loai+':'+ten+':'+ix)}">Đưa sang kho</button>`:`<button type="button" class="lnk nr-thieu" data-suanhanh="${esc(ten)}" data-thieuhd="1">🧾 chưa có số HĐ — điền ngay</button>`}${e.soHopDong?' · hợp đồng <b>'+esc(e.soHopDong)+'</b>':''} · ${q&&q.daQuy?'chưa VAT '+fmt(Math.round(q.gia))+' đ/kg (VAT '+q.vat+'%)':'<span class="nr-thieu">chưa khai VAT</span>'}${loai==='h'&&dd?' · đã dùng '+fmtSo(dd)+' kg':''}${hetHang?' · <b>lần mua này đã dùng hết</b>':''}</div>
+          <div class="nr-phu">${e.soHD?'🧾 HĐ <b>'+esc(e.soHD)+'</b>':String(e.soHopDong||'').trim()?'📄 Chứng từ: hợp đồng <b>'+esc(e.soHopDong)+'</b> <span class="nr-bc">không có hoá đơn</span>':hdTuMe(e).length?`🧾 HĐ <b>${esc(hdTuMe(e).join(', '))}</b> <span class="nr-bc">ghi ở báo cáo</span> <button type="button" class="lnk" data-hdsangkho="${esc(loai+':'+ten+':'+ix)}">Đưa sang kho</button>`:`<button type="button" class="lnk nr-thieu" data-suanhanh="${esc(ten)}" data-thieuhd="1">🧾 chưa có số HĐ — điền ngay</button>`}${e.soHopDong?' · hợp đồng <b>'+esc(e.soHopDong)+'</b>':''} · ${q&&q.daQuy?'chưa VAT '+fmt(Math.round(q.gia))+' đ/kg (VAT '+q.vat+'%)':'<span class="nr-thieu">chưa khai VAT</span>'}${loai==='h'&&dd?' · đã dùng '+fmtSo(dd)+' kg':''}${hetHang?' · <b>lần mua này đã dùng hết</b>':''}</div>
         </div>`+veThemNguonPanel(loai,ten,ix)}).join('')+`</div>`;
       r+=`<select data-nguondung="${loai}:${esc(ten)}">
         <option value=""${dung?'':' selected'}>— chưa chọn ${loai==='h'?'hương':'nguyên liệu'} đang dùng —</option>
@@ -5348,12 +5355,12 @@ function apTraNo(){const tn=(meDaTru&&meDaTru.traNo)||{};
 /* 23/10/2026 S94 (khách: "hương phấn Johnson tôi đã khai rồi sao lại bắt khai lại"): mẻ pha TRƯỚC khi khai lần mua là "nợ dữ liệu" — chỉ hết nợ khi
    bấm Trả nợ. Khai bằng phiếu thì app hỏi trả nợ ngay, nhưng khai qua Sửa hàng loạt thì không hỏi → nợ còn, chữ lại bảo "khai lần mua". Nay: lưu
    Sửa hàng loạt xong cũng hỏi trả nợ; chữ cảnh báo phân biệt "đã khai, chỉ cần trả nợ" với "chưa khai". */
-const coMuaCon=h=>(nguonHuong[h]||[]).some(e=>num(e.soKg)>0&&conLaiNguon(e)>0);
+const coMuaCon=h=>(nguonHuong[h]||[]).some(e=>num(e.soKg)>0&&conLaiNguon(e)>0&&!e.chot);
 const loiNo=h=>coMuaCon(h)?`Đã có lần mua — không cần khai lại, chỉ cần bấm <b>Trả nợ</b> để gắn các mẻ này vào lần mua đó.`:`Chưa có lần mua còn hàng: khai lần mua (hoặc sửa số kg lần mua đã khai) rồi <b>trả nợ</b>.`;
 async function traNoHuong(h,ixMoi){
   const no=noMeHuong(h); if(!no.length){bao('Hương này không có mẻ nợ');return false}
   const ds=(nguonHuong[h]||[]).map((e,ix)=>({e,ix})).filter(o=>num(o.e.soKg)>0);
-  const dich=ixMoi!==undefined?ds.find(o=>o.ix===ixMoi):(ds.filter(o=>conLaiNguon(o.e)>0).slice(-1)[0]);
+  const dich=ixMoi!==undefined?ds.find(o=>o.ix===ixMoi):(ds.filter(o=>conLaiNguon(o.e)>0&&!o.e.chot).slice(-1)[0]);
   if(!dich){await hoi('Chưa có lần mua để trả nợ',`Hương <b>${esc(h)}</b> chưa có lần mua nào còn hàng. Bấm <b>+ Nhập thêm hàng</b>, khai lần mua — app sẽ hỏi trả nợ ngay sau khi lưu.`,{nutOK:'Đã hiểu',nutHuy:'Đóng'});return false}
   const kg=noKgHuong(h), giaG=num(dich.e.gia)/(num(dich.e.soKg)*1000);
   const ok=await hoi('Trả nợ dữ liệu',`Hương <b>${esc(h)}</b> đang nợ <b>${no.length} mẻ · ${fmtSo(kg)} kg</b> (pha khi chưa có lần mua còn hàng):<br><small>${no.map(r=>esc(vnNgay(r.ngaysx))+' · '+esc(r.sp)+' · '+fmtSo(num(r.mlDung)/1000)+' kg').join('<br>')}</small><br><br>Trừ vào lần mua <b>${esc(dich.e.ncc)} · ${esc(dich.e.ngay||'')}</b> và chốt giá <b>${fmt(Math.round(giaG*1000))} đ/kg</b> cho các mẻ này?`,{nutOK:'Trả nợ vào lần mua này'});
@@ -5374,6 +5381,12 @@ async function boQuaNoHuong(h){
   luuNgay(); bao('Đã bỏ qua '+no.length+' mẻ'); return true;
 }
 // thông báo vượt tồn (Admin Tổng quan + gửi sang Nhân viên qua cấu hình)
+// S104: lô ghi khi vật tư đã hết (hương: nợ dữ liệu — pha khi không còn lần mua nào còn hàng / đã chốt; nguyên liệu: mọi lần mua đã chốt trước khi ghi lô)
+document.addEventListener('click',e=>{const b=e.target.closest('[data-chohang]'); if(!b)return; chuyenTab('sx'); setTimeout(()=>dsLoMo(b.dataset.chohang),60)});
+function loChoHang(){const ra=[], no=new Map(); kho.forEach(h=>{if(!isUnscented(h))noMeHuong(h).forEach(r=>no.set(r.id,h))});
+  nk.forEach(r=>{if(r.huy)return; const th=[]; if(no.has(r.id))th.push(no.get(r.id));
+    tiLeNLMe(r).forEach(x=>{const ds=(nguonNguyenLieu[x.ten]||[]).filter(e=>num(e.soKg)>0); if(ds.length&&ds.some(e=>e.chot)&&!dongMuaCuaMe(r,{loai:'nl',ten:x.ten}))th.push(x.ten)});
+    if(th.length)ra.push({r,thieu:th})}); return ra}
 function tinhCanhBaoHuong(){
   return kho.filter(h=>!isUnscented(h)).map(h=>{const t=tonThucKg(h),n=noMeHuong(h).length;return {h,vuotKg:t!==null&&t<0?Math.round(-t*1000)/1000:0,noMe:n}})
     .filter(x=>x.vuotKg>0||x.noMe>0);
@@ -5428,7 +5441,7 @@ function moNhapThemHuong(h){
 }
 // các dòng NCC/giá của 1 hương mà VẪN CÒN TỒN KHO (>0kg) — kèm chỉ số (ix) trong mảng gốc
 function nguonConHang(h){
-  return (nguonHuong[h]||[]).map((e,ix)=>({e,ix})).filter(({e})=>conLaiNguon(e)>0);
+  return (nguonHuong[h]||[]).map((e,ix)=>({e,ix})).filter(({e})=>conLaiNguon(e)>0&&!e.chot); // S104: lần mua đã chốt không nhận mẻ mới
 }
 // nguồn ĐANG DÙNG cho 1 hương, RIÊNG theo mặt hàng p — chỉ tính trong số nguồn còn tồn kho
 /* 15/10/2026: khách "không thể hết được" — kho THẬT còn, chỉ SỐ ĐẾM trong hệ thống về 0 (thường do khai đơn giá
@@ -6804,6 +6817,9 @@ function veTQ(){
   let o='<div class="tq">';
   // 15/10/2026: THÔNG BÁO vượt tồn thực tế (khách: "notification trên giao diện chính … nhắc nhở điều chỉnh")
   const cbH=tinhCanhBaoHuong(), cbN=tinhCanhBaoNL();
+  {const ch=loChoHang(); if(ch.length)o+='<div class="w w-12 tqcb" role="alert"><h4>⚠ '+ch.length+' lô ghi khi vật tư đã hết hàng — chờ lần mua mới</h4><div class="tqcb-ds">'
+    +ch.slice(0,12).map(x=>'<button type="button" data-chohang="'+esc(x.r.id)+'" class="tqcb-mon"><b>'+esc(lotDep(x.r.lot||''))+'</b><span>'+esc(x.r.sp)+' · '+fmtSo(num(x.r.sl))+' kg · chờ: '+esc(x.thieu.join(', '))+'</span></button>').join('')
+    +'</div><div class="tqcb-g">Lô vẫn in tem được. Hàng về thì khai <b>lần mua mới</b> ở Kho → lô tự gắn vào lần mua đó (hương: app hỏi trả nợ). Lần mua cũ đã <b>chốt</b> thì không nhận thêm.</div></div>'}
   if(cbN.length)o+='<div class="w w-12 tqcb" role="alert"><h4>⚠ '+cbN.length+' nguyên liệu đang dùng vượt tồn thực tế — cần điều chỉnh</h4><div class="tqcb-ds">'
     +cbN.map(x=>'<button type="button" data-tqnguon="nl|||'+esc(x.ten)+'" class="tqcb-mon"><b>'+esc(x.ten)+'</b><span>vượt '+fmtSo(x.vuotKg)+' kg</span></button>').join('')
     +'</div><div class="tqcb-g">Bấm vào nguyên liệu → mở thẳng ở tab Kho: <b>Kiểm kê</b> (kho thật còn) · <b>Nhập thêm hàng</b> (đã mua thêm).</div></div>';
@@ -7271,7 +7287,13 @@ const bslCtnlTong=r=>Math.round((bslDs.ctnl||[]).filter(o=>o.ref.p===r.ref.p).re
    gõ nhà cung cấp + số kg + đơn giá vào dòng đó → lưu thành lần mua mới (để trống thì bỏ qua). */
 const bslMoi=r=>String(r.id).startsWith('moi:'), bslMoiCo=r=>['ncc','soKg','donGia','soHD','soHopDong'].some(k=>String(r.moi[k]??'').trim());
 const bslBoTrong=f=>(v,r)=>bslMoi(r)&&!bslMoiCo(r)?'':f(v,r);
-function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>/^(moi:)?h:/.test(String(r.id));
+/* 28/10/2026 S104 (khách: "lô cát tắm 28 tấn nếu xài hết thì trong sửa hàng loạt phải có nút xác nhận số lượng đã chốt để hệ thống khoá lại, tự hiểu
+   phát sinh thêm nghĩa là thuộc lô mới — trừ khi tôi mở khoá"): cột "Đã chốt" — tích = lần mua đã dùng hết, khoá số kg/giá/NCC/ngày (số HĐ vẫn sửa được),
+   kho của lần mua đó về 0 (hương: điều chỉnh phần lệch; nguyên liệu: hết lần mua đang mở → tồn về 0). Mẻ ghi sau đó KHÔNG trừ vào lần mua đã chốt:
+   hương → nợ dữ liệu chờ lần mua mới; nguyên liệu → "chờ lần mua mới". Bỏ tích = mở khoá. */
+const KHOA_CHOT=r=>r.goc&&r.goc.chot?'Đã chốt — bỏ tích "Đã chốt" để sửa':'';
+const khoaThem=(c,f)=>({...c,khoa:r=>f(r)||(c.khoa?c.khoa(r):'')});
+function bslCotTatCa(){const h=bslCotMua('h'), c0=k=>h.find(x=>x.k===k), c=k=>['ncc','ngay','soKg','donGia','vat'].includes(k)?khoaThem(c0(k),KHOA_CHOT):c0(k), laH=r=>/^(moi:)?h:/.test(String(r.id));
   return [{k:'ten',t:'Tên vật tư',w:200,khoa:()=>'Đổi tên ở thẻ Danh mục'},
     {k:'loai',t:'Loại',w:100,khoa:()=>'Chỉ xem'},
     {k:'dung',t:'Dùng cho',g:'bấm 2 lần → mở công thức',w:200,tinh:r=>{const d=dungChoVT(laH(r),r.ref._ten);return d.length?d.join(', '):'— chưa mặt hàng nào'}},
@@ -7280,7 +7302,8 @@ function bslCotTatCa(){const h=bslCotMua('h'), c=k=>h.find(x=>x.k===k), laH=r=>/
     {...c('donGia'),kt:bslBoTrong(c('donGia').kt)},c('tt'),c('vat'),
     {...c('dd'),tinh:r=>{if(laH(r))return c('dd').tinh(r); const t=r.ref._ten,tk=tonKhoNguyenLieu[t]; if(!tk||!tk.moc)return '—'; return fmtSo(Math.round(nk.filter(m=>!m.huy&&String(m.ts||'')>tk.moc).reduce((a,m)=>a+nlDungMe(m,t),0)*1000)/1000)+' kg · cả NL'}},
     {...c('dc'),tinh:r=>laH(r)?c('dc').tinh(r):'—'},
-    {...c('con'),tinh:r=>{if(laH(r))return c('con').tinh(r); const v=tonNLKg(r.ref._ten); return v===null?'—':fmtSo(v)+' kg · cả NL'}}]}
+    {...c('con'),tinh:r=>{if(laH(r))return c('con').tinh(r); const v=tonNLKg(r.ref._ten); return v===null?'—':fmtSo(v)+' kg · cả NL'}},
+    {k:'chot',t:'Đã chốt',g:'dùng hết · khoá lần mua',w:120,bat:1,khoa:r=>bslMoi(r)?'Chưa có lần mua':''}]}
 function bslTatCaNap(){const ds=[...bslMuaNap('h'),...bslMuaNap('nl')].map(r=>{const laH=r.id.startsWith('h:');r.ref._ten=r.goc.ten;r.goc.loai=r.moi.loai=laH?'Hương':'Nguyên liệu';return r});
   const chua=(loai,ten)=>!(nguonMapCua(loai)[ten]||[]).length, moi=(loai,ten)=>{const d={ten,loai:(loai==='h'?'Hương':'Nguyên liệu')+' · chưa khai lần mua',ncc:'',ngay:homNay(),soHD:'',soHopDong:'',soKg:'',donGia:'',vat:'8'};return {id:'moi:'+loai+':'+ten,ref:{_moi:1,_ten:ten,_loai:loai},goc:{...d},moi:{...d}}};
   return [...ds,...kho.filter(h=>!isUnscented(h)&&!huongKemNL(h)&&chua('h',h)).map(h=>moi('h',h)),...nlDM.filter(t=>t&&chua('nl',t)).map(t=>moi('nl',t))]}
@@ -7293,11 +7316,17 @@ function bslTatCaAp(r){if(!bslMoi(r))return bslMuaAp(r); if(!bslMoiCo(r))return;
 let bslChiThieuHD=false;
 /* mở bảng sửa NGAY TẠI CHỖ cho 1 vật tư (hoặc mọi dòng chưa có HĐ), con trỏ đặt sẵn ở ô Số hoá đơn */
 function moSuaNhanh(ten,chiThieuHD){bslMo('mua'); bslLoai='tatca'; bslChiThieuHD=!!chiThieuHD; $('bslTim').value=ten||'';
-  const ci=bslL().cot.findIndex(c=>c.k==='soHD'), rs=bslHien(); let r=rs.findIndex(x=>!String(x.moi.soHD||'').trim()); if(r<0)r=0;
+  const ci=bslL().cot.findIndex(c=>c.k==='soHD'), rs=bslHien(); let r=rs.findIndex(x=>!coChungTu(x.moi)); if(r<0)r=0;
   bslDang={r,c:ci}; bslVe(); bslO(); if(rs.length)setTimeout(()=>bslMoSua(),40)}
-function bslMuaNap(loai){const m=nguonMapCua(loai),ds=[];Object.entries(m||{}).forEach(([t,a])=>(a||[]).forEach((e,ix)=>{const d={ten:t,ncc:e.ncc||'',ngay:e.ngay||'',soHD:e.soHD||'',soHopDong:e.soHopDong||'',soKg:String(num(e.soKg)),donGia:num(e.soKg)>0?String(Math.round(num(e.gia)/num(e.soKg))):'',vat:e.vat===null||e.vat===undefined?'':String(e.vat)};ds.push({id:loai+':'+t+':'+ix,ref:e,goc:{...d},moi:{...d}})}));return ds}
+function bslMuaNap(loai){const m=nguonMapCua(loai),ds=[];Object.entries(m||{}).forEach(([t,a])=>(a||[]).forEach((e,ix)=>{const d={ten:t,ncc:e.ncc||'',ngay:e.ngay||'',soHD:e.soHD||'',soHopDong:e.soHopDong||'',soKg:String(num(e.soKg)),donGia:num(e.soKg)>0?String(Math.round(num(e.gia)/num(e.soKg))):'',vat:e.vat===null||e.vat===undefined?'':String(e.vat),chot:!!e.chot};ds.push({id:loai+':'+t+':'+ix,ref:e,goc:{...d},moi:{...d}})}));return ds}
+function bslApChot(r){const e=r.ref,m=r.moi; if(!!m.chot===!!e.chot)return; const laH=String(r.id).startsWith('h:'), ten=r.goc.ten;
+  if(m.chot){e.chot={luc:new Date().toISOString(),ngay:homNay()};
+    if(laH){const con=conLaiNguon(e); if(Math.abs(con)>0.0005){e.dieuChinhKg=Math.round((num(e.dieuChinhKg||0)-con)*1000)/1000; e.dcLog=[...(Array.isArray(e.dcLog)?e.dcLog:[]),{ngay:homNay(),truocKg:con,sauKg:0,lyDo:'Chốt lần mua — đã dùng hết'}].slice(-30)}}
+    else if(!(nguonNguyenLieu[ten]||[]).some(x=>x!==e&&!x.chot&&num(x.soKg)>0)){const t=tonNLKg(ten); if(t!==null&&Math.abs(t)>0.0005)tonKhoNguyenLieu[ten]={...tonKhoNguyenLieu[ten],con:0,capNhat:homNay(),moc:new Date().toISOString()}}
+    ghiAudit('stock',ten,'CHOT_LAN_MUA',null,{loai:laH?'h':'nl',ncc:e.ncc,ngay:e.ngay,soHD:e.soHD||''})}
+  else{delete e.chot; ghiAudit('stock',ten,'MO_CHOT_LAN_MUA',null,{loai:laH?'h':'nl',ncc:e.ncc,ngay:e.ngay})}}
 function bslMuaAp(r){const e=r.ref,m=r.moi;e.ncc=String(m.ncc).trim();e.ngay=String(m.ngay).trim();e.soHD=String(m.soHD).trim();e.soHopDong=String(m.soHopDong).trim();
-  if(String(r.id).startsWith('h:'))doiSoKgGiuTon(e,bslSo(m.soKg));e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat)}
+  if(String(r.id).startsWith('h:'))doiSoKgGiuTon(e,bslSo(m.soKg));e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat);bslApChot(r)}
 const BSL={
  sp:{ten:'Mặt hàng',cot:[
    {k:'ten',t:'Tên mặt hàng',w:200,kt:(v,r,ds)=>!String(v).trim()?'Không được để trống':bslTrung(ds,'ten',v,r.id)?'Trùng tên với mặt hàng khác':''},
@@ -7402,7 +7431,7 @@ const BSL_NHOM={sp:['sp','h','q','nl','ctnl'],mua:['tatca','cth','ctnl','kk','bb
 BSL_NHOM.all=[...new Set([...BSL_NHOM.sp,...BSL_NHOM.mua,...BSL_NHOM.me])]; // S94: mọi bảng — dùng cho Nạp lại file Toàn bộ dữ liệu
 let bslLoai='sp', bslDs={}, bslDang={r:0,c:0}, bslGoc=null, bslSua=null, bslLS=[], bslChon=new Set(), bslNhom='sp';
 const bslL=()=>BSL[bslLoai];
-const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!String(r.goc.soHD||'').trim()))};
+const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!coChungTu(r.goc)))};
 const bslKhoa=(c,r)=>c.tinh?'tinh':c.khoa?c.khoa(r):'';
 const bslLoi=(c,r)=>c.kt?c.kt(String(r.moi[c.k]??''),r,bslDs[bslLoai]):'';
 const bslDaSua=(c,r)=>!c.tinh&&String(r.moi[c.k])!==String(r.goc[c.k]);
@@ -7441,6 +7470,8 @@ const BSL_CHU={
  tatca:{loai:'Dòng chữ mờ "chưa khai lần mua" = hương / nguyên liệu chưa có lần mua nào (VD hương riêng của Citycat). Gõ nhà cung cấp, số kg, đơn giá vào dòng đó rồi lưu → thành lần mua mới. Để trống thì bỏ qua.',
    dung:'Những mặt hàng đang dùng vật tư này. Bấm 2 lần vào ô (hoặc Enter) để mở thẳng công thức của mặt hàng đó.',
    soHD:'Số hoá đơn, nằm ở góc phải phía trên tờ hoá đơn. Điền 1 lần ở đây là tự gắn vào mọi mẻ đã dùng lần mua này.',
+   soHopDong:'Hàng nhập khẩu / không có hoá đơn: ghi số hợp đồng (hoặc tờ khai) ở đây — tính như hoá đơn, không báo thiếu HĐ.',
+   chot:'Tích khi lần mua đã dùng hết: khoá số kg / giá, kho về 0; lô ghi sau sẽ chờ lần mua mới. Bỏ tích để mở khoá.',
    soKg:'Mua bao nhiêu kg thì gõ bấy nhiêu, xem trên hoá đơn. Hương trước đây khai 1 kg thì sửa thành số thật, số còn trong kho không bị cộng dư.',
    donGia:'Giá của 1 kg, tính luôn tiền thuế: tổng tiền phải trả trên hoá đơn chia cho số kg.',tt:'Máy tự nhân: số kg × giá 1 kg.',
    dc:'Phần đã sửa tồn bằng tay (khai tồn lúc nhập hàng hoặc Điều chỉnh kho). Còn lại = Số kg mua − Đã dùng + Điều chỉnh. Lần mua khai kiểu cũ (1 kg) sẽ có điều chỉnh lớn: sửa Số kg mua cho đúng hoá đơn thì điều chỉnh tự về 0, Còn lại giữ nguyên. Chỉ để tham khảo.',
@@ -7493,7 +7524,7 @@ function bslSheet(k,ds){const L=BSL[k];
     const xem=c=>c.tinh||(c.khoa&&ds.length&&ds.every(r=>c.khoa(r))), dau=[{v:BSL_MA,s:3},...L.cot.map(c=>({v:c.t+(xem(c)?' (chỉ xem)':''),s:xem(c)?3:2}))];
     const to=(o,nen)=>{const x=o&&typeof o==='object'&&'v' in o?o:{v:o}; return {v:x.v,s:xlKieu(nen,x.s)}};
     const nenDong=r=>L.loaiMau?L.loaiMau(r):'', nenO=(c,r,o)=>{const v=o&&typeof o==='object'?o.v:o, t=String(v??'');
-      if(c.k==='soHD'&&!String(r.moi.soHD||'').trim()&&(k==='tatca'||k==='mua'||k==='muanl'))return 'do';
+      if(c.k==='soHD'&&!coChungTu(r.moi)&&(k==='tatca'||k==='mua'||k==='muanl'))return 'do';
       if(c.k==='chenh'&&/^\+/.test(t))return 'luc'; if(c.k==='chenh'&&/^−/.test(t))return 'do';
       if((c.k==='con'||c.k==='ht')&&/^(−|-|0 kg$)/.test(t))return 'do'; return ''};
     return {name:L.ten,dauBang:0,cols:[22,...L.cot.map(c=>Math.max(12,Math.round((c.w||110)/7)))],rows:[dau,...ds.map(r=>{const nd=nenDong(r);
@@ -7560,7 +7591,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#bslTaiX')){bslTaiExc
 document.addEventListener('change',e=>{if(e.target.id==='bslFileX'&&e.target.files&&e.target.files[0]){bslNapExcel(e.target.files[0]);e.target.value=''}});
 /* S90: ô cần xử lý trong bảng — đỏ nhạt (chưa có số HĐ · còn/tồn ≤ 0 · kho thật ít hơn), xanh lá (kho thật nhiều hơn) */
 function bslCanXL(c,r){const t=c.tinh?String(c.tinh(r)):'';
-  if(c.k==='soHD'&&(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!String(r.moi.soHD||'').trim())return 'xl-do';
+  if(c.k==='soHD'&&(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!coChungTu(r.moi))return 'xl-do';
   if(c.k==='chenh')return /^\+/.test(t)?'xl-luc':/^−/.test(t)?'xl-do':'';
   if((c.k==='con'||c.k==='ht')&&/^(−|-|0 kg$)/.test(t))return 'xl-do'; return ''}
 
@@ -7654,7 +7685,7 @@ function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;
   $('bslLoaiW').innerHTML=(bslLoai==='tatca'?`<label class="bsl-loc"><input type="checkbox" id="bslThieuHD"${bslChiThieuHD?' checked':''}> 🧾 Chỉ dòng chưa có số HĐ</label>`:'')+BSL_NHOM[bslNhom].map(k=>{const n=(bslDs[k]||[]).filter(r=>BSL[k].cot.some(c=>bslDaSua(c,r))).length;return `<button type="button" class="${k===bslLoai?'on':''}" data-bslloai="${k}">${BSL[k].ten} <small>${(bslDs[k]||[]).length}</small>${n?`<b>${n}</b>`:''}</button>`}).join('');
   let h=`<thead><tr><th class="chk"><input type="checkbox" id="bslHet" aria-label="Chọn tất cả" ${ds.length&&ds.every(r=>bslChon.has(r.id))?'checked':''}></th>`+cs.map((c,ci)=>`<th class="${ci===0?'ten':''}${c.thamKhao?' tk':''}">${esc(c.t)}${c.g?`<small>${esc(c.g)}</small>`:''}</th>`).join('')+'</tr></thead><tbody>';
-  const Lm=bslL(); ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}${Lm.loaiMau?' m-'+Lm.loaiMau(r):''}${(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!String(r.moi.soHD||'').trim()?' thieuhd':''}${bslMoi(r)?' m-chua':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
+  const Lm=bslL(); ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}${Lm.loaiMau?' m-'+Lm.loaiMau(r):''}${(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!coChungTu(r.moi)?' thieuhd':''}${bslMoi(r)?' m-chua':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
     cs.forEach((c,ci)=>{const kh=bslKhoa(c,r),lo=kh?'':bslLoi(c,r);
       const tkv=c.thamKhao&&c.tinh?String(c.tinh(r)):'', xl=bslCanXL(c,r), cl=[xl,ci===0?'ten':'',c.thamKhao?'tk':'',tkv[0]==='+'?'duong':tkv[0]==='−'?'am':'',c.so?'so':'',kh==='tinh'?'tinh':kh?'khoa':'',!kh&&bslDaSua(c,r)?'sua':'',lo?'loi':'',bslTrong(ri,ci)?'vung':'',bslDang.r===ri&&bslDang.c===ci?'dang':''].filter(Boolean).join(' ');
       h+=`<td class="${cl}" data-r="${ri}" data-c="${ci}"${lo?` title="${esc(lo)}"`:kh&&kh!=='tinh'?` title="🔒 ${esc(kh)}"`:''}><div class="o" style="--w:${c.w}px" tabindex="-1">${bslGT(c,r)}</div></td>`});h+='</tr>'});

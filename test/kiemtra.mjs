@@ -3927,6 +3927,40 @@ const dlc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq=
 });
 ok('DL: phiếu Thêm mặt hàng → Đóng gói lại → "Chiết từ nguyên liệu trong Kho": chọn nguyên liệu có sẵn, không đòi khai lần mua', dlc.coNut, JSON.stringify(dlc));
 ok('DL: mặt hàng chiết dùng thẳng nguyên liệu đó 100 %, Không mùi, không tạo lần mua mới; lô chiết 3.000 kg trừ đúng kho (28.000 → 25.000)', dlc.sp&&dlc.tru);
+/* DM — S104: CHỐT LẦN MUA ở Sửa hàng loạt → khoá, kho lần mua về 0; mẻ ghi sau thuộc "chờ lần mua mới" + Tổng quan báo; khai lần mua mới thì lô tự gắn vào lần mới; bỏ chốt = mở khoá */
+const dm=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='Hương __DM__', N='Hạt đá __DM__',
+  g={nh:JSON.stringify(nguonHuong),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),k:kho.slice(),nl:nlDM.slice(),sp:sp.length,nk:nk.slice(),dd:JSON.stringify(huongDangDung),nd:JSON.stringify(nlDangDung)};
+  kho.push(H); nlDM.push(N); nguonHuong[H]=[{ncc:'Peroma',ngay:'01/10/2026',soHD:'4750',soKg:5,gia:3000000,vat:8,daDungKg:4.8}]; huongDangDung[H]='Peroma';
+  nguonNguyenLieu[N]=[{ncc:'Bột đá',ngay:'01/10/2026',soHD:'777',soKg:28000,gia:28000*2255,vat:10}]; nlDangDung[N]='Bột đá'; tonKhoNguyenLieu[N]={con:28000,capNhat:'01/10/2026',moc:'2026-10-01T00:00:00Z'};
+  const p=napSP([{ten:'Cát tắm __DM__',maSP:'',kg:100,ml:40,huongs:[H],tam:[H],dauRa:['1 kg'],congThucNL:[{ten:N,kg:100}]}])[0]; sp.push(p);
+  const m1={id:'DM-1',sp:p.ten,huong:H,lot:'0199101026',sl:5000,mlDung:2000,ngaysx:'2026-10-02',ts:'2026-10-02T03:00:00.000Z',nlLucSX:[{ten:N,tl:1}]}; nk=[...nk,m1];
+  window.hoi=async()=>true; bslMo('mua'); const rh=bslDs.tatca.find(x=>x.id==='h:'+H+':0'), rn=bslDs.tatca.find(x=>x.id==='nl:'+N+':0');
+  kq.cot=!!BSL.tatca.cot.find(c=>c.k==='chot'); rh.moi.chot=true; rn.moi.chot=true; await bslXemLuu(); await cho(30);
+  const eh=nguonHuong[H][0], en=nguonNguyenLieu[N][0];
+  kq.chot=!!eh.chot&&!!en.chot&&Math.abs(conLaiNguon(eh))<0.001&&tonNLKg(N)===0&&String(BSL.tatca.cot.find(c=>c.k==='soKg').khoa({goc:{chot:true}})).includes('Đã chốt');
+  kq.cu=(hdCuaMe(m1).find(d=>d.ten===N)||{}).soHD==='777';
+  const m2={id:'DM-2',sp:p.ten,huong:H,lot:'0199111026',sl:28000,mlDung:11200,ngaysx:'2026-10-28',ts:new Date(Date.now()+1000).toISOString(),giaHuongTheoGLucSX:null,nlLucSX:[{ten:N,tl:1}]};
+  ghiNhanMeLanDau(m2); nk=[...nk,m2];
+  const ch=loChoHang().find(x=>x.r.id==='DM-2'); kq.bao=!!ch&&ch.thieu.includes(H)&&ch.thieu.includes(N)&&!hdCuaMe(m2).find(d=>d.ten===N).mua;
+  chuyenTab('tq'); await cho(40); kq.tq=!!document.querySelector('[data-chohang="DM-2"]');
+  nguonNguyenLieu[N].push({ncc:'Bột đá',ngay:'28/10/2026',soHD:'888',soKg:28000,gia:1,vat:10}); kq.moi=(hdCuaMe(m2).find(d=>d.ten===N)||{}).soHD==='888'&&(hdCuaMe(m1).find(d=>d.ten===N)||{}).soHD==='777';
+  bslMo('mua'); const rn2=bslDs.tatca.find(x=>x.id==='nl:'+N+':0'); rn2.moi.chot=false; await bslXemLuu(); await cho(30); kq.mo=!nguonNguyenLieu[N][0].chot;
+  window.hoi=th; await bslDongLai(); nguonHuong=JSON.parse(g.nh); nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); kho=g.k; nlDM=g.nl; sp.splice(g.sp); nk=g.nk; huongDangDung=JSON.parse(g.dd); nlDangDung=JSON.parse(g.nd); luuNgay(); return kq;
+});
+ok('DM: Sửa hàng loạt có cột "Đã chốt"; tích → lần mua khoá số kg/giá, kho của lần mua về 0 (hương & nguyên liệu)', dm.cot&&dm.chot, JSON.stringify(dm));
+ok('DM: lô ghi TRƯỚC lúc chốt vẫn thuộc lần mua cũ (HĐ 777)', dm.cu);
+ok('DM: lô ghi SAU khi chốt (in tem trước khi hàng về) → báo "chờ lần mua mới" ở Tổng quan, không gắn vào lần đã chốt', dm.bao&&dm.tq);
+ok('DM: khai lần mua mới → lô sau tự gắn HĐ mới (888), lô cũ giữ HĐ cũ; bỏ tích = mở khoá', dm.moi&&dm.mo);
+/* DN — S105: lần mua có SỐ HỢP ĐỒNG (hàng nhập khẩu, không hoá đơn) tính như có hoá đơn: lô không báo thiếu HĐ, hiện "Hợp đồng …", bảng không tô đỏ */
+const dn=await E(async()=>{ const kq={}, N='Cát nhập __DN__', g={nn:JSON.stringify(nguonNguyenLieu),nl:nlDM.slice(),sp:sp.length,nk:nk.slice(),nd:JSON.stringify(nlDangDung)};
+  nlDM.push(N); nguonNguyenLieu[N]=[{ncc:'Shanghai ABC',ngay:'01/10/2026',soHD:'',soHopDong:'SH-2026-01',soKg:1000,gia:1000000,vat:8}]; nlDangDung[N]='Shanghai ABC';
+  const p=napSP([{ten:'Hàng __DN__',maSP:'',kg:100,ml:0,huongs:['Không mùi'],tam:['Không mùi'],dauRa:['1 kg'],congThucNL:[{ten:N,kg:100}]}])[0]; sp.push(p);
+  const r={id:'DN-1',sp:p.ten,huong:'Không mùi',lot:'1',sl:100,mlDung:0,ngaysx:'2026-10-28',ts:'2026-10-28T01:00:00Z'}; nk=[...nk,r];
+  const d=hdCuaMe(r).find(x=>x.ten===N); kq.lo=!!d&&d.soHD==='Hợp đồng SH-2026-01';
+  bslMo('mua'); const row=bslDs.tatca.find(x=>x.id==='nl:'+N+':0'); kq.bang=!bslCanXL(BSL.tatca.cot.find(c=>c.k==='soHD'),row)&&coChungTu(row.moi);
+  await bslDongLai(); nguonNguyenLieu=JSON.parse(g.nn); nlDM=g.nl; sp.splice(g.sp); nk=g.nk; nlDangDung=JSON.parse(g.nd); luuNgay(); return kq;
+});
+ok('DN: lần mua chỉ có số hợp đồng (nhập khẩu) → lô hiện "Hợp đồng …", không báo thiếu HĐ, ô Số hoá đơn không tô đỏ', dn.lo&&dn.bang, JSON.stringify(dn));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
