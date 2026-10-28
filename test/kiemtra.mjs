@@ -3961,6 +3961,19 @@ const dn=await E(async()=>{ const kq={}, N='Cát nhập __DN__', g={nn:JSON.stri
   await bslDongLai(); nguonNguyenLieu=JSON.parse(g.nn); nlDM=g.nl; sp.splice(g.sp); nk=g.nk; nlDangDung=JSON.parse(g.nd); luuNgay(); return kq;
 });
 ok('DN: lần mua chỉ có số hợp đồng (nhập khẩu) → lô hiện "Hợp đồng …", không báo thiếu HĐ, ô Số hoá đơn không tô đỏ', dn.lo&&dn.bang, JSON.stringify(dn));
+/* DO — S106: thẻ lô có nút "Không cần HĐ" cho từng vật tư → hết báo việc ở mọi lô dùng vật tư đó; "bỏ" = lại cần HĐ */
+const do_=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, H='Hương __DO__', g={tk:JSON.stringify(tonKhoHuong),k:kho.slice(),nk:nk.slice(),sp:sp.length,nh:JSON.stringify(nguonHuong)};
+  kho.push(H); nguonHuong[H]=[{ncc:'X',ngay:'01/10/2026',soHD:'',soKg:10,gia:1,vat:8,daDungKg:0}];
+  const p=napSP([{ten:'SP __DO__',maSP:'',kg:100,ml:150,huongs:[H],tam:[H],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
+  const r={id:'DO-1',sp:p.ten,huong:H,lot:'1199101026',sl:1000,mlDung:1500,ngaysx:'2026-10-19',ts:'2026-10-19T03:00:00Z'}; nk=[...nk,r];
+  kq.truoc=hdCuaMe(r).filter(d=>!d.soHD).length===1;
+  chuyenTab('sx'); await cho(60); dsLoMo('DO-1'); await cho(200); const b=document.querySelector(`[data-khongcanhd="h:${CSS.escape(H)}"]`); kq.nut=!!b;
+  window.hoi=async()=>true; b&&b.click(); await cho(80);
+  const d=hdCuaMe(r).find(x=>x.ten===H); kq.sau=!!d&&d.khongCan&&!!d.soHD&&!!(tonKhoHuong[H]||{}).khongHD;
+  const bo=document.querySelector(`[data-canhdlai="h:${CSS.escape(H)}"]`); kq.boNut=!!bo; bo&&bo.click(); await cho(60); kq.bo=!(tonKhoHuong[H]||{}).khongHD&&hdCuaMe(r).filter(x=>!x.soHD).length===1;
+  window.hoi=th; tonKhoHuong=JSON.parse(g.tk); kho=g.k; nk=g.nk; sp.splice(g.sp); nguonHuong=JSON.parse(g.nh); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DO: thẻ lô có nút "Không cần HĐ" → vật tư hết báo thiếu ở mọi lô, hiện "✓ Không cần HĐ"; nút "bỏ" trả lại như cũ', do_.truoc&&do_.nut&&do_.sau&&do_.boNut&&do_.bo, JSON.stringify(do_));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

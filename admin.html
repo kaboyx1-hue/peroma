@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S105</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S106</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 28/10/2026-S105</div>
+      <div class="verFoot">BẢN 28/10/2026-S106</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2374,10 +2374,17 @@ function dongMuaCuaMe(r,d){
 /* 28/10/2026 S105 (khách: "hợp đồng với hoá đơn được tính như nhau — hàng nhập khẩu không có hoá đơn, hệ thống phải hiểu"): lần mua có SỐ HỢP ĐỒNG
    (hoặc tờ khai) mà không có số hoá đơn vẫn coi là ĐỦ chứng từ — không báo thiếu HĐ, lô hiện "Hợp đồng …". */
 const coChungTu=o=>!!(o&&(String(o.soHD||'').trim()||String(o.soHopDong||'').trim()));
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-khongcanhd],[data-canhdlai]'); if(!b)return; e.stopPropagation();
+  const khong=!!b.dataset.khongcanhd, v=b.dataset.khongcanhd||b.dataset.canhdlai, i=v.indexOf(':'), loai=v.slice(0,i), ten=v.slice(i+1), m=loai==='h'?tonKhoHuong:tonKhoNguyenLieu;
+  if(khong&&!await hoi('Không cần hoá đơn',`Đánh dấu <b>${esc(ten)}</b> là <b>không cần hoá đơn</b>? Áp cho <b>mọi lô</b> dùng ${loai==='h'?'hương':'nguyên liệu'} này — không còn báo "nhập số hoá đơn". Bỏ đánh dấu được bất cứ lúc nào (nút "bỏ" trên thẻ lô, hoặc ở Kho).`,{nutOK:'Đánh dấu'}))return;
+  m[ten]={...(m[ten]||{}),khongHD:khong}; ghiAudit('stock',ten,khong?'KHONG_CAN_HD':'CAN_HD_LAI',null,{loai}); luuNgay(); ve(); bao(khong?'Đã đánh dấu '+ten+' không cần hoá đơn':'Đã bỏ đánh dấu — '+ten+' lại cần hoá đơn')},true);
 function hdCuaMe(r){
   const bs=hoaDonBoSung[r.id]||{};
   return (Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX:hoaDonKhung(r)).map(d=>{
     const m=dongMuaCuaMe(r,d), x=bs[d.ten]?{...d,soHD:bs[d.ten],boSung:true}:{...d};
+    /* 28/10/2026 S106 (khách: "1 số trường hợp hương liệu không cần khai hoá đơn nhưng vẫn đủ điều kiện gọi là khớp dữ liệu — cần nút cho phép"):
+       vật tư đánh dấu "không cần hoá đơn" (cờ khongHD ở Kho / nút ngay trên thẻ lô) hoặc hương đi kèm nguyên liệu → coi như đủ, không báo việc. */
+    if(!x.soHD&&(d.loai==='h'?huongKemNL(d.ten)||!!((tonKhoHuong[d.ten]||{}).khongHD):!!((tonKhoNguyenLieu[d.ten]||{}).khongHD))){x.soHD='Không cần HĐ';x.khongCan=true}
     if(m){x.mua=m; if(!x.soHD&&m.e.soHD){x.soHD=String(m.e.soHD);x.theoLanMua=true} else if(!x.soHD&&String(m.e.soHopDong||'').trim()){x.soHD='Hợp đồng '+String(m.e.soHopDong).trim();x.theoLanMua=true} if(!x.ncc)x.ncc=m.e.ncc; x.hopDong=String(m.e.soHopDong||'')}
     return x});
 }
@@ -6359,7 +6366,7 @@ function theLoHTML(r){
   const nutMua=(d,chu)=>d.mua?(/HĐ/.test(chu)?` <button type="button" class="lnk" data-suanhanh="${esc(d.ten)}" data-thieuhd="1">${chu}</button>`:` <button type="button" class="lnk" data-suadongmua="${d.mua.loai}:${esc(d.ten)}:${d.mua.ix}">${chu}</button>`):'';
   const hd=dsHD.map(d=>`<div class="lo-hd${d.soHD?'':' thieu'}"><div><b>${esc(d.ten)}</b>${d.ncc?nho(esc(d.ncc)):''}
       ${d.mua?`<div class="lo-mua">Lần mua ${esc(d.mua.e.ngay||'')} · ${fmt(num(d.mua.e.soKg))} kg · ${fmt(num(d.mua.e.gia))} đ${nutMua(d,'Sửa lần mua')}</div>`:''}</div>
-      <span class="lo-nhan ${d.soHD?'co':'chua'}">${d.soHD?'HĐ '+esc(d.soHD)+(d.boSung?' · bổ sung':d.theoLanMua?' · theo lần mua':''):'Chưa có số HĐ'}</span>${d.hopDong?`<div class="lo-mua">Hợp đồng ${esc(d.hopDong)}</div>`:''}</div>`).join('');
+      <span class="lo-nhan ${d.soHD?'co':'chua'}">${d.khongCan?'✓ Không cần HĐ':d.soHD?(/^Hợp đồng/.test(d.soHD)?'':'HĐ ')+esc(d.soHD)+(d.boSung?' · bổ sung':d.theoLanMua?' · theo lần mua':''):'Chưa có số HĐ'}</span>${d.soHD?'':` <button type="button" class="lnk" data-khongcanhd="${d.loai}:${esc(d.ten)}" title="Vật tư này không cần hoá đơn — áp cho mọi lô">Không cần HĐ</button>`}${d.khongCan?` <button type="button" class="lnk" data-canhdlai="${d.loai}:${esc(d.ten)}" title="Bỏ đánh dấu — lại cần hoá đơn">bỏ</button>`:''}${d.hopDong?`<div class="lo-mua">Hợp đồng ${esc(d.hopDong)}</div>`:''}</div>`).join('');
   const cp=chiPhiHuongRecord(r), coSnap=r.chiPhiHuongLucSX!==undefined&&r.chiPhiHuongLucSX!==null, cb=chiPhiBaoBiRecord(r);
   const dsBB=cb?(r.baoBiLucSX||tinhBaoBiMe(r).ds||[]):[];
   const rong=[['Thành phần',tp],['Trạng thái lúc SX',r.trangThai],['Nhân viên thực hiện',r.nv],['Quy cách đóng gói',r.quyCach]].filter(x=>!String(x[1]||'').trim());
