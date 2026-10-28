@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S102</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S103</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 28/10/2026-S102</div>
+      <div class="verFoot">BẢN 28/10/2026-S103</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2540,7 +2540,9 @@ async function dbVong(nhanh){
 const PHIEU_2210=[['h:Hương Kem:0','Việt Đức','10/09/2026',{soKg:'15'}],['h:Hương Lài:0','Việt Đức','10/09/2026',{soKg:'25'}],['h:Hương tự nhiên:0','Hương không có hóa đơn','13/09/2026',{soKg:'5'}],
   ['h:Hương lavender:0','Việt Đức','12/10/2026',{soKg:'5'}],['h:Hương Chanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4946'}],['h:Hương trà xanh:0','Peroma','12/10/2026',{soKg:'5',soHD:'4863'}],
   ['h:Hương Hoa hồng:0','Peroma','12/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Táo:0','Peroma','15/10/2026',{soKg:'5',soHD:'4750'}],['h:Hương Socola:0','Sông Hồng','15/10/2026',{soKg:'5'}],
-  ['moi:h:Hương phấn Johnson',null,null,{ncc:'Peroma',ngay:'01/10/2026',soHD:'4750',soKg:'5',donGia:'604800',vat:'8'}]];
+  ['moi:h:Hương phấn Johnson',null,null,{ncc:'Peroma',ngay:'01/10/2026',soHD:'4750',soKg:'5',donGia:'604800',vat:'8'}],
+  // 28/10/2026 S103 (khách: "hoá đơn 109 cát liti là 28 tấn" — đã gõ ở bảng nhưng Sheet vẫn trống số HĐ, số kg 1): tồn NL tính theo lần cân 15/10 nên đổi số kg không cộng thêm tồn
+  ['nl:Cát liti (CAO LANH):0','Silica','12/10/2026',{soKg:'28000',soHD:'109'}]];
 let phieu2210Xong=false, phieuTT='chưa chạy';
 // S101: khách để bảng Sửa hàng loạt mở suốt → trước chờ đóng bảng mãi không nạp. Nay chỉ chờ khi bảng có ô đang sửa dở; nạp xong làm mới bảng.
 async function apPhieu2210(){if(phieu2210Xong)return; const moBang=document.documentElement.classList.contains('bsl-on');
