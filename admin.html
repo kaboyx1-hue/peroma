@@ -1965,9 +1965,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 26/10/2026-S101</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 28/10/2026-S102</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 26/10/2026-S101</div>
+      <div class="verFoot">BẢN 28/10/2026-S102</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -7568,15 +7568,20 @@ function bslCanXL(c,r){const t=c.tinh?String(c.tinh(r)):'';
    chưa/đã VAT → giá thành. Lưu = mặt hàng + 1 lần mua vào Kho (nguyên liệu "hàng" của mặt hàng, tồn = số kg nhập) + gắn làm nguồn hàng 1:1.
    Hương · định mức · nguyên liệu pha · phun khử bụi để ở trang Công thức (mở ngay sau khi lưu). Tờ khai: số ghi kèm "TK " cho dễ phân biệt. */
 let tsp=null;
-function tspMo(){tsp={ten:'',ma:'',kieu:'dg',qc:[],hang:'',ncc:'',ct:'hd',so:'',ngay:homNay(),hd:'',kg:'',dg:'',tt:'',cach:'truoc',vat:'8'};
+/* 28/10/2026 S102 — ĐÓNG GÓI LẠI TỪ NGUYÊN LIỆU CÓ SẴN (khách: "hoá đơn 109 là 28 tấn cát liti, 12 tấn đem sản xuất, còn lại chỉ chiết lại thành bao 30kg …
+   làm thêm phân mục đóng gói lại"): kiểu 📦 Đóng gói lại có thêm lựa chọn nguồn "Chiết từ nguyên liệu trong Kho" — không khai lần mua mới (hoá đơn
+   đã có ở Kho), mặt hàng dùng thẳng nguyên liệu đó 100 %, Không mùi. Mỗi lô chiết trừ đúng nguyên liệu → kho · hoá đơn · số lô khớp nhau. */
+const tspChiet=()=>tsp.kieu==='dg'&&tsp.nguon==='kho';
+function tspMo(){tsp={ten:'',ma:'',kieu:'dg',nguon:'moi',nl:'',qc:[],hang:'',ncc:'',ct:'hd',so:'',ngay:homNay(),hd:'',kg:'',dg:'',tt:'',cach:'truoc',vat:'8'};
   let el=$('tsp'); if(!el){el=document.createElement('div'); el.id='tsp'; document.body.appendChild(el)} el.classList.add('hien'); tspVe(); setTimeout(()=>{const i=el.querySelector('[data-tsp="ten"]');i&&i.focus()},30)}
 function tspDong(){const el=$('tsp'); if(el)el.classList.remove('hien'); tsp=null}
-const tspCoNguon=()=>tsp.kieu!=='sx';
+const tspCoNguon=()=>tsp.kieu!=='sx'&&!tspChiet();
 const tspTien=()=>{const kg=num(tsp.kg), t=num(tsp.tt)>0?num(tsp.tt):kg*num(tsp.dg); return Math.round(t)};
 function tspLoi(){const l=[], daMa=new Set(sp.map(x=>hai(x.maSP)).filter(Boolean)); const t=String(tsp.ten).trim();
   if(!t)l.push('tên mặt hàng'); else if(sp.some(x=>x.ten.toLowerCase()===t.toLowerCase()))l.push('tên đã có mặt hàng khác dùng');
   if(tsp.ma&&!/^\d{2}$/.test(tsp.ma))l.push('mã SP phải đúng 2 chữ số'); else if(tsp.ma&&daMa.has(tsp.ma))l.push('mã SP '+tsp.ma+' đã có mặt hàng dùng');
   if(!tsp.qc.length)l.push('ít nhất 1 quy cách bán ra');
+  if(tspChiet()&&!tsp.nl)l.push('nguyên liệu đem chiết');
   if(tspCoNguon()&&(tsp.ncc||tsp.kg||tsp.dg||tsp.so)){ // đã bắt đầu khai nguồn thì phải đủ
     if(!String(tsp.ncc).trim())l.push('nhà cung cấp'); if(!(num(tsp.kg)>0))l.push('số kg nhập'); if(!(tspTien()>0))l.push('đơn giá hoặc thành tiền');
     if(!/^\d{2}\/\d{2}\/\d{4}$/.test(String(tsp.ngay).trim()))l.push('ngày (dd/mm/yyyy)')}
@@ -7595,6 +7600,9 @@ function tspVe(){const el=$('tsp'); if(!el||!tsp)return; const daMa=[...new Set(
       <div class="tsp-hang">${o('ten','Tên mặt hàng *','VD: Cát Hambi Gold')}<label class="nho"><span>Mã SP (2 số) — khối 1 số lô</span><input data-tsp="ma" inputmode="numeric" maxlength="2" value="${esc(tsp.ma)}" placeholder="VD 71"><small>Đã dùng: ${esc(daMa.join(', ')||'chưa có')}</small></label></div>
       <div class="tsp-chips">${kieu('sx','🏭 Sản xuất','pha trộn tại xưởng · hoá đơn nhập theo từng nguyên liệu ở Kho')}${kieu('dg','📦 Đóng gói lại','mua thành phẩm trong nước · hoá đơn GTGT · không tem phụ')}${kieu('nk','🌏 Hàng nhập khẩu','tờ khai hải quan · có tem phụ')}</div>
       <span class="tsp-nh">Quy cách bán ra * <small>số nhỏ là mã quy cách</small></span><div class="tsp-chips">${chip(dr,tsp.qc,'qc',maQC)}</div></div>
+    ${tsp.kieu==='dg'?`<div class="tsp-nhom"><span class="tsp-nh">Nguồn hàng đóng gói</span><div class="tsp-chips"><button type="button" class="tsp-chip${tspChiet()?'':' on'}" data-tspnguon="moi">🧾 Mua hàng mới <small>khai hoá đơn ngay dưới</small></button><button type="button" class="tsp-chip${tspChiet()?' on':''}" data-tspnguon="kho">♻️ Chiết từ nguyên liệu trong Kho <small>hoá đơn đã có ở Kho</small></button></div>
+      ${tspChiet()?`<div class="tsp-chips">${nlDM.filter(Boolean).map(t=>{const c=tonNLKg(t);return `<button type="button" class="tsp-chip${tsp.nl===t?' on':''}" data-tspnl="${esc(t)}">${esc(t)} <small>${c===null?'chưa cân kho':'còn '+fmtSo(c)+' kg'}</small></button>`}).join('')||'<span class="tsp-mo">Kho chưa có nguyên liệu nào.</span>'}</div>
+      <div class="tsp-mo">Mỗi lô chiết (VD 3.000 kg → 100 bao 30 kg) trừ đúng số kg nguyên liệu này; hoá đơn của lần mua tự gắn vào lô; Không mùi, không pha.</div>`:''}</div>`:''}
     ${tspCoNguon()?`<div class="tsp-nhom"><span class="tsp-nh">2. Nguồn hàng &amp; chứng từ <small>lần nhập đầu tiên — vào thẳng Kho, có thể bỏ trống khai sau</small></span>
       <div class="tsp-chips"><button type="button" class="tsp-chip${tk?'':' on'}" data-tspct="hd">🧾 Hoá đơn GTGT</button><button type="button" class="tsp-chip${tk?' on':''}" data-tspct="tk">🛃 Tờ khai hải quan</button></div>
       <div class="tsp-luoi">${o('ncc','Nhà cung cấp *',tk?'VD: Shanghai ABC Co.':'VD: Peroma')}${o('so',tk?'Số tờ khai hải quan':'Số hoá đơn',tk?'VD 10512345678':'VD 4750')}${o('ngay','Ngày '+(tk?'tờ khai':'hoá đơn'),'dd/mm/yyyy')}${o('hd',tk?'Số hợp đồng / Commercial Invoice':'Số hợp đồng (nếu có)','không bắt buộc')}</div>
@@ -7604,7 +7612,7 @@ function tspVe(){const el=$('tsp'); if(!el||!tsp)return; const daMa=[...new Set(
         <label>VAT <input data-tsp="vat" inputmode="decimal" value="${esc(tsp.vat)}"> %</label></div>
       ${tk?'<div class="tsp-mo">Hàng nhập khẩu: nên cộng thuế nhập khẩu và phí về tới kho vào đơn giá; VAT là thuế GTGT khâu nhập khẩu ghi trên tờ khai.</div>':''}
       <div class="nf-tinh" data-tspgia>${tspGiaHTML()}</div></div>`
-    :`<div class="tsp-nhom"><span class="tsp-nh">2. Nguồn hàng</span><div class="tsp-mo">Hàng sản xuất: hoá đơn / tờ khai nhập theo từng <b>nguyên liệu</b> và <b>hương</b> ở tab Kho. Sau khi thêm, khai công thức pha (hương, nguyên liệu, định mức) ở trang Công thức.</div></div>`}
+    :tspChiet()?'':`<div class="tsp-nhom"><span class="tsp-nh">2. Nguồn hàng</span><div class="tsp-mo">Hàng sản xuất: hoá đơn / tờ khai nhập theo từng <b>nguyên liệu</b> và <b>hương</b> ở tab Kho. Sau khi thêm, khai công thức pha (hương, nguyên liệu, định mức) ở trang Công thức.</div></div>`}
    </div>
    <div class="tsp-chan"><span class="${loi.length?'tsp-loi':'tsp-ok'}" data-tsploi>${loi.length?'Còn thiếu: '+esc(loi.join(' · ')):'✓ Đủ để thêm — công thức pha &amp; hồ sơ tem điền ở trang Công thức'}</span>
      <button type="button" class="bigbtn alt" data-tspdong>Huỷ</button><button type="button" class="bigbtn" data-tspluu>Thêm mặt hàng</button></div></div>`}
@@ -7621,10 +7629,13 @@ document.addEventListener('click',e=>{if(!tsp)return; const t=e.target;
   const c=t.closest('[data-tspchip]'); if(c){const a=tsp[c.dataset.tspchip], v=c.dataset.v, i=a.indexOf(v); i<0?a.push(v):a.splice(i,1); tspVe(); return}
   const ct=t.closest('[data-tspct]'); if(ct){tsp.ct=ct.dataset.tspct; tspVe(); return}
   const ca=t.closest('[data-tspcach]'); if(ca){tsp.cach=ca.dataset.tspcach; tspVe(); return}
+  const ng=t.closest('[data-tspnguon]'); if(ng){tsp.nguon=ng.dataset.tspnguon; tspVe(); return}
+  const nl=t.closest('[data-tspnl]'); if(nl){tsp.nl=nl.dataset.tspnl; if(!String(tsp.ten).trim())tsp.ten=tsp.nl+' (đóng gói lại)'; tspVe(); return}
   if(t.closest('[data-tspluu]'))tspLuu()});
 function tspLuu(){const l=tspLoi(); if(l.length){rungO($('tsp').querySelector('[data-tsploi]')); bao('Còn thiếu: '+l.join(' · ')); return}
   const kgNhap=num(tsp.kg), ten=String(tsp.ten).trim(), coNguon=tspCoNguon()&&num(tsp.kg)>0&&tspTien()>0, hang=(String(tsp.hang).trim()||ten);
-  const p=napSP([{ten,maSP:tsp.ma,kg:coNguon?100:0,me:coNguon?100:0,ml:0,pkb:false,huongs:[],tam:[],dauRa:[...tsp.qc],congThucNL:coNguon?[{ten:hang,kg:100}]:[],...(tsp.kieu==='dg'?{khongTemPhu:true}:{})}])[0];
+  const chiet=tspChiet(), nlChiet=tsp.nl;
+  const p=napSP([{ten,maSP:tsp.ma,kg:coNguon||chiet?100:0,me:coNguon||chiet?100:0,ml:0,pkb:false,huongs:chiet?[UNSCENTED_LABEL]:[],tam:chiet?[UNSCENTED_LABEL]:[],dauRa:[...tsp.qc],congThucNL:coNguon?[{ten:hang,kg:100}]:chiet?[{ten:tsp.nl,kg:100}]:[],...(tsp.kieu==='dg'?{khongTemPhu:true}:{})}])[0];
   sp.push(p); const i=sp.length-1;
   if(coNguon){const v=String(tsp.vat).trim()===''?null:num(tsp.vat), tien=tspTien(), gia=tsp.cach==='truoc'&&v>0?Math.round(tien*(1+v/100)):tien, ts=new Date().toISOString();
     let so=String(tsp.so).trim(); if(tsp.ct==='tk'&&so&&!/^TK/i.test(so))so='TK '+so;
@@ -7634,8 +7645,8 @@ function tspLuu(){const l=tspLoi(); if(l.length){rungO($('tsp').querySelector('[
     const tk=tonKhoNguyenLieu[hang]; if(!tk||tk.con===undefined||tk.con==='')tonKhoNguyenLieu[hang]={...(tk||{}),con:0,capNhat:homNay(),moc:new Date(Date.parse(ts)-1).toISOString()};
     dongBoThanhPhanTuNL(p)}
   bumpRecipeVersion(p);
-  ghiAudit('recipe',p.ten,'THEM_MAT_HANG',null,{maSP:p.maSP,kieu:tsp.kieu,dauRa:p.dauRa,nguon:coNguon?{hang,ncc:tsp.ncc,soKg:num(tsp.kg),chungTu:tsp.ct}:null});
-  tspDong(); luuNgay(); ctChon=i; mo.clear(); mo.add(i); chuyenTab('ct'); huyHieu('✅','Đã thêm '+p.ten,coNguon?'đã nhập kho '+fmtSo(kgNhap)+' kg '+hang+' · chọn hương ở Công thức':'khai công thức pha ở trang Công thức')}
+  ghiAudit('recipe',p.ten,'THEM_MAT_HANG',null,{maSP:p.maSP,kieu:tsp.kieu,dauRa:p.dauRa,nguon:coNguon?{hang,ncc:tsp.ncc,soKg:num(tsp.kg),chungTu:tsp.ct}:chiet?{chietTu:tsp.nl}:null});
+  tspDong(); luuNgay(); ctChon=i; mo.clear(); mo.add(i); chuyenTab('ct'); huyHieu('✅','Đã thêm '+p.ten,coNguon?'đã nhập kho '+fmtSo(kgNhap)+' kg '+hang+' · chọn hương ở Công thức':chiet?'chiết từ '+nlChiet+' · nhân viên ghi lô như thường, kho tự trừ':'khai công thức pha ở trang Công thức')}
 function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai]||{}, cs=bslL().cot.filter(c=>m[c.k]);
   el.innerHTML=(bslL().loaiMau?'<div class="bsl-mau"><span class="m-huong">Hương</span><span class="m-nl">Nguyên liệu</span><span class="m-do">Cần xử lý (chưa có số HĐ · còn ≤ 0 · kho thật ít hơn)</span><span class="m-luc">Kho thật nhiều hơn</span></div>':'')+(cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):'')}
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;

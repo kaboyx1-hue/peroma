@@ -3914,6 +3914,19 @@ const dk=await E(async()=>{ const kq={}, g={nh:JSON.stringify(nguonHuong),k:kho.
 });
 ok('DK: phiếu nạp 22/10 tự điền số HĐ + số kg còn trống (tồn kho giữ nguyên) và thêm lần mua hương phấn Johnson', dk.ap, JSON.stringify(dk));
 ok('DK: chạy lại phiếu nạp không đổi gì (không đè dữ liệu đã có)', dk.lap);
+/* DL — S102: Thêm mặt hàng 📦 Đóng gói lại · ♻️ Chiết từ nguyên liệu trong Kho → không tạo lần mua mới, dùng thẳng nguyên liệu đó 100 %, Không mùi; lô chiết trừ đúng kg */
+const dlc=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='Cát liti __DL__', g={sp:sp.length,nl:nlDM.slice(),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),nk:nk.slice()};
+  nlDM.push(NL); nguonNguyenLieu[NL]=[{ncc:'Silica',gia:1980*28000,soKg:28000,vat:8,soHD:'109',ngay:'12/10/2026'}]; tonKhoNguyenLieu[NL]={con:28000,capNhat:'15/10/2026',moc:'2026-10-15T00:00:00Z'};
+  tspMo(); document.querySelector('[data-tspkieu="dg"]').click(); await cho(10); document.querySelector('[data-tspnguon="kho"]').click(); await cho(10);
+  kq.coNut=!!document.querySelector(`[data-tspnl="${CSS.escape(NL)}"]`)&&!document.querySelector('[data-tsp="ncc"]');
+  document.querySelector(`[data-tspnl="${CSS.escape(NL)}"]`).click(); await cho(10); tsp.qc=[dr[0]]; tsp.ma=''; tspLuu(); await cho(30);
+  const p=sp.find(x=>x.ten===NL+' (đóng gói lại)'); kq.sp=!!p&&p.congThucNL.length===1&&p.congThucNL[0].ten===NL&&p.huongs[0]==='Không mùi'&&(nguonNguyenLieu[NL]||[]).length===1;
+  const r={id:'DL-1',sp:p.ten,huong:'Không mùi',lot:'9999999',sl:3000,mlDung:0,ngaysx:'2026-10-28',ts:'2026-10-28T03:00:00Z'}; nk=[...nk,r];
+  kq.tru=nlDungMe(r,NL)===3000&&tonNLKg(NL)===25000;
+  sp.splice(g.sp); nlDM=g.nl; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); nk=g.nk; luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DL: phiếu Thêm mặt hàng → Đóng gói lại → "Chiết từ nguyên liệu trong Kho": chọn nguyên liệu có sẵn, không đòi khai lần mua', dlc.coNut, JSON.stringify(dlc));
+ok('DL: mặt hàng chiết dùng thẳng nguyên liệu đó 100 %, Không mùi, không tạo lần mua mới; lô chiết 3.000 kg trừ đúng kho (28.000 → 25.000)', dlc.sp&&dlc.tru);
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
