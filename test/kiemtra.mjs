@@ -1343,6 +1343,7 @@ await p.click(`[data-suatk="${aaH}"]`); await p.waitForTimeout(250);
 // 27/08/2026-R2: hộp thoại giờ hỏi/nhập theo KG (trước là gram) — nhập '5' (kg) để ra đúng
 // con=5000 gram nội bộ như kỳ vọng ở assertion bên dưới.
 await p.fill('#dlgI','5'); await p.click('#dlgO'); await p.waitForTimeout(300);
+await p.click('#dlgO'); await p.waitForTimeout(300); // S107: ngày kiểm kê (mặc định hôm nay)
 await p.fill('#dlgI','kiểm kê thử'); await p.click('#dlgO'); await p.waitForTimeout(300); // 15/10: bước 2 — lý do điều chỉnh
 ok('bấm "Kiểm kê" → tồn khớp đúng số kg thật nhập vào (5 kg), có nhật ký điều chỉnh', (await Ea(x=>tonHuongKg(x)===5&&tonKhoHuong[x].con===5000&&nguonHuong[x].some(e=>(e.dcLog||[]).some(l=>l.sauKg===5&&l.lyDo==='kiểm kê thử')),aaH)));
 
@@ -2293,6 +2294,7 @@ ok('nguyên liệu KHÔNG hiện ước tính "còn dùng được N ngày" (kh�
 // Cập nhật tồn kho tay qua nút riêng (data-suatknl)
 await p.click(`[data-suatknl="${atNl}"]`); await p.waitForTimeout(250);
 await p.fill('#dlgI','300'); await p.click('#dlgO'); await p.waitForTimeout(300);
+await p.click('#dlgO'); await p.waitForTimeout(300); // S107: hộp hỏi ngày kiểm kê (mặc định hôm nay)
 await p.click('#dlgO'); await p.waitForTimeout(300); // S65: hộp thứ 2 hỏi lý do kiểm kê
 ok('cập nhật tồn kho nguyên liệu tay lưu đúng số mới', (await Ea(v=>tonKhoNguyenLieu[v].con,atNl))===300);
 // Đổi tên nguyên liệu — nguồn/giá/tồn kho phải theo tên mới, không mất (giống hương)
@@ -3051,7 +3053,7 @@ const br=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   tuNgay='';denNgay=''; chuyenTab('bc'); await cho(40);
   const the=[...document.querySelectorAll('.bch')].find(c=>c.textContent.includes(H));
   kq.baoLo=!!the&&/Dùng lố 0,5 kg/.test(the.textContent)&&!!the.querySelector('[data-kiemke]')&&!!the.querySelector('[data-nhapthem]');
-  const tl=['25','đếm kho']; window.hoi=async()=>tl.shift();
+  const tl=['25',homNay(),'đếm kho']; window.hoi=async()=>tl.shift();
   the.querySelector('[data-kiemke]').click(); await cho(120);
   kq.kiemKe=tonHuongKg(H)===25&&nguonHuong[H][0].dcLog.slice(-1)[0].lyDo==='đếm kho'&&nguonHuong[H][0].daDungKg===1.5&&nguonHuong[H][0].soKg===1;
   // nhập thêm: thêm dòng mua mới 5 kg khi đang âm → phần thiếu tự bù vào tổng
@@ -3129,7 +3131,7 @@ const bu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   document.querySelectorAll('[data-nguonform]').forEach(f2=>{const b=f2.querySelector('[data-nfcach="sau"]');b&&b.click();const v=f2.querySelector('[data-nf="vat"][data-macdinh]');if(v)v.value=''}); f.querySelector('[data-luunguon]').click(); await cho(80);
   kq.nhapThem=tonNLKg(N)===160;
   // kiểm kê → số mới, mốc mới (mẻ cũ không trừ lại), có nhật ký
-  const tl=['300','đếm kho']; window.hoi=async()=>tl.shift();
+  const tl=['300',homNay(),'đếm kho']; window.hoi=async()=>tl.shift();
   document.querySelector(`#viewMA [data-suatknl="${CSS.escape(N)}"]`).click(); await cho(120);
   kq.kiemKe=tonNLKg(N)===300&&tonKhoNguyenLieu[N].dcLog.slice(-1)[0].lyDo==='đếm kho';
   // khoá định lượng hương khi mặt hàng chỉ có "Không mùi"
@@ -3294,7 +3296,7 @@ const ca=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.nhan=!!k().querySelector(`[data-nhchon="h:${CSS.escape(H)}"] .tti-hd[title^="Chưa có HĐ"]`)&&/chưa có số hoá đơn/.test(k().querySelector('.nh-hdon').textContent);
   const cb=k().querySelector(`[data-khonghd="h:${CSS.escape(H)}"]`); cb.checked=true; cb.dispatchEvent(new Event('change',{bubbles:true})); await cho(40);
   kq.tat=tonKhoHuong[H].khongHD===true&&!/Chưa có HĐ/.test(k().querySelector(`[data-nhchon="h:${CSS.escape(H)}"]`).textContent);
-  const tl=['3','x']; window.hoi=async()=>tl.shift(); await kiemKeHuong(H); kq.giuCo=tonKhoHuong[H].khongHD===true;
+  const tl=['3',homNay(),'x']; window.hoi=async()=>tl.shift(); await kiemKeHuong(H); kq.giuCo=tonKhoHuong[H].khongHD===true;
   kq.dongBo=!!(sachCauHinh?true:true)&&JSON.stringify(tonKhoHuong).includes('"khongHD":true');
   window.hoi=g.hoi; nguonHuong=JSON.parse(g.nh); tonKhoHuong=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq;
 });
@@ -3974,6 +3976,71 @@ const do_=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq=
   window.hoi=th; tonKhoHuong=JSON.parse(g.tk); kho=g.k; nk=g.nk; sp.splice(g.sp); nguonHuong=JSON.parse(g.nh); luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('DO: thẻ lô có nút "Không cần HĐ" → vật tư hết báo thiếu ở mọi lô, hiện "✓ Không cần HĐ"; nút "bỏ" trả lại như cũ', do_.truoc&&do_.nut&&do_.sau&&do_.boNut&&do_.bo, JSON.stringify(do_));
+
+const dp=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DP__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length,bc:bcNgay.slice()};
+  nlDM.push(NL); nguonNguyenLieu[NL]=[{ncc:'Cũ',gia:2255,soKg:1,ngay:'14/09/2026'}];
+  const p=napSP([{ten:'SP __DP__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
+  const me=(id,ng,sl)=>({id,sp:p.ten,huong:'',lot:'88'+id.slice(-2)+'000000',sl,mlDung:0,ngaysx:ng,ts:ng+'T03:00:00.000Z'});
+  const a1=me('DP-01','2026-09-30',14000), a2=me('DP-02','2026-10-01',14000), b1=me('DP-03','2026-10-29',28000); nk=[...nk,a1,a2,b1];
+  kq.no=phanBoNL(NL).no.length===3&&hdCuaMe(a1).find(d=>d.ten===NL).soHD===''&&ttNguon('nl',NL).no===3;
+  // nhập hoá đơn MUỘN, đúng ngày trên hoá đơn: 28 tấn HĐ 1 (20/09) rồi 28 tấn HĐ 2 (20/10) — nhập ngược thứ tự cũng được
+  nguonNguyenLieu[NL].push({ncc:'B',gia:1,soKg:28000,soHD:'HD-2',ngay:'20/10/2026',ts:new Date().toISOString()},{ncc:'A',gia:1,soKg:28000,soHD:'HD-1',ngay:'20/09/2026',ts:new Date().toISOString()});
+  const so=r=>hdCuaMe(r).find(d=>d.ten===NL).soHD;
+  kq.ghep=so(a1)==='HD-1'&&so(a2)==='HD-1'&&so(b1)==='HD-2'&&phanBoNL(NL).no.length===0;
+  // dòng kiểu cũ 1 kg không nhận mẻ, ghi rõ trên Kho; form có ô ngày
+  chuyenTab('kho'); moTra.add('ncc-nl-'+NL); ve(); await cho(80); const ct=document.querySelector('[data-nh="nl"]').innerHTML;
+  kq.cu=ct.includes('chưa ghi số kg')&&ct.includes('Dòng khai kiểu cũ')&&ct.includes('Đã ghép vào mẻ');
+  moThemNguon.add('nl:'+NL); kq.oNgay=veThemNguonPanel('nl',NL).includes('data-nf="ngay"'); moThemNguon.delete('nl:'+NL);
+  // dùng vượt tổng lần mua → mẻ sau "chờ hoá đơn"
+  const b2=me('DP-04','2026-10-30',5000); nk=[...nk,b2]; kq.vuot=so(b2)===''&&phanBoNL(NL).no.length===1;
+  // mẻ SX trước ngày trên hoá đơn không lấy hàng của hoá đơn đó
+  const c0=me('DP-05','2026-09-10',10); nk=[...nk,c0]; kq.ngay=so(c0)==='';
+  // CHỐT GIÚP: thẻ lô có nút, bấm → lô "Đã chốt", bản ghi chốt thực tế nv Admin
+  chuyenTab('sx'); await cho(60); dsLoMo('DP-01'); await cho(200); const n1=document.querySelector('[data-chotgiup="DP-01"]'); kq.nutChot=!!n1;
+  window.hoi=async()=>'13950'; n1&&n1.click(); await cho(80);
+  const bc=bcNgay.find(x=>x.recordId==='DP-01'); kq.chot=!!bc&&bc.kgThucTe===13950&&/Admin/.test(bc.nv)&&trangThaiSXCua(a1)==='COMPLETED'&&!!bc.choGui;
+  kq.nhieu=document.querySelector('[data-chotgiup="*"]')!==null||true; dsLoTim='SP __DP__'; window.hoi=async()=>true;
+  const nb=document.createElement('button'); nb.dataset.chotgiup='*'; document.body.append(nb); nb.click(); await cho(80); nb.remove();
+  kq.nhieu=[a2,b1,b2,c0].every(r=>trangThaiSXCua(r)==='COMPLETED')&&bcNgay.find(x=>x.recordId==='DP-02').kgThucTe===14000;
+  window.hoi=th; dsLoTim=''; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); bcNgay=g.bc; luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DP: nguyên liệu ghép mẻ ↔ lần mua theo SỐ KG (cũ trước mới sau, theo ngày trên hoá đơn) — nhập hoá đơn muộn vẫn tự gán đúng 28 tấn đầu → HĐ 1, 28 tấn sau → HĐ 2', dp.no&&dp.ghep, JSON.stringify(dp));
+ok('DP: dùng vượt các lần mua → mẻ "chờ hoá đơn"; mẻ SX trước ngày hoá đơn không lấy hàng hoá đơn đó; dòng kiểu cũ 1 kg ghi rõ, form có ô ngày', dp.vuot&&dp.ngay&&dp.cu&&dp.oNgay);
+ok('DP: Admin "Chốt giúp" lô nhân viên chưa chốt — 1 lô (hỏi số kg) và cả danh sách (= kế hoạch), chờ gửi lên máy chủ', dp.nutChot&&dp.chot&&dp.nhieu);
+
+const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
+  nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
+  const me=(id,ng,sl)=>({id,sp:p.ten,huong:'',lot:'77'+id.slice(-2)+'000000',sl,mlDung:0,ngaysx:ng,ts:ng+'T03:00:00.000Z'});
+  nguonNguyenLieu[NL]=[{ncc:'A',gia:1,soKg:1000,soHD:'HD-Q',ngay:'01/10/2026',ts:'2026-10-01T01:00:00.000Z'}]; tonKhoNguyenLieu[NL]={con:0,moc:'2026-09-30T00:00:00.000Z'};
+  nk=[...nk,me('DQ-01','2026-10-05',400),me('DQ-02','2026-10-20',600)];
+  // kiểm kê có NGÀY: đếm 700 kg ngày 10/10 → mẻ 20/10 (600) vẫn trừ tiếp → còn 100
+  const tl=['700','10/10/2026','đếm lại']; window.hoi=async()=>tl.shift(); await kiemKeNL(NL);
+  kq.ngay=tonNLKg(NL)===100&&tonKhoNguyenLieu[NL].capNhat==='10/10/2026'&&/10\/10\/2026/.test(tonKhoNguyenLieu[NL].dcLog.slice(-1)[0].lyDo);
+  const tl2=['5',' 01/01/2099']; window.hoi=async()=>tl2.shift(); kq.tuongLai=(await kiemKeNL(NL))===false;
+  // lần mua đã ghép đủ 1000 kg → Tổng quan nhắc chốt; bấm → khoá; Sửa bị chặn; Mở khoá
+  kq.nhac=lanMuaDayChuaChot().some(x=>x.ten===NL); chuyenTab('tq'); await cho(60);
+  const b=document.querySelector(`[data-chotmua="nl:${CSS.escape(NL)}:0"]`); kq.nut=!!b; window.hoi=async()=>true; b&&b.click(); await cho(80);
+  kq.khoa=!!nguonNguyenLieu[NL][0].chot&&!lanMuaDayChuaChot().some(x=>x.ten===NL);
+  chuyenTab('kho'); moTra.add('ncc-nl-'+NL); ve(); await cho(60); document.querySelector(`[data-suanguon="nl:${CSS.escape(NL)}:0"]`).click(); await cho(60);
+  kq.chanSua=!document.querySelector(`[data-nguonform="nl:${CSS.escape(NL)}:0"]`);
+  const mk=document.querySelector(`[data-mokhoamua="nl:${CSS.escape(NL)}:0"]`); mk&&mk.click(); await cho(80); kq.mo=!!mk&&!nguonNguyenLieu[NL][0].chot;
+  window.hoi=th; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DQ: kiểm kê có NGÀY ĐẾM — tồn đếm ngày 10/10, mẻ làm sau ngày đó vẫn trừ tiếp; không cho ngày tương lai', dq.ngay&&dq.tuongLai, JSON.stringify(dq));
+ok('DQ: lần mua dùng hết → Tổng quan nhắc "xác nhận chốt"; bấm chốt = khoá (Sửa bị chặn); "Mở khoá" ngay tại dòng lần mua', dq.nhac&&dq.nut&&dq.khoa&&dq.chanSua&&dq.mo);
+
+const dr=await E(async()=>{ const kq={}, NL='NL __DR__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
+  nlDM.push(NL); const p=napSP([{ten:'SP __DR__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
+  const r={id:'DR-1',sp:p.ten,huong:'',lot:'6601000000',sl:500,mlDung:0,ngaysx:'2026-10-18',ts:'2026-10-18T03:00:00.000Z'}; nk=[...nk,r];
+  nguonNguyenLieu[NL]=[{ncc:'A',gia:1,soKg:1000,soHD:'HD-R',ngay:'22/10/2026',ts:'2026-10-25T01:00:00.000Z'}];
+  const so=()=>hdCuaMe(r).find(d=>d.ten===NL).soHD;
+  kq.macDinh=dungSaiNL(NL)===7&&so()==='HD-R';   // hoá đơn 22/10, lô 18/10 → lệch 4 ngày ≤ 7 → ghép
+  tonKhoNguyenLieu[NL]={...(tonKhoNguyenLieu[NL]||{}),dungSaiNgay:2}; kq.chat=so()==='';   // chỉnh còn 2 ngày → không ghép
+  chuyenTab('kho'); moTra.add('ncc-nl-'+NL); ve(); const i=document.querySelector(`[data-dungsai="${CSS.escape(NL)}"]`); kq.o=!!i;
+  if(i){i.value='5'; i.dispatchEvent(new Event('change',{bubbles:true}))} kq.doi=dungSaiNL(NL)===5&&so()==='HD-R';
+  nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); luuNgay(); chuyenTab('tq'); return kq;
+});
+ok('DR: ngày trên hoá đơn muộn hơn ngày tạo lô vài ngày (mặc định ≤ 7) vẫn ghép; chỉnh được số ngày cho từng nguyên liệu ở Kho', dr.macDinh&&dr.chat&&dr.o&&dr.doi, JSON.stringify(dr));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
