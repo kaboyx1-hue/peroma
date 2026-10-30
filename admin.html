@@ -1968,9 +1968,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/10/2026-S107</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/10/2026-S108</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 30/10/2026-S107</div>
+      <div class="verFoot">BẢN 30/10/2026-S108</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2382,10 +2382,14 @@ function dongMuaCuaMe(r,d){
 const dungSaiNL=t=>{const v=(tonKhoNguyenLieu[t]||{}).dungSaiNgay;return v===undefined||v===''||!(num(v)>=0)?7:num(v)};
 const congNgay=(d,n)=>{const x=new Date(String(d).slice(0,10)+'T00:00:00Z');return isNaN(x)?String(d).slice(0,10):(x.setUTCDate(x.getUTCDate()+n),x.toISOString().slice(0,10))};
 let _pbNL=new Map();
-function phanBoNL(ten){const N=dungSaiNL(ten), ky=nk.length+'|'+N+'|'+JSON.stringify(nguonNguyenLieu[ten]||[]), c=_pbNL.get(ten); if(c&&c.ky===ky)return c;
+function phanBoNL(ten){const N=dungSaiNL(ten), ky=nk.length+'|'+N+'|'+Object.keys(hoaDonBoSung||{}).length+'|'+JSON.stringify(nguonNguyenLieu[ten]||[]), c=_pbNL.get(ten); if(c&&c.ky===ky)return c;
   const lan=(nguonNguyenLieu[ten]||[]).map((e,i)=>({e,i,con:num(e.soKg),d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>o.con>1).sort((a,b)=>a.d.localeCompare(b.d)||a.i-b.i);
   const kq={ky,me:new Map(),dung:new Map(),no:[],lan};
   nk.filter(r=>!r.huy).sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))).forEach(r=>{const kg=nlDungMe(r,ten); if(!(kg>0))return;
+    /* S108 (khách: "lô hương tự nhiên đó của hoá đơn cũ hơn, coi như không tính"): lô đã GÁN TAY số HĐ cho nguyên liệu này → không ghép tự động.
+       Số đó trùng số HĐ của 1 lần mua → lô thuộc hẳn lần mua đó (trừ chỗ); không trùng (hoá đơn cũ, ngoài app) → bỏ qua, không chiếm chỗ hoá đơn khác. */
+    const bs=String(((hoaDonBoSung||{})[r.id]||{})[ten]||'').trim();
+    if(bs){const o=lan.find(o=>String(o.e.soHD||'').trim()===bs); if(o){o.con-=kg; kq.me.set(r.id,o); kq.dung.set(o.e,(kq.dung.get(o.e)||0)+kg)} return}
     const ngay=congNgay(r.ngaysx||r.ts||'',N), ts=String(r.ts||''), o=lan.find(o=>o.con>0.0005&&o.d<=ngay&&!(o.e.chot&&ts>String(o.e.chot.luc||'')));
     if(o){o.con-=kg; kq.me.set(r.id,o); kq.dung.set(o.e,(kq.dung.get(o.e)||0)+kg)} else kq.no.push({r,kg})});
   _pbNL.set(ten,kq); if(!_pbNL.hen){_pbNL.hen=1; setTimeout(()=>{_pbNL=new Map()})} return kq}

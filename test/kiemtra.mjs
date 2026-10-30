@@ -4041,6 +4041,20 @@ const dr=await E(async()=>{ const kq={}, NL='NL __DR__', g={nl:JSON.stringify(ng
   nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('DR: ngày trên hoá đơn muộn hơn ngày tạo lô vài ngày (mặc định ≤ 7) vẫn ghép; chỉnh được số ngày cho từng nguyên liệu ở Kho', dr.macDinh&&dr.chat&&dr.o&&dr.doi, JSON.stringify(dr));
+
+const ds_=await E(async()=>{ const kq={}, NL='NL __DS__', g={nl:JSON.stringify(nguonNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length,bs:JSON.stringify(hoaDonBoSung)};
+  nlDM.push(NL); const p=napSP([{ten:'SP __DS__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
+  const me=(id,ng,sl)=>({id,sp:p.ten,huong:'',lot:'55'+id.slice(-2)+'000000',sl,mlDung:0,ngaysx:ng,ts:ng+'T03:00:00.000Z'});
+  const a=me('DS-01','2026-09-14',15000), b1=me('DS-02','2026-09-30',14000), b2=me('DS-03','2026-10-01',14000), c=me('DS-04','2026-10-29',5000); nk=[...nk,a,b1,b2,c];
+  nguonNguyenLieu[NL]=[{ncc:'A',gia:1,soKg:28000,soHD:'81',ngay:'14/09/2026',ts:'2026-10-30T01:00:00.000Z'}];
+  const so=r=>hdCuaMe(r).find(d=>d.ten===NL).soHD;
+  kq.truoc=so(a)==='81'&&so(b2)===''; // chưa gán tay: lô 14/09 chiếm chỗ HĐ 81
+  hoaDonBoSung['DS-01']={[NL]:'HĐ cũ 12'}; // lô 14/09 thuộc hoá đơn cũ ngoài app
+  kq.sau=so(a)==='HĐ cũ 12'&&so(b1)==='81'&&so(b2)==='81'&&so(c)===''&&Math.round(phanBoNL(NL).dung.get(nguonNguyenLieu[NL][0]))===28000;
+  hoaDonBoSung['DS-04']={[NL]:'81'}; kq.ghim=so(c)==='81'&&phanBoNL(NL).me.get('DS-04')?.e===nguonNguyenLieu[NL][0]; // gán tay trùng số HĐ lần mua → thuộc lần mua đó
+  nguonNguyenLieu=JSON.parse(g.nl); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); hoaDonBoSung=JSON.parse(g.bs); luuNgay(); return kq;
+});
+ok('DS: lô đã gán tay số HĐ (hoá đơn cũ) không chiếm chỗ hoá đơn mới — HĐ 81 dồn cho các lô sau; gán tay đúng số HĐ của 1 lần mua thì thuộc lần mua đó', ds_.truoc&&ds_.sau&&ds_.ghim, JSON.stringify(ds_));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
