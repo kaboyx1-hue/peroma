@@ -4055,6 +4055,10 @@ const ds_=await E(async()=>{ const kq={}, NL='NL __DS__', g={nl:JSON.stringify(n
   nguonNguyenLieu=JSON.parse(g.nl); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); hoaDonBoSung=JSON.parse(g.bs); luuNgay(); return kq;
 });
 ok('DS: lô đã gán tay số HĐ (hoá đơn cũ) không chiếm chỗ hoá đơn mới — HĐ 81 dồn cho các lô sau; gán tay đúng số HĐ của 1 lần mua thì thuộc lần mua đó', ds_.truoc&&ds_.sau&&ds_.ghim, JSON.stringify(ds_));
+
+const dt=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); hdVT='';hdSo=''; chuyenTab('kho'); await cho(60); const d=document.querySelector('.hd-nc'); if(!d)return {co:false};
+  d.open=true; await cho(30); ve(); await cho(60); const mo=document.querySelector('.hd-nc')?.open; document.querySelector('.hd-nc').open=false; await cho(30); ve(); await cho(30); return {co:true,mo,dong:!document.querySelector('.hd-nc').open} });
+ok('DT: khối "Gán tay số HĐ" mở ra thì giữ nguyên khi app vẽ lại (đồng bộ) — trước bấm mở là tự đóng', dt.co&&dt.mo&&dt.dong, JSON.stringify(dt));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

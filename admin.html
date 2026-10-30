@@ -1968,9 +1968,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/10/2026-S108</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 30/10/2026-S109</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 30/10/2026-S108</div>
+      <div class="verFoot">BẢN 30/10/2026-S109</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3322,7 +3322,9 @@ function ghiTrangThaiMe(r){const o={};TT_ME_O.forEach(k=>{if(r[k]!==undefined)o[
 function apTrangThaiMe(){nk.forEach(r=>{const o=trangThaiMe[r.id];if(!o)return;
   TT_ME_O.forEach(k=>{if(k in o)r[k]=o[k];else if(k==='slThucTe'&&!o.ngungSX)delete r[k]});
   if(o.suaLuc)TT_SUA.forEach(k=>{if(k in o)r[k]=o[k]})})}
-let hoaDonBoSung={}, hdVT='', hdLo='', hdSo='', hdChiTrong=true, hdTra='';
+let hoaDonBoSung={}, hdVT='', hdLo='', hdSo='', hdChiTrong=true, hdTra='', hdNcMo=false;
+// S109 (khách: "nhấn vào không có gì xảy ra"): nhớ trạng thái mở khối "Gán tay số HĐ" — trước đây mỗi lần app vẽ lại (đồng bộ ~15 giây) là khối tự đóng
+document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('hd-nc'))hdNcMo=e.target.open},true);
 
 const $=id=>document.getElementById(id);
 /* 26/08/2026 — PATCH V1.1 mục P0.2 (UNSCENTED): "Không mùi" là 1 SENTINEL đại diện cho "không
@@ -4926,10 +4928,11 @@ function veHoaDonBS(ls){
     <div class="log" style="margin:0 0 8px">Số hoá đơn điền <b>1 lần ở lần mua</b> (Danh mục → Nguồn) là tự gắn vào mọi mẻ dùng lần mua đó.</div>
     ${thieuMua.size?`<div class="hd-thieu">${[...thieuMua].map(([k,{d,n}])=>`<div class="hd-th"><span><b>${esc(d.ten)}</b> · ${esc(d.mua.e.ncc||'')} · lần mua ${esc(d.mua.e.ngay||'')} — ${n} mẻ đang chờ số HĐ</span><button type="button" class="ctsxb on" data-suadongmua="${esc(k)}">Điền số HĐ →</button></div>`).join('')}</div>`
       :`<div class="hdbs-xem">✓ Các lần mua dùng trong kỳ đều đã có số hoá đơn.</div>`}
-    <details class="hd-nc"${hdVT||hdSo?' open':''}><summary>Gán tay số HĐ cho mẻ cũ (nâng cao — mẻ dùng lẫn nhiều lần mua)</summary>
+    <details class="hd-nc"${hdNcMo||hdVT||hdSo?' open':''}><summary>Gán tay số HĐ cho mẻ cũ (nâng cao — mẻ dùng lẫn nhiều lần mua)</summary>
     <div class="hdbs-luoi">
       <div class="fld"><label>Vật tư (hương / nguyên liệu)</label><select id="hdVT"><option value="">— chọn —</option>${vt.map(v=>`<option${v===hdVT?' selected':''}>${esc(v)}</option>`).join('')}</select></div>
-      <div class="fld"><label>Lô (tuỳ chọn)</label><select id="hdLo"><option value="">Mọi lô trong khoảng thời gian</option>${los.map(l=>`<option value="${esc(l)}"${l===hdLo?' selected':''}>${esc(lotDep(l))} — ${esc((ls.find(r=>r.lot===l)||{}).sp||'')}</option>`).join('')}</select></div>
+      <div class="fld"><label>Lô (tuỳ chọn)</label><select id="hdLo"><option value="">Mọi lô trong khoảng thời gian</option>${los.map(l=>{const ms=ls.filter(r=>!r.huy&&r.lot===l), ng=ms.map(r=>String(r.ngaysx||'')).filter(Boolean).sort(), hg=[...new Set(ms.map(r=>r.huong).filter(Boolean))]; // S109: thêm ngày · số mẻ · kg · hương để dễ đối soát
+      return `<option value="${esc(l)}"${l===hdLo?' selected':''}>${esc(lotDep(l))} — ${esc((ms[0]||{}).sp||'')} · ${esc(ng.length?vnNgay(ng[0]).slice(0,5)+(ng[ng.length-1]!==ng[0]?'–'+vnNgay(ng[ng.length-1]).slice(0,5):''):'')}${ms.length>1?' · '+ms.length+' mẻ':''} · ${fmtSo(ms.reduce((a,r)=>a+num(r.sl),0))} kg${hg.length?' · '+esc(hg.join(', ')):''}</option>`}).join('')}</select></div>
       <div class="fld"><label>Số hoá đơn</label><input id="hdSo" value="${esc(hdSo)}" placeholder="VD 0001234"></div>
     </div>
     <label class="hint" style="display:flex;gap:8px;align-items:center;cursor:pointer;margin:4px 0 8px"><input type="checkbox" id="hdChiTrong"${hdChiTrong?' checked':''}> Chỉ điền mẻ <b>chưa có</b> số HĐ cho vật tư này (bỏ tick để ghi đè số đã có)</label>
