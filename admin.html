@@ -1909,7 +1909,7 @@ html.hv-tat #huyHieu{transition:none}
 /* S90 màu theo loại / tình trạng trong Sửa hàng loạt */
 #bslT tr.m-huong td.ten{box-shadow:inset 5px 0 0 #6FA8F5,2px 0 0 var(--line2)!important}#bslT tr.m-nl td.ten{box-shadow:inset 5px 0 0 #E9B23F,2px 0 0 var(--line2)!important}
 #bslT tr.m-huong td.ten .o{color:#2E6DA8}#bslT tr.m-nl td.ten .o{color:#9A6400}
-#bslT td.xl-do:not(.sua):not(.loi):not(.dang){background:#FDE2DE!important}#bslT td.xl-luc:not(.sua):not(.loi):not(.dang){background:#E3F4E8!important}
+#bslT td.xl-kh .o:empty::after{content:'không cần HĐ';font-style:italic;opacity:.6}#bslT td.xl-do:not(.sua):not(.loi):not(.dang){background:#FDE2DE!important}#bslT td.xl-luc:not(.sua):not(.loi):not(.dang){background:#E3F4E8!important}
 .bsl-mau{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:6px}.bsl-mau span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
 .bsl-mau span::before{content:'';width:14px;height:14px;border-radius:4px;background:var(--mc)}.bsl-mau .m-huong{--mc:#CFE3F7}.bsl-mau .m-nl{--mc:#F7E2B5}.bsl-mau .m-do{--mc:#F7C9C0}.bsl-mau .m-luc{--mc:#C7E9D1}
 /* S91 chọn giá chưa / đã gồm VAT trong khung khai lần mua */
@@ -1975,9 +1975,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S113</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S115</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 02/11/2026-S113</div>
+      <div class="verFoot">BẢN 02/11/2026-S115</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -6174,8 +6174,11 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-chot
   const mo=!!b.dataset.mokhoamua, [loai,...r]=(b.dataset.chotmua||b.dataset.mokhoamua).split(':'), ix=+r.pop(), ten=r.join(':'), x=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!x)return;
   const mo_=`<b>${esc(ten)}</b> · ${esc(x.ncc||'')} · ${esc(x.ngay||'')} · ${fmtSo(num(x.soKg))} kg${x.soHD?' · HĐ '+esc(x.soHD):''}`;
   if(!await hoi(mo?'Mở khoá lần mua':'Xác nhận chốt lần mua',mo?`Mở khoá ${mo_}? Mở xong sửa được số kg / giá / ngày; lô ghi sau lại có thể nhận vào lần mua này.`
-      :`Chốt ${mo_}: đã dùng hết. Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
+      :`Chốt ${mo_}: đã dùng hết. Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.<div style="margin-top:12px"><button type="button" class="ctsxb" data-suatudlg="${esc(loai+':'+ten+':'+ix)}">✏️ Mở lần mua này để sửa</button></div>`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
   chotLanMua(loai,ten,ix,mo); luuNgay(); ve(); bao(mo?'Đã mở khoá lần mua':'🔒 Đã chốt & khoá lần mua')},true);
+
+// S114 (khách: "tôi cũng có thể đi thẳng vào location để sửa nếu muốn, cần thêm button"): từ hộp xác nhận chốt mở thẳng khung Sửa của đúng lần mua, không chốt
+document.addEventListener('click',e=>{const b=e.target.closest('[data-suatudlg]'); if(!b)return; dongDlg(false); moSuaDongMua(b.dataset.suatudlg)});
 
 document.addEventListener('change',e=>{const i=e.target.closest('[data-dungsai]'); if(!i)return; const t=i.dataset.dungsai, v=Math.round(num(i.value));
   if(!(v>=0&&v<=365)){bao('Số ngày từ 0 đến 365');i.value=dungSaiNL(t);return}
@@ -7471,6 +7474,11 @@ let bslChiThieuHD=false;
 /* S113 (khách: "có 1 số cái không đúng, cần xoá thì lại không thể xoá được, thêm nút xoá cho tôi"): xoá lần mua ngay trong bảng — tích dòng rồi bấm Xoá.
    Dòng đã khoá thì không xoá; đang có ô sửa chưa lưu thì bắt lưu trước (xoá làm đổi chỉ số dòng, bảng phải nạp lại). */
 const BSL_MUA=['tatca','mua','muanl'];
+/* S115 (khách: "với 1 số mặt hàng không cần hoá đơn thì sao"): cờ khongHD vốn chỉ tích được ở thẻ vật tư, bảng vẫn báo đỏ. Nay bảng hiểu cờ này và tích dòng rồi bấm 1 nút là xong (cờ theo vật tư, không theo từng lần mua). */
+const bslVT=r=>({loai:/^(moi:)?h:/.test(String(r.id))?'h':'nl',ten:r.goc.ten}), bslKhongHD=r=>{const {loai,ten}=bslVT(r);return !!((tonKhoMapCua(loai)[ten]||{}).khongHD)||(loai==='h'&&huongKemNL(ten))};
+function bslDoiKhongHD(){const rs=bslHien().filter(r=>bslChon.has(r.id)), tat=rs.every(bslKhongHD), xong=new Set();
+  rs.forEach(r=>{const {loai,ten}=bslVT(r), k=loai+':'+ten; if(xong.has(k))return; xong.add(k); const m=tonKhoMapCua(loai); m[ten]={...(m[ten]||{}),khongHD:!tat}; ghiAudit('stock',ten,tat?'CAN_HD_LAI':'KHONG_CAN_HD',null,{loai})});
+  luuNgay(); bslVe(); bao(tat?'Đã bật lại nhắc hoá đơn cho '+xong.size+' vật tư':'Đã đánh dấu '+xong.size+' vật tư không cần hoá đơn')}
 async function bslXoaChon(){const rs=bslHien().filter(r=>bslChon.has(r.id)&&!bslMoi(r)); if(!rs.length){bao('Chọn ít nhất 1 lần mua đã khai để xoá');return}
   if(bslDemSua().o){await hoi('Còn ô chưa lưu','Bảng đang có ô sửa chưa lưu. Bấm <b>Xem &amp; lưu</b> hoặc <b>Bỏ hết</b> trước, rồi xoá lại.',{nutOK:'Đã hiểu',nutHuy:'Đóng'});return}
   const dong=rs.map(r=>{const loai=/^h:/.test(r.id)?'h':'nl', ten=r.goc.ten, e=r.ref; return {loai,ten,e,ix:(nguonMapCua(loai)[ten]||[]).indexOf(e),kg:loai==='nl'?(phanBoNL(ten).dung.get(e)||0):num(e.daDungKg||0)}}).filter(x=>x.ix>=0);
@@ -7596,14 +7604,14 @@ const BSL_NHOM={sp:['sp','h','q','nl','ctnl'],mua:['tatca','cth','ctnl','kk','bb
 BSL_NHOM.all=[...new Set([...BSL_NHOM.sp,...BSL_NHOM.mua,...BSL_NHOM.me])]; // S94: mọi bảng — dùng cho Nạp lại file Toàn bộ dữ liệu
 let bslLoai='sp', bslDs={}, bslDang={r:0,c:0}, bslGoc=null, bslSua=null, bslLS=[], bslChon=new Set(), bslNhom='sp';
 const bslL=()=>BSL[bslLoai];
-const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||!coChungTu(r.goc)))};
+const bslHien=()=>{const q=(($('bslTim')||{}).value||'').trim().toLowerCase();return (bslDs[bslLoai]||[]).filter(r=>(!q||Object.values(r.moi).join(' ').toLowerCase().includes(q))&&(!bslChiThieuHD||bslLoai!=='tatca'||(!coChungTu(r.goc)&&!bslKhongHD(r))))};
 const bslKhoa=(c,r)=>c.tinh?'tinh':c.khoa?c.khoa(r):'';
 const bslLoi=(c,r)=>c.kt?c.kt(String(r.moi[c.k]??''),r,bslDs[bslLoai]):'';
 const bslDaSua=(c,r)=>!c.tinh&&String(r.moi[c.k])!==String(r.goc[c.k]);
 function bslMo(nhom){bslChiThieuHD=false;bslNhom=nhom;bslDs={};BSL_NHOM[nhom].forEach(k=>bslDs[k]=BSL[k].nap());bslLoai=BSL_NHOM[nhom][0];bslDang={r:0,c:0};bslGoc=null;bslLS=[];bslChon.clear();
   let w=$('bsl'); if(!w){w=document.createElement('div');w.id='bsl';document.body.appendChild(w)}
   w.innerHTML=`<div class="bsl-k" role="dialog" aria-label="Sửa hàng loạt"><div class="bsl-dau"><b>Sửa hàng loạt</b><span>Ô vàng = đã sửa, chưa lưu · Ô đỏ = sai, phải sửa · Ô xám = khoá</span><button type="button" class="lop-luib" id="bslDong">Đóng</button></div>
-   <div class="bsl-loai" id="bslLoaiW"></div><div class="bsl-cong"><input type="search" id="bslTim" placeholder="Lọc dòng…" aria-label="Lọc dòng"><div class="bsl-ap" id="bslAp"><span id="bslApDem"></span><select id="bslApCot" aria-label="Cột cần áp"></select><input id="bslApGt" placeholder="giá trị" aria-label="Giá trị áp"><button type="button" class="ctsxb on" id="bslApNut">Áp cho các dòng đã chọn</button><button type="button" class="ctsxb bsl-xoa" id="bslXoaNut">🗑 Xoá dòng đã chọn</button></div></div>
+   <div class="bsl-loai" id="bslLoaiW"></div><div class="bsl-cong"><input type="search" id="bslTim" placeholder="Lọc dòng…" aria-label="Lọc dòng"><div class="bsl-ap" id="bslAp"><span id="bslApDem"></span><select id="bslApCot" aria-label="Cột cần áp"></select><input id="bslApGt" placeholder="giá trị" aria-label="Giá trị áp"><button type="button" class="ctsxb on" id="bslApNut">Áp cho các dòng đã chọn</button><button type="button" class="ctsxb" id="bslKhongHDNut"></button><button type="button" class="ctsxb bsl-xoa" id="bslXoaNut">🗑 Xoá dòng đã chọn</button></div></div>
    <div class="bsl-w" id="bslW"><table id="bslT"></table></div>
    <div class="bsl-chu" id="bslChu"></div>
    <div class="bsl-goi">↑↓←→ di chuyển · bấm 2 lần vào ô, Enter hoặc gõ chữ để sửa · Shift+bấm: chọn vùng · Ctrl+V dán từ Excel · Ctrl+C chép · Ctrl+D chép ô trên xuống · Delete xoá · Ctrl+Z hoàn tác</div>
@@ -7756,7 +7764,7 @@ document.addEventListener('click',e=>{if(e.target.closest('#bslTaiX')){bslTaiExc
 document.addEventListener('change',e=>{if(e.target.id==='bslFileX'&&e.target.files&&e.target.files[0]){bslNapExcel(e.target.files[0]);e.target.value=''}});
 /* S90: ô cần xử lý trong bảng — đỏ nhạt (chưa có số HĐ · còn/tồn ≤ 0 · kho thật ít hơn), xanh lá (kho thật nhiều hơn) */
 function bslCanXL(c,r){const t=c.tinh?String(c.tinh(r)):'';
-  if(c.k==='soHD'&&(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!coChungTu(r.moi))return 'xl-do';
+  if(c.k==='soHD'&&BSL_MUA.includes(bslLoai)&&!coChungTu(r.moi))return bslKhongHD(r)?'xl-kh':'xl-do';
   if(c.k==='chenh')return /^\+/.test(t)?'xl-luc':/^−/.test(t)?'xl-do':'';
   if((c.k==='con'||c.k==='ht')&&/^(−|-|0 kg$)/.test(t))return 'xl-do'; return ''}
 
@@ -7846,17 +7854,17 @@ function tspLuu(){const l=tspLoi(); if(l.length){rungO($('tsp').querySelector('[
   ghiAudit('recipe',p.ten,'THEM_MAT_HANG',null,{maSP:p.maSP,kieu:tsp.kieu,dauRa:p.dauRa,nguon:coNguon?{hang,ncc:tsp.ncc,soKg:num(tsp.kg),chungTu:tsp.ct}:chiet?{chietTu:tsp.nl}:null});
   tspDong(); luuNgay(); ctChon=i; mo.clear(); mo.add(i); chuyenTab('ct'); huyHieu('✅','Đã thêm '+p.ten,coNguon?'đã nhập kho '+fmtSo(kgNhap)+' kg '+hang+' · chọn hương ở Công thức':chiet?'chiết từ '+nlChiet+' · nhân viên ghi lô như thường, kho tự trừ':'khai công thức pha ở trang Công thức')}
 function bslVeChu(){const el=$('bslChu'); if(!el)return; const m=BSL_CHU[bslLoai]||{}, cs=bslL().cot.filter(c=>m[c.k]);
-  el.innerHTML=(bslL().loaiMau?'<div class="bsl-mau"><span class="m-huong">Hương</span><span class="m-nl">Nguyên liệu</span><span class="m-do">Ô đỏ: còn việc phải làm (thiếu số hoá đơn, hết hàng, hoặc đếm kho thấy ít hơn số trên máy)</span><span class="m-luc">Ô xanh lá: đếm kho thấy nhiều hơn số trên máy</span></div><div class="log" style="margin:0 0 8px"><b>Mỗi dòng là 1 lần mua.</b> Dòng chữ nghiêng "chưa khai lần mua": vật tư chưa có lần mua nào, điền vào là tạo lần mua đầu tiên. Hàng mới về của vật tư đã có dòng: bấm <b>+ Nhập thêm hàng</b> ở tab Kho để tạo dòng mới, đừng gõ đè lên dòng cũ.</div>':'')+(cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):'')}
+  el.innerHTML=(bslL().loaiMau?'<div class="bsl-mau"><span class="m-huong">Hương</span><span class="m-nl">Nguyên liệu</span><span class="m-do">Ô đỏ: còn việc phải làm (thiếu số hoá đơn, hết hàng, hoặc đếm kho thấy ít hơn số trên máy)</span><span class="m-luc">Ô xanh lá: đếm kho thấy nhiều hơn số trên máy</span></div><div class="log" style="margin:0 0 8px"><b>Mỗi dòng là 1 lần mua.</b> Dòng chữ nghiêng "chưa khai lần mua": vật tư chưa có lần mua nào, điền vào là tạo lần mua đầu tiên. Hàng mới về của vật tư đã có dòng: bấm <b>+ Nhập thêm hàng</b> ở tab Kho để tạo dòng mới, đừng gõ đè lên dòng cũ. Vật tư <b>không cần hoá đơn</b>: tích ô đầu dòng, bấm nút <b>🧾 Không cần hoá đơn</b> ở trên, ô đỏ sẽ hết.</div>':'')+(cs.length?'<b>Giải thích các cột</b>'+cs.map(c=>`<div><b>${esc(c.t)}</b>: ${esc(m[c.k])}</div>`).join(''):'')}
 function bslVe(){if(!$('bslT'))return; bslVeChu(); const ds=bslHien(), cs=bslL().cot;
   $('bslLoaiW').innerHTML=(bslLoai==='tatca'?`<label class="bsl-loc"><input type="checkbox" id="bslThieuHD"${bslChiThieuHD?' checked':''}> 🧾 Chỉ dòng chưa có số HĐ</label>`:'')+BSL_NHOM[bslNhom].map(k=>{const n=(bslDs[k]||[]).filter(r=>BSL[k].cot.some(c=>bslDaSua(c,r))).length;return `<button type="button" class="${k===bslLoai?'on':''}" data-bslloai="${k}">${BSL[k].ten} <small>${(bslDs[k]||[]).length}</small>${n?`<b>${n}</b>`:''}</button>`}).join('');
   let h=`<thead><tr><th class="chk"><input type="checkbox" id="bslHet" aria-label="Chọn tất cả" ${ds.length&&ds.every(r=>bslChon.has(r.id))?'checked':''}></th>`+cs.map((c,ci)=>`<th class="${ci===0?'ten':''}${c.thamKhao?' tk':''}">${esc(c.t)}${c.g?`<small>${esc(c.g)}</small>`:''}</th>`).join('')+'</tr></thead><tbody>';
-  const Lm=bslL(); ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}${Lm.loaiMau?' m-'+Lm.loaiMau(r):''}${(bslLoai==='tatca'||bslLoai==='mua'||bslLoai==='muanl')&&!coChungTu(r.moi)?' thieuhd':''}${bslMoi(r)?' m-chua':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
+  const Lm=bslL(); ds.forEach((r,ri)=>{h+=`<tr class="${bslChon.has(r.id)?'chon':''}${Lm.loaiMau?' m-'+Lm.loaiMau(r):''}${BSL_MUA.includes(bslLoai)&&!coChungTu(r.moi)&&!bslKhongHD(r)?' thieuhd':''}${bslMoi(r)?' m-chua':''}"><td class="chk"><input type="checkbox" data-bslchon="${esc(r.id)}" ${bslChon.has(r.id)?'checked':''}></td>`;
     cs.forEach((c,ci)=>{const kh=bslKhoa(c,r),lo=kh?'':bslLoi(c,r);
       const tkv=c.thamKhao&&c.tinh?String(c.tinh(r)):'', xl=bslCanXL(c,r), cl=[xl,ci===0?'ten':'',c.thamKhao?'tk':'',tkv[0]==='+'?'duong':tkv[0]==='−'?'am':'',c.so?'so':'',kh==='tinh'?'tinh':kh?'khoa':'',!kh&&bslDaSua(c,r)?'sua':'',lo?'loi':'',bslTrong(ri,ci)?'vung':'',bslDang.r===ri&&bslDang.c===ci?'dang':''].filter(Boolean).join(' ');
       h+=`<td class="${cl}" data-r="${ri}" data-c="${ci}"${lo?` title="${esc(lo)}"`:kh&&kh!=='tinh'?` title="🔒 ${esc(kh)}"`:''}><div class="o" style="--w:${c.w}px" tabindex="-1">${bslGT(c,r)}</div></td>`});h+='</tr>'});
   if(!ds.length)h+=`<tr><td colspan="${cs.length+1}" class="bsl-trong">Không có dòng nào.</td></tr>`;
   $('bslT').innerHTML=h+'</tbody>';
-  const n=ds.filter(r=>bslChon.has(r.id)).length; $('bslAp').classList.toggle('hien',n>0); $('bslApDem').textContent=n+' dòng đã chọn'; $('bslXoaNut').hidden=!BSL_MUA.includes(bslLoai);
+  const n=ds.filter(r=>bslChon.has(r.id)).length; $('bslAp').classList.toggle('hien',n>0); $('bslApDem').textContent=n+' dòng đã chọn'; $('bslXoaNut').hidden=$('bslKhongHDNut').hidden=!BSL_MUA.includes(bslLoai); $('bslKhongHDNut').textContent=ds.filter(r=>bslChon.has(r.id)).every(bslKhongHD)&&n?'🧾 Bật lại nhắc hoá đơn':'🧾 Không cần hoá đơn';
   const giu=$('bslApCot').value; $('bslApCot').innerHTML=cs.filter(c=>!c.tinh&&c.k!=='ten'&&!(c.khoa&&ds.filter(r=>bslChon.has(r.id)).every(r=>c.khoa(r)))).map(c=>`<option value="${c.k}">${esc(c.t)}</option>`).join(''); if([...$('bslApCot').options].some(o=>o.value===giu))$('bslApCot').value=giu;
   const d=bslDemSua(); $('bslDem').innerHTML=d.o?`<b>${d.o}</b> ô đã sửa trên <b>${d.d}</b> dòng${d.l?` · <span class="lo">${d.l} ô sai cần sửa</span>`:''}`:'Chưa sửa gì. Bấm vào ô rồi gõ số (hoặc bấm 2 lần vào ô) để sửa.';
   $('bslLuu').disabled=!d.o; $('bslBo').disabled=!d.o; $('bslHT').disabled=!bslLS.length}
@@ -7914,7 +7922,7 @@ document.addEventListener('click',e=>{const sn=e.target.closest('[data-suanhanh]
   if(e.target.closest('#bslDong')){bslDongLai();return} if(e.target.closest('#bslHT')){bslHoanTac();return}
   if(e.target.closest('#bslBo')){Object.values(bslDs).forEach(ds=>ds.forEach(r=>r.moi={...r.goc}));bslLS=[];bslVe();return}
   if(e.target.closest('#bslLuu')){bslXemLuu();return}
-  if(e.target.closest('#bslXoaNut')){bslXoaChon();return}
+  if(e.target.closest('#bslXoaNut')){bslXoaChon();return} if(e.target.closest('#bslKhongHDNut')){bslDoiKhongHD();return}
   if(e.target.closest('#bslApNut')){const k=$('bslApCot').value,ci=bslL().cot.findIndex(c=>c.k===k),ds=[];bslHien().forEach((r,ri)=>{if(bslChon.has(r.id))ds.push({r:ri,c:ci,v:$('bslApGt').value})});const n=bslGhi(ds);bao(n?'Đã áp cho '+n+' dòng':'Giá trị không hợp lệ hoặc không đổi');return}});
 /* 23/10/2026 S98 (khách: "đã nhập số hoá đơn mà không thay đổi gì"): gõ dở 1 ô rồi BẤM CHUỘT sang ô khác (không Enter) — mousedown có
    preventDefault nên ô đang gõ không mất focus → không chạy onblur → số vừa gõ BỊ BỎ, và bslSua kẹt lại khiến gõ tiếp ở ô mới cũng không ăn.
