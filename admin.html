@@ -1994,9 +1994,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S118</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S119</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 02/11/2026-S118</div>
+      <div class="verFoot">BẢN 02/11/2026-S119</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2412,12 +2412,15 @@ let _pbNL=new Map();
 function phanBoNL(ten){const N=dungSaiNL(ten), ky=nk.length+'|'+N+'|'+Object.keys(hoaDonBoSung||{}).length+'|'+JSON.stringify(nguonNguyenLieu[ten]||[]), c=_pbNL.get(ten); if(c&&c.ky===ky)return c;
   const lan=(nguonNguyenLieu[ten]||[]).map((e,i)=>({e,i,con:num(e.soKg),d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>o.con>1).sort((a,b)=>a.d.localeCompare(b.d)||a.i-b.i);
   const kq={ky,me:new Map(),dung:new Map(),no:[],lan};
+  /* S119 (khách: "lô Mitco tôi đã nhập số tờ khai ở Sửa hàng loạt nhưng sang Chuỗi không cập nhật"): lần mua kiểu cũ 1 kg bị bỏ qua hẳn → chứng từ ghi
+     vào đó không tới được lô. Nay dòng 1 kg CÓ chứng từ là nguồn dự phòng: chỉ nhận lô khi không còn lần mua đủ số kg nào, và nhận gán tay. Chuỗi báo vàng "chưa ghi số kg". */
+  const cu=(nguonNguyenLieu[ten]||[]).map((e,i)=>({e,i,con:0,d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>num(o.e.soKg)<=1&&coChungTu(o.e)).sort((a,b)=>b.d.localeCompare(a.d)||b.i-a.i);
   nk.filter(r=>!r.huy).sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))).forEach(r=>{const kg=nlDungMe(r,ten); if(!(kg>0))return;
     /* S108 (khách: "lô hương tự nhiên đó của hoá đơn cũ hơn, coi như không tính"): lô đã GÁN TAY số HĐ cho nguyên liệu này → không ghép tự động.
        Số đó trùng số HĐ của 1 lần mua → lô thuộc hẳn lần mua đó (trừ chỗ); không trùng (hoá đơn cũ, ngoài app) → bỏ qua, không chiếm chỗ hoá đơn khác. */
     const bs=String(((hoaDonBoSung||{})[r.id]||{})[ten]||'').trim();
-    if(bs){const o=lan.find(o=>[o.e.soHD,o.e.soToKhai,o.e.soHopDong].some(v=>String(v||'').trim()===bs)); if(o){o.con-=kg; kq.me.set(r.id,o); kq.dung.set(o.e,(kq.dung.get(o.e)||0)+kg)} return}
-    const ngay=congNgay(r.ngaysx||r.ts||'',N), ts=String(r.ts||''), o=lan.find(o=>o.con>0.0005&&o.d<=ngay&&!(o.e.chot&&ts>String(o.e.chot.luc||'')));
+    if(bs){const o=[...lan,...cu].find(o=>[o.e.soHD,o.e.soToKhai,o.e.soHopDong].some(v=>String(v||'').trim()===bs)); if(o){o.con-=kg; kq.me.set(r.id,o); kq.dung.set(o.e,(kq.dung.get(o.e)||0)+kg)} return}
+    const ngay=congNgay(r.ngaysx||r.ts||'',N), ts=String(r.ts||''), o=lan.find(o=>o.con>0.0005&&o.d<=ngay&&!(o.e.chot&&ts>String(o.e.chot.luc||'')))||cu.find(o=>o.d<=ngay&&!(o.e.chot&&ts>String(o.e.chot.luc||'')));
     if(o){o.con-=kg; kq.me.set(r.id,o); kq.dung.set(o.e,(kq.dung.get(o.e)||0)+kg)} else kq.no.push({r,kg})});
   _pbNL.set(ten,kq); if(!_pbNL.hen){_pbNL.hen=1; setTimeout(()=>{_pbNL=new Map()})} return kq}
 /* 28/10/2026 S105 (khách: "hợp đồng với hoá đơn được tính như nhau — hàng nhập khẩu không có hoá đơn, hệ thống phải hiểu"): lần mua có SỐ HỢP ĐỒNG
@@ -6282,6 +6285,7 @@ function cxDoiMua(e){const t=[]; if(!e)return t; if(e.ngay&&!/^\d{2}\/\d{2}\/\d{
  const so=String(e.soHD||'').trim(); if(so){const k=ds.find(o=>String(o.soHD||'').trim()===so&&o.ncc&&sach(o.ncc)!==sach(e.ncc)); if(k)t.push(`Số hoá đơn ${so} đã dùng cho nhà cung cấp khác (${k.ncc}).`)}
  const g=ds.find(o=>o.ncc&&e.ncc&&o.ncc!==e.ncc&&sach(o.ncc)===sach(e.ncc)); if(g)t.push(`Nhà cung cấp "${e.ncc}" gần giống "${g.ncc}", có thể là một.`); return t}
 const cxLyVT=(v,m)=>{const t=[],c=v.boQua?cxChinhGoc(v):cxChinh(v); if(c)t.push(c);
+ if(v.loai==='nl'&&v.e&&num(v.e.soKg)<=1)t.push(`${v.ten}: lần mua ${v.e.ngay||''} chưa ghi số kg thật nên chưa kiểm được đủ hay thiếu.`); // S119
  if(v.vuot)t.push(`${v.ten}: lần mua ${v.e.ngay||''} chỉ có ${cxKg(num(v.e.soKg))} nhưng các lô đã dùng nhiều hơn.`); if(v.sau)t.push(`${v.ten}: ngày mua ${v.e.ngay} sau ngày làm lô ${vnNgay(m.ngay)}.`); cxDoiMua(v.e).forEach(y=>t.push(`${v.ten}: ${y}`)); return t};
 const cxChinhGoc=v=>cxChinh({...v,tt:v.tt0});
 const cxQcKg=q=>{const m=String(q||'').toLowerCase().replace(',','.').match(/([\d.]+)\s*(kg|g)/);return m?(m[2]==='g'?+m[1]/1000:+m[1]):0};

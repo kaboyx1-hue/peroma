@@ -4179,6 +4179,15 @@ const ee=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.traLai=!hoaDonBoSung['EE-1']&&!nguonNguyenLieu[NL][0].soHD&&v2().tt==='do';
   nguonNguyenLieu=JSON.parse(g.nl); hoaDonBoSung=JSON.parse(g.bs); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); cxChon=''; cxBqMo=''; luuNgay(); chuyenTab('tq'); return kq });
 ok('EE: xác nhận đúng thì ghi luôn số liệu: chưa có nguồn → chứng từ của lô; thiếu HĐ + điền số → số HĐ lần mua; bật lại thì trả về như cũ', Object.values(ee).every(Boolean), JSON.stringify(ee));
+const ef=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='NL __EF__', g={nl:JSON.stringify(nguonNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
+  nlDM.push(NL); const p=napSP([{ten:'SP __EF__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
+  nk=[...nk,{id:'EF-1',sp:p.ten,huong:'',lot:'7920000000',sl:1000,soBao:1000,quyCach:'1 kg',mlDung:0,ngaysx:'2026-10-05',ts:'2026-10-05T03:00:00.000Z',nlLucSX:[{ten:NL,tl:1}]}];
+  nguonNguyenLieu[NL]=[{ncc:'MITCO',gia:5843,soKg:1,ngay:'10/09/2026'}]; chuyenTab('chuoi'); await cho(30); cxMoLo('EF-1'); const v=()=>cxMeList.find(y=>y.id==='EF-1').x.find(x=>x.ten===NL);
+  kq.truoc=v().tt==='do'; nguonNguyenLieu[NL][0].soToKhai='TK-123'; veChuoi(); await cho(20);
+  kq.sau=v().tt==='ok'&&v().chung==='Tờ khai TK-123'&&cxLyVT(v(),cxMeList.find(y=>y.id==='EF-1')).some(t=>/chưa ghi số kg/.test(t));
+  nguonNguyenLieu[NL].push({ncc:'MITCO',gia:5000000,soKg:1000,ngay:'01/10/2026',ts:'2026-10-01T01:00:00.000Z',soHD:'HD-9'}); veChuoi(); await cho(20); kq.uuTienKgThat=v().chung==='HĐ HD-9';
+  nguonNguyenLieu=JSON.parse(g.nl); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
+ok('EF: lần mua kiểu cũ 1 kg có số tờ khai → lô nhận tờ khai (vàng: chưa ghi số kg); có lần mua đủ kg thì ưu tiên lần đó', Object.values(ef).every(Boolean), JSON.stringify(ef));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
