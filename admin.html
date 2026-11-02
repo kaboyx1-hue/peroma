@@ -1994,9 +1994,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S117</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S118</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 02/11/2026-S117</div>
+      <div class="verFoot">BẢN 02/11/2026-S118</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -6294,8 +6294,13 @@ const cxBuocCua=m=>{const g=(a,n)=>a.some(v=>v.tt==='do')?'do':a.some(v=>v.tt===
   {n:5,t:'Truy ngược',s:m.tt==='ok'&&nh?'vang':m.tt,c:m.tt==='ok'?(nh?`đủ nguồn, ${nh} cảnh báo`:'đủ nguồn'):m.tt==='vang'?'thiếu chứng từ':'đứt'}]};
 const cxBuocLoi=m=>{const b=cxBuocCua(m).slice(0,4);return (b.find(x=>x.s==='do')||b.find(x=>x.s==='vang')||{n:5}).n};
 let cxBqMo='';
-function cxVD(t,k){return `<div class="cx-vd"><span>${esc(t)}</span><span class="cx-nut">${k?`<button type="button" class="ctsxb" data-cxb="${k}">Sửa ở bước ${k}</button>`:''}<button type="button" class="ctsxb" data-cxbq="${esc(t)}">Tôi xác nhận đúng</button></span>${cxBqMo===t?`<span class="cx-gan" style="flex-basis:100%"><input class="cx-tim" id="cxLyDo" style="flex:1 1 220px;width:auto" placeholder="Lý do, ví dụ: đã đối chiếu với hoá đơn gốc" aria-label="Lý do xác nhận"><button type="button" class="ctsxb on" data-cxbqluu="1">Lưu xác nhận</button><button type="button" class="ctsxb" data-cxbqhuy="1">Huỷ</button></span>`:''}</div>`}
-const cxDaBo=m=>{const l=Object.entries(m.bq);return l.length?`<div class="cx-vt"><b>Đã xác nhận bỏ qua (${l.length})</b>${l.map(([t,o])=>`<div class="cx-vd"><span>${esc(t)}<br><span class="cx-g">Lý do: ${esc(o.ly)} · ${esc(o.ngay||'')}</span></span><button type="button" class="ctsxb" data-cxbqbat="${esc(t)}">Bật lại cảnh báo</button></div>`).join('')}</div>`:''};
+/* S118 (khách: "đã đè thì phải sửa số liệu luôn chứ"): xác nhận cảnh báo nào có số liệu đi kèm thì ghi luôn số liệu đó —
+   chưa có nguồn → ghi chứng từ riêng cho lô (hoaDonBoSung, như ô Gán); thiếu hoá đơn → điền số thì ghi vào lần mua (áp mọi lô dùng chung).
+   Cảnh báo không có số liệu để ghi (trùng số lô, vượt kg, ngày, đầu ra...) thì chỉ ghi nhận. Bật lại cảnh báo = trả số liệu về như trước. */
+const cxVTCua=t=>{const m=cxMeList.find(y=>y.id===cxChon);return m?m.x.find(v=>cxChinh(v)===t)||null:null};
+function cxVD(t,k){const v=cxBqMo===t?cxVTCua(t):null, cung=v&&v.e?cxMeList.filter(y=>y.x.some(z=>z.e===v.e)).length:0;
+ return `<div class="cx-vd"><span>${esc(t)}</span><span class="cx-nut">${k?`<button type="button" class="ctsxb" data-cxb="${k}">Sửa ở bước ${k}</button>`:''}<button type="button" class="ctsxb" data-cxbq="${esc(t)}">Tôi xác nhận đúng</button></span>${cxBqMo===t?`<span class="cx-gan" style="flex-basis:100%">${v?`<input class="cx-tim" id="cxSoCT" style="flex:1 1 180px;width:auto" placeholder="${v.tt==='do'?'Số hoá đơn / chứng từ (nếu có)':'Số hoá đơn của lần mua'}" aria-label="Số chứng từ">`:''}<input class="cx-tim" id="cxLyDo" style="flex:1 1 220px;width:auto" placeholder="Lý do, ví dụ: đã đối chiếu với hoá đơn gốc" aria-label="Lý do xác nhận"><button type="button" class="ctsxb on" data-cxbqluu="1">Lưu xác nhận</button><button type="button" class="ctsxb" data-cxbqhuy="1">Huỷ</button><span class="cx-g" style="flex-basis:100%">${!v?'Cảnh báo này không có số liệu để ghi, xác nhận chỉ tắt cảnh báo cho lô này.':v.tt==='do'?'Sẽ ghi chứng từ cho lô này (để trống thì ghi "Đã xác nhận"). Kho, Tổng quan, Báo cáo đều nhận theo.':`Điền số thì ghi vào lần mua ${esc(v.e.ngay||'')}, áp cho ${cung} lô dùng chung. Để trống thì chỉ tắt cảnh báo cho lô này.`}</span></span>`:''}</div>`}
+const cxDaBo=m=>{const l=Object.entries(m.bq);return l.length?`<div class="cx-vt"><b>Đã xác nhận bỏ qua (${l.length})</b>${l.map(([t,o])=>`<div class="cx-vd"><span>${esc(t)}<br><span class="cx-g">Lý do: ${esc(o.ly)} · ${esc(o.ngay||'')}${o.ghi==='lo'?` · đã ghi chứng từ "${esc(o.so)}" cho lô`:o.ghi==='mua'?` · đã ghi HĐ ${esc(o.so)} vào lần mua`:''}</span></span><button type="button" class="ctsxb" data-cxbqbat="${esc(t)}">Bật lại cảnh báo</button></div>`).join('')}</div>`:''};
 function cxLienKet(m){const hang=m.x.map(v=>{const e=v.e,gia=e&&num(e.soKg)>0?num(e.gia)/num(e.soKg):0;return {v,e,gia,tien:gia*v.kg,cung:e?cxMeList.filter(y=>y.x.some(z=>z.e===e)):[]}}), tong=hang.reduce((a,h)=>a+h.tien,0), thieu=hang.some(h=>!h.gia), q=cxQcKg(m.r.quyCach);
  return `<div class="cx-vt"><div class="cx-h"><b>Chi tiết liên kết của lô</b><span class="cx-g">${hang.filter(h=>h.e).length}/${hang.length} vật tư đã nối · ${new Set(hang.map(h=>h.e&&h.e.ncc).filter(Boolean)).size} nhà cung cấp</span></div>
  <div class="cx-bang"><table><thead><tr><th>Vật tư</th><th>Nhà cung cấp</th><th>Chứng từ</th><th>Ngày mua</th><th class="so">Kg mua</th><th class="so">Đã vào lô</th><th class="so">Lô này dùng</th><th class="so">Giá / kg</th><th class="so">Tiền lô này</th><th>Tình trạng</th></tr></thead><tbody>${hang.map(({v,e,gia,tien})=>`<tr><td>${v.loai==='h'?cxHg(v.ten):esc(v.ten)}</td><td>${esc(e?e.ncc||'':'')||'<span class="cx-g">chưa có</span>'}</td><td>${esc(v.boQua?'':v.chung)||'<span class="cx-g">chưa có</span>'}</td><td>${esc(e?e.ngay||'':'')}</td><td class="so">${e?fmtSo(num(e.soKg)):''}</td><td class="so">${e?fmtSo(Math.round(v.da*100)/100):''}</td><td class="so">${fmtSo(Math.round(v.kg*100)/100)}</td><td class="so">${gia?fmtSo(Math.round(gia)):'—'}</td><td class="so">${tien?fmtSo(Math.round(tien)):'—'}</td><td>${cxChip(v.tt,v.boQua?'đã xác nhận':v.tt==='do'?'chưa có nguồn':v.tt==='vang'?'thiếu chứng từ':'khớp')}</td></tr>`).join('')}</tbody></table></div>
@@ -6375,8 +6380,15 @@ document.addEventListener('click',e=>{const g=s=>e.target.closest(s); let a;
  if(g('[data-cxboloc]')){cxF.nccNL=cxF.nccH=cxF.huong=cxF.sp='';veChuoi();return}
  if(a=g('[data-cxbq]')){cxBqMo=a.dataset.cxbq;veChuoi();$('cxLyDo')?.focus();return}
  if(g('[data-cxbqhuy]')){cxBqMo='';veChuoi();return}
- if(g('[data-cxbqluu]')){const i=$('cxLyDo'), ly=i.value.trim(), id=cxChon; if(!ly){bao('Cần ghi lý do xác nhận');i.focus();return} const c=hoaDonBoSung[id]||{}; hoaDonBoSung[id]={...c,__bq:{...(c.__bq||{}),[cxBqMo]:{ly,ngay:homNay()}}}; ghiAudit('batch',id,'XAC_NHAN_DE',null,{canhBao:cxBqMo,lyDo:ly}); cxBqMo=''; luuNgay(); ve(); bao('Đã xác nhận, cảnh báo tắt cho lô này'); return}
- if(a=g('[data-cxbqbat]')){const id=cxChon, t=a.dataset.cxbqbat, c={...(hoaDonBoSung[id]||{})}, b={...(c.__bq||{})}; delete b[t]; if(Object.keys(b).length)c.__bq=b; else delete c.__bq; if(Object.keys(c).length)hoaDonBoSung[id]=c; else delete hoaDonBoSung[id]; ghiAudit('batch',id,'BAT_LAI_CANH_BAO',null,{canhBao:t}); luuNgay(); ve(); return}
+ if(g('[data-cxbqluu]')){const i=$('cxLyDo'), ly=i.value.trim(), id=cxChon, v=cxVTCua(cxBqMo), so=String(($('cxSoCT')||{}).value||'').trim(); if(!ly){bao('Cần ghi lý do xác nhận');i.focus();return}
+  const c={...(hoaDonBoSung[id]||{})}, o={ly,ngay:homNay()}; let bao2='Đã xác nhận, cảnh báo tắt cho lô này';
+  if(v&&v.tt==='do'){o.ghi='lo';o.ten=v.ten;o.so=so||'Đã xác nhận';o.cu=c[v.ten]||'';c[v.ten]=o.so;bao2='Đã xác nhận và ghi chứng từ cho lô này'}
+  else if(v&&v.tt==='vang'&&so&&v.e){o.ghi='mua';o.loai=v.loai;o.ten=v.ten;o.ix=v.ix;o.so=so;o.cu=String(v.e.soHD||'');v.e.soHD=so;ghiAudit('stock',v.ten,'SUA_SO_HD_TU_CHUOI',{soHD:o.cu},{soHD:so,ngay:v.e.ngay});bao2='Đã xác nhận và ghi số hoá đơn vào lần mua'}
+  c.__bq={...(c.__bq||{}),[cxBqMo]:o}; hoaDonBoSung[id]=c; ghiAudit('batch',id,'XAC_NHAN_DE',null,{canhBao:cxBqMo,lyDo:ly,ghi:o.ghi||'',so:o.so||''}); cxBqMo=''; luuNgay(); ve(); bao(bao2); return}
+ if(a=g('[data-cxbqbat]')){const id=cxChon, t=a.dataset.cxbqbat, c={...(hoaDonBoSung[id]||{})}, b={...(c.__bq||{})}, o=b[t]||{}; delete b[t];
+  if(o.ghi==='lo'&&c[o.ten]===o.so){if(o.cu)c[o.ten]=o.cu; else delete c[o.ten]}
+  if(o.ghi==='mua'){const e=(nguonMapCua(o.loai)[o.ten]||[])[o.ix]; if(e&&String(e.soHD||'')===o.so){e.soHD=o.cu||'';ghiAudit('stock',o.ten,'SUA_SO_HD_TU_CHUOI',{soHD:o.so},{soHD:e.soHD,ngay:e.ngay})}}
+  if(Object.keys(b).length)c.__bq=b; else delete c.__bq; if(Object.keys(c).length)hoaDonBoSung[id]=c; else delete hoaDonBoSung[id]; ghiAudit('batch',id,'BAT_LAI_CANH_BAO',null,{canhBao:t}); luuNgay(); ve(); return}
  if(a=g('[data-cxb]')){cxBuoc=+a.dataset.cxb;veChuoi();return}
  if(a=g('[data-cxloc]')){cxLoc=a.dataset.cxloc;cxDs();return}
  if(a=g('[data-cxxem]')){cxXem=+a.dataset.cxxem;cxBLoc='all';cxBang();return}
