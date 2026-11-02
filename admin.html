@@ -1994,9 +1994,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S121</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 02/11/2026-S123</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 02/11/2026-S121</div>
+      <div class="verFoot">BẢN 02/11/2026-S123</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -6203,8 +6203,10 @@ function chotLanMua(loai,ten,ix,mo){const e=(loai==='h'?nguonHuong:nguonNguyenLi
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-chotmua],[data-mokhoamua]'); if(!b)return; e.stopPropagation();
   const mo=!!b.dataset.mokhoamua, [loai,...r]=(b.dataset.chotmua||b.dataset.mokhoamua).split(':'), ix=+r.pop(), ten=r.join(':'), x=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!x)return;
   const mo_=`<b>${esc(ten)}</b> · ${esc(x.ncc||'')} · ${esc(x.ngay||'')} · ${fmtSo(num(x.soKg))} kg${x.soHD?' · HĐ '+esc(x.soHD):''}`;
+  // S122: nút Chốt ở Chuỗi bấm được cả khi lần mua chưa dùng hết → nói rõ phần còn lại sẽ bị coi là hết
+  const con=mo?0:loai==='h'?conLaiNguon(x)-noMeHuong(ten).filter(r=>dongTruCua(r)===x).reduce((t,r)=>t+num(r.mlDung)/1000,0):(num(x.soKg)>1?num(x.soKg)-(phanBoNL(ten).dung.get(x)||0):0), conTxt=con>0.0005?`<div style="margin-top:8px;color:var(--badTx)"><b>Lần mua này còn ${fmtSo(Math.round(con*1000)/1000)} kg chưa vào lô.</b> Chốt là coi như đã hết${loai==='h'?', tồn của lần mua về 0':''}.</div>`:'';
   if(!await hoi(mo?'Mở khoá lần mua':'Xác nhận chốt lần mua',mo?`Mở khoá ${mo_}? Mở xong sửa được số kg / giá / ngày; lô ghi sau lại có thể nhận vào lần mua này.`
-      :`Chốt ${mo_}: đã dùng hết. Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.<div style="margin-top:12px"><button type="button" class="ctsxb" data-suatudlg="${esc(loai+':'+ten+':'+ix)}">✏️ Mở lần mua này để sửa</button></div>`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
+      :`Chốt ${mo_}${conTxt?'':': đã dùng hết'}.${conTxt} Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.<div style="margin-top:12px"><button type="button" class="ctsxb" data-suatudlg="${esc(loai+':'+ten+':'+ix)}">✏️ Mở lần mua này để sửa</button></div>`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
   chotLanMua(loai,ten,ix,mo); luuNgay(); ve(); bao(mo?'Đã mở khoá lần mua':'🔒 Đã chốt & khoá lần mua')},true);
 
 // S114 (khách: "tôi cũng có thể đi thẳng vào location để sửa nếu muốn, cần thêm button"): từ hộp xác nhận chốt mở thẳng khung Sửa của đúng lần mua, không chốt
@@ -6333,7 +6335,7 @@ function cxVT(m,v,i){const key=v.loai+':'+v.ten, cung=v.e?cxMeList.filter(y=>y.x
    const no=cung.reduce((a,y)=>a+y.x.filter(z=>z.e===v.e&&z.no).reduce((b,z)=>b+z.kg,0),0), con=Math.round((conLaiNguon(v.e)-no)*1000)/1000, khac=Math.round((num(v.e.soKg)-v.da-con)*1000)/1000;
    return `<div class="cx-g cx-ton">Tồn lần mua này: mua ${cxKg(num(v.e.soKg))} − vào lô ${cxKg(v.da)}${Math.abs(khac)>.0005?` ${khac>0?'−':'+'} ${khac>0?'trừ khác':'cộng khác'} ${cxKg(Math.abs(khac))} <span title="chỉnh tồn tay, hao hụt">(chỉnh tồn, hao hụt)</span>`:''} = còn ${s(con)}${ca?' · '+ca:''}</div>`})()}
  ${ly.length?`<div class="cx-can${v.tt==='do'?'':' nhe'}">${ly.map(t=>cxVD(t,0)).join('')}</div>`:''}
- <div class="cx-nut">${ix>=0?(nguonMapCua(v.loai)[v.ten][ix].chot?`<button type="button" class="ctsxb" data-mokhoamua="${esc(key+':'+ix)}">🔒 Mở khoá lần mua</button>`:`<button type="button" class="ctsxb on" data-suanguon="${esc(key+':'+ix)}">✏️ Sửa lần mua</button>`):''}<button type="button" class="ctsxb${ix<0?' on':''}" data-themnguon="${esc(key)}">+ Nhập lần mua mới</button>${v.no?`<button type="button" class="ctsxb" data-trano="${esc(v.ten)}">Trả nợ vào lần mua</button>`:''}<button type="button" class="ctsxb" data-cxkho="${esc(v.loai+'|||'+v.ten)}">Mở ở Kho</button></div>
+ <div class="cx-nut">${ix>=0?(nguonMapCua(v.loai)[v.ten][ix].chot?`<button type="button" class="ctsxb" data-mokhoamua="${esc(key+':'+ix)}">🔒 Mở khoá lần mua</button>`:`<button type="button" class="ctsxb on" data-suanguon="${esc(key+':'+ix)}">✏️ Sửa lần mua</button><button type="button" class="ctsxb" data-chotmua="${esc(key+':'+ix)}">🔒 Chốt lần mua</button>`):''}<button type="button" class="ctsxb${ix<0?' on':''}" data-themnguon="${esc(key)}">+ Nhập lần mua mới</button>${v.no?`<button type="button" class="ctsxb" data-trano="${esc(v.ten)}">Trả nợ vào lần mua</button>`:''}<button type="button" class="ctsxb" data-cxkho="${esc(v.loai+'|||'+v.ten)}">Mở ở Kho</button></div>
  <div class="cx-gan"><input class="cx-tim" id="cxGan${i}" list="cxHD" value="${esc(bs)}" placeholder="Số HĐ riêng cho lô này" aria-label="Số hoá đơn riêng cho lô này"><button type="button" class="ctsxb" data-cxgan="${i}">Gán cho lô này</button><label class="cx-g"><input type="checkbox" data-khonghd="${esc(key)}"${kh?' checked':''}> ${v.loai==='h'?'Hương':'Nguyên liệu'} này không cần hoá đơn</label></div>
  ${cung.length>1?`<div class="cx-g">Sửa lần mua là sửa chung cho ${cung.length} lô: ${cung.map(y=>`<span class="cx-so">${esc(lotDep(y.lot))}</span> (${esc(vnNgay(y.ngay).slice(0,5))})`).join(', ')}. Chỉ đổi cho lô này thì dùng ô Gán.</div>`:''}
  ${veThemNguonPanel(v.loai,v.ten)}${ix>=0?veThemNguonPanel(v.loai,v.ten,ix):''}</div>`}
@@ -6371,7 +6373,7 @@ function cxDs(){const q=(($('cxTimLo')||{}).value||'').trim().toLowerCase().repl
 function cxChu(){const m=cxMeList.find(y=>y.id===cxChon); if(!m){$('cxChu').innerHTML='<div class="cx-khung">Chưa có lô nào.</div>';return}
  $('cxChu').innerHTML=`<div class="cx-anh"><span class="cx-so">${esc(lotDep(m.lot))}</span><span data-cxmeo="${cxMeo(m,5,'Kết quả của lô này')}">${cxChip(m.tt,m.tt==='ok'?'Đủ nguồn':m.tt==='vang'?'Thiếu chứng từ':'Đứt chuỗi')}</span><div class="cx-tt">${cxHg(m.huong)}<b>${esc(m.sp)}</b><span class="cx-g">${vnNgay(m.ngay)} · ${cxKg(m.kg)} · ${fmtSo(num(m.r.soBao))} bao ${esc(m.r.quyCach||'')}</span></div></div>
  <div class="cx-tacvu"><span class="cx-loc">${[['sx','🏭 Sản xuất'],['chiet','📦 Sang chiết']].map(([k,t])=>`<button type="button" class="${cxKieu(m)===k?'on':''}" data-cxkieu="${k}">${t}</button>`).join('')}</span><button type="button" class="lnk" data-cxkieusp="${cxKieu(m)}">Áp kiểu này cho mọi lô ${esc(m.sp)}</button>
-  <span class="cx-nut" style="margin-left:auto"><button type="button" class="ctsxb" data-cxsuakg="1">Sửa số kg lô</button><button type="button" class="ctsxb" data-cxxoalo="1">Xoá lô</button><button type="button" class="ctsxb" data-cxxoasp="1">Xoá mặt hàng + mọi lô</button></span></div>
+  <span class="cx-nut" style="margin-left:auto">${choChotGiup(m.r)?`<button type="button" class="ctsxb on" data-chotgiup="${esc(m.id)}" title="Nhân viên chưa chốt thực tế — chốt thay, ghi số kg thực tế">✔ Chốt giúp lô</button>`:trangThaiSXCua(m.r)==='COMPLETED'?cxChip('ok','Đã chốt thực tế'):''}<button type="button" class="ctsxb" data-cxsuakg="1">Sửa số kg lô</button><button type="button" class="ctsxb" data-cxxoalo="1">Xoá lô</button><button type="button" class="ctsxb" data-cxxoasp="1">Xoá mặt hàng + mọi lô</button></span></div>
  <div class="cx-bc">${cxBuocCua(m).map(b=>`<button type="button" class="cx-b t-${b.s}${cxBuoc===b.n?' on':''}" data-cxb="${b.n}" data-cxmeo="${cxMeo(m,b.n,`Bước ${b.n}: ${b.t}`)}"><i class="cx-dau ${b.s}" aria-hidden="true" style="font-style:normal">${b.s==='do'||b.s==='vang'?'!':b.s==='ok'?'✓':'–'}</i><small>Bước ${b.n}</small><b>${b.t}</b><span class="g">${esc(b.c)}</span></button>`).join('')}</div>
  <div class="cx-khung">${cxKhung(m)}</div>`;
  // tô đúng ô trong khung sửa lần mua đang mở
