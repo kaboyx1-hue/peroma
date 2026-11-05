@@ -14,8 +14,9 @@ const ok=(t,c,g='')=>{c?dat++:(hong++,loi.push(t));console.log(`${c?'✓':'✗ H
    thì GIỮ NGUYÊN '1101070826' vì chúng tự đặt ngày, không phụ thuộc hôm nay. */
 const _homNay=new Date();
 const MMYY_NAY=String(_homNay.getMonth()+1).padStart(2,'0')+String(_homNay.getFullYear()).slice(-2);
-const LOT_UI='210107'+MMYY_NAY;              // lô của mẻ ghi qua giao diện
-const LOT_UI_CACH='21 01 07 '+MMYY_NAY;      // dạng có dấu cách khi hiển thị/in
+const DDMMYY_NAY=String(_homNay.getDate()).padStart(2,'0')+MMYY_NAY; // 05/11/2026 R50: số lô có ngày
+const LOT_UI='210107'+DDMMYY_NAY;              // lô của mẻ ghi qua giao diện
+const LOT_UI_CACH='21 01 07 '+DDMMYY_NAY;      // dạng có dấu cách khi hiển thị/in
 
 // cấu hình giả lập bản admin xuất ra
 const CAU_HINH={v:8,sp:[
@@ -1020,7 +1021,7 @@ const s25=await E(async()=>{ const kq={}, p=sp.find(x=>(x.dauRa||[]).length&&x.m
   const H=Object.keys(maHuong).find(h=>maHuong[h]&&!isUnscented(h)), q=p.dauRa.find(x=>maQC[x])||p.dauRa[0];
   p.khongTemPhu=false; const l10=sinhLot(p,H,q,'2026-10-12').lot;
   p.khongTemPhu=true; const l8=sinhLot(p,H,q,'2026-10-12').lot;
-  kq.thieu=sinhLot(p,H,q,'2026-10-12').thieu; kq.l10=l10; kq.l8=l8; kq.lo=l10.length===10&&l8.length===7&&l8===l10.slice(0,4)+l10.slice(6,8)+l10.slice(9)&&lotDep(l8).split(' ').length===3;
+  kq.thieu=sinhLot(p,H,q,'2026-10-12').thieu; kq.l10=l10; kq.l8=l8; kq.lo=l10.length===12&&l8.length===7&&l8===l10.slice(0,4)+l10.slice(8,10)+l10.slice(11)&&lotDep(l8).split(' ').length===3;
   const r={id:'S25',sp:p.ten,huong:H,quyCach:q,sl:1,soBao:1,kgBao:1,ngaysx:'2026-10-12',lot:l8,nv:'T'};
   const d=document.createElement('div'); p.tenTem='TÊN S25'; d.innerHTML=temHTML(r,p); kq.ten=d.querySelector('.t2').textContent==='TÊN S25';
   const inCu=window.print; let n=0; window.print=()=>{n++}; nk.push(r);
@@ -1068,6 +1069,14 @@ const r47=await E(async()=>{ const g={u:DONGBO_URL,d:window.dbGoi,nk:nk.slice()}
 ok('R47: vòng đồng bộ gửi mẻ trước, rồi mới hỏi máy chủ; lần sau không đổi gì thì không tải lại cấu hình/nhật ký', r47.truoc&&r47.daGui&&r47.lan2, JSON.stringify(r47));
 const mkLoai=await E(()=>{tab='dl';ve();const i=document.getElementById('knMk');return i?i.type:''});
 ok('R47: ô mật khẩu kết nối hiện dạng che (•••)', mkLoai==='password', mkLoai);
+const r49=await E(()=>{const g=nk.slice(); nk=[...nk,{id:'R49-a',lot:'0108041026',sp:'Cát tắm cho hamster',huong:'Hương phấn Johnson',quyCach:'1 kg',ngaysx:'2026-10-01',ts:'2026-10-01T07:08:09.020Z'},{id:'R49-b',lot:'0108041026',sp:'Cát tắm cho hamster',huong:'Hương phấn Johnson',quyCach:'1 kg',ngaysx:'2026-10-29',ts:'2026-10-29T01:35:08.716Z'}];
+  tab='lo'; traLot=''; ve(); const o=[...document.querySelectorAll('#oLot option')].filter(x=>x.value==='0108041026'); const t=o.map(x=>x.textContent).join('|');
+  traLot='0108041026'; ve(); const the=document.querySelectorAll('.card.lot').length; nk=g; traLot=''; ve(); return {mot:o.length===1, duNgay:/01\/10\/2026 và 29\/10\/2026 \(2 mẻ\)/.test(t), the, t}});
+ok('R49: 2 mẻ cùng số lô → dropdown 1 dòng ghi đủ cả 2 ngày, chọn vào hiện đủ 2 thẻ', r49.mot&&r49.duNgay&&r49.the===2, JSON.stringify(r49));
+const r50=await E(()=>{const g=nk.slice(); const r={id:'R50-a',lot:'0108041026',sp:'x',huong:'h',quyCach:'1 kg',ngaysx:'2026-10-29',ts:'2026-10-29T01:00:00.000Z'}; nk=[...nk,r];
+  const c={trangThaiMe:{'R50-a':{suaLuc:'2026-11-05T01:00:00.000Z',lot:'010804291026',ngaysx:'2026-10-30'}}}; if(c.trangThaiMe&&typeof c.trangThaiMe==='object')nk.forEach(x=>{const o=c.trangThaiMe[x.id];if(o&&o.suaLuc)['lot','ngaysx'].forEach(k=>{if(k in o)x[k]=o[k]})});
+  const kq={lot:r.lot,ngay:r.ngaysx,dep:lotDep('010804291026'),moi:sinhLot({ten:'Cát tắm',maSP:'01'},Object.keys(maHuong)[0]||'',Object.keys(maQC)[0]||'','2026-10-29').lot}; nk=g; return kq});
+ok('R50: số lô mới 12 số có ngày (SS HH QQ DDMMYY), đọc đúng dạng có cách', r50.dep==='01 08 04 291026'&&(!r50.moi||/^\d{6}291026$/.test(r50.moi)), JSON.stringify(r50));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong)console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));

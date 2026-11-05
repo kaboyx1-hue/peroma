@@ -7,7 +7,7 @@ let dat=0,hong=0; const ok=(t,c,g='')=>{c?dat++:hong++;console.log(`${c?'✓':'�
    Mẻ ghi qua giao diện dùng ngày hôm nay, nên lô mong đợi phải tính theo tháng chạy test.
    Viết cứng '0826' thì từ tháng 9/2026 trở đi là hỏng dù phần mềm vẫn đúng. */
 const _n=new Date();
-const LOT_UI='210107'+String(_n.getMonth()+1).padStart(2,'0')+String(_n.getFullYear()).slice(-2);
+const LOT_UI='210107'+String(_n.getDate()).padStart(2,'0')+String(_n.getMonth()+1).padStart(2,'0')+String(_n.getFullYear()).slice(-2); // 05/11/2026: số lô 12 số có ngày
 const b=await chromium.launch({executablePath:CH});
 /* S16 (10/09/2026): in tem giờ tự dàn chữ — nội dung tem dài ở khổ 5×4 thì app HỎI đổi khổ trước khi in.
    Các bài test cũ (kiểm đúng bản ghi / đúng id, không kiểm khổ) không trả lời hộp này nên sẽ chờ mãi. Tự bấm

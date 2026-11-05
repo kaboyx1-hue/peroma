@@ -763,8 +763,8 @@ ok('kg quy cách đoán đúng', (await E(()=>kgQC['500 g']))===0.5);
 ok('quy cách mùn cưa chỉ 500g', (await E(()=>JSON.stringify(sp.find(x=>x.ten==='Mùn cưa thơm').dauRa)))==='["500 g"]');
 
 console.log('\n── B. SỐ LÔ ──');
-const vd=await E(()=>{const t=[['11','01','06','2026-08-15','11 01 086'],['42','00','04','2026-08-01','42 00 04 0826'],
-  ['36','00','10','2026-09-20','36 00 10 0926'],['51','02','02','2026-09-05','51 02 02 0926'],['22','08','05','2026-10-11','22 08 05 1026']];
+const vd=await E(()=>{const t=[['11','01','06','2026-08-15','11 01 086'],['42','00','04','2026-08-01','42 00 04 010826'],
+  ['36','00','10','2026-09-20','36 00 10 200926'],['51','02','02','2026-09-05','51 02 02 050926'],['22','08','05','2026-10-11','22 08 05 111026']] // S128: 12 số có ngày; Citycat giữ 7 số;
   return t.map(x=>{maHuong.__t=x[1];maQC.__q=x[2];return lotDep(sinhLot({ten:'X',maSP:x[0]},'__t','__q',x[3]).lot)===x[4]})});
 ok('5 ví dụ trong quy ước khớp hết', vd.every(Boolean), vd.filter(Boolean).length+'/5');
 ok('thiếu mã thì chặn', (await E(()=>sinhLot({ten:'X',maSP:''},'','',  '2026-08-01').thieu.length>0)));
@@ -833,7 +833,7 @@ await p.click('[data-intem]'); await p.waitForTimeout(500);
 ok('in được khi hồ sơ đủ', (await E(()=>window.__in===1)));
 const tem=await E(()=>$('temIn').innerText);
 ok('tem có ngày SX đầy đủ', /22\/08\/2026/.test(tem));
-ok('tem có số lô', /21 01 07 0826|21 01 04 0826/.test(tem));
+ok('tem có số lô', /21 01 07 220826|21 01 04 220826/.test(tem));
 ok('tem có địa chỉ sản xuất', /8A AN DƯƠNG VƯƠNG/i.test(tem)); // 16/09/2026: khối công ty đổi sang chữ hoa (khách yêu cầu fix cứng)
 ok('tem tính hạn dùng', /đến 22\/08\/2036/.test(tem));
 ok('#temIn là con trực tiếp của body', (await E(()=>$('temIn').parentElement.tagName))==='BODY');
@@ -2916,8 +2916,8 @@ const bm=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const cb=document.querySelector('[data-kieu="'+i+'|||dg"]'); cb.click(); await cho(40); // S77: "Không in tem phụ" → Kiểu mặt hàng 📦 Đóng gói lại
   kq.bat=p.khongTemPhu===true&&sachCauHinh([p])[0].khongTemPhu===true;
   const l8=sinhLot(p,H,q,'2026-10-12').lot; r.lot=l8;
-  kq.lo8=l8.length===7&&l8===l10.slice(0,4)+l10.slice(6,8)+l10.slice(9)&&lotDep(l8)===l8.slice(0,2)+' '+l8.slice(2,4)+' '+l8.slice(4); // S67: Citycat 7 số
-  kq.lo10Khac=l10.length===10&&sinhLot({...p,khongTemPhu:false},H,q,'2026-10-12').lot===l10;
+  kq.lo8=l8.length===7&&l8===l10.slice(0,4)+l10.slice(8,10)+l10.slice(11)&&lotDep(l8)===l8.slice(0,2)+' '+l8.slice(2,4)+' '+l8.slice(4); // S67: Citycat 7 số
+  kq.lo10Khac=l10.length===12&&sinhLot({...p,khongTemPhu:false},H,q,'2026-10-12').lot===l10;
   nk.push(r); traLot=l8; chuyenTab('sx'); await cho(60);
   const bc=$('viewBC').innerHTML; kq.khongNut=!bc.includes('data-intem="BM-1"')&&/Không in — bao bì đã có đủ thông tin/.test($('viewBC').innerText);
   const pr=inTem('BM-1'); await cho(80); const dlg=document.getElementById('dlgO'); if(dlg)dlg.click(); await pr; kq.khongIn=daIn===0;
@@ -3248,7 +3248,7 @@ ok('BX: Công thức lớp 1 = bảng mặt hàng + khung chi tiết; bấm dòn
 const by=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={};
   maHuong.__t='01'; maQC.__q='07';
   const cc={ten:'Citycat Plus',maSP:'12'}, ma1={ten:'Cát gì đó',maSP:'15'}, khac={ten:'Cát Zaka',maSP:'41'};
-  kq.lo=sinhLot(cc,'__t','__q','2026-10-16').lot==='1201106'&&sinhLot(ma1,'__t','__q','2026-10-16').lot.length===10&&sinhLot({ten:'Cát lót chuồng hamster Sand Hambii',maSP:'10'},'__t','__q','2026-10-16').lot.length===10&&sinhLot({ten:'Bao 11',maSP:'11'},'__t','__q','2026-10-16').lot.length===7&&sinhLot(khac,'__t','__q','2026-10-16').lot==='4101071026';
+  kq.lo=sinhLot(cc,'__t','__q','2026-10-16').lot==='1201106'&&sinhLot(ma1,'__t','__q','2026-10-16').lot.length===12&&sinhLot({ten:'Cát lót chuồng hamster Sand Hambii',maSP:'10'},'__t','__q','2026-10-16').lot.length===12&&sinhLot({ten:'Bao 11',maSP:'11'},'__t','__q','2026-10-16').lot.length===7&&sinhLot(khac,'__t','__q','2026-10-16').lot==='410107161026';
   kq.tenChu=khongTem({ten:'Bao Citycat',maSP:''})&&!khongTem({ten:'Bigpaw',maSP:''});
   sp.push(napSP([{ten:'Citycat BY',kg:100,ml:0,me:0,pkb:false,maSP:'19'}])[0]); const i=sp.length-1; kq.coCitycat=true;
   if(i>=0){ mo.clear(); mo.add(i); moTem.add(i); chuyenTab('ct'); await cho(60);
@@ -3528,7 +3528,7 @@ const ck=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const i=sp.findIndex(x=>!laCitycat(x)&&(x.dauRa||[]).length&&hai(x.maSP)), p=sp[i]; mo.clear(); mo.add(i); ctChon=i; chuyenTab('ct'); await cho(80);
   const h1=kho.find(h=>!isUnscented(h)&&maHuong[h]); const l10=sinhLot(p,h1,p.dauRa[0],'2026-10-19').lot;
   document.querySelector(`[data-kieu="${i}|||dg"]`).click(); await cho(60);
-  kq.kieu=p.khongTemPhu===true&&sinhLot(p,h1,p.dauRa[0],'2026-10-19').lot.length===7&&l10.length===10&&!!document.querySelector('.mh-ng');
+  kq.kieu=p.khongTemPhu===true&&sinhLot(p,h1,p.dauRa[0],'2026-10-19').lot.length===7&&l10.length===12&&!!document.querySelector('.mh-ng');
   document.querySelector(`[data-kieu="${i}|||sx"]`).click(); await cho(60); kq.kieuVe=p.khongTemPhu===false&&!document.querySelector('.r.open .mh-ng');
   const ts=document.querySelector(`[data-ttsel="${i}"]`); ts.value='tam'; ts.dispatchEvent(new Event('change',{bubbles:true})); await cho(60);
   kq.tt=p.tt==='tam'&&!!document.querySelector('.r.open .mh-tt-ly')&&!document.querySelector('.r.open .ttb');
@@ -4276,6 +4276,29 @@ const eo=await E(async()=>{ const H='Hương __EO__', g={nh:JSON.stringify(nguon
   meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('EO-1','EO-2'); const anh=chupHuong(H); nguonHuong[H][1].ngay='30/10/2026'; khopTruHuong(H,anh); kq.khop=Math.abs(e0.daDungKg-3.74)<1e-6&&Math.abs(nguonHuong[H][1].daDungKg-2.24)<1e-6;
   nguonHuong=JSON.parse(g.nh); nk=g.nk; return kq });
 ok('EO: khai thêm lần mua hương mới không kéo lô cũ sang — lô lấy lần mua theo ngày (≤ ngày SX + 7)', Object.values(eo).every(Boolean), JSON.stringify(eo));
+const ep=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),sp:sp.length,tt:JSON.stringify(trangThaiMe)}, hoiCu=window.hoi; let tl=[], tieuDe=[]; window.hoi=async(t)=>{tieuDe.push(t);return tl.shift()};
+  const p=napSP([{ten:'SP __EP__',maSP:'01',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
+  const me=(id,d)=>({id,sp:p.ten,huong:'',lot:'0108041026',sl:100,soBao:100,quyCach:'1 kg',mlDung:0,ngaysx:d,ts:d+'T03:00:00.000Z',nlLucSX:[],daInTem:true});
+  nk=[...nk,me('EP-1','2026-10-01'),me('EP-2','2026-10-29'),{...me('EP-3','2026-10-05'),lot:'999999999999'}];
+  chuyenTab('chuoi'); await cho(30); cxMoLo('EP-2'); cxBuoc=4; veChuoi(); await cho(20); kq.nut=!!document.querySelector('#cxChu .cx-can [data-cxsualo]');
+  tl=['9999 9999 9999']; document.querySelector('[data-cxsualo]').click(); await cho(60); kq.chanTrung=nk.find(r=>r.id==='EP-2').lot==='0108041026'&&tieuDe.includes('Số lô đã có');
+  tl=['01 08 04 291026','tách 2 đợt cùng tháng']; document.querySelector('[data-cxsualo]').click(); await cho(80); const r=nk.find(x=>x.id==='EP-2');
+  kq.luu=r.lot==='010804291026'&&r.lotGoc==='0108041026'&&r.daInTem===false&&trangThaiMe['EP-2'].lot==='010804291026'&&nk.find(x=>x.id==='EP-1').lot==='0108041026';
+  veChuoi(); await cho(20); kq.hetTrung=!cxMeList.find(y=>y.id==='EP-2').trung&&lotDep('010804291026')==='01 08 04 291026';
+  window.hoi=hoiCu; nk=g.nk; sp.splice(g.sp); trangThaiMe=JSON.parse(g.tt); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
+ok('EP: Đổi số lô ngay trong Chuỗi — chặn số trùng lô khác, lưu số gốc + đồng bộ, bỏ cờ đã in tem, hết báo trùng', Object.values(ep).every(Boolean), JSON.stringify(ep));
+const eq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H='Hương __EQ__', g={nh:JSON.stringify(nguonHuong),kho:kho.slice(),nk:nk.slice(),sp:sp.length,md:JSON.stringify(meDaTru),tt:JSON.stringify(trangThaiMe)}, hoiCu=window.hoi; window.hoi=async()=>'cân lại';
+  kho.push(H); const p=napSP([{ten:'SP __EQ__',maSP:'',kg:100,ml:50,huongs:[H],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
+  nguonHuong[H]=[{ncc:'B',gia:440000,soKg:25,soHD:'2148',ngay:'10/09/2026',daDungKg:4.5}];
+  meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('EQ-1','EQ-2');
+  nk=[...nk,{id:'EQ-1',sp:p.ten,huong:H,lot:'7990000001',sl:4500,soBao:4500,quyCach:'1 kg',mlDung:2250,ngaysx:'2026-10-16',ts:'2026-10-16T03:00:00.000Z',nlLucSX:[],giaHuongTheoGLucSX:440},{id:'EQ-2',sp:p.ten,huong:H,lot:'7990000002',sl:4500,soBao:4500,quyCach:'1 kg',mlDung:2250,ngaysx:'2026-10-29',ts:'2026-10-29T03:00:00.000Z',nlLucSX:[],giaHuongTheoGLucSX:440}];
+  const v=veMatXich('h',H); kq.bang=/Đã dùng cho sản phẩm nào/.test(v)&&/0,5 g\/kg/.test(v)&&/đúng/.test(v);
+  const w=document.createElement('div'); w.innerHTML=v; document.body.append(w); $('mxG-EQ-2').value='2700'; document.querySelector('[data-mxg="EQ-2"]').click(); await cho(60);
+  const r=nk.find(x=>x.id==='EQ-2'); kq.luu=r.mlDung===2700&&r.mlGoc===2250&&Math.abs(nguonHuong[H][0].daDungKg-4.95)<1e-6&&r.chiPhiHuongLucSX===1188000&&trangThaiMe['EQ-2'].mlDung===2700;
+  w.innerHTML=veMatXich('h',H); kq.lech=/\+20%/.test(w.innerHTML);
+  const i=sp.indexOf(p); $('mxMl'+i).value='60'; document.querySelector('[data-mxdm="'+i+'"]').click(); await cho(40); kq.dm=p.ml===60; w.remove();
+  window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); meDaTru=JSON.parse(g.md); trangThaiMe=JSON.parse(g.tt); luuNgay(); chuyenTab('tq'); return kq });
+ok('EQ: Kho hương — đã dùng cho mặt hàng nào + tỉ lệ g/kg so định mức; sửa gam từng lô (chỉnh tồn, giữ gốc, đồng bộ) và sửa định mức tại chỗ', Object.values(eq).every(Boolean), JSON.stringify(eq));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
