@@ -1994,9 +1994,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 05/11/2026-S130</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 05/11/2026-S131</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 05/11/2026-S130</div>
+      <div class="verFoot">BẢN 05/11/2026-S131</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -6258,12 +6258,18 @@ const choChotGiup=r=>r&&!r.huy&&!r.ngungSX&&trangThaiSXCua(r)==='RECORDED';
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-chotgiup]'); if(!b)return; e.stopPropagation();
   const ds=(b.dataset.chotgiup==='*'?dsLoLoc():[nk.find(x=>x.id===b.dataset.chotgiup)]).filter(choChotGiup);
   if(!ds.length){bao('Không còn lô nào chờ chốt');return}
-  if(ds.length===1&&b.dataset.chotgiup!=='*'){const r=ds[0];
+  /* S131 (khách: "nếu tôi nhấn chốt mà số lot này đang thiếu hoá đơn nguyên liệu hay hoá đơn hương thì sao?"): chốt chỉ xác nhận số kg đã làm,
+     không khoá, HĐ vẫn điền sau được. Nhưng không để chốt "lướt" qua lô thiếu HĐ: 1 lô → báo rõ thiếu HĐ gì; chốt hàng loạt → bỏ qua lô thiếu HĐ. */
+  const thieuHD=r=>hdCuaMe(r).filter(d=>!d.soHD).map(d=>d.ten);
+  if(ds.length===1&&b.dataset.chotgiup!=='*'){const r=ds[0], th=thieuHD(r);
+    if(th.length&&!await hoi('Lô này còn thiếu hoá đơn',`Lô <b>${esc(lotDep(r.lot||''))}</b> chưa có số hoá đơn của: <b>${th.map(esc).join(', ')}</b>.<br><small>Chốt chỉ xác nhận số kg đã làm, không làm hoá đơn thành đủ. Lô vẫn báo "thiếu HĐ" cho tới khi bạn điền số HĐ (điền sau vẫn được).</small>`,{nutOK:'Vẫn chốt',nutHuy:'Để điền HĐ trước'}))return;
     const v=await hoi('Chốt giúp lô '+lotDep(r.lot||''),`Nhân viên chưa chốt thực tế lô này. Số kg <b>thực tế</b> đã làm là bao nhiêu?<br><small>Kế hoạch: <b>${fmtSo(num(r.sl))} kg</b> · ${esc(r.sp||'')} · ${esc(r.huong||'')}</small>`,
       {nhap:true,goiY:'VD: '+num(r.sl),giaTri:String(num(r.sl)),nutOK:'Chốt lô này'});
     if(v===null||!String(v).trim())return; const kg=num(v); if(!(kg>=0)){bao('Số kg phải từ 0 trở lên');return}
     bcChotGiup(r,kg)}
-  else{if(!await hoi('Chốt giúp '+ds.length+' lô',`Chốt thực tế <b>${ds.length} lô</b> đang "Chờ chốt" trong danh sách đang lọc, lấy <b>số kg thực tế = kế hoạch</b> của từng lô (tổng ${fmtSo(ds.reduce((a,r)=>a+num(r.sl),0))} kg).<br><small>Lô nào làm khác kế hoạch: mở thẻ lô, bấm "Chốt giúp" và ghi đúng số kg.</small>`,{nutOK:'Chốt '+ds.length+' lô'}))return;
+  else{const bo=ds.filter(r=>thieuHD(r).length); if(bo.length===ds.length){await hoi('Chưa chốt được lô nào',`Cả <b>${ds.length} lô</b> chờ chốt đều còn thiếu số hoá đơn (nguyên liệu hoặc hương). Điền số HĐ trước, hoặc mở từng lô và chốt riêng nếu vẫn muốn chốt.`,{nutOK:'Đã hiểu',motNut:1});return}
+    const boHTML=bo.length?`<br><small style="color:var(--do,#b91c1c)">Bỏ qua <b>${bo.length} lô thiếu hoá đơn</b>: ${bo.slice(0,6).map(r=>esc(lotDep(r.lot||''))+' ('+thieuHD(r).map(esc).join(', ')+')').join('; ')}${bo.length>6?'…':''}. Điền HĐ rồi chốt sau, hoặc chốt riêng trong thẻ lô.</small>`:''; ds.splice(0,ds.length,...ds.filter(r=>!bo.includes(r)));
+    if(!await hoi('Chốt giúp '+ds.length+' lô',`Chốt thực tế <b>${ds.length} lô</b> đang "Chờ chốt" trong danh sách đang lọc, lấy <b>số kg thực tế = kế hoạch</b> của từng lô (tổng ${fmtSo(ds.reduce((a,r)=>a+num(r.sl),0))} kg).<br><small>Lô nào làm khác kế hoạch: mở thẻ lô, bấm "Chốt giúp" và ghi đúng số kg.</small>${boHTML}`,{nutOK:'Chốt '+ds.length+' lô'}))return;
     ds.forEach(r=>bcChotGiup(r,num(r.sl)))}
   bcNgay.sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))); luuNgay(); ve(); bao('✔ Đã chốt giúp '+ds.length+' lô'); bcGuiChotGiup()},true);
 

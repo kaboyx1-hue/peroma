@@ -4001,7 +4001,7 @@ const dp=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const bc=bcNgay.find(x=>x.recordId==='DP-01'); kq.chot=!!bc&&bc.kgThucTe===13950&&/Admin/.test(bc.nv)&&trangThaiSXCua(a1)==='COMPLETED'&&!!bc.choGui;
   kq.nhieu=document.querySelector('[data-chotgiup="*"]')!==null||true; dsLoTim='SP __DP__'; window.hoi=async()=>true;
   const nb=document.createElement('button'); nb.dataset.chotgiup='*'; document.body.append(nb); nb.click(); await cho(80); nb.remove();
-  kq.nhieu=[a2,b1,b2,c0].every(r=>trangThaiSXCua(r)==='COMPLETED')&&bcNgay.find(x=>x.recordId==='DP-02').kgThucTe===14000;
+  kq.nhieu=[a2,b1].every(r=>trangThaiSXCua(r)==='COMPLETED')&&[b2,c0].every(r=>trangThaiSXCua(r)==='RECORDED')&&/* S131: lô thiếu HĐ bị bỏ qua khi chốt hàng loạt */bcNgay.find(x=>x.recordId==='DP-02').kgThucTe===14000;
   window.hoi=th; dsLoTim=''; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); bcNgay=g.bc; luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('DP: nguyên liệu ghép mẻ ↔ lần mua theo SỐ KG (cũ trước mới sau, theo ngày trên hoá đơn) — nhập hoá đơn muộn vẫn tự gán đúng 28 tấn đầu → HĐ 1, 28 tấn sau → HĐ 2', dp.no&&dp.ghep, JSON.stringify(dp));
@@ -4299,6 +4299,16 @@ const eq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const i=sp.indexOf(p); w.querySelector('[data-mxdm="'+i+'"]').parentElement.querySelector('input').value='60'; document.querySelector('[data-mxdm="'+i+'"]').click(); await cho(40); kq.dm=p.ml===60; w.remove();
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); meDaTru=JSON.parse(g.md); trangThaiMe=JSON.parse(g.tt); luuNgay(); chuyenTab('tq'); return kq });
 ok('EQ: Kho hương — đã dùng cho mặt hàng nào + tỉ lệ g/kg so định mức; sửa gam từng lô (chỉnh tồn, giữ gốc, đồng bộ) và sửa định mức tại chỗ', Object.values(eq).every(Boolean), JSON.stringify(eq));
+const er=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),bc:bcNgay.slice(),hcu:window.hdCuaMe}, hoiCu=window.hoi; let hoiN=[];
+  const me=id=>({id,sp:'SP __ER__',huong:'H',lot:'79'+id.slice(-2)+'00000',sl:100,soBao:100,quyCach:'1 kg',mlDung:10,ngaysx:'2026-11-05',ts:'2026-11-05T03:00:00.000Z',nlLucSX:[]});
+  nk=[...nk,me('ER-01'),me('ER-02')]; hdCuaMe=r=>r.id==='ER-02'?[{ten:'Hương X',soHD:''}]:[{ten:'NL',soHD:'9'}];
+  const bam=id=>{const x=document.createElement('button'); x.dataset.chotgiup=id; document.body.append(x); x.click(); x.remove()};
+  window.hoi=async(t,h,o)=>{hoiN.push(t+'|'+h); return false}; bam('ER-02'); await cho(40); kq.motHoi=/thiếu hoá đơn/.test(hoiN[0]||'')&&/Hương X/.test(hoiN[0])&&!bcNgay.some(b=>b.recordId==='ER-02');
+  hoiN=[]; window.hoi=async(t,h)=>{hoiN.push(t+'|'+h); return /Chốt giúp/.test(t)?true:false};
+  const loc=window.dsLoLoc; dsLoLoc=()=>nk.filter(r=>/^ER-/.test(r.id)); bam('*'); await cho(40); dsLoLoc=loc;
+  kq.loat=bcNgay.some(b=>b.recordId==='ER-01')&&!bcNgay.some(b=>b.recordId==='ER-02')&&/Bỏ qua <b>1 lô thiếu hoá đơn/.test(hoiN.join(' '));
+  window.hoi=hoiCu; hdCuaMe=g.hcu; nk=g.nk; bcNgay.splice(0,bcNgay.length,...g.bc); luuNgay(); return kq });
+ok('ER: chốt giúp lô thiếu HĐ — 1 lô báo rõ thiếu HĐ gì (huỷ thì không chốt); chốt hàng loạt bỏ qua lô thiếu HĐ', Object.values(er).every(Boolean), JSON.stringify(er));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
