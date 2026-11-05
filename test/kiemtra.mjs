@@ -4293,10 +4293,10 @@ const eq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('EQ-1','EQ-2');
   nk=[...nk,{id:'EQ-1',sp:p.ten,huong:H,lot:'7990000001',sl:4500,soBao:4500,quyCach:'1 kg',mlDung:2250,ngaysx:'2026-10-16',ts:'2026-10-16T03:00:00.000Z',nlLucSX:[],giaHuongTheoGLucSX:440},{id:'EQ-2',sp:p.ten,huong:H,lot:'7990000002',sl:4500,soBao:4500,quyCach:'1 kg',mlDung:2250,ngaysx:'2026-10-29',ts:'2026-10-29T03:00:00.000Z',nlLucSX:[],giaHuongTheoGLucSX:440}];
   const v=veMatXich('h',H); kq.bang=/Đã dùng cho sản phẩm nào/.test(v)&&/0,5 g\/kg/.test(v)&&/đúng/.test(v);
-  const w=document.createElement('div'); w.innerHTML=v; document.body.append(w); $('mxG-EQ-2').value='2700'; document.querySelector('[data-mxg="EQ-2"]').click(); await cho(60);
+  const w=document.createElement('div'); w.innerHTML=v; document.body.append(w); w.querySelector('[data-mxg="EQ-2"]').parentElement.querySelector('input').value='2700'; document.querySelector('[data-mxg="EQ-2"]').click(); await cho(60);
   const r=nk.find(x=>x.id==='EQ-2'); kq.luu=r.mlDung===2700&&r.mlGoc===2250&&Math.abs(nguonHuong[H][0].daDungKg-4.95)<1e-6&&r.chiPhiHuongLucSX===1188000&&trangThaiMe['EQ-2'].mlDung===2700;
   w.innerHTML=veMatXich('h',H); kq.lech=/\+20%/.test(w.innerHTML);
-  const i=sp.indexOf(p); $('mxMl'+i).value='60'; document.querySelector('[data-mxdm="'+i+'"]').click(); await cho(40); kq.dm=p.ml===60; w.remove();
+  const i=sp.indexOf(p); w.querySelector('[data-mxdm="'+i+'"]').parentElement.querySelector('input').value='60'; document.querySelector('[data-mxdm="'+i+'"]').click(); await cho(40); kq.dm=p.ml===60; w.remove();
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); meDaTru=JSON.parse(g.md); trangThaiMe=JSON.parse(g.tt); luuNgay(); chuyenTab('tq'); return kq });
 ok('EQ: Kho hương — đã dùng cho mặt hàng nào + tỉ lệ g/kg so định mức; sửa gam từng lô (chỉnh tồn, giữ gốc, đồng bộ) và sửa định mức tại chỗ', Object.values(eq).every(Boolean), JSON.stringify(eq));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
