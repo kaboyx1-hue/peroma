@@ -1932,6 +1932,8 @@ html.hv-tat #huyHieu{transition:none}
 .bsl-mau{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:6px}.bsl-mau span{display:inline-flex;align-items:center;gap:6px;font-weight:600}
 .bsl-mau span::before{content:'';width:14px;height:14px;border-radius:4px;background:var(--mc)}.bsl-mau .m-huong{--mc:#CFE3F7}.bsl-mau .m-nl{--mc:#F7E2B5}.bsl-mau .m-do{--mc:#F7C9C0}.bsl-mau .m-luc{--mc:#C7E9D1}
 /* S91 chọn giá chưa / đã gồm VAT trong khung khai lần mua */
+.nf-nsx{margin:8px 0;border:1px dashed var(--line2);border-radius:8px;padding:6px 8px}.nf-nsx summary{cursor:pointer;font-weight:700;font-size:13px}.nf-nsx summary small{font-weight:500;color:var(--tx2)}.nf-nsx .nf-hd{grid-template-columns:1fr 1fr;margin-top:6px}.nf-nsx .nsx-dai{grid-column:1/-1} /* S132 */
+.tem-nsx{border:1.5px solid var(--line2);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--card)}.tem-nsx-t{font-weight:700;margin-bottom:6px}.tem-nsx-t small{display:block;font-weight:500;color:var(--tx2)}.tem-nsx .nf-hd{grid-template-columns:1fr 1fr 1fr}.tem-nsx .nsx-dai{grid-column:1/-1}
 .nf-cach{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--tx2)}
 .nf-cach button{border:1.5px solid var(--line2);background:var(--card);color:var(--tx2);border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;cursor:pointer;line-height:1.2}
 .nf-cach button small{display:block;font-weight:500;font-size:10.5px;opacity:.8}.nf-cach button.on{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -1994,9 +1996,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 05/11/2026-S131</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 07/11/2026-S132</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 05/11/2026-S131</div>
+      <div class="verFoot">BẢN 07/11/2026-S132</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2840,7 +2842,7 @@ function apTCCSKhoa(i){
 /* Đồng bộ âm thầm lúc khởi động — mặt hàng đã khoá luôn khớp TCCS_DATA hiện có trong code,
    không chờ admin bấm nút (vì không còn chỗ nào cho admin tự gõ để mà "giữ" nữa). */
 /* S18: phần chung cuối tem (công ty, cảnh báo, tiêu đề) không thuộc nội dung TCCS — áp/khoá TCCS phải giữ nguyên */
-const giuKhoiCty=t=>{const o={};TEM_KHOI_CTY.forEach(k=>{if(t&&typeof t[k]==='string')o[k]=t[k]});return o};
+const giuKhoiCty=t=>{const o={};TEM_KHOI_CTY.forEach(k=>{if(t&&typeof t[k]==='string')o[k]=t[k]});if(t&&t.sangChiet)o.sangChiet=1;return o}; // S132: nạp TCCS không làm mất kiểu Sang chiết
 function dongBoTCCSKhoaLucNap(){
   sp.forEach(p=>{const ma=hai(p.maSP);
     // S14: mặt hàng chủ đã MỞ KHOÁ để sửa tay (p.temMoKhoa) thì KHÔNG ghi đè — nếu không, mỗi lần mở
@@ -3937,6 +3939,16 @@ function nlLech(p){
   const lech=Math.round((tong-chuan)*1000)/1000;
   return {tong,chuan,dat:Math.abs(lech)<=0.001,lech};
 }
+/* S132 (09/11/2026, khách: "gỗ nén hoặc các sản phẩm đưa vào danh mục hàng đóng gói lại, mục Định mức này không nên tồn tại, chủ yếu là biết
+   quy cách đóng"): hàng 📦 Đóng gói lại / 🧴 Sang chiết chỉ chọn 1 HÀNG GỐC (giữ đúng dạng congThucNL 1 dòng = mẻ chuẩn, để số lô, trừ kho,
+   nhà cung cấp, tem vẫn chạy như cũ); ẩn mẻ chuẩn / định lượng hương / ghi chú / bảng hàm lượng. Công thức cũ có ≥2 nguyên liệu thì vẫn hiện bảng cũ. */
+function veHangGoc(p,i){
+  const x=(p.congThucNL||[]).find(y=>y&&y.ten)||{}, ds=[...nlDM]; if(x.ten&&!ds.includes(x.ten))ds.push(x.ten);
+  const ng=x.ten?nguonHangDG(p).find(y=>y.ten===x.ten):null;
+  return `<div class="fld${x.ten?'':' need'}"><label>Hàng gốc đem về đóng gói lại</label>
+    <select data-hanggoc="${i}" style="width:100%;max-width:440px;padding:9px 10px;border-radius:10px;border:1.5px solid var(--line2);font:inherit;background:var(--card);color:var(--tx)"><option value="">— chọn hàng gốc —</option>${ds.map(t=>`<option value="${esc(t)}"${t===x.ten?' selected':''}>${esc(t)}</option>`).join('')}</select>
+    <small class="khoa-ghi">${!x.ten?(nlDM.length?'Chưa có trong danh sách thì thêm ở Kho nguyên liệu trước.':'Chưa có nguyên liệu nào trong Danh mục — <button type="button" class="lnk" data-gonl="1">sang tab Danh mục</button> để thêm.'):ng&&ng.ncc?'Nhà cung cấp đang dùng: <b>'+esc(ng.ncc)+'</b> · thông tin nhà sản xuất in trên tem sửa ở mục Hồ sơ tem.':`Chưa khai nhà cung cấp — <button type="button" class="lnk" data-tqnguon="nl|||${esc(x.ten)}">khai lần mua →</button>`} Quy cách đóng xem ở mục Đóng gói.</small></div>`;
+}
 function veNL(p,i){
   /* S12 (10/09/2026) — khách: "không có mục khai báo ra từng loại nguyên vật liệu cấu thành 1 thành
      phẩm". Trước đây Danh mục nguyên liệu còn trống thì khối này chỉ báo "phải thêm ở Danh mục trước"
@@ -4057,9 +4069,20 @@ function veTemBlock(p,i){
      phụ" cho mặt hàng mà bao bì đã có đủ thông tin (VD Citycat) — khi đó số lô rút gọn 8 số, bỏ mã quy cách. */
   const caiDat=`<div class="tf"><label>Tên in trên tem</label><input data-tentem="${i}" value="${esc(p.tenTem||'')}" placeholder="${esc(p.ten)}">
     <div class="hint">Bạn tự đặt, sửa lúc nào cũng được. Để trống thì tem in tên mặt hàng: <b>${esc(p.ten)}</b>.</div></div>
-    <div class="hint" style="margin:6px 0 10px">${khongTem(p)?'<b>📦 Đóng gói lại</b> — không in tem phụ, số lô rút gọn 7 số (mã SP + mã hương + tháng + số cuối của năm).':'<b>🏭 Sản xuất</b> — in tem phụ, số lô 10 số.'} Đổi ở <b>Kiểu mặt hàng</b> đầu trang.</div>`;
+    <div class="hint" style="margin:6px 0 10px">${khongTem(p)?'<b>📦 Đóng gói lại</b> — không in tem phụ, số lô rút gọn 7 số (mã SP + mã hương + tháng + số cuối của năm).':laSangChiet(p)?'<b>🧴 Sang chiết</b> — tem phụ in thêm Nhà sản xuất, xuất xứ, ngày đóng gói (lấy từ lần mua nguyên liệu chính'+(nsxCua(p)?': <b>'+esc(nsxCua(p).nl)+'</b>':'')+').':'<b>🏭 Sản xuất</b> — in tem phụ.'} Đổi ở <b>Kiểu mặt hàng</b> đầu trang.</div>`;
   return caiDat+`<button class="ncc-hd" data-tratem="${i}"><span class="ncc-ten">${dong?'▸ Xem / sửa hồ sơ tem':'▾ Thu gọn hồ sơ tem'}</span><span class="ncc-sum ${th.length?'tk-no':'tk-ok'}">${tomTat}</span></button>`
     +(dong?'':veTem(p,i));
+}
+/* S132 (09/11/2026, khách: "phần hồ sơ tem cần hỗ trợ thêm thông tin cty cung cấp"): hàng đóng gói lại / sang chiết — sửa thông tin nhà sản xuất
+   NGAY Ở HỒ SƠ TEM. Không lưu riêng theo mặt hàng: ghi vào lần mua gần nhất của nhà cung cấp đang dùng (cùng chỗ với ô ở Kho nguyên liệu),
+   để 1 nguồn dữ liệu duy nhất — mặt hàng khác dùng cùng hàng gốc/NCC cũng thấy, máy nhân viên nhận theo cấu hình như tem. */
+function veTemNSX(p,i){
+  const ns=nsxCua(p);
+  if(!ns||!ns.ncc)return `<div class="temstat no"><b>Nhà cung cấp / nhà sản xuất:</b> ${ns?`hàng gốc <b>${esc(ns.nl)}</b> chưa có lần mua nào — <button type="button" class="lnk" data-tqnguon="nl|||${esc(ns.nl)}">khai nhà cung cấp →</button>`:'chưa chọn hàng gốc (mục Hàng gốc ở trên).'}</div>`;
+  const o=(k,nhan,v,ph,dai)=>`<label class="${dai?'nsx-dai':''}"><span>${nhan}</span><input class="ninp" data-temnsx="${i}|${k}" value="${esc(v)}" placeholder="${ph}"></label>`;
+  return `<div class="tem-nsx"><div class="tem-nsx-t">🏭 Nhà cung cấp / nhà sản xuất <small>in trên tem${laSangChiet(p)?'':' (chỉ in khi chọn kiểu 🧴 Sang chiết)'} · hàng gốc ${esc(ns.nl)} · NCC đang dùng <b>${esc(ns.ncc)}</b></small></div>
+    <div class="nf-hd">${o('nsxTen','Tên công ty sản xuất',ns.ten===ns.ncc?'':ns.ten,'trống = '+ns.ncc,1)}${o('nsxNuoc','Nước sản xuất (xuất xứ)',ns.nuoc,'VD Việt Nam')}${o('nsxHSD','Hạn dùng trên bao gốc',ns.hsd,'VD 10/2029 (nếu có)')}${o('nsxDiaChi','Địa chỉ công ty sản xuất',ns.diaChi,'số nhà, đường, phường/xã, tỉnh/thành, nước',1)}</div>
+    ${ns.diaChi?'':'<div class="temstat no" style="margin-top:6px">Chưa có địa chỉ nhà sản xuất — tem sẽ in chữ báo thiếu.</div>'}</div>`;
 }
 function veTem(p,i){
   const ma0=hai(p.maSP);
@@ -4071,6 +4094,7 @@ function veTem(p,i){
   o+=th.length
     ?`<div class="temstat no">Còn <b>${th.length}</b> ô chưa điền: ${TEM_O.filter(x=>x[3]&&!String(t[x[0]]||'').trim()).map(x=>`<button type="button" class="lnk" data-temfocus="${x[0]}" data-i="${i}">${esc(x[1])}</button>`).join(' · ')}.<br>Chưa đủ thì <b>không in tem được</b>. Bấm tên ô để tới đúng ô cần điền.</div>`
     :`<div class="temstat ok">Hồ sơ tem đã đủ. In được tem cho mọi lô của mặt hàng này.</div>`;
+  if(laDongGoi(p))o+=veTemNSX(p,i); // S132
   if(TCCS_KHONG_CO.includes(p.ten)){
     o+=`<div class="temstat no">⛔ ${esc(p.ten)} KHÔNG CÓ hồ sơ TCCS — không được lấy dữ liệu tự động, không được in tem cho tới khi có TCCS.</div>`;
   }else if(TCCS_CHUA_RO.includes(p.ten)){
@@ -4169,8 +4193,8 @@ const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.
 const dongTem=s=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>esc(x).replace(/ {2,}/g,m=>'&nbsp;'.repeat(m.length)));
 // 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — luôn in đúng TEM_MD,
 // không còn lấy theo từng mặt hàng (mọi tem cùng một công ty chịu trách nhiệm, không có lý do khác nhau).
-function veKhoiCty(){
-  const ds=[esc(TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(TEM_MD.ctyDiaChi)];
+function veKhoiCty(sc){ // S132: sc = tem hàng sang chiết → đổi vai trò + "ĐỊA CHỈ ĐÓNG GÓI"
+  const ds=[esc(sc?TEM_SC_VAITRO:TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(sc?TEM_MD.ctyDiaChi.replace('ĐỊA CHỈ SẢN XUẤT','ĐỊA CHỈ ĐÓNG GÓI'):TEM_MD.ctyDiaChi)];
   return '<div class="kh">'+ds.join('<br>')+'</div>';
 }
 
@@ -4181,12 +4205,33 @@ const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phầ
   ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
   ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],
   ['canhBao','Dòng cảnh báo',1]]; // 16/09/2026: bỏ 3 ô khối công ty khỏi đây — đã fix cứng, xem veKhoiCty()
+/* S132/R51 07/11/2026 — TEM HÀNG SANG CHIẾT (khách: "1 số sản phẩm chỉ có sang chiết, tem phụ phải bao hàm cả thông tin nhà cung cấp sản phẩm theo đúng luật").
+   Mặt hàng chọn Kiểu 🧴 Sang chiết (cờ hstem.sangChiet — hstem đồng bộ NGUYÊN KHỐI nên không phải sửa Code.gs) in tem khác tem sản xuất:
+   thêm dòng Nhà sản xuất (tên + địa chỉ), Xuất xứ theo nước sản xuất, "Ngày đóng gói" thay "Ngày sản xuất", hạn dùng theo bao gốc,
+   bỏ Độ ẩm, khối công ty đổi vai trò + "ĐỊA CHỈ ĐÓNG GÓI". Thông tin nhà sản xuất khai ở LẦN MUA nguyên liệu (Kho nguyên liệu, ô nsx*).
+   Tem lấy nguyên liệu CHÍNH (kg lớn nhất trong định mức) → nhà cung cấp đang dùng → lần mua gần nhất của NCC đó có khai thông tin NSX
+   (khai 1 lần, các lần mua sau cùng NCC tự dùng lại). Chưa khai thì tem hiện chữ báo thiếu ngay trên bản xem trước.
+   ponytail: theo NCC đang dùng LÚC IN, không theo đúng lần mua của lô; cần chính xác từng lô thì ghép theo dongMuaCuaMe (chỉ Admin có).
+   HAI APP PHẢI GIỐNG HỆT NHAU. */
+const laSangChiet=p=>!!(p&&p.hstem&&p.hstem.sangChiet)&&!khongTem(p);
+const TEM_SC_VAITRO='Sang chiết, đóng gói, phân phối và chịu trách nhiệm về hàng hóa';
+function nsxCua(p){
+  const ct=((p&&p.congThucNL)||[]).filter(x=>x&&x.ten).sort((a,b)=>num(b.kg)-num(a.kg))[0]; if(!ct)return null;
+  const ds=(nguonNguyenLieu&&nguonNguyenLieu[ct.ten])||[], ncc=(nlDangDung&&nlDangDung[ct.ten])||(ds.length?ds[ds.length-1].ncc:'')||'';
+  const cung=ds.filter(e=>e&&e.ncc===ncc), e=[...cung].reverse().find(e=>e.nsxTen||e.nsxDiaChi||e.nsxNuoc)||{};
+  return {nl:ct.ten,ncc,ten:String(e.nsxTen||ncc||'').trim(),diaChi:String(e.nsxDiaChi||'').trim(),nuoc:String(e.nsxNuoc||'').trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||'').trim()};
+}
+function temSCDongNSX(ns){
+  const thieu=s=>'<b>[CHƯA KHAI '+s+' — vào Kho nguyên liệu, sửa lần mua]</b>';
+  return '<tr><td class="k">Nhà sản xuất</td><td>'+(ns&&ns.ten?esc(ns.ten):thieu('NHÀ SẢN XUẤT'))+'<br>'+(ns&&ns.diaChi?esc(ns.diaChi):thieu('ĐỊA CHỈ'))+'</td></tr>';
+}
 function temHTML(r,p){
   const t=p.hstem||temMoi();
   const kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
-  const hd=hanDung(r.ngaysx,t.hsdNam);
+  const hd=hanDung(r.ngaysx,t.hsdNam), sc=laSangChiet(p), ns=sc?nsxCua(p):null;
+  const td=sc&&!(t&&typeof t.tieuDe==='string')?'NHÃN PHỤ':temGT(t,'tieuDe');
   return `<div class="tem">
-    ${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
+    ${td.trim()?`<div class="t1">${esc(td)}</div>`:''}
     <div class="t2">${esc(String((p&&p.tenTem)||'').trim()||(p&&p.ten)||r.sp)}</div><!-- 12/10/2026: tên in trên tem = ô "Tên in trên tem" khách TỰ GÕ (p.tenTem, không khoá theo TCCS); trống thì in tên Danh mục như từ 10/09 -->
     ${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>
@@ -4194,17 +4239,17 @@ function temHTML(r,p){
       ${kv('Hương liệu',r.huong)}
       ${kv('Khối lượng tịnh',r.quyCach)}
       ${kv('Công dụng',t.congDung)}
-      ${kv('Độ ẩm',t.doAm||'dưới 10%')}
+      ${sc?'':kv('Độ ẩm',t.doAm||'dưới 10%')}
       ${kv('Kích thước hạt',t.kichThuoc)}
       ${kv('Hướng dẫn sử dụng',boHSD(t.hdsd))}
       ${kv('Hướng dẫn bảo quản',boHSD(t.baoQuan))}
-      ${kv('Xuất xứ',t.xuatXu)}
+      ${sc?temSCDongNSX(ns):''}${kv('Xuất xứ',sc&&ns&&ns.nuoc||t.xuatXu)}
       ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}
-      ${kv('Ngày sản xuất',vnNgay(r.ngaysx))}
-      ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
+      ${kv(sc?'Ngày đóng gói':'Ngày sản xuất',vnNgay(r.ngaysx))}
+      ${kv('Hạn sử dụng',sc?(ns&&ns.hsd||(t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất in trên bao gốc`:'')):t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
       ${kv('Số lô',lotDep(r.lot))}
     </table>
-    ${veKhoiCty()}
+    ${veKhoiCty(sc)}
     ${temGT(t,'canhBao').trim()?`<div class="cb"><b>Thông tin, Cảnh báo:</b> ${esc(temGT(t,'canhBao'))}</div>`:''}
   </div>`;
 }
@@ -4772,16 +4817,29 @@ function veCTBang(dsX){
    "phải phân biệt sản phẩm SẢN XUẤT (pha hương/nguyên liệu) với loại CHỈ SÀNG + ĐÓNG GÓI LẠI như Citycat — đóng gói lại cần thông tin nhà cung cấp,
    sản xuất thì không hiện"). Kiểu "Đóng gói lại" = cờ khongTemPhu có sẵn (Code.gs + bản Nhân viên đã hiểu): số lô rút gọn 7 số, không in tem phụ.
    Citycat (mã SP 1x) luôn là đóng gói lại. Cùng 1 loại cát mà có bản pha hương lẫn bản chỉ đóng gói (VD Zaka liti) → tách 2 mặt hàng. */
-const laDongGoi=p=>khongTem(p);
+const laDongGoi=p=>khongTem(p)||laSangChiet(p); // S132: hàng sang chiết cũng là hàng không tự sản xuất (nguồn hàng, lô kiểu Sang chiết)
 function nguonHangDG(p){return (p.congThucNL||[]).filter(x=>x&&x.ten).map(x=>{const ds=nguonNguyenLieu[x.ten]||[],ncc=(nlDangDung&&nlDangDung[x.ten])||(ds.length?ds[ds.length-1].ncc:'');return {ten:x.ten,ncc}})}
+/* S132: ô "Nhà sản xuất" ở khung khai/sửa lần mua NGUYÊN LIỆU — dùng in tem hàng 🧴 Sang chiết. Thêm lần mua mới thì điền sẵn
+   theo lần mua gần nhất đã khai (NSX thường không đổi); để trống tên = dùng tên nhà cung cấp. */
+function nfNSXHTML(ds,e0){
+  const g=e0||[...(ds||[])].reverse().find(e=>e&&(e.nsxTen||e.nsxDiaChi||e.nsxNuoc))||{}, v=k=>esc(g[k]||'');
+  const co=!!(g.nsxTen||g.nsxDiaChi||g.nsxNuoc||g.nsxHSD);
+  return `<details class="nf-nsx"${co?' open':''}><summary>🧴 Thông tin nhà sản xuất <small>(cho tem hàng sang chiết · hàng tự sản xuất không cần)</small></summary>
+    <div class="nf-hd"><label class="nsx-dai"><span>Tên nhà sản xuất</span><input class="ninp" data-nf="nsxTen" type="text" placeholder="trống = tên nhà cung cấp" value="${v('nsxTen')}"></label>
+      <label><span>Nước sản xuất (xuất xứ)</span><input class="ninp" data-nf="nsxNuoc" type="text" placeholder="VD Việt Nam, Trung Quốc" value="${v('nsxNuoc')}"></label>
+      <label><span>Hạn dùng trên bao gốc</span><input class="ninp" data-nf="nsxHSD" type="text" placeholder="VD 10/2029 (nếu có)" value="${esc(e0&&e0.nsxHSD||'')}"></label>
+      <label class="nsx-dai"><span>Địa chỉ nhà sản xuất</span><input class="ninp" data-nf="nsxDiaChi" type="text" placeholder="số nhà, đường, phường/xã, tỉnh/thành, nước" value="${v('nsxDiaChi')}"></label></div>
+  </details>`;
+}
 function veDauMH(p,i){
-  const dg=laDongGoi(p), city=laCitycat(p), tt=p.tt||'ok';
+  const dg=khongTem(p), sc=laSangChiet(p), city=laCitycat(p), tt=p.tt||'ok';
   let o=`<div class="mh-dau2"><div class="mh-kieu" role="group" aria-label="Kiểu mặt hàng">
-      <button type="button" class="${dg?'':'on'}" data-kieu="${i}|||sx"${city?' disabled title="Citycat luôn là hàng đóng gói lại"':''}><b>🏭 Sản xuất</b><small>pha hương / nguyên liệu · lô 10 số · in tem phụ</small></button>
+      <button type="button" class="${dg||sc?'':'on'}" data-kieu="${i}|||sx"${city?' disabled title="Citycat luôn là hàng đóng gói lại"':''}><b>🏭 Sản xuất</b><small>pha hương / nguyên liệu · in tem phụ</small></button>
+      <button type="button" class="${sc?'on':''}" data-kieu="${i}|||sc"${city?' disabled title="Citycat luôn là hàng đóng gói lại"':''}><b>🧴 Sang chiết</b><small>mua về chiết / đóng gói lại · in tem phụ có nhà sản xuất</small></button>
       <button type="button" class="${dg?'on':''}" data-kieu="${i}|||dg"><b>📦 Đóng gói lại</b><small>sàng + đóng gói · lô 7 số · bao in sẵn, không tem phụ</small></button></div>
     <label class="mh-tt mh-tt-${tt}"><span>Trạng thái</span><select data-ttsel="${i}" aria-label="Trạng thái sản xuất">${Object.entries(TT).map(([k2,v])=>`<option value="${k2}"${tt===k2?' selected':''}>${k2==='ok'?'🟢':k2==='tam'?'🟡':'🔴'} ${esc(v.n)}</option>`).join('')}</select></label>
     ${tt!=='ok'?`<input class="mh-tt-ly" data-f="ttLyDo" data-i="${i}" value="${esc(p.ttLyDo||'')}" placeholder="Lý do ${tt==='tam'?'tạm ngưng':'đình chỉ'}">`:''}</div>`;
-  if(dg){const ng=nguonHangDG(p);
+  if(dg||sc){const ng=nguonHangDG(p);
     o+=`<div class="mh-ng"><b>Nguồn hàng đóng gói</b>${ng.length?ng.map(x=>`<span class="mh-ng-o">${esc(x.ten)} · ${x.ncc?'NCC <b>'+esc(x.ncc)+'</b>':`<button type="button" class="lnk" data-tqnguon="nl|||${esc(x.ten)}">khai nhà cung cấp →</button>`}</span>`).join(''):'<span class="mh-ng-o">Chưa có — thêm hàng đóng gói ở khối "Định mức &amp; nguyên liệu" (VD Cát bentonite, nhà cung cấp khai ở Kho)</span>'}${city?'<small>Citycat: luôn đóng gói lại.</small>':''}</div>`}
   return o;
 }
@@ -4810,7 +4868,7 @@ function veCT(){
     const gt0=gtTomTat(p), gtOk=!!(gt0&&gt0.g.kgBao&&!gt0.g.thieu.length);
     const gtChip=!gt0||!gt0.g.kgBao?ctChip('warn','Chưa đủ'):ctChip(gtOk?'ok':'warn',fmt(Math.round(gt0.g.tong))+' đ/gói'+(gtOk?'':' · thiếu giá'));
     const neo=[['h','Hương liệu',hs.length?hs.join(' + '):'Chưa có hương',!hs.length?'bad':chuaLuu?'warn':'ok'],
-      ['dm','Định mức & nguyên liệu',!coNL?'Chưa khai nguyên liệu':k.nl.dat?'Khớp mẻ chuẩn':'Lệch mẻ chuẩn',!coNL?'':k.nl.dat?'ok':'bad'],
+      laDongGoi(p)&&(p.congThucNL||[]).filter(x=>x&&x.ten).length<=1?['dm','Hàng gốc',coNL?(p.congThucNL.find(x=>x&&x.ten)||{}).ten:'Chưa chọn hàng gốc',coNL?'ok':'bad']:['dm','Định mức & nguyên liệu',!coNL?'Chưa khai nguyên liệu':k.nl.dat?'Khớp mẻ chuẩn':'Lệch mẻ chuẩn',!coNL?'':k.nl.dat?'ok':'bad'],
       ['sx','Sản xuất & đóng gói',(TT[tk]||TT.ok).n+(dq?' · '+dq:''),tk==='dinh'?'bad':tk==='tam'?'warn':'ok'],
       ['gt','Giá thành',!gt0?'Chưa có quy cách':!gt0.g.kgBao?'Quy cách chưa có kg':fmt(Math.round(gt0.g.tong))+' đ/gói '+gt0.q+(gtOk?'':' · thiếu giá'),gtOk?'ok':'warn'],
       ['tem','Hồ sơ tem',k.th.length?'Còn thiếu '+k.th.length+' ô':'Đã đủ, in tem được',k.th.length?'bad':'ok']];
@@ -4835,7 +4893,7 @@ function veCT(){
             <div class="fld${hs.length?'':' need'}"><label>Hương đang sử dụng</label>${veHuong(p,i)}</div>
             ${hs.some(h=>!isUnscented(h))?`<div class="fld"><label>Nguồn hương liệu đang dùng (riêng mặt hàng này)</label>${veNguonHuongMatHang(p,i)}</div>`:''}
           </section>
-          <section class="ctsec rong" data-sec="dm" data-si="${i}">${dau('dm','Định mức & nguyên liệu','Mẻ chuẩn, định lượng hương và thành phần nguyên liệu',nlChip)}
+          <section class="ctsec rong" data-sec="dm" data-si="${i}">${laDongGoi(p)&&(p.congThucNL||[]).filter(x=>x&&x.ten).length<=1?dau('dm','Hàng gốc','Hàng mua về để đóng gói lại — không pha, không định mức',coNL?ctChip('ok','Đã chọn'):ctChip('bad','Chưa chọn'))+veHangGoc(p,i):`${dau('dm','Định mức & nguyên liệu','Mẻ chuẩn, định lượng hương và thành phần nguyên liệu',nlChip)}
             <div class="two">
               ${(p.congThucNL||[]).some(x=>x&&num(x.kg)>0)?`<div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" type="text" value="${esc(fmt(num(p.kg)))}" disabled title="Tự bằng tổng hàm lượng nguyên liệu"><small class="khoa-ghi">${nlLech(p).dat?'Tự bằng tổng hàm lượng nguyên liệu bên dưới — sửa nguyên liệu là mẻ chuẩn đổi theo.':`<b>Đang ghi ${fmt(num(p.kg))} kg ≠ tổng nguyên liệu ${fmt(nlLech(p).tong)} kg.</b> <button type="button" class="lnk" data-meTheoNL="${i}">Dùng ${fmt(nlLech(p).tong)} kg</button>`}</small></div>`
                 :`<div class="fld"><label>Mẻ chuẩn (kg)</label><input class="mn" data-f="kg" data-i="${i}" type="text" inputmode="decimal" value="${p.kg}"></div>`}
@@ -4843,7 +4901,7 @@ function veCT(){
                 :`<div class="fld"><label>Định lượng hương (g)</label><input class="mn" data-f="ml" data-i="${i}" type="text" inputmode="decimal" value="${p.ml}"></div>`}
             </div>
             ${String(p.nguyenlieu||'').trim()?`<div class="fld"><label>Ghi chú nguyên liệu (cũ — đã có bảng Hàm lượng bên dưới, xoá hết chữ là ô này ẩn đi)</label><textarea data-f="nguyenlieu" data-i="${i}" placeholder="Loại hạt, cỡ hạt, nhà cung cấp…">${esc(p.nguyenlieu)}</textarea></div>`:''}
-            <div class="fld${k.nl.dat?'':' need'}"><label>Hàm lượng nguyên liệu (kg / mẻ chuẩn ${fmt(num(p.kg))} kg)</label>${veNL(p,i)}</div>
+            <div class="fld${k.nl.dat?'':' need'}"><label>Hàm lượng nguyên liệu (kg / mẻ chuẩn ${fmt(num(p.kg))} kg)</label>${veNL(p,i)}</div>`}
           </section>
           <section class="ctsec rong" data-sec="sx" data-si="${i}">${dau('sx','Đóng gói & khi pha','Quy cách bán ra, túi cho từng quy cách, phun khử bụi và lưu ý khi pha',ttChip)}
             <div class="ctsx">
@@ -5169,6 +5227,7 @@ function veThemNguonPanel(loai,ten,ix){
       <label><span>Số hoá đơn</span><input class="ninp" data-nf="soHD" type="text" placeholder="VD 0001234" value="${esc(e0&&e0.soHD||'')}"></label>
       <label><span>Số hợp đồng (nếu có)</span><input class="ninp" data-nf="soHopDong" type="text" placeholder="không bắt buộc" value="${esc(e0&&e0.soHopDong||'')}"></label>
     </div>
+    ${loai==='nl'?nfNSXHTML(ds,e0):''}
     <div class="nf-hd nf-3"><label><span>Ngày trên hoá đơn</span><input class="ninp" data-nf="ngay" type="text" placeholder="dd/mm/yyyy" value="${esc(e0?e0.ngay||'':homNay())}"></label><label><span>Số tờ khai (nếu có)</span><input class="ninp" data-nf="soToKhai" type="text" placeholder="hàng nhập khẩu" value="${esc(e0&&e0.soToKhai||'')}"></label></div>
     <div class="nf-hd">
       <label><span>Số kg mua (ghi đúng theo hoá đơn)</span><input class="ninp" data-nf="soKg" type="text" inputmode="decimal" placeholder="VD 5" value="${e0?e0.soKg:''}"></label>
@@ -7615,6 +7674,7 @@ $('viewMA').addEventListener('click',async e=>{
     const soHD=String(gv('soHD')||'').trim(); // 14/10/2026: số hoá đơn đầu vào — chụp vào từng mẻ để đối soát
     const soHopDong=String(gv('soHopDong')||'').trim(); // 17/10/2026: số hợp đồng (nếu có)
     const soToKhai=String(gv('soToKhai')||'').trim(); // S116
+    const nsx=loai==='nl'?{nsxTen:String(gv('nsxTen')||'').trim(),nsxDiaChi:String(gv('nsxDiaChi')||'').trim(),nsxNuoc:String(gv('nsxNuoc')||'').trim(),nsxHSD:String(gv('nsxHSD')||'').trim()}:{}; // S132: thông tin nhà sản xuất cho tem hàng sang chiết
     if(vat!==null&&!(vat>=0&&vat<=100)){bao('Thuế suất VAT từ 0 đến 100 %');return}
     // S107: ngày trên hoá đơn (trước luôn lấy ngày nhập app) — nguyên liệu ghép mẻ theo ngày này
     const nm=String(gv('ngay')||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/), ngayHD=nm?nm[1].padStart(2,'0')+'/'+nm[2].padStart(2,'0')+'/'+nm[3]:String(gv('ngay')||'').trim()?null:homNay();
@@ -7623,7 +7683,7 @@ $('viewMA').addEventListener('click',async e=>{
     nguonM[ten]=nguonM[ten]||[];
     setTimeout(()=>{if(anhH){khopTruHuong(ten,anhH);luuNgay();ve()}}); // S127: chạy sau khi nhánh dưới đã ghi lần mua
     if(ix===undefined){
-      nguonM[ten].push(Object.assign({ncc,gia,soKg,vat,soHD,soHopDong,soToKhai,ngay:ngayHD},loai==='h'?{daDungKg:0}:{ts:new Date().toISOString()}));
+      nguonM[ten].push(Object.assign({ncc,gia,soKg,vat,soHD,soHopDong,soToKhai,ngay:ngayHD},nsx,loai==='h'?{daDungKg:0}:{ts:new Date().toISOString()}));
       dungM[ten]=ncc; // vừa khai/đổi giá coi như đang dùng nguồn này
       const tonS=gv('ton');
       // 27/08/2026-R2: ô "ton" giờ nhập theo KG cho cả hương lẫn nguyên liệu (xem dvTonKho()) —
@@ -7647,7 +7707,7 @@ $('viewMA').addEventListener('click',async e=>{
       const e0=nguonM[ten][ix]; if(!e0){bao('Không tìm thấy dòng này');return}
       const nccCu=e0.ncc;
       if(loai==='h')doiSoKgGiuTon(e0,soKg);
-      nguonM[ten][ix]={...e0,ncc,gia,soKg,vat,soHD,soHopDong,soToKhai,ngay:ngayHD};
+      nguonM[ten][ix]={...e0,ncc,gia,soKg,vat,soHD,soHopDong,soToKhai,ngay:ngayHD,...nsx};
       if(dungM[ten]===nccCu&&nccCu!==ncc)dungM[ten]=ncc; // đổi tên NCC đang dùng thì cập nhật theo
       moThemNguon.delete(loai+':'+ten+':'+ix);
       luuNgay();ve();bao('Đã sửa lại dòng nguồn giá');
@@ -8271,7 +8331,8 @@ document.addEventListener('paste',e=>{if(!document.documentElement.classList.con
 document.addEventListener('click',async e=>{const t=e.target.closest('[data-trubu]'); if(t&&await truBuHuong(t.dataset.trubu))ve()});
 document.addEventListener('change',e=>{const n=e.target.dataset&&e.target.dataset.nhncc; if(n===undefined)return; nhNcc[n]=e.target.value; ve()});
 document.addEventListener('click',e=>{const k=e.target.closest('[data-kieu]'); if(!k||k.disabled)return; const [i,v]=k.dataset.kieu.split('|||'), p=sp[+i]; if(!p)return;
-  p.khongTemPhu=v==='dg'; bumpRecipeVersion(p); luuNgay(); ve(); bao(p.ten+': '+(v==='dg'?'📦 Đóng gói lại — số lô 7 số, không in tem phụ':'🏭 Sản xuất — số lô 10 số, in tem phụ'))});
+  p.khongTemPhu=v==='dg'; p.hstem={...temMoi(),...(p.hstem||{})}; if(v==='sc')p.hstem.sangChiet=1; else delete p.hstem.sangChiet; // S132
+  bumpRecipeVersion(p); luuNgay(); ve(); bao(p.ten+': '+(v==='dg'?'📦 Đóng gói lại — số lô 7 số, không in tem phụ':v==='sc'?'🧴 Sang chiết — in tem phụ có nhà sản xuất (khai ở lần mua nguyên liệu)':'🏭 Sản xuất — in tem phụ'))});
 document.addEventListener('change',async e=>{const t=e.target; if(t.dataset.ttsel===undefined)return; const i=+t.dataset.ttsel, p=sp[i], k=t.value; if(!p||p.tt===k)return;
   if(k==='dinh'&&!await hoi('Đình chỉ sản xuất',`Đình chỉ <b>${esc(p.ten)}</b>?<br>Nhân viên sẽ không ghi được mẻ cho mặt hàng này.`,{nutOK:'Đình chỉ',nguyHiem:true})){ve();return}
   p.tt=k;p.ttNgay=homNay();luu();ve();bao(`${p.ten}: ${TT[k].n}`)});
@@ -8912,6 +8973,13 @@ $('rows').addEventListener('change',async e=>{
     }
     return;
   }
+  if(e.target.dataset.temnsx!==undefined){const [i,k]=e.target.dataset.temnsx.split('|'), p=sp[+i], ns=p&&nsxCua(p); if(!ns||!ns.ncc)return; // S132
+    const ds=nguonNguyenLieu[ns.nl]||[], cung=ds.filter(x=>x&&x.ncc===ns.ncc), e0=cung[cung.length-1]; if(!e0)return;
+    const cu={nsxTen:e0.nsxTen,nsxDiaChi:e0.nsxDiaChi,nsxNuoc:e0.nsxNuoc,nsxHSD:e0.nsxHSD};
+    Object.assign(e0,{nsxTen:ns.ten===ns.ncc?'':ns.ten,nsxDiaChi:ns.diaChi,nsxNuoc:ns.nuoc},{[k]:String(e.target.value||'').trim()});
+    ghiAudit('stock',ns.nl,'SUA_NHA_SAN_XUAT',cu,{ncc:ns.ncc,[k]:e0[k]}); luuNgay();ve();bao('Đã lưu thông tin nhà sản xuất của '+ns.ncc);return}
+  if(e.target.dataset.hanggoc!==undefined){const p=sp[+e.target.dataset.hanggoc]; if(!p)return; const v=e.target.value, kg=num(p.kg)>0?num(p.kg):100; // S132
+    p.congThucNL=v?[{ten:v,kg}]:[]; p.kg=kg; bumpRecipeVersion(p);dongBoThanhPhanTuNL(p);luu();ve();return}
   const nlt=e.target.dataset.nlten;
   if(nlt!==undefined){
     const [i,j]=nlt.split(':').map(Number);

@@ -442,7 +442,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 05/11/2026-R50</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 07/11/2026-R51</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -718,6 +718,8 @@ async function dbKeoCauHinh(){
       if(c.baoBiQC&&typeof c.baoBiQC==='object')baoBiQC=c.baoBiQC;
       if(Array.isArray(c.tuHoSo))tuHoSo=c.tuHoSo;
       if(Array.isArray(c.canhBaoHuong))canhBaoHuong=c.canhBaoHuong;
+      if(c.nguonNguyenLieu&&typeof c.nguonNguyenLieu==='object')nguonNguyenLieu=c.nguonNguyenLieu; // S132/R51
+      if(c.nlDangDung&&typeof c.nlDangDung==='object')nlDangDung=c.nlDangDung;
       // 17/10/2026: Admin sửa tay số liệu mẻ (đầu vào kg…) → máy nhân viên hiện + in tem theo số đã sửa
       if(c.trangThaiMe&&typeof c.trangThaiMe==='object')nk.forEach(r=>{const o=c.trangThaiMe[r.id];if(o&&o.suaLuc)['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX','ngaysx','lot'].forEach(k=>{if(k in o)r[k]=o[k]})});
       if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
@@ -780,6 +782,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   });
 });
 
+let nguonNguyenLieu={},nlDangDung={}; // S132/R51: chỉ để in tem hàng sang chiết (thông tin nhà sản xuất theo lần mua) — Admin đồng bộ xuống qua cấu hình
 let sp=[],kho=[],cp=[],dr=[],maHuong={},maQC={},kgQC={},nvDS=[],nk=[],toi='',napNgay='',baoBi=[],baoBiQC={},tuHoSo=[],lenhSX=[],lenhTienDo=[];
 let canhBaoHuong=[]; // 15/10/2026: Admin gửi qua cấu hình — hương đang dùng vượt tồn thực tế / nợ dữ liệu
 /* 19/09/2026 — "Lệnh sản xuất theo lô": xem chú thích đầy đủ ở bản Admin (bang-tra-huong-lieu.html,
@@ -963,7 +966,7 @@ function tongDaSanXuat(tuISO){
 /* 27/08/2026 (phản hồi lần 3): BỎ "Tiến độ nguyên liệu đầu vào" — xem lý do ở bản Admin (đổi
    sang tồn kho + giá riêng từng nguyên liệu). nlTong/nlNgayKhai/nlGhiChu vẫn giữ trong dữ
    liệu lưu/nạp để không phá máy cũ, chỉ không còn hiển thị. */
-const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,canhBaoHuong});
+const luu=()=>store.set({nk,toi,napNgay,sp,kho,cp,dr,maHuong,maQC,kgQC,nvDS,temCot,temHang,temMau,temKieu,temKho,nlTong,nlNgayKhai,nlGhiChu,bcNgay,auditEvents,xoaMocApDung,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,canhBaoHuong,nguonNguyenLieu,nlDangDung});
 addEventListener('pagehide',()=>luu());
 addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')luu()});
 
@@ -1394,8 +1397,8 @@ const tieuChuanTxt=s=>{s=String(s||'').trim();return !s?'':(/^[A-Za-zĐđ]{2,}/.
 const dongTem=s=>String(s||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>esc(x).replace(/ {2,}/g,m=>'&nbsp;'.repeat(m.length)));
 // 16/09/2026: khối công ty (vai trò/tên/địa chỉ) khách yêu cầu FIX CỨNG — luôn in đúng TEM_MD,
 // không còn lấy theo từng mặt hàng (mọi tem cùng một công ty chịu trách nhiệm, không có lý do khác nhau).
-function veKhoiCty(){
-  const ds=[esc(TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(TEM_MD.ctyDiaChi)];
+function veKhoiCty(sc){ // S132: sc = tem hàng sang chiết → đổi vai trò + "ĐỊA CHỈ ĐÓNG GÓI"
+  const ds=[esc(sc?TEM_SC_VAITRO:TEM_MD.ctyVaiTro),'<b>'+esc(TEM_MD.ctyTen)+'</b>',...dongTem(sc?TEM_MD.ctyDiaChi.replace('ĐỊA CHỈ SẢN XUẤT','ĐỊA CHỈ ĐÓNG GÓI'):TEM_MD.ctyDiaChi)];
   return '<div class="kh">'+ds.join('<br>')+'</div>';
 }
 
@@ -1406,19 +1409,40 @@ const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phầ
   ['kichThuoc','Kích thước hạt'],['doAm','Độ ẩm'],['hdsd','Hướng dẫn sử dụng',1],['baoQuan','Hướng dẫn bảo quản',1],['xuatXu','Xuất xứ'],
   ['soTCCS','Tiêu chuẩn áp dụng (số hiệu)'],['hsdNam','Hạn sử dụng (số năm)'],['tieuDe','Tiêu đề trên cùng'],
   ['canhBao','Dòng cảnh báo',1]]; // 16/09/2026: bỏ 3 ô khối công ty khỏi đây — đã fix cứng, xem veKhoiCty()
+/* S132/R51 07/11/2026 — TEM HÀNG SANG CHIẾT (khách: "1 số sản phẩm chỉ có sang chiết, tem phụ phải bao hàm cả thông tin nhà cung cấp sản phẩm theo đúng luật").
+   Mặt hàng chọn Kiểu 🧴 Sang chiết (cờ hstem.sangChiet — hstem đồng bộ NGUYÊN KHỐI nên không phải sửa Code.gs) in tem khác tem sản xuất:
+   thêm dòng Nhà sản xuất (tên + địa chỉ), Xuất xứ theo nước sản xuất, "Ngày đóng gói" thay "Ngày sản xuất", hạn dùng theo bao gốc,
+   bỏ Độ ẩm, khối công ty đổi vai trò + "ĐỊA CHỈ ĐÓNG GÓI". Thông tin nhà sản xuất khai ở LẦN MUA nguyên liệu (Kho nguyên liệu, ô nsx*).
+   Tem lấy nguyên liệu CHÍNH (kg lớn nhất trong định mức) → nhà cung cấp đang dùng → lần mua gần nhất của NCC đó có khai thông tin NSX
+   (khai 1 lần, các lần mua sau cùng NCC tự dùng lại). Chưa khai thì tem hiện chữ báo thiếu ngay trên bản xem trước.
+   ponytail: theo NCC đang dùng LÚC IN, không theo đúng lần mua của lô; cần chính xác từng lô thì ghép theo dongMuaCuaMe (chỉ Admin có).
+   HAI APP PHẢI GIỐNG HỆT NHAU. */
+const laSangChiet=p=>!!(p&&p.hstem&&p.hstem.sangChiet)&&!khongTem(p);
+const TEM_SC_VAITRO='Sang chiết, đóng gói, phân phối và chịu trách nhiệm về hàng hóa';
+function nsxCua(p){
+  const ct=((p&&p.congThucNL)||[]).filter(x=>x&&x.ten).sort((a,b)=>num(b.kg)-num(a.kg))[0]; if(!ct)return null;
+  const ds=(nguonNguyenLieu&&nguonNguyenLieu[ct.ten])||[], ncc=(nlDangDung&&nlDangDung[ct.ten])||(ds.length?ds[ds.length-1].ncc:'')||'';
+  const cung=ds.filter(e=>e&&e.ncc===ncc), e=[...cung].reverse().find(e=>e.nsxTen||e.nsxDiaChi||e.nsxNuoc)||{};
+  return {nl:ct.ten,ncc,ten:String(e.nsxTen||ncc||'').trim(),diaChi:String(e.nsxDiaChi||'').trim(),nuoc:String(e.nsxNuoc||'').trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||'').trim()};
+}
+function temSCDongNSX(ns){
+  const thieu=s=>'<b>[CHƯA KHAI '+s+' — vào Kho nguyên liệu, sửa lần mua]</b>';
+  return '<tr><td class="k">Nhà sản xuất</td><td>'+(ns&&ns.ten?esc(ns.ten):thieu('NHÀ SẢN XUẤT'))+'<br>'+(ns&&ns.diaChi?esc(ns.diaChi):thieu('ĐỊA CHỈ'))+'</td></tr>';
+}
 function temHTML(r,p){
   const t=p.hstem||{}, kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
-  const hd=hanDung(r.ngaysx,t.hsdNam);
-  return `<div class="tem">${temGT(t,'tieuDe').trim()?`<div class="t1">${esc(temGT(t,'tieuDe'))}</div>`:''}
+  const hd=hanDung(r.ngaysx,t.hsdNam), sc=laSangChiet(p), ns=sc?nsxCua(p):null;
+  const td=sc&&!(t&&typeof t.tieuDe==='string')?'NHÃN PHỤ':temGT(t,'tieuDe');
+  return `<div class="tem">${td.trim()?`<div class="t1">${esc(td)}</div>`:''}
     <div class="t2">${esc(String((p&&p.tenTem)||'').trim()||(p&&p.ten)||r.sp)}</div><!-- 12/10/2026: tên in trên tem = ô "Tên in trên tem" khách TỰ GÕ (p.tenTem, không khoá theo TCCS); trống thì in tên Danh mục như từ 10/09 -->${t.tenEN?`<div class="t3">${esc(t.tenEN)}</div>`:''}
     <table>${kv('Thành phần',t.thanhPhan)}${kv('Hương liệu',r.huong)}${kv('Khối lượng tịnh',r.quyCach)}
     ${kv('Công dụng',t.congDung)}
-    ${kv('Độ ẩm',t.doAm||'dưới 10%')}${kv('Kích thước hạt',t.kichThuoc)}
-    ${kv('Hướng dẫn sử dụng',boHSD(t.hdsd))}${kv('Hướng dẫn bảo quản',boHSD(t.baoQuan))}${kv('Xuất xứ',t.xuatXu)}
-    ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}${kv('Ngày sản xuất',vnNgay(r.ngaysx))}
-    ${kv('Hạn sử dụng',t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
+    ${sc?'':kv('Độ ẩm',t.doAm||'dưới 10%')}${kv('Kích thước hạt',t.kichThuoc)}
+    ${kv('Hướng dẫn sử dụng',boHSD(t.hdsd))}${kv('Hướng dẫn bảo quản',boHSD(t.baoQuan))}${sc?temSCDongNSX(ns):''}${kv('Xuất xứ',sc&&ns&&ns.nuoc||t.xuatXu)}
+    ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}${kv(sc?'Ngày đóng gói':'Ngày sản xuất',vnNgay(r.ngaysx))}
+    ${kv('Hạn sử dụng',sc?(ns&&ns.hsd||(t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất in trên bao gốc`:'')):t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
     ${kv('Số lô',lotDep(r.lot))}</table>
-    ${veKhoiCty()}
+    ${veKhoiCty(sc)}
     ${temGT(t,'canhBao').trim()?`<div class="cb"><b>Thông tin, Cảnh báo:</b> ${esc(temGT(t,'canhBao'))}</div>`:''}
     </div>`;
 }
@@ -2236,6 +2260,8 @@ function xuatMe(){
       if(d.baoBiQC&&typeof d.baoBiQC==='object')baoBiQC=d.baoBiQC;
       if(Array.isArray(d.tuHoSo))tuHoSo=d.tuHoSo;
       if(Array.isArray(d.canhBaoHuong))canhBaoHuong=d.canhBaoHuong;
+      if(d.nguonNguyenLieu&&typeof d.nguonNguyenLieu==='object')nguonNguyenLieu=d.nguonNguyenLieu; // S132/R51
+      if(d.nlDangDung&&typeof d.nlDangDung==='object')nlDangDung=d.nlDangDung;
       if(Array.isArray(d.lenhSX))lenhSX=d.lenhSX;
       if(Array.isArray(d.lenhTienDo))lenhTienDo=d.lenhTienDo;
       if(Number.isFinite(+d.temCot)&&+d.temCot>=1)temCot=Math.min(10,Math.round(+d.temCot));

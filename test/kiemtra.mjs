@@ -1557,7 +1557,7 @@ ok('tab Danh mục hiện khối "Nguyên liệu" (ban đầu trống)', await E
 // gốc là Danh mục nguyên liệu còn trống nên select không có gì để chọn (không phải lỗi code).
 // Khi trống: ẩn nút "+ Thêm nguyên liệu", hiện cảnh báo + nút tắt sang tab Danh mục.
 const aj00I=await E(()=>{
-  const c=sp.find(x=>x.ten==='THE CATTEST'); c.congThucNL=[];
+  const c=sp.find(x=>x.ten==='THE CATTEST'); c.congThucNL=[]; window.__maCuAJ=c.maSP; c.maSP=''; // S132: mã 11 (Citycat) = hàng đóng gói lại → mục Hàng gốc thay bảng hàm lượng; các bài AJ dưới thử bảng hàm lượng nhiều dòng
   tab='ct'; mo.clear(); mo.add(sp.indexOf(c)); ve();
   return sp.indexOf(c);
 });
@@ -1661,6 +1661,7 @@ await p.fill(`[data-nlkg="${ajI}:1"]`,'50'); await p.waitForTimeout(150); // v�
 await p.click(`[data-nldel="${ajI}:1"]`); await p.waitForTimeout(150);
 ok('bấm Xoá bỏ đúng dòng đã xoá, giữ nguyên dòng còn lại', JSON.stringify(await Ea(i=>sp[i].congThucNL,ajI))==='[{"ten":"Bentonite","kg":450}]');
 const ajCH=await E(()=>sachCauHinh(sp).find(x=>x.ten==='THE CATTEST').congThucNL);
+await E(()=>{sp.find(x=>x.ten==='THE CATTEST').maSP=window.__maCuAJ});
 ok('đồng bộ qua sachCauHinh() (kênh admin→nhân viên) mang đúng công thức nguyên liệu', JSON.stringify(ajCH)==='[{"ten":"Bentonite","kg":450}]', JSON.stringify(ajCH));
 const ajChaKhaiHtml=await Ea(i=>{sp[i].congThucNL=[];return veNL(sp[i],i)},ajI);
 ok('công thức rỗng (chưa khai dòng nào) KHÔNG hiện cảnh báo đỏ/vàng — giữ hành vi cũ, chỉ nhắc chưa khai', !/nlsum/.test(ajChaKhaiHtml));
@@ -4309,6 +4310,27 @@ const er=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.loat=bcNgay.some(b=>b.recordId==='ER-01')&&!bcNgay.some(b=>b.recordId==='ER-02')&&/Bỏ qua <b>1 lô thiếu hoá đơn/.test(hoiN.join(' '));
   window.hoi=hoiCu; hdCuaMe=g.hcu; nk=g.nk; bcNgay.splice(0,bcNgay.length,...g.bc); luuNgay(); return kq });
 ok('ER: chốt giúp lô thiếu HĐ — 1 lô báo rõ thiếu HĐ gì (huỷ thì không chốt); chốt hàng loạt bỏ qua lô thiếu HĐ', Object.values(er).every(Boolean), JSON.stringify(er));
+const es=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='NL __ES__', g={sp:sp.length,nl:JSON.stringify(nguonNguyenLieu),dd:JSON.stringify(nlDangDung)};
+  const p=napSP([{ten:'SP __ES__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['5 kg'],congThucNL:[{ten:'Phụ',kg:1},{ten:NL,kg:99}]}])[0]; sp.push(p); const i=sp.indexOf(p);
+  p.hstem={...temMoi(),thanhPhan:'Mùn cưa gỗ',xuatXu:'Việt Nam',hsdNam:'3',doAm:'≤ 10%'};
+  nguonNguyenLieu[NL]=[{ncc:'NCC A',gia:1,soKg:1,ngay:'01/10/2026',nsxTen:'Nhà máy A',nsxDiaChi:'1 Đường A, Bình Dương',nsxNuoc:'Việt Nam'},{ncc:'NCC B',gia:1,soKg:1,ngay:'02/10/2026',nsxTen:'Xưởng B',nsxDiaChi:'Quảng Đông',nsxNuoc:'Trung Quốc'},{ncc:'NCC B',gia:1,soKg:1,ngay:'05/11/2026',nsxHSD:'10/2029'}];
+  nlDangDung[NL]='NCC B';
+  const r={sp:p.ten,huong:'',lot:'020003071126',quyCach:'5 kg',ngaysx:'2026-11-07'}, txt=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent};
+  const sx=txt(temHTML(r,p)); kq.sxGiuNguyen=/Sản xuất và chịu trách nhiệm/.test(sx)&&/Ngày sản xuất/.test(sx)&&/Độ ẩm/.test(sx)&&!/Nhà sản xuất/.test(sx)&&/ĐỊA CHỈ SẢN XUẤT/.test(sx);
+  const b=document.createElement('button'); b.dataset.kieu=i+'|||sc'; document.body.append(b); b.click(); b.remove(); await cho(30);
+  kq.co=p.hstem.sangChiet===1&&!p.khongTemPhu&&laSangChiet(p)&&!khongTem(p);
+  const sc=txt(temHTML(r,p)); kq.tem=/NHÃN PHỤ/.test(sc)&&/Nhà sản xuấtXưởng BQuảng Đông/.test(sc)&&/Xuất xứTrung Quốc/.test(sc)&&/Ngày đóng gói/.test(sc)&&!/Độ ẩm/.test(sc)&&/Hạn sử dụng10\/2029/.test(sc)&&/Sang chiết, đóng gói, phân phối và chịu trách nhiệm/.test(sc)&&/ĐỊA CHỈ ĐÓNG GÓI/.test(sc)&&/02 00 03 071126|020003071126/.test(sc);
+  nlDangDung[NL]='NCC C'; nguonNguyenLieu[NL].push({ncc:'NCC C',gia:1,soKg:1,ngay:'06/11/2026'}); kq.thieu=/CHƯA KHAI ĐỊA CHỈ/.test(txt(temHTML(r,p)))&&/NCC C/.test(txt(temHTML(r,p)));
+  kq.form=/data-nf="nsxDiaChi"[^>]*value="Quảng Đông"/.test(nfNSXHTML(nguonNguyenLieu[NL].slice(0,3),null));
+  kq.tccs=giuKhoiCty(p.hstem).sangChiet===1;
+  const hs=veTem(p,i); kq.hoSoNSX=/data-temnsx="\d+\|nsxDiaChi"/.test(hs)&&/NCC C/.test(hs);
+  const inp=document.createElement('input'); inp.dataset.temnsx=i+'|nsxDiaChi'; inp.value='9 Đường C'; $('rows').append(inp); inp.dispatchEvent(new Event('change',{bubbles:true})); await cho(40); inp.remove();
+  kq.suaNSX=nsxCua(p).diaChi==='9 Đường C'&&nsxCua(p).ncc==='NCC C'&&/9 Đường C/.test(txt(temHTML(r,p)));
+  const sel=document.createElement('select'); sel.dataset.hanggoc=i; sel.innerHTML='<option value="Phụ">Phụ</option>'; $('rows').append(sel); sel.dispatchEvent(new Event('change',{bubbles:true})); await cho(40); sel.remove();
+  kq.chonGoc=p.congThucNL.length===1&&p.congThucNL[0].ten==='Phụ'&&num(p.congThucNL[0].kg)===num(p.kg);
+  const b2=document.createElement('button'); b2.dataset.kieu=i+'|||sx'; document.body.append(b2); b2.click(); b2.remove(); await cho(30); kq.boCo=!p.hstem.sangChiet&&/Sản xuất và chịu trách nhiệm/.test(txt(temHTML(r,p)));
+  sp.splice(g.sp); nguonNguyenLieu=JSON.parse(g.nl); nlDangDung=JSON.parse(g.dd); luuNgay(); chuyenTab('tq'); return kq });
+ok('ES: tem hàng 🧴 Sang chiết — có Nhà sản xuất/địa chỉ/xuất xứ theo lần mua của NCC đang dùng, Ngày đóng gói, hạn theo bao gốc, bỏ Độ ẩm, khối công ty đổi vai trò; thiếu thì báo trên tem; tem sản xuất giữ nguyên', Object.values(es).every(Boolean), JSON.stringify(es))
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
