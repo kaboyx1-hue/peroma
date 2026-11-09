@@ -442,7 +442,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 07/11/2026-R51</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 09/11/2026-R52</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -1419,11 +1419,16 @@ const TEM_SUA_O=[['tenEN','Tên phụ (dòng nhỏ)'],['thanhPhan','Thành phầ
    HAI APP PHẢI GIỐNG HỆT NHAU. */
 const laSangChiet=p=>!!(p&&p.hstem&&p.hstem.sangChiet)&&!khongTem(p);
 const TEM_SC_VAITRO='Sang chiết, đóng gói, phân phối và chịu trách nhiệm về hàng hóa';
+/* S133 09/11/2026 (khách: "hàng đóng gói lại, tạm thời nếu không nhập được số lượng đầu vào vẫn cho phép in tem phụ — để giải quyết các lô hàng
+   trước đó"): chưa khai được lần mua (không có số kg/hoá đơn) thì thông tin nhà sản xuất gõ thẳng ở Hồ sơ tem, lưu TẠM trong hồ sơ tem của mặt
+   hàng (hstem.nsx*, đồng bộ nguyên khối). Lần mua có khai thông tin NSX thì ưu tiên lần mua; ô nào lần mua bỏ trống thì lấy ô tạm trong hồ sơ tem. */
 function nsxCua(p){
-  const ct=((p&&p.congThucNL)||[]).filter(x=>x&&x.ten).sort((a,b)=>num(b.kg)-num(a.kg))[0]; if(!ct)return null;
+  const t=(p&&p.hstem)||{}, s=k=>String(t[k]||'').trim();
+  const ct=((p&&p.congThucNL)||[]).filter(x=>x&&x.ten).sort((a,b)=>num(b.kg)-num(a.kg))[0];
+  if(!ct)return (s('nsxTen')||s('nsxDiaChi')||s('nsxNuoc'))?{nl:'',ncc:'',ten:s('nsxTen'),diaChi:s('nsxDiaChi'),nuoc:s('nsxNuoc'),hsd:s('nsxHSD'),tam:1}:null;
   const ds=(nguonNguyenLieu&&nguonNguyenLieu[ct.ten])||[], ncc=(nlDangDung&&nlDangDung[ct.ten])||(ds.length?ds[ds.length-1].ncc:'')||'';
   const cung=ds.filter(e=>e&&e.ncc===ncc), e=[...cung].reverse().find(e=>e.nsxTen||e.nsxDiaChi||e.nsxNuoc)||{};
-  return {nl:ct.ten,ncc,ten:String(e.nsxTen||ncc||'').trim(),diaChi:String(e.nsxDiaChi||'').trim(),nuoc:String(e.nsxNuoc||'').trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||'').trim()};
+  return {nl:ct.ten,ncc,ten:String(e.nsxTen||s('nsxTen')||ncc||'').trim(),diaChi:String(e.nsxDiaChi||s('nsxDiaChi')).trim(),nuoc:String(e.nsxNuoc||s('nsxNuoc')).trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||s('nsxHSD')).trim(),tam:ncc?0:1};
 }
 function temSCDongNSX(ns){
   const thieu=s=>'<b>[CHƯA KHAI '+s+' — vào Kho nguyên liệu, sửa lần mua]</b>';
