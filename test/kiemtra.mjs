@@ -4350,8 +4350,23 @@ const et=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   window.hoi=async t=>/Chốt giúp/.test(t)?'1000':true; const b=document.createElement('button'); b.dataset.chotgiup='ET-03'; document.body.append(b); b.click(); b.remove(); await cho(60);
   const A=nguonHuong[H][0], B=nguonHuong[H][1]; kq.chot=bcNgay.some(x=>x.recordId==='ET-03')&&dongTruCua(nk.find(r=>r.id==='ET-01'))===A&&dongTruCua(nk.find(r=>r.id==='ET-02'))===A&&dongTruCua(nk.find(r=>r.id==='ET-03'))===B&&Math.abs(A.daDungKg-5)<1e-6&&Math.abs(B.daDungKg-4)<1e-6;
   veChuoi(); await cho(20); kq.hetBao=!v('ET-01').cho&&!v('ET-01').xep&&!v('ET-03').cho&&!xepLaiHuong(H).length;
+  kq.nutSuaLo=!!document.querySelector('#cxChu .cx-tacvu [data-cxsualo]')&&!document.querySelector('#cxChu [data-cxxephuong]'); // S135
+  nk.push(me('ET-04',3000,'2026-11-01')); meDaTru.ids.push('ET-04'); veChuoi(); await cho(20); kq.choMoi=v('ET-04').cho===true&&!document.querySelector('#cxChu [data-cxxephuong]');
+  moThemNguon.add('h:'+H); chuyenTab('kho'); await cho(40); const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`); const sv=(k,x)=>{const el=f.querySelector(`[data-nf="${k}"]`); if(el)el.value=x};
+  sv('ncc','C'); sv('soKg','5'); sv('donGia','100000'); sv('soHD','HC'); sv('ngay','02/11/2026'); f.querySelector('[data-luunguon]').click(); await cho(120);
+  const C=nguonHuong[H][2]; kq.tuNoiCT=JSON.stringify({C:C&&C.daDungKg,n:nguonHuong[H].length,t:(dongTruCua(nk.find(r=>r.id==='ET-04'))||{}).ncc}); kq.tuNoi=!!C&&dongTruCua(nk.find(r=>r.id==='ET-04'))===C&&Math.abs(num(C.daDungKg)-3)<1e-6&&dongTruCua(nk.find(r=>r.id==='ET-03'))===nguonHuong[H][1]; chuyenTab('chuoi');
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); meDaTru=JSON.parse(g.md); bcNgay=JSON.parse(g.bc); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
 ok('ET: hương xếp theo thời gian — lô làm trước lấy lần mua trước, chỉ lô sau cùng vượt mới "chờ nhập kho"; chốt lô tự xếp lại cho khớp (chuyển tồn theo); nút Xoá tách riêng', Object.values(et).every(Boolean), JSON.stringify(et));
+const eu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H='Hương __EU__', g={nh:JSON.stringify(nguonHuong),kho:kho.slice(),nk:nk.slice(),sp:sp.length,bc:JSON.stringify(bcNgay)}, hoiCu=window.hoi;
+  kho.push(H); const p=napSP([{ten:'SP __EU__',maSP:'',kg:100,ml:100,huongs:[H],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
+  nguonHuong[H]=[{ncc:'P',gia:500000,soKg:5,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24}];
+  nk=[...nk,{id:'EU-01',sp:p.ten,huong:H,lot:'7960001026',sl:1000,soBao:1000,quyCach:'1 kg',mlDung:2240,ngaysx:'2026-09-30',ts:'2026-09-30T03:00:00.000Z',nlLucSX:[],truIx:0,giaHuongTheoGLucSX:100}];
+  chuyenTab('chuoi'); await cho(30); cxMoLo('EU-01'); cxBuoc=2; veChuoi(); await cho(20); const m=()=>cxMeList.find(y=>y.id==='EU-01');
+  kq.truoc=m().hg[0].tam===true&&cxBuocCua(m())[1].s==='vang'&&!document.querySelector('#cxChu [data-cxxephuong]');
+  window.hoi=async t=>/Chốt giúp/.test(t)?'1000':true; const b=document.createElement('button'); b.dataset.chotgiup='EU-01'; document.body.append(b); b.click(); b.remove(); await cho(60); veChuoi(); await cho(20);
+  kq.sauChot=trangThaiSXCua(m().r)==='COMPLETED'&&!m().hg[0].sau&&cxBuocCua(m())[1].s==='ok'&&m().tt==='ok';
+  window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); bcNgay=JSON.parse(g.bc); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
+ok('EU: lô làm trước lần mua hương gần nhất (quá 7 ngày) báo vàng "tạm tính"; chốt lô = xác nhận → hết dấu chấm than', Object.values(eu).every(Boolean), JSON.stringify(eu));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
