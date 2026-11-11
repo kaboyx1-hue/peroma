@@ -4141,7 +4141,7 @@ const ea=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('EA: bảng Sửa hàng loạt hiểu "không cần hoá đơn": tích dòng bấm nút là hết đỏ, bấm lại thì nhắc lại', Object.values(ea).every(Boolean), JSON.stringify(ea));
 const eb=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='NL __EB__', H=kho.find(h=>!isUnscented(h)), g={nl:JSON.stringify(nguonNguyenLieu),nh:JSON.stringify(nguonHuong),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length,bs:JSON.stringify(hoaDonBoSung)}, th=hoi; hoi=async()=>true;
   nlDM.push(NL); const p=napSP([{ten:'SP __EB__',maSP:'',kg:100,ml:50,huongs:[H],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p); const me=(id,ng,lot,ml)=>({id,sp:p.ten,huong:H,lot,sl:1000,soBao:1000,mlDung:ml,mlChuan:50,meChuan:100,ngaysx:ng,ts:ng+'T03:00:00.000Z'});
-  nk=[...nk,me('EB-1','2026-10-01','7700000000',500),me('EB-2','2026-10-20','7700000000',500),me('EB-3','2026-10-21','7711000000',900)]; nguonNguyenLieu[NL]=[{ncc:'A',gia:1000,soKg:1000,ngay:'01/10/2026',ts:'2026-10-01T01:00:00.000Z'}]; nguonHuong[H]=[{ncc:'B',gia:2000000,soKg:10,daDungKg:0,ngay:'05/10/2026',soHD:'Y'}];
+  nk=[...nk,me('EB-1','2026-10-01','770000011026',500),me('EB-2','2026-10-20','770000011026',500)/* S140: trùng thật = lô 12 số (lô 10 số cùng tháng cùng hàng là quy ước cũ) */,me('EB-3','2026-10-21','7711000000',900)]; nguonNguyenLieu[NL]=[{ncc:'A',gia:1000,soKg:1000,ngay:'01/10/2026',ts:'2026-10-01T01:00:00.000Z'}]; nguonHuong[H]=[{ncc:'B',gia:2000000,soKg:10,daDungKg:0,ngay:'05/10/2026',soHD:'Y'}];
   chuyenTab('chuoi'); await cho(50); kq.tab=!!document.querySelector('.tab[data-tab="chuoi"].on')&&$('viewMA').style.display===''&&!!$('cxDsLo');
   const L=()=>cxMeList, m1=L().find(y=>y.id==='EB-1'), m2=L().find(y=>y.id==='EB-2'), m3=L().find(y=>y.id==='EB-3'); kq.tinh=m1.nl[0].tt==='vang'&&m1.trung&&m2.nl[0].tt==='do'&&m2.nl[0].e===null&&m3.lech&&m1.hg[0].chung==='HĐ Y'&&!m1.x.find(v=>v.loai==='h').sau/* S134: hương mua 05/10 cho lô 01/10 — trong 7 ngày, là lần mua gần nhất → không báo */;
   document.querySelector('[data-cxchon="EB-2"]').click(); await cho(40); kq.moBuocLoi=cxChon==='EB-2'&&cxBuoc===1&&/chưa có nguồn/.test(document.querySelector('.cx-vt').textContent)&&!!document.querySelector('.cx-b.t-do .cx-dau.do');
@@ -4248,10 +4248,10 @@ ok('EJ: Chuỗi có nút Chốt giúp lô (thay nhân viên), chốt xong hiện
 const ek=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='NL __EK__', g={nl:JSON.stringify(nguonNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __EK__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
   const me=(id,d)=>({id,sp:p.ten,huong:'',lot:'7970000000',sl:100,soBao:100,quyCach:'1 kg',mlDung:0,ngaysx:d,ts:d+'T03:00:00.000Z',nlLucSX:[{ten:NL,tl:1}]});
-  nk=[...nk,me('EK-1','2026-10-01'),me('EK-2','2026-10-29')]; nguonNguyenLieu[NL]=[{ncc:'A',gia:1000,soKg:500,soHD:'85',ngay:'01/09/2026',ts:'2026-09-01T01:00:00.000Z'}];
+  nk=[...nk,me('EK-1','2026-10-01'),me('EK-2','2026-11-03')]; /* S140: lô 10 số cùng tháng cùng hàng là quy ước cũ, không còn báo trùng → ca trùng thật = khác tháng */ nguonNguyenLieu[NL]=[{ncc:'A',gia:1000,soKg:500,soHD:'85',ngay:'01/09/2026',ts:'2026-09-01T01:00:00.000Z'}];
   chuyenTab('chuoi'); await cho(30); cxMoLo('EK-2'); veChuoi(); await cho(20); const m=()=>cxMeList.find(y=>y.id==='EK-2');
   kq.nguonDu=m().ttNguon==='ok'; kq.khongDu=m().tt==='do'&&/Có lỗi/.test($('cxChu').querySelector('.cx-anh').textContent)&&cxBuocCua(m())[4].s==='do';
-  cxLoc='ok'; veChuoi(); await cho(20); kq.locDu=!document.querySelector('#cxDsLo [data-cxchon="EK-2"]'); cxLoc='all';
+  cxLoc='ok'; veChuoi(); await cho(20); kq.locDu=!document.querySelector('#cxDsLo [data-cxchon="EK-2"]'); cxLoc='all'; const ek2=nk.find(r=>r.id==='EK-2'); ek2.ngaysx='2026-10-29'; veChuoi(); kq.cungThangKhongLoi=!m().trung&&m().cungCu.length===1; ek2.ngaysx='2026-11-03'; veChuoi(); await cho(20);
   cxBqMo=cxLy(m(),4)[0]; veChuoi(); await cho(20); $('cxLyDo').value='2 lô in chung số'; document.querySelector('[data-cxbqluu]').click(); await cho(40); kq.xacNhan=m().tt==='ok';
   nguonNguyenLieu=JSON.parse(g.nl); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); delete hoaDonBoSung['EK-2']; cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
 ok('EK: lô đủ nguồn nhưng còn vấn đề ở bước khác (trùng số) thì không được tính là Đủ; xác nhận xong mới Đủ', Object.values(ek).every(Boolean), JSON.stringify(ek));
@@ -4298,7 +4298,7 @@ ok('EO: khai thêm lần mua hương mới không kéo lô cũ sang — lô lấ
 const ep=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),sp:sp.length,tt:JSON.stringify(trangThaiMe)}, hoiCu=window.hoi; let tl=[], tieuDe=[]; window.hoi=async(t)=>{tieuDe.push(t);return tl.shift()};
   const p=napSP([{ten:'SP __EP__',maSP:'01',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
   const me=(id,d)=>({id,sp:p.ten,huong:'',lot:'0108041026',sl:100,soBao:100,quyCach:'1 kg',mlDung:0,ngaysx:d,ts:d+'T03:00:00.000Z',nlLucSX:[],daInTem:true});
-  nk=[...nk,me('EP-1','2026-10-01'),me('EP-2','2026-10-29'),{...me('EP-3','2026-10-05'),lot:'999999999999'}];
+  nk=[...nk,me('EP-1','2026-09-30'),me('EP-2','2026-10-29'),/* S140: khác tháng → trùng thật */{...me('EP-3','2026-10-05'),lot:'999999999999'}];
   chuyenTab('chuoi'); await cho(30); cxMoLo('EP-2'); cxBuoc=4; veChuoi(); await cho(20); kq.nut=!!document.querySelector('#cxChu .cx-can [data-cxsualo]');
   tl=['9999 9999 9999']; document.querySelector('[data-cxsualo]').click(); await cho(60); kq.chanTrung=nk.find(r=>r.id==='EP-2').lot==='0108041026'&&tieuDe.includes('Số lô đã có');
   tl=['01 08 04 291026','tách 2 đợt cùng tháng']; document.querySelector('[data-cxsualo]').click(); await cho(80); const r=nk.find(x=>x.id==='EP-2');
