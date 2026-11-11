@@ -960,6 +960,7 @@ html,body{background:var(--bg);min-height:100%}
 .sodo-cham{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--badTx);margin-left:6px;vertical-align:middle}
 @media (max-width:899px){.sodo-k{padding:10px 10px}.sodo{grid-template-columns:minmax(0,1fr) 52px minmax(0,1fr)}.sodo-n{padding:6px 8px}.sodo-n span{font-size:12.5px}.sodo-n small{display:none}}
 @media (max-width:899px){.ctsxdt{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:8px 0 2px;font-size:12.5px;color:var(--tx3)}}
+.pin-ds{display:grid;gap:8px;margin-top:8px}.pin-dong{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:14px}.pin-dong>span{min-width:200px}
 .ctsxb{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line2);background:var(--card);color:var(--tx2);border-radius:999px;padding:6px 12px;cursor:pointer}
 .ctsxb.on{background:var(--acc);border-color:var(--acc);color:var(--onAcc)}
 #rows{background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:var(--shadow)}
@@ -1996,9 +1997,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 09/11/2026-S135</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 11/11/2026-S138</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 09/11/2026-S135</div>
+      <div class="verFoot">BẢN 11/11/2026-S138</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2205,7 +2206,7 @@ async function dbDayCauHinh(){
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong()},ban:BAN_HIEN_TAI,may:('phiếu:'+phieuTT+' | '+String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'')).slice(0,118)})}); // S97: bản + máy → trang NHATKY_CAUHINH
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong(),khoaPIN:{admin:KHOA_PIN.doc('peroma_pin_admin'),nv:KHOA_PIN.doc('peroma_pin_nv')}},ban:BAN_HIEN_TAI,may:('phiếu:'+phieuTT+' | '+String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'')).slice(0,118)})}); // S97: bản + máy → trang NHATKY_CAUHINH
     dbChoDay=false;
     if(j&&j.xungDot){
       /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
@@ -2279,6 +2280,7 @@ function apDungCauHinhTuServer(c){
   if(c.tonKhoHuong&&typeof c.tonKhoHuong==='object')tonKhoHuong=c.tonKhoHuong;
   if(c.nguonNguyenLieu&&typeof c.nguonNguyenLieu==='object')nguonNguyenLieu=c.nguonNguyenLieu;
   if(c.nlDangDung&&typeof c.nlDangDung==='object')nlDangDung=c.nlDangDung;
+  if(c.khoaPIN&&typeof c.khoaPIN==='object'&&typeof KHOA_PIN!=='undefined'){KHOA_PIN.ghi('peroma_pin_admin',String(c.khoaPIN.admin||''));KHOA_PIN.ghi('peroma_pin_nv',String(c.khoaPIN.nv||''))} // S137/R54
   if(c.tonKhoNguyenLieu&&typeof c.tonKhoNguyenLieu==='object')tonKhoNguyenLieu=c.tonKhoNguyenLieu;
   // S21: Code.gs chưa triển khai bản mới thì server không có 2 trường này → giữ nguyên bản trên máy
   if(Array.isArray(c.baoBi))baoBi=c.baoBi;
@@ -2842,7 +2844,7 @@ function apTCCSKhoa(i){
 /* Đồng bộ âm thầm lúc khởi động — mặt hàng đã khoá luôn khớp TCCS_DATA hiện có trong code,
    không chờ admin bấm nút (vì không còn chỗ nào cho admin tự gõ để mà "giữ" nữa). */
 /* S18: phần chung cuối tem (công ty, cảnh báo, tiêu đề) không thuộc nội dung TCCS — áp/khoá TCCS phải giữ nguyên */
-const giuKhoiCty=t=>{const o={};TEM_KHOI_CTY.forEach(k=>{if(t&&typeof t[k]==='string')o[k]=t[k]});if(t&&t.sangChiet)o.sangChiet=1;['nsxTen','nsxDiaChi','nsxNuoc','nsxHSD'].forEach(k=>{if(t&&t[k])o[k]=t[k]});return o}; // S132: nạp TCCS không làm mất kiểu Sang chiết
+const giuKhoiCty=t=>{const o={};TEM_KHOI_CTY.forEach(k=>{if(t&&typeof t[k]==='string')o[k]=t[k]});if(t&&t.sangChiet)o.sangChiet=1;['nsxTen','nsxDiaChi','nsxNuoc','nsxHSD','nsxTCCS'].forEach(k=>{if(t&&t[k])o[k]=t[k]});return o}; // S132: nạp TCCS không làm mất kiểu Sang chiết
 function dongBoTCCSKhoaLucNap(){
   sp.forEach(p=>{const ma=hai(p.maSP);
     // S14: mặt hàng chủ đã MỞ KHOÁ để sửa tay (p.temMoKhoa) thì KHÔNG ghi đè — nếu không, mỗi lần mở
@@ -2938,7 +2940,7 @@ const temTrong=()=>{const o={};TEM_O.forEach(([k])=>{if(!TEM_KHOI_CTY.includes(k
 /* Kiểm hồ sơ tem đủ chưa — trả danh sách ô còn thiếu (chỉ ô bắt buộc) */
 function temThieu(p){
   const t=p&&p.hstem||{};
-  return TEM_O.filter(o=>o[3]&&!String(t[o[0]]||'').trim()).map(o=>o[1]);
+  return TEM_O.filter(o=>o[3]&&!(o[0]==='soTCCS'&&laSangChiet(p))&&!String(t[o[0]]||'').trim()).map(o=>o[1]); // S138: sang chiết dùng TCCS của nhà sản xuất (không bắt buộc)
 }
 
 /* Lấy dữ liệu hồ sơ tem từ TCCS_DATA theo mã sản phẩm — CHỈ điền vào ô đang TRỐNG,
@@ -4101,10 +4103,10 @@ function veTemNSX(p,i){
   const o=(k,nhan,v,ph,dai)=>`<label class="${dai?'nsx-dai':''}"><span>${nhan}</span><input class="ninp" ${tam?'data-temnsxhs':'data-temnsx'}="${i}|${k}" value="${esc(v)}" placeholder="${ph}"></label>`;
   if(tam){const t=p.hstem||{};
     return `<div class="tem-nsx"><div class="tem-nsx-t">🏭 Nhà cung cấp / nhà sản xuất <small>in trên tem${laSangChiet(p)?'':' (chỉ in khi chọn kiểu 🧴 Sang chiết)'} · ${ns&&ns.nl?`hàng gốc <b>${esc(ns.nl)}</b> chưa có lần mua`:'chưa chọn hàng gốc'} — điền tạm ở đây để in tem cho các lô trước, khai lần mua sau (<button type="button" class="lnk" ${ns&&ns.nl?`data-tqnguon="nl|||${esc(ns.nl)}"`:'disabled'}>khai lần mua →</button>)</small></div>
-    <div class="nf-hd">${o('nsxTen','Tên công ty sản xuất',t.nsxTen||'','VD Công ty TNHH ABC',1)}${o('nsxNuoc','Nước sản xuất (xuất xứ)',t.nsxNuoc||'','VD Việt Nam')}${o('nsxHSD','Hạn dùng trên bao gốc',t.nsxHSD||'','VD 10/2029 (nếu có)')}${o('nsxDiaChi','Địa chỉ công ty sản xuất',t.nsxDiaChi||'','số nhà, đường, phường/xã, tỉnh/thành, nước',1)}</div>
+    <div class="nf-hd">${o('nsxTen','Tên công ty sản xuất',t.nsxTen||'','VD Công ty TNHH ABC',1)}${o('nsxNuoc','Nước sản xuất (xuất xứ)',t.nsxNuoc||'','VD Việt Nam')}${o('nsxHSD','Hạn dùng trên bao gốc',t.nsxHSD||'','VD 10/2029 (nếu có)')}${o('nsxTCCS','Tiêu chuẩn của nhà sản xuất',t.nsxTCCS||'','VD TCCS 01:2025/ABC (nếu có)')}${o('nsxDiaChi','Địa chỉ công ty sản xuất',t.nsxDiaChi||'','số nhà, đường, phường/xã, tỉnh/thành, nước',1)}</div>
     ${t.nsxTen&&t.nsxDiaChi?'':'<div class="temstat no" style="margin-top:6px">Chưa có tên + địa chỉ nhà sản xuất — tem sẽ in chữ báo thiếu.</div>'}</div>`}
-  return `<div class="tem-nsx"><div class="tem-nsx-t">🏭 Nhà cung cấp / nhà sản xuất <small>in trên tem${laSangChiet(p)?'':' (chỉ in khi chọn kiểu 🧴 Sang chiết)'} · hàng gốc ${esc(ns.nl)} · NCC đang dùng <b>${esc(ns.ncc)}</b></small></div>
-    <div class="nf-hd">${o('nsxTen','Tên công ty sản xuất',ns.ten===ns.ncc?'':ns.ten,'trống = '+ns.ncc,1)}${o('nsxNuoc','Nước sản xuất (xuất xứ)',ns.nuoc,'VD Việt Nam')}${o('nsxHSD','Hạn dùng trên bao gốc',ns.hsd,'VD 10/2029 (nếu có)')}${o('nsxDiaChi','Địa chỉ công ty sản xuất',ns.diaChi,'số nhà, đường, phường/xã, tỉnh/thành, nước',1)}</div>
+  return `<div class="tem-nsx"><div class="tem-nsx-t">🏭 Nhà cung cấp / nhà sản xuất <small>in trên tem${laSangChiet(p)?'':' (chỉ in khi chọn kiểu 🧴 Sang chiết)'} · hàng gốc ${esc(ns.nl)} · NCC đang dùng <b>${esc(ns.ncc)}</b> · đổi nhà cung cấp khác thì điền 1 lần cho nhà mới, lô cũ vẫn in theo nhà cũ</small></div>
+    <div class="nf-hd">${o('nsxTen','Tên công ty sản xuất',ns.ten===ns.ncc?'':ns.ten,'trống = '+ns.ncc,1)}${o('nsxNuoc','Nước sản xuất (xuất xứ)',ns.nuoc,'VD Việt Nam')}${o('nsxHSD','Hạn dùng trên bao gốc',ns.hsd,'VD 10/2029 (nếu có)')}${o('nsxTCCS','Tiêu chuẩn của nhà sản xuất',ns.tccs,'VD TCCS 01:2025/ABC (nếu có)')}${o('nsxDiaChi','Địa chỉ công ty sản xuất',ns.diaChi,'số nhà, đường, phường/xã, tỉnh/thành, nước',1)}</div>
     ${ns.diaChi?'':'<div class="temstat no" style="margin-top:6px">Chưa có địa chỉ nhà sản xuất — tem sẽ in chữ báo thiếu.</div>'}</div>`;
 }
 function veTem(p,i){
@@ -4241,14 +4243,31 @@ const TEM_SC_VAITRO='Sang chiết, đóng gói, phân phối và chịu trách n
 /* S133 09/11/2026 (khách: "hàng đóng gói lại, tạm thời nếu không nhập được số lượng đầu vào vẫn cho phép in tem phụ — để giải quyết các lô hàng
    trước đó"): chưa khai được lần mua (không có số kg/hoá đơn) thì thông tin nhà sản xuất gõ thẳng ở Hồ sơ tem, lưu TẠM trong hồ sơ tem của mặt
    hàng (hstem.nsx*, đồng bộ nguyên khối). Lần mua có khai thông tin NSX thì ưu tiên lần mua; ô nào lần mua bỏ trống thì lấy ô tạm trong hồ sơ tem. */
-function nsxCua(p){
-  const t=(p&&p.hstem)||{}, s=k=>String(t[k]||'').trim();
+/* S136 10/11/2026 (khách: "lỡ mặt hàng đó lần sau đặt của nhà khác thì sao?"): thông tin NSX đi theo TỪNG NHÀ CUNG CẤP, và tem của 1 lô lấy theo nhà
+   cung cấp CỦA LÔ ĐÓ — chụp lúc Admin nhận lô (r.hoaDonLucSX, dòng nguyên liệu chính) — không theo NCC đang dùng. Đổi sang nhà khác: lô mới lấy NCC mới
+   (điền thông tin NSX 1 lần cho NCC mới), lô cũ in lại vẫn ra NCC cũ. Lô nhận lúc CHƯA có lần mua (NCC trống) và mặt hàng chưa có lần mua nào mới dùng
+   thông tin TẠM trong hồ sơ tem — không còn trộn ô tạm vào NCC thật (tránh in địa chỉ nhà cũ cho nhà mới). Gọi không có lô = NCC đang dùng. */
+function nsxCua(p,r){
+  const t=(p&&p.hstem)||{}, s=k=>String(t[k]||'').trim(), tam=()=>(s('nsxTen')||s('nsxDiaChi')||s('nsxNuoc'))?{ten:s('nsxTen'),diaChi:s('nsxDiaChi'),nuoc:s('nsxNuoc'),hsd:s('nsxHSD'),tccs:s('nsxTCCS'),ngayMua:'',tam:1}:null;
   const ct=((p&&p.congThucNL)||[]).filter(x=>x&&x.ten).sort((a,b)=>num(b.kg)-num(a.kg))[0];
-  if(!ct)return (s('nsxTen')||s('nsxDiaChi')||s('nsxNuoc'))?{nl:'',ncc:'',ten:s('nsxTen'),diaChi:s('nsxDiaChi'),nuoc:s('nsxNuoc'),hsd:s('nsxHSD'),tam:1}:null;
-  const ds=(nguonNguyenLieu&&nguonNguyenLieu[ct.ten])||[], ncc=(nlDangDung&&nlDangDung[ct.ten])||(ds.length?ds[ds.length-1].ncc:'')||'';
+  if(!ct){const o=tam(); return o?{nl:'',ncc:'',...o}:null}
+  const ds=(nguonNguyenLieu&&nguonNguyenLieu[ct.ten])||[], chup=r&&Array.isArray(r.hoaDonLucSX)?r.hoaDonLucSX.find(d=>d&&d.loai==='nl'&&d.ten===ct.ten):null;
+  const ncc=String(chup?chup.ncc||'':(nlDangDung&&nlDangDung[ct.ten])||(ds.length?ds[ds.length-1].ncc:'')||'');
+  if(!ncc)return {nl:ct.ten,ncc:'',...(tam()||{ten:'',diaChi:'',nuoc:'',hsd:'',tccs:'',ngayMua:'',tam:1})};
   const cung=ds.filter(e=>e&&e.ncc===ncc), e=[...cung].reverse().find(e=>e.nsxTen||e.nsxDiaChi||e.nsxNuoc)||{};
-  return {nl:ct.ten,ncc,ten:String(e.nsxTen||s('nsxTen')||ncc||'').trim(),diaChi:String(e.nsxDiaChi||s('nsxDiaChi')).trim(),nuoc:String(e.nsxNuoc||s('nsxNuoc')).trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||s('nsxHSD')).trim(),tam:ncc?0:1};
+  /* S138: lần mua CỦA LÔ (để tính ngày đóng gói) — khớp số HĐ chụp lúc nhận lô; không có thì lần mua cùng NCC gần nhất trước ngày làm lô */
+  const sx=String(r&&r.ngaysx||''), soHD=chup&&String(chup.soHD||'').trim(), lan=(soHD&&cung.find(x=>String(x.soHD||'').trim()===soHD))
+    ||[...cung].reverse().find(x=>{const d=isoHD(x.ngay);return d&&(!sx||d<=sx)})||cung[cung.length-1]||{};
+  return {nl:ct.ten,ncc,ten:String(e.nsxTen||ncc).trim(),diaChi:String(e.nsxDiaChi||'').trim(),nuoc:String(e.nsxNuoc||'').trim(),hsd:String((cung[cung.length-1]||{}).nsxHSD||'').trim(),
+    tccs:String(([...cung].reverse().find(x=>x.nsxTCCS)||{}).nsxTCCS||'').trim(),ngayMua:isoHD(lan.ngay),tam:0};
 }
+/* S138/R55 11/11/2026 (khách: "tem sang chiết cần khổ vuông · các TCCS trực thuộc của nhà cung cấp không phải của tôi (có thể không có) ·
+   ngày đóng gói dựa trên ngày ra hoá đơn của đơn và lùi lại 10 ngày" — chốt: HĐ mua hàng gốc − 10 ngày, khổ vuông 65×65 tự chọn).
+   isoHD: ngày trên hoá đơn lần mua (dd/mm/yyyy) → yyyy-mm-dd. ngayDongGoi: ngày HĐ mua của lô − 10 ngày; lô chưa có lần mua → ngày làm lô.
+   khoTemCua: mặt hàng sang chiết LUÔN in khổ vuông 65×65 (1 tem/trang), hàng sản xuất giữ khổ đã chọn trên máy. GIỐNG HỆT Ở 2 APP. */
+function isoHD(d){const s=String(d||'').trim(), m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); return m?m[3]+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0'):(/^\d{4}-\d{2}-\d{2}/.test(s)?s.slice(0,10):'')}
+function ngayDongGoi(r,ns){const d=ns&&ns.ngayMua; if(!d)return r.ngaysx; const t=new Date(d+'T00:00:00Z'); t.setUTCDate(t.getUTCDate()-10); return t.toISOString().slice(0,10)}
+const khoTemCua=p=>laSangChiet(p)?'nhiet':temKho;
 function temSCDongNSX(ns){
   const thieu=s=>'<b>[CHƯA KHAI '+s+' — vào Kho nguyên liệu, sửa lần mua]</b>';
   return '<tr><td class="k">Nhà sản xuất</td><td>'+(ns&&ns.ten?esc(ns.ten):thieu('NHÀ SẢN XUẤT'))+'<br>'+(ns&&ns.diaChi?esc(ns.diaChi):thieu('ĐỊA CHỈ'))+'</td></tr>';
@@ -4256,7 +4275,7 @@ function temSCDongNSX(ns){
 function temHTML(r,p){
   const t=p.hstem||temMoi();
   const kv=(k,v)=>v?`<tr><td class="k">${esc(k)}</td><td>${esc(v)}</td></tr>`:'';
-  const hd=hanDung(r.ngaysx,t.hsdNam), sc=laSangChiet(p), ns=sc?nsxCua(p):null;
+  const hd=hanDung(r.ngaysx,t.hsdNam), sc=laSangChiet(p), ns=sc?nsxCua(p,r):null;
   const td=sc&&!(t&&typeof t.tieuDe==='string')?'NHÃN PHỤ':temGT(t,'tieuDe');
   return `<div class="tem">
     ${td.trim()?`<div class="t1">${esc(td)}</div>`:''}
@@ -4271,9 +4290,9 @@ function temHTML(r,p){
       ${kv('Kích thước hạt',t.kichThuoc)}
       ${kv('Hướng dẫn sử dụng',boHSD(t.hdsd))}
       ${kv('Hướng dẫn bảo quản',boHSD(t.baoQuan))}
-      ${sc?temSCDongNSX(ns):''}${kv('Xuất xứ',sc&&ns&&ns.nuoc||t.xuatXu)}
-      ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(t.soTCCS))}
-      ${kv(sc?'Ngày đóng gói':'Ngày sản xuất',vnNgay(r.ngaysx))}
+      ${sc?temSCDongNSX(ns):''}${sc?(ns&&ns.nuoc?kv('Xuất xứ',ns.nuoc):'<tr><td class="k">Xuất xứ</td><td><b>[CHƯA KHAI NƯỚC SẢN XUẤT — vào Hồ sơ tem hoặc Kho, sửa lần mua]</b></td></tr>'):kv('Xuất xứ',t.xuatXu)}<!-- S136: hàng sang chiết lấy xuất xứ theo nhà sản xuất, KHÔNG tự điền "Việt Nam" của hồ sơ (đổi sang nhà ngoại mà quên khai là in sai luật) -->
+      ${kv('Tiêu chuẩn áp dụng',tieuChuanTxt(sc?ns&&ns.tccs:t.soTCCS))}<!-- S138: sang chiết in TCCS của nhà sản xuất (có thì in, không có thì bỏ dòng) -->
+      ${kv(sc?'Ngày đóng gói':'Ngày sản xuất',vnNgay(sc?ngayDongGoi(r,ns):r.ngaysx))}
       ${kv('Hạn sử dụng',sc?(ns&&ns.hsd||(t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất in trên bao gốc`:'')):t.hsdNam?`${t.hsdNam} năm kể từ ngày sản xuất${hd?' — đến '+hd:''}`:'')}
       ${kv('Số lô',lotDep(r.lot))}
     </table>
@@ -4373,7 +4392,7 @@ function kichThuocTem(cot,hang){
 const mmTxt=v=>String(v).replace('.',',');
 function khoDaDuyet(khoa){try{return localStorage.getItem(TEM_KHO_DUYET_KEY)===khoa}catch(e){return false}}
 /* Có cần mở bảng dàn trang trước khi in không? (null = in thẳng như cũ) */
-function xetKhoTem(r,p){
+function xetKhoTem(r,p){ const temKho=khoTemCua(p); // S138
   if(laKhoNhiet(temKho)){
     const kq=coChuVua(temHTML(r,p),1,1,temKho);
     if(kq.tran)return {nhiet:true,kq};
@@ -4396,7 +4415,7 @@ function moDanTem(r,p,quaFile){
     const choLuu=typeof TEM_O!=='undefined'&&typeof temMoi==='function', khoaTCCS=choLuu&&TCCS_KHOA.includes(hai(p.maSP))&&!p.temMoKhoa;
     const giaTri=k=>{const t=p.hstem||{};return TEM_KHOI_CTY.includes(k)?temGT(t,k):String(t[k]||'')};
     let cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
-    let kho=laKhoNhiet(temKho)?temKho:'a4'; // S26/R19: nháp khổ trong bảng — chỉ lưu khi bấm In/Lưu file (giống mau)
+    let kho=laKhoNhiet(khoTemCua(p))?khoTemCua(p):'a4'; // S138 // S26/R19: nháp khổ trong bảng — chỉ lưu khi bấm In/Lưu file (giống mau)
     let el=document.getElementById('danTem'); if(el)el.remove();
     el=document.createElement('div'); el.id='danTem'; el.className='dt-mask';
     el.innerHTML='<div class="dt-hop" role="dialog" aria-modal="true" aria-labelledby="dtTieuDe">'
@@ -4500,7 +4519,7 @@ function moDanTem(r,p,quaFile){
       else if(t==='h-')ih.value=Math.max(1,hang-1); else if(t==='h+')ih.value=Math.min(10,hang+1);
       else if(t==='kho'||t==='goiy'){ic.value=b.dataset.c;ih.value=b.dataset.h}
       else if(t==='in'){if(b.disabled)return;
-        const kq=laKhoNhiet(kho)?coChuVua(mot,1,1,kho):coChuVua(mot,cot,hang); temKho=kho;temCot=cot;temHang=hang;temMau=napTemMau(mau);temKieu=napTemKieu(kieu);luu();
+        const kq=laKhoNhiet(kho)?coChuVua(mot,1,1,kho):coChuVua(mot,cot,hang); if(!laSangChiet(p))temKho=kho;temCot=cot;temHang=hang;temMau=napTemMau(mau);temKieu=napTemKieu(kieu);luu();
         try{if(kq.co<TEM_CO_DOC)localStorage.setItem(TEM_KHO_DUYET_KEY,laKhoNhiet(kho)?kho:cot+'x'+hang)}catch(e){}
         const coSua=Object.keys(suaTam).length>0, luuLuon=coSua&&choLuu&&!khoaTCCS&&!!(el.querySelector('#dtLuu')||{}).checked;
         if(luuLuon){p.hstem={...temMoi(),...(p.hstem||{}),...suaTam};luuNgay();ve()}
@@ -4524,7 +4543,7 @@ function moDanTem(r,p,quaFile){
    Quyết định 25/08/2026: đơn giản hoá theo yêu cầu, đồng thời loại bỏ luôn gốc rễ rủi ro
    treo máy khi lô có số bao rất lớn (vd 27.000 bao) — trước đây chặn bằng TEM_TOI_DA,
    giờ không còn cách nào sinh nhiều trang nữa nên không còn nguy cơ đó. */
-function trangTem(r,p){
+function trangTem(r,p){ const temKho=khoTemCua(p); // S138: sang chiết luôn khổ vuông
   const mot=temHTML(r,p);
   if(laKhoNhiet(temKho)){ // 1 tem/trang, khớp @page cùng tên khổ (xem CSS)
     const vua=coChuVua(mot,1,1,temKho);
@@ -4848,14 +4867,16 @@ function veCTBang(dsX){
 const laDongGoi=p=>khongTem(p)||laSangChiet(p); // S132: hàng sang chiết cũng là hàng không tự sản xuất (nguồn hàng, lô kiểu Sang chiết)
 function nguonHangDG(p){return (p.congThucNL||[]).filter(x=>x&&x.ten).map(x=>{const ds=nguonNguyenLieu[x.ten]||[],ncc=(nlDangDung&&nlDangDung[x.ten])||(ds.length?ds[ds.length-1].ncc:'');return {ten:x.ten,ncc}})}
 /* S132: ô "Nhà sản xuất" ở khung khai/sửa lần mua NGUYÊN LIỆU — dùng in tem hàng 🧴 Sang chiết. Thêm lần mua mới thì điền sẵn
-   theo lần mua gần nhất đã khai (NSX thường không đổi); để trống tên = dùng tên nhà cung cấp. */
+   theo lần mua gần nhất đã khai (NSX thường không đổi); để trống tên = dùng tên nhà cung cấp.
+   S136: KHÔNG điền sẵn nữa — xem nsxCua: cùng NCC thì tự dùng lại, khác NCC thì phải khai mới. */
 function nfNSXHTML(ds,e0){
-  const g=e0||[...(ds||[])].reverse().find(e=>e&&(e.nsxTen||e.nsxDiaChi||e.nsxNuoc))||{}, v=k=>esc(g[k]||'');
-  const co=!!(g.nsxTen||g.nsxDiaChi||g.nsxNuoc||g.nsxHSD);
+  const g=e0||{}, v=k=>esc(g[k]||''); // S136: lần mua MỚI để trống — cùng NCC thì tem tự dùng lại thông tin đã khai; điền sẵn dễ chép nhầm địa chỉ nhà cũ sang nhà mới
+  const co=!!(g.nsxTen||g.nsxDiaChi||g.nsxNuoc||g.nsxHSD||g.nsxTCCS);
   return `<details class="nf-nsx"${co?' open':''}><summary>🧴 Thông tin nhà sản xuất <small>(cho tem hàng sang chiết · hàng tự sản xuất không cần)</small></summary>
     <div class="nf-hd"><label class="nsx-dai"><span>Tên nhà sản xuất</span><input class="ninp" data-nf="nsxTen" type="text" placeholder="trống = tên nhà cung cấp" value="${v('nsxTen')}"></label>
       <label><span>Nước sản xuất (xuất xứ)</span><input class="ninp" data-nf="nsxNuoc" type="text" placeholder="VD Việt Nam, Trung Quốc" value="${v('nsxNuoc')}"></label>
       <label><span>Hạn dùng trên bao gốc</span><input class="ninp" data-nf="nsxHSD" type="text" placeholder="VD 10/2029 (nếu có)" value="${esc(e0&&e0.nsxHSD||'')}"></label>
+      <label><span>Tiêu chuẩn của nhà sản xuất</span><input class="ninp" data-nf="nsxTCCS" type="text" placeholder="VD TCCS 01:2025/ABC (nếu có)" value="${v('nsxTCCS')}"></label>
       <label class="nsx-dai"><span>Địa chỉ nhà sản xuất</span><input class="ninp" data-nf="nsxDiaChi" type="text" placeholder="số nhà, đường, phường/xã, tỉnh/thành, nước" value="${v('nsxDiaChi')}"></label></div>
   </details>`;
 }
@@ -7230,6 +7251,12 @@ function veSL(){
      <button class="bigbtn alt" id="knXoa" style="margin-top:6px">Xoá kết nối trên máy này</button>
      <div id="knKq" style="margin-top:8px;font-size:12.5px;color:var(--txt-2)"></div></div>
 
+   <div class="sec">Khoá mật mã 6 số</div>
+   <div class="bk"><h5>Khoá mật mã 6 số</h5>
+     <p>Mở app là phải nhập mã 6 số. Mã của bản Nhân viên tự gửi xuống mọi máy qua đồng bộ, máy nhận mã mới ở lần mở sau. Quên mã thì nhắn để gỡ.</p>
+     <div class="pin-ds">${[['admin','Bản Admin'],['nv','Bản Nhân viên']].map(([ai,ten])=>{const co=!!KHOA_PIN.doc('peroma_pin_'+ai); /* S137 */
+       return `<div class="pin-dong"><span><b>${ten}</b> · ${co?'<b style="color:var(--cyan)">đang khoá</b>':'chưa đặt mã'}</span><button type="button" class="ctsxb" data-pin="${ai}">${co?'Đổi mã':'Đặt mã'}</button>${co?`<button type="button" class="ctsxb" data-pintat="${ai}">Tắt khoá</button>`:''}</div>`}).join('')}</div></div>
+
    <div class="sec">Xuất file — Excel · quy ước · bản sao</div>
    <div class="bk"><h5>Toàn bộ dữ liệu (1 file Excel)</h5>
      <p>Gom hết vào 1 file: danh sách lô (kèm số hoá đơn và giá thành từng lô), mặt hàng, hương, quy cách, công thức, mọi lần mua, kho, bao bì, mẻ đã ghi. Mỗi phần 1 trang.
@@ -7722,7 +7749,7 @@ $('viewMA').addEventListener('click',async e=>{
     const soHD=String(gv('soHD')||'').trim(); // 14/10/2026: số hoá đơn đầu vào — chụp vào từng mẻ để đối soát
     const soHopDong=String(gv('soHopDong')||'').trim(); // 17/10/2026: số hợp đồng (nếu có)
     const soToKhai=String(gv('soToKhai')||'').trim(); // S116
-    const nsx=loai==='nl'?{nsxTen:String(gv('nsxTen')||'').trim(),nsxDiaChi:String(gv('nsxDiaChi')||'').trim(),nsxNuoc:String(gv('nsxNuoc')||'').trim(),nsxHSD:String(gv('nsxHSD')||'').trim()}:{}; // S132: thông tin nhà sản xuất cho tem hàng sang chiết
+    const nsx=loai==='nl'?{nsxTen:String(gv('nsxTen')||'').trim(),nsxDiaChi:String(gv('nsxDiaChi')||'').trim(),nsxNuoc:String(gv('nsxNuoc')||'').trim(),nsxHSD:String(gv('nsxHSD')||'').trim(),nsxTCCS:String(gv('nsxTCCS')||'').trim()}:{}; // S132: thông tin nhà sản xuất cho tem hàng sang chiết
     if(vat!==null&&!(vat>=0&&vat<=100)){bao('Thuế suất VAT từ 0 đến 100 %');return}
     // S107: ngày trên hoá đơn (trước luôn lấy ngày nhập app) — nguyên liệu ghép mẻ theo ngày này
     const nm=String(gv('ngay')||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/), ngayHD=nm?nm[1].padStart(2,'0')+'/'+nm[2].padStart(2,'0')+'/'+nm[3]:String(gv('ngay')||'').trim()?null:homNay();
@@ -9028,8 +9055,8 @@ $('rows').addEventListener('change',async e=>{
     const cu=(p.hstem||{})[k]; p.hstem={...temMoi(),...(p.hstem||{}),[k]:String(e.target.value||'').trim()}; ghiAudit('recipe',p.ten,'SUA_NHA_SAN_XUAT_TAM',{[k]:cu},{[k]:p.hstem[k]}); luu();ve();bao('Đã lưu thông tin nhà sản xuất vào hồ sơ tem');return}
   if(e.target.dataset.temnsx!==undefined){const [i,k]=e.target.dataset.temnsx.split('|'), p=sp[+i], ns=p&&nsxCua(p); if(!ns||!ns.ncc)return; // S132
     const ds=nguonNguyenLieu[ns.nl]||[], cung=ds.filter(x=>x&&x.ncc===ns.ncc), e0=cung[cung.length-1]; if(!e0)return;
-    const cu={nsxTen:e0.nsxTen,nsxDiaChi:e0.nsxDiaChi,nsxNuoc:e0.nsxNuoc,nsxHSD:e0.nsxHSD};
-    Object.assign(e0,{nsxTen:ns.ten===ns.ncc?'':ns.ten,nsxDiaChi:ns.diaChi,nsxNuoc:ns.nuoc},{[k]:String(e.target.value||'').trim()});
+    const cu={nsxTen:e0.nsxTen,nsxDiaChi:e0.nsxDiaChi,nsxNuoc:e0.nsxNuoc,nsxHSD:e0.nsxHSD,nsxTCCS:e0.nsxTCCS};
+    Object.assign(e0,{nsxTen:ns.ten===ns.ncc?'':ns.ten,nsxDiaChi:ns.diaChi,nsxNuoc:ns.nuoc,nsxTCCS:ns.tccs},{[k]:String(e.target.value||'').trim()});
     ghiAudit('stock',ns.nl,'SUA_NHA_SAN_XUAT',cu,{ncc:ns.ncc,[k]:e0[k]}); luuNgay();ve();bao('Đã lưu thông tin nhà sản xuất của '+ns.ncc);return}
   if(e.target.dataset.hanggoc!==undefined){const p=sp[+e.target.dataset.hanggoc]; if(!p)return; const v=e.target.value, kg=num(p.kg)>0?num(p.kg):100; // S132
     p.congThucNL=v?[{ten:v,kg}]:[]; p.kg=kg; bumpRecipeVersion(p);dongBoThanhPhanTuNL(p);luu();ve();return}
@@ -9365,6 +9392,112 @@ async function kiemTraBanMoi(){
   setInterval(kiemTraBanMoi,5*60*1000);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)kiemTraBanMoi()});
 })();
+</script>
+<!-- S137/R54 10/11/2026 (khách: "tạo lớp bảo vệ mật khẩu cho bản admin và nhân viên — cửa sổ mật khẩu dạng iPhone 6 số PIN";
+     chốt: Admin đặt mã chung cho NV, chỉ khoá lúc mở app, quên mã thì nhờ sửa tay). KHỐI NÀY GIỐNG HỆT Ở 2 APP.
+     Chỉ là CỬA CHẶN người lướt qua máy: mã băm lưu ở máy (localStorage), ai rành kỹ thuật vẫn mở được — bảo mật dữ liệu thật
+     vẫn là mật khẩu máy chủ. Chưa đặt mã = không khoá (như iPhone chưa bật mật mã), nên máy mới / bộ kiểm tra không bị chặn.
+     Khoá: 'peroma_pin_admin' (riêng từng máy Admin), 'peroma_pin_nv' (Admin đặt, đi theo cấu hình đồng bộ trường khoaNV).
+     Quên mã: F12 → Console: localStorage.setItem('peroma_pin_admin','tat') rồi tải lại (removeItem thì về mã mặc định S137b). -->
+<style>
+#pinKhoa{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(14,18,28,.78);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);color:#fff;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;user-select:none}
+#pinKhoa .pk-hop{display:flex;flex-direction:column;align-items:center;gap:18px;padding:16px}
+#pinKhoa .pk-khoa{font-size:26px;line-height:1}
+#pinKhoa .pk-tieu{font-size:20px;font-weight:500;text-align:center}
+#pinKhoa .pk-phu{font-size:13px;opacity:.75;min-height:18px;text-align:center;max-width:300px}
+#pinKhoa .pk-cham{display:flex;gap:16px;margin:2px 0 10px}
+#pinKhoa .pk-cham i{width:13px;height:13px;border-radius:50%;border:1.5px solid #fff;transition:background .08s}
+#pinKhoa .pk-cham i.on{background:#fff}
+#pinKhoa .pk-cham.lac{animation:pkLac .42s}
+@keyframes pkLac{0%,100%{transform:translateX(0)}20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
+#pinKhoa .pk-phim{display:grid;grid-template-columns:repeat(3,78px);gap:16px 24px}
+#pinKhoa .pk-phim button{width:78px;height:78px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .12s}
+#pinKhoa .pk-phim button b{font-size:32px;font-weight:400;line-height:1}
+#pinKhoa .pk-phim button small{font-size:9px;letter-spacing:2px;font-weight:600;margin-top:2px;min-height:11px}
+#pinKhoa .pk-phim button:active,#pinKhoa .pk-phim button.bam{background:rgba(255,255,255,.42)}
+#pinKhoa .pk-phim button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#pinKhoa .pk-phim .pk-chu{background:none;font-size:16px}
+#pinKhoa .pk-phim button:disabled{opacity:.35;cursor:default}
+@media (max-height:600px){#pinKhoa .pk-phim{grid-template-columns:repeat(3,62px);gap:10px 20px}#pinKhoa .pk-phim button{width:62px;height:62px}#pinKhoa .pk-phim button b{font-size:26px}}
+@media print{#pinKhoa{display:none}}
+</style>
+<script>
+const KHOA_PIN=(()=>{
+  // băm có muối, chạy được ở mọi nơi (file://, http, https) — crypto.subtle cần "secure context" nên không dùng
+  const bam=s=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}
+    a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);
+    return (b>>>0).toString(16).padStart(8,'0')+(a>>>0).toString(16).padStart(8,'0')};
+  const maHoa=pin=>'p1:'+bam('peroma-pin|'+pin);
+  /* S137b 11/11/2026 (khách: "thiết lập mặc định khoá cho admin và cho nhân viên"): máy chưa có mã nào thì dùng MÃ MẶC ĐỊNH (chỉ lưu
+     dạng băm). Trên máy: 'p1:…' = mã đã đặt · 'tat' = đã tắt khoá · không có = mặc định. doc() trả mã đang hiệu lực ('' = không khoá). */
+  const MAC_DINH={peroma_pin_admin:'p1:727a9be7ff1e7cc7',peroma_pin_nv:'p1:f28418252902f667'};
+  const tho=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+  const doc=k=>{const v=tho(k); return v==='tat'?'':(v||MAC_DINH[k]||'')};
+  const ghi=(k,v)=>{try{localStorage.setItem(k,v||'tat')}catch(e){}};
+  const CHU=['','','ABC','DEF','GHI','JKL','MNO','PQRS','TUV','WXYZ'];
+  /* hộp nhập 6 số kiểu iPhone. nhan(pin) trả true = xong (đóng), chuỗi = báo lỗi (lắc, xoá, hiện chữ), {tieu,phu} = sang bước sau */
+  function hop({tieu,phu='',nhan,huy}){
+    const cu=document.getElementById('pinKhoa'); if(cu)cu.remove();
+    const el=document.createElement('div'); el.id='pinKhoa'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+    const phim=[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-pk="${n}" aria-label="${n}"><b>${n}</b><small>${CHU[n]}</small></button>`).join('')
+      +(huy?'<button type="button" class="pk-chu" data-pk="huy">Huỷ</button>':'<span></span>')
+      +'<button type="button" data-pk="0" aria-label="0"><b>0</b><small></small></button><button type="button" class="pk-chu" data-pk="xoa">Xoá</button>';
+    el.innerHTML=`<div class="pk-hop"><div class="pk-khoa">🔒</div><div class="pk-tieu"></div><div class="pk-phu"></div><div class="pk-cham">${'<i></i>'.repeat(6)}</div><div class="pk-phim">${phim}</div></div>`;
+    const $t=el.querySelector('.pk-tieu'), $p=el.querySelector('.pk-phu'), $c=el.querySelector('.pk-cham'), dots=[...$c.children];
+    let so='', ban=false;
+    const ve=()=>dots.forEach((d,i)=>d.classList.toggle('on',i<so.length));
+    const dat=(t,p)=>{$t.textContent=t;$p.textContent=p||''};
+    const dong=()=>{el.remove();removeEventListener('keydown',phimBam,true)};
+    const nhap=k=>{
+      if(ban)return;
+      if(k==='huy'){if(huy){dong();huy()}return}
+      if(k==='xoa'){so=so.slice(0,-1);ve();return}
+      if(so.length>=6)return; so+=k; ve(); if(so.length<6)return;
+      ban=true; setTimeout(()=>{const pin=so, kq=nhan(pin); so=''; ban=false;
+        if(kq===true){dong();return}
+        if(kq&&typeof kq==='object'){dat(kq.tieu,kq.phu);ve();return}
+        $p.textContent=kq||''; ve(); $c.classList.remove('lac'); void $c.offsetWidth; $c.classList.add('lac'); try{navigator.vibrate&&navigator.vibrate(180)}catch(e){}},120)};
+    el.addEventListener('click',e=>{const b=e.target.closest('[data-pk]'); if(b)nhap(b.dataset.pk)});
+    // chặn MỌI phím tới app phía sau khi đang khoá; số / Backspace / Esc dùng cho hộp
+    const phimBam=e=>{if(!el.isConnected)return; e.stopPropagation(); if(e.ctrlKey||e.metaKey||e.altKey)return; e.preventDefault();
+      if(/^\d$/.test(e.key)){const b=el.querySelector(`[data-pk="${e.key}"]`); if(b){b.classList.add('bam');setTimeout(()=>b.classList.remove('bam'),110)} nhap(e.key)}
+      else if(e.key==='Backspace')nhap('xoa'); else if(e.key==='Escape')nhap('huy')};
+    addEventListener('keydown',phimBam,true);
+    dat(tieu,phu); ve(); (document.body||document.documentElement).appendChild(el);
+    try{document.activeElement&&document.activeElement.blur&&document.activeElement.blur()}catch(e){}
+    return {dat,el};
+  }
+  /* mở app: có mã thì khoá tới khi đúng. Sai 5 lần → chờ 30 giây (như iPhone) */
+  function khoaLucMo(khoa,ten){
+    const h=doc(khoa); if(!h)return false;
+    // trình duyệt tự động (bộ kiểm tra) chưa đặt mã gì → bỏ qua mã MẶC ĐỊNH để bài thử chạy được; mã đã đặt vẫn khoá như thường
+    if(!tho(khoa)&&navigator.webdriver)return false;
+    let sai=0, choDen=0;
+    const o=hop({tieu:'Nhập mật mã',phu:ten,nhan:pin=>{
+      if(Date.now()<choDen)return `Thử lại sau ${Math.ceil((choDen-Date.now())/1000)} giây`;
+      if(maHoa(pin)===h)return true;
+      sai++; if(sai>=5){sai=0;choDen=Date.now()+30000;return 'Sai 5 lần — thử lại sau 30 giây'}
+      return 'Sai mật mã'}});
+    return o;
+  }
+  /* đặt mã mới: nhập 2 lần cho khớp. xong(băm) nhận mã đã băm */
+  function datMa(tieu,xong){
+    let lan1='';
+    hop({tieu:'Nhập mật mã mới',phu:tieu,huy:()=>{},nhan:pin=>{
+      if(!lan1){lan1=pin;return {tieu:'Nhập lại mật mã',phu:tieu}}
+      if(pin!==lan1){lan1='';setTimeout(()=>{const t=document.querySelector('#pinKhoa .pk-tieu');if(t)t.textContent='Nhập mật mã mới'},0);return 'Hai lần không khớp — nhập lại từ đầu'}
+      xong(maHoa(pin)); return true}});
+  }
+  return {maHoa,doc,ghi,hop,khoaLucMo,datMa};
+})();
+</script>
+<script>
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-pin],[data-pintat]'); if(!b)return; e.stopPropagation(); // S137
+  const ai=b.dataset.pin||b.dataset.pintat, k='peroma_pin_'+ai, ten=ai==='admin'?'bản Admin':'bản Nhân viên';
+  if(b.dataset.pintat){if(!await hoi('Tắt khoá '+ten,`Mở ${ten} sẽ không cần mật mã nữa${ai==='nv'?' (mọi máy nhân viên, từ lần mở sau)':''}.`,{nutOK:'Tắt khoá'}))return;
+    KHOA_PIN.ghi(k,''); luuNgay(); veSL(); bao('Đã tắt khoá '+ten); return}
+  KHOA_PIN.datMa(ten,h=>{KHOA_PIN.ghi(k,h); luuNgay(); veSL(); bao('Đã đặt mật mã '+ten+' — gửi lên đồng bộ')})},true);
+KHOA_PIN.khoaLucMo('peroma_pin_admin','Peroma · bản Admin');
 </script>
 </body>
 </html>

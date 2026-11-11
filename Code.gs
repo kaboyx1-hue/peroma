@@ -240,7 +240,10 @@ function sachCauHinhServer(c, cu){
     trangThaiMe: (c.trangThaiMe && typeof c.trangThaiMe === 'object' && !Array.isArray(c.trangThaiMe)) ? c.trangThaiMe
            : ((cu && cu.trangThaiMe && typeof cu.trangThaiMe === 'object') ? cu.trangThaiMe : undefined),
     // 15/10/2026 — S63: thông báo hương vượt tồn / nợ dữ liệu (Admin tính) để Nhân viên thấy. Bản Admin cũ không gửi → giữ bản đang lưu.
-    canhBaoHuong: Array.isArray(c.canhBaoHuong) ? c.canhBaoHuong : ((cu && Array.isArray(cu.canhBaoHuong)) ? cu.canhBaoHuong : [])
+    canhBaoHuong: Array.isArray(c.canhBaoHuong) ? c.canhBaoHuong : ((cu && Array.isArray(cu.canhBaoHuong)) ? cu.canhBaoHuong : []),
+    // 10/11/2026 — S137: mã băm khoá mật mã 6 số {admin, nv} (Admin đặt, mọi máy nhận). Chỉ nhận 2 chuỗi; bản Admin cũ không gửi → giữ bản đang lưu.
+    khoaPIN: (c.khoaPIN && typeof c.khoaPIN === 'object') ? {admin: String(c.khoaPIN.admin || ''), nv: String(c.khoaPIN.nv || '')}
+           : ((cu && cu.khoaPIN && typeof cu.khoaPIN === 'object') ? cu.khoaPIN : undefined)
   };
 }
 

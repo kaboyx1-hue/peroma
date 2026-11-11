@@ -324,7 +324,7 @@ const s21=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)); con
   doiTen('q',q+' S21',q);
   // 8) đồng bộ: whitelist từng mặt hàng · gói gửi lên Sheet · Code.gs cũ (thiếu trường) → giữ bản trên máy
   kq.sach=JSON.stringify(sachCauHinh(sp)[0].baoBiRieng)===JSON.stringify(P().baoBiRieng);
-  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w:()]*\}[,}]/.test(dbDayCauHinh.toString());
+  kq.goi=/nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX[,\w:()]*(,khoaPIN:\{[^}]*\})?\}[,}]/.test(dbDayCauHinh.toString()); // S137: thêm khoaPIN
   const bbT=JSON.stringify(baoBi), qcT=JSON.stringify(baoBiQC), spT=JSON.stringify(sp);
   const cfg=JSON.parse(JSON.stringify(sachCauHinh(sp))); cfg.forEach(x=>delete x.baoBiRieng);
   apDungCauHinhTuServer({sp:cfg});
@@ -396,6 +396,24 @@ ok('S21: thẻ lô có dòng "Chi phí bao bì lúc sản xuất" kèm số cái
 ok('S21: đổi tên quy cách → bao bì mặc định và bao bì riêng đi theo tên mới', s21.doiTen);
 ok('S21: bao bì riêng của mặt hàng nằm trong whitelist đồng bộ (sachCauHinh)', s21.sach);
 ok('S21: danh mục bao bì + gán theo quy cách được gửi lên Sheet cùng cấu hình', s21.goi);
+// S137: khoá mật mã 6 số
+const pin=await E(()=>{const k={}; k.khongKhoa=!document.getElementById('pinKhoa'); const h=KHOA_PIN.maHoa('123456');
+  k.bam=/^p1:[0-9a-f]{16}$/.test(h)&&h===KHOA_PIN.maHoa('123456')&&h!==KHOA_PIN.maHoa('123457')&&!h.includes('123456');
+  k.goi=/khoaPIN:\{admin:KHOA_PIN\.doc\('peroma_pin_admin'\),nv:KHOA_PIN\.doc\('peroma_pin_nv'\)\}/.test(dbDayCauHinh.toString());
+  const cu=[localStorage.getItem('peroma_pin_admin'),localStorage.getItem('peroma_pin_nv')];
+  const dong=(apDungCauHinhTuServer.toString().match(/if\(c\.khoaPIN[^\n]*\}/)||[''])[0], apCauHinh=new Function('c',dong); k.coDong=!!dong; // chạy đúng dòng nhận mã, không chạy cả hàm (tránh đụng dữ liệu bài khác)
+  apCauHinh({khoaPIN:{admin:'p1:aaaa',nv:''}}); k.nhan=localStorage.getItem('peroma_pin_admin')==='p1:aaaa'&&localStorage.getItem('peroma_pin_nv')==='tat'&&KHOA_PIN.doc('peroma_pin_nv')==='';
+  apCauHinh({}); k.giu=localStorage.getItem('peroma_pin_admin')==='p1:aaaa'; // máy chủ chưa có khoaPIN → giữ mã trên máy
+  // S137b: máy chưa có gì → mã mặc định (dạng băm, không lộ số); bộ kiểm tra tự động không bị mã mặc định chặn
+  localStorage.removeItem('peroma_pin_admin'); localStorage.removeItem('peroma_pin_nv');
+  k.macDinh=/^p1:[0-9a-f]{16}$/.test(KHOA_PIN.doc('peroma_pin_admin'))&&/^p1:[0-9a-f]{16}$/.test(KHOA_PIN.doc('peroma_pin_nv'))&&KHOA_PIN.doc('peroma_pin_admin')!==KHOA_PIN.doc('peroma_pin_nv')
+    &&KHOA_PIN.khoaLucMo('peroma_pin_admin','')===false&&!document.getElementById('pinKhoa');
+  ['admin','nv'].forEach((x,i)=>{const kk='peroma_pin_'+x; cu[i]===null?localStorage.removeItem(kk):localStorage.setItem(kk,cu[i])}); return k});
+ok('S137: máy thử tự động không bị khoá lúc mở', pin.khongKhoa);
+ok('S137b: chưa đặt mã → dùng mã mặc định riêng cho Admin và Nhân viên', pin.macDinh);
+ok('S137: chỉ lưu mã đã băm, không lưu số thật', pin.bam);
+ok('S137: mã gửi lên Sheet cùng cấu hình (khoaPIN)', pin.goi);
+ok('S137: nhận mã từ đồng bộ ghi vào máy; máy chủ chưa có khoaPIN thì giữ mã cũ', pin.coDong&&pin.nhan&&pin.giu);
 ok('S21: Code.gs CŨ (chưa có trường bao bì) → kéo cấu hình về KHÔNG làm mất bao bì trên máy', s21.serverCu);
 ok('S21: server có bao bì → áp dụng đúng (kể cả bỏ bao bì riêng)', s21.serverMoi);
 ok('S21: bao bì được lưu xuống máy và có trong file sao lưu', s21.luuMay&&s21.saoLuu);
@@ -4320,8 +4338,8 @@ const es=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   const b=document.createElement('button'); b.dataset.kieu=i+'|||sc'; document.body.append(b); b.click(); b.remove(); await cho(30);
   kq.co=p.hstem.sangChiet===1&&!p.khongTemPhu&&laSangChiet(p)&&!khongTem(p);
   const sc=txt(temHTML(r,p)); kq.tem=/NHÃN PHỤ/.test(sc)&&/Nhà sản xuấtXưởng BQuảng Đông/.test(sc)&&/Xuất xứTrung Quốc/.test(sc)&&/Ngày đóng gói/.test(sc)&&!/Độ ẩm/.test(sc)&&/Hạn sử dụng10\/2029/.test(sc)&&/Sang chiết, đóng gói, phân phối và chịu trách nhiệm/.test(sc)&&/ĐỊA CHỈ ĐÓNG GÓI/.test(sc)&&/02 00 03 071126|020003071126/.test(sc);
-  nlDangDung[NL]='NCC C'; nguonNguyenLieu[NL].push({ncc:'NCC C',gia:1,soKg:1,ngay:'06/11/2026'}); kq.thieu=/CHƯA KHAI ĐỊA CHỈ/.test(txt(temHTML(r,p)))&&/NCC C/.test(txt(temHTML(r,p)));
-  kq.form=/data-nf="nsxDiaChi"[^>]*value="Quảng Đông"/.test(nfNSXHTML(nguonNguyenLieu[NL].slice(0,3),null));
+  nlDangDung[NL]='NCC C'; nguonNguyenLieu[NL].push({ncc:'NCC C',gia:1,soKg:1,ngay:'06/11/2026'}); kq.thieu=/CHƯA KHAI ĐỊA CHỈ/.test(txt(temHTML(r,p)))&&/CHƯA KHAI NƯỚC SẢN XUẤT/.test(txt(temHTML(r,p)))&&/NCC C/.test(txt(temHTML(r,p)));
+  kq.form=/data-nf="nsxDiaChi"[^>]*value="Quảng Đông"/.test(nfNSXHTML(nguonNguyenLieu[NL],nguonNguyenLieu[NL][1]))&&!/value="Quảng Đông"/.test(nfNSXHTML(nguonNguyenLieu[NL],null)); /* S136: sửa lần mua thì hiện đúng; lần mua mới để trống */
   kq.tccs=giuKhoiCty(p.hstem).sangChiet===1;
   const hs=veTem(p,i); kq.hoSoNSX=/data-temnsx="\d+\|nsxDiaChi"/.test(hs)&&/NCC C/.test(hs);
   const inp=document.createElement('input'); inp.dataset.temnsx=i+'|nsxDiaChi'; inp.value='9 Đường C'; $('rows').append(inp); inp.dispatchEvent(new Event('change',{bubbles:true})); await cho(40); inp.remove();
@@ -4334,7 +4352,11 @@ const es=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
     const tt=txt(temHTML(r,p)); kq.tamIn=/Nhà sản xuấtXưởng Tạm5 Đường T/.test(tt)&&/Xuất xứLào/.test(tt)&&!/CHƯA KHAI/.test(tt)&&p.hstem.nsxDiaChi==='5 Đường T';
     p.congThucNL=[]; kq.tamKhongNL=/Xưởng Tạm/.test(txt(temHTML(r,p))); kq.tccsGiu=giuKhoiCty(p.hstem).nsxTen==='Xưởng Tạm';
     nguonNguyenLieu[NL3]=[{ncc:'NCC D',gia:1,soKg:1,ngay:'01/11/2026',nsxDiaChi:'Địa chỉ lần mua'}]; p.congThucNL=[{ten:NL3,kg:100}];
-    const t3=txt(temHTML(r,p)); kq.uuTienLanMua=/Địa chỉ lần mua/.test(t3)&&/Xuất xứLào/.test(t3); delete nguonNguyenLieu[NL3]; }
+    const t3=txt(temHTML(r,p)); kq.uuTienLanMua=/Địa chỉ lần mua/.test(t3)&&!/Xưởng Tạm|Lào/.test(t3); /* S136: có NCC thật thì không trộn ô tạm */
+    const rCu={...r,hoaDonLucSX:[{loai:'nl',ten:NL3,ncc:'',soHD:''}]}; kq.loCuTam=/Xưởng Tạm5 Đường T/.test(txt(temHTML(rCu,p)));
+    nguonNguyenLieu[NL3].push({ncc:'NCC E',gia:1,soKg:1,ngay:'05/11/2026',nsxTen:'Nhà E',nsxDiaChi:'Địa chỉ E'}); nlDangDung[NL3]='NCC E';
+    const rD={...r,hoaDonLucSX:[{loai:'nl',ten:NL3,ncc:'NCC D',soHD:''}]}; kq.doiNCC=/Địa chỉ lần mua/.test(txt(temHTML(rD,p)))&&/Nhà EĐịa chỉ E/.test(txt(temHTML(r,p)))&&!/data-nf="nsxDiaChi"[^>]*value="Địa/.test(nfNSXHTML(nguonNguyenLieu[NL3],null));
+    delete nlDangDung[NL3]; delete nguonNguyenLieu[NL3]; }
   const b2=document.createElement('button'); b2.dataset.kieu=i+'|||sx'; document.body.append(b2); b2.click(); b2.remove(); await cho(30); kq.boCo=!p.hstem.sangChiet&&/Sản xuất và chịu trách nhiệm/.test(txt(temHTML(r,p)));
   sp.splice(g.sp); nguonNguyenLieu=JSON.parse(g.nl); nlDangDung=JSON.parse(g.dd); luuNgay(); chuyenTab('tq'); return kq });
 ok('ES: tem hàng 🧴 Sang chiết — có Nhà sản xuất/địa chỉ/xuất xứ theo lần mua của NCC đang dùng, Ngày đóng gói, hạn theo bao gốc, bỏ Độ ẩm, khối công ty đổi vai trò; thiếu thì báo trên tem; tem sản xuất giữ nguyên', Object.values(es).every(Boolean), JSON.stringify(es))
