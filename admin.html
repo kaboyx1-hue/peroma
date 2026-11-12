@@ -1286,6 +1286,7 @@ td.gvthieu i,.gvtong td i{font-style:normal;color:var(--badTx);margin-left:2px}
 .gt-hs button small{font-size:12px;color:var(--tx2);font-variant-numeric:tabular-nums}
 .gt-hs button.on{background:var(--acc);border-color:var(--acc);color:var(--onAcc)}
 .gt-hs button.on small{color:var(--onAcc)}
+.gt-hs button.gt-hs-them{border-style:dashed;background:transparent;color:var(--accTx)}
 .gt-thes{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:12px}
 .gt-the{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:11px 13px;min-width:0}
 .gt-nhan{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1726,7 +1727,8 @@ html.bsl-on body{overflow:hidden}
 .bbqc-r2 .bbphu summary{font-size:12px;color:var(--txt-3);cursor:pointer}
 .gt-hero{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:18px;background:var(--c2);margin:8px 0 12px}
 .gt-hero small{display:block;font-size:12px;color:var(--txt-3)}.gt-hero b{display:block;font:800 30px/1.1 var(--disp);font-variant-numeric:tabular-nums}.gt-hero span{font-size:12.5px;color:var(--txt-2)}
-.ctsec[data-sec="gt"] .gt-dau-t,.ctsec[data-sec="gt"] .gt-bang-t{display:none}.ctsec[data-sec="gt"] .gt-dau{justify-content:flex-end}
+.ctsec[data-sec="gt"] .gt-bang-t{display:none} /* S142: hiện lại tên mặt hàng · hương · quy cách ở dải đầu khung Giá thành */
+.ctsec[data-sec="gt"] .gt-sp{font-size:16px;color:var(--txt-1,inherit)}
 .gt-hero-tt{font-size:13px;font-weight:700;color:#1F7A3E;max-width:420px}.gt-hero.thieu .gt-hero-tt{color:var(--warnTx)}
 
 /* S78 — đối soát số lô */
@@ -1997,9 +1999,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 11/11/2026-S140</i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC · BẢN 12/11/2026-S142</i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 11/11/2026-S140</div>
+      <div class="verFoot">BẢN 12/11/2026-S142</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3652,12 +3654,16 @@ function khopTruHuong(h,anh){const ds=nguonHuong[h]||[], q=x=>Math.round(x*1000)
    còn đủ chỗ có ngày ≤ ngày SX + 7; không có thì lần mua còn chỗ gần nhất sau đó; hết chỗ → "chờ nhập kho" (chưa khai lần mua mới, không phải lỗi).
    Lô đã CHUYỂN TAY (S127, sổ traNo.chuyen) giữ nguyên. Chỉ TÍNH, không ghi; xepLaiHuong + chuyenLoHuong mới ghi (lúc Chốt lô / bấm Xếp lại).
    ponytail: lô không vừa trọn 1 lần mua thì không chia đôi — coi là chờ nhập kho; O(lô × lần mua) mỗi lần gọi. */
-function phanBoHuong(h){const kq={me:new Map(),cho:[]}; if(!h||isUnscented(h)||huongKemNL(h))return kq;
+/* S141 11/11/2026 (khách: "số lot đã tạo quá lâu, hương đã sử dụng rồi thì phải khoá số lượng đó lại trừ khi có phát sinh như bị xoá, điều chỉnh"):
+   lô ĐÃ CHỐT (COMPLETED) hoặc đã chuyển tay là GHIM vào lần mua đang nối — không bị chốt lô khác hay nút Xếp lại kéo đi; đổi nối chỉ khi người dùng
+   tự chuyển, xoá hoặc sửa lô. Lô chưa chốt vẫn được xếp theo thời gian lúc chốt (yêu cầu S134). Lô đã nối đúng lần mua thì KHÔNG còn báo "tạm tính"
+   dù lần mua ghi ngày sau ngày làm lô (hoá đơn về sau) — hương đã dùng là đã dùng. */
+function phanBoHuong(h){const kq={me:new Map(),cho:[],ghim:new Set()}; if(!h||isUnscented(h)||huongKemNL(h))return kq;
   const ds=nguonHuong[h]||[], tn=(meDaTru&&meDaTru.traNo)||{};
   const lan=ds.map((e,ix)=>({e,ix,con:num(e.soKg)+num(e.dieuChinhKg||0),d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>num(o.e.soKg)>0).sort((a,b)=>a.d.localeCompare(b.d)||a.ix-b.ix);
   const los=nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0).sort((a,b)=>String(a.ngaysx||'').localeCompare(String(b.ngaysx||''))||String(a.ts||'').localeCompare(String(b.ts||'')));
-  const tay=r=>tn[r.id]&&tn[r.id].chuyen&&lan.find(o=>o.ix===tn[r.id].ix);
-  los.forEach(r=>{const o=tay(r); if(o){o.con-=num(r.mlDung)/1000; kq.me.set(r.id,o)}});
+  const tay=r=>{const t=tn[r.id], ix=t&&t.chuyen?t.ix:trangThaiSXCua(r)==='COMPLETED'?ds.indexOf(dongTruCua(r)):-1; return ix>=0?lan.find(o=>o.ix===ix):null};
+  los.forEach(r=>{const o=tay(r); if(o){o.con-=num(r.mlDung)/1000; kq.me.set(r.id,o); kq.ghim.add(r.id)}});
   los.filter(r=>!tay(r)).forEach(r=>{const kg=num(r.mlDung)/1000, han=congNgay(r.ngaysx||r.ts||'',7), ts=String(r.ts||''),
     co=lan.filter(o=>o.con>=kg-.0005&&!(o.e.chot&&ts>String(o.e.chot.luc||''))), o=co.filter(o=>o.d<=han)[0]||co[0];
     if(o){o.con-=kg; kq.me.set(r.id,o)} else kq.cho.push(r)});
@@ -6066,11 +6072,12 @@ function veGiaThanh(p,i){
   const ml=num(p.ml), tiLe=ml>0&&kgChuan>0?kgChuan*1000/ml:0;
   const nhanThe=x=>x.loai==='h'&&!x.khong&&x.khoa!==undefined&&!/^hương/i.test(x.ten)?'Hương '+x.ten:x.ten;
   let o=`<div class="gt-dau"><div class="gt-dau-t"><span class="gt-sp">${esc(p.ten)}${t.h?' · '+esc(t.h):''}</span>
-      <div class="gt-to"><b>${esc(t.q)}</b><span>— định mức &amp; giá vốn cho mỗi gói thành phẩm</span></div></div>
+      <div class="gt-to"><b>${esc(t.q)}</b><span>${laDongGoi(p)?'📦 Đóng gói lại':'🏭 Sản xuất'} · mẻ chuẩn ${fmt(num(p.kg))} kg — định mức &amp; giá vốn cho mỗi gói</span></div></div>
     <div class="gt-chon">${qs.length>1?`<div class="gt-qc" role="group" aria-label="Chọn quy cách">${qs.map(q=>`<button type="button" class="${q===t.q?'on':''}" data-gtq="${i}|||${esc(q)}">${esc(q)}</button>`).join('')}</div>`:''}
       </div></div>`;
-  if(hs.length>1)o+=`<div class="gt-hs" role="group" aria-label="Chọn hương — giá vốn mỗi gói ${esc(t.q)}"><span>Chọn hương · giá vốn / gói ${esc(t.q)}</span>${hs.map(h=>{const gh=giaVonBao(p,t.q,h), coGia=isUnscented(h)||!gh.thieu.some(x=>x==='giá hương '+h);
-    return `<button type="button" class="${h===t.h?'on':''}" data-gthc="${i}|||${esc(h)}"><b>${esc(h)}</b><small>${gh.kgBao&&coGia?fmtTien(gh.tong)+' đ':'chưa có giá hương'}</small></button>`}).join('')}</div>`;
+  /* S142: hàng hương LUÔN hiện (khách: "còn phần nhập liệu hương ở đâu?") — 1 hương vẫn thấy nút, 0 hương thì báo + nút chọn; nút cuối dẫn tới nhóm Hương liệu của mặt hàng để thêm/đổi */
+  o+=`<div class="gt-hs" role="group" aria-label="Chọn hương — giá vốn mỗi gói ${esc(t.q)}"><span>${hs.length?'Hương · giá vốn / gói '+esc(t.q):'Mặt hàng chưa chọn hương — giá vốn chưa gồm hương'}</span>${hs.map(h=>{const gh=giaVonBao(p,t.q,h), coGia=isUnscented(h)||!gh.thieu.some(x=>x==='giá hương '+h);
+    return `<button type="button" class="${h===t.h?'on':''}" data-gthc="${i}|||${esc(h)}"><b>${esc(h)}</b><small>${gh.kgBao&&coGia?fmtTien(gh.tong)+' đ':'chưa có giá hương'}</small></button>`}).join('')}<button type="button" class="gt-hs-them" data-gtdi="cth" data-gti="${i}"><b>${hs.length?'＋ Thêm / đổi hương':'＋ Chọn hương'}</b><small>tới nhóm Hương liệu</small></button></div>`;
   if(!g.kgBao)return o+`<div class="canh">Quy cách "${esc(t.q)}" chưa có số kg mỗi bao — khai ở Danh mục → Quy cách.</div>`;
   o+=`<div class="gt-hero${g.thieu.length?' thieu':''}"><div><small>Giá vốn / 1 gói ${esc(t.q)}</small><b>${fmt(Math.round(g.tong))} đ</b><span>đã VAT ${fmt(Math.round(g.tongVAT))} đ · ${fmt(Math.round(g.dKg))} đ/kg</span></div>
     <div class="gt-hero-tt">${g.thieu.length?'⚠ Chưa đủ giá: '+esc(g.thieu.join(' · ')):'✅ Đủ giá hương, nguyên liệu, bao bì'}</div></div>`;
@@ -6494,7 +6501,7 @@ function cxMe(){const dem={}, me=nk.filter(r=>!r.huy).slice().sort((a,b)=>String
  me.forEach(m=>m.hg.forEach(v=>{if(v.e){if(!theoE.has(v.e))theoE.set(v.e,[]); theoE.get(v.e).push({m,v})}}));
  theoE.forEach((a,e)=>{const cap=num(e.soKg)+num(e.dieuChinhKg||0); let cong=0;
    a.sort((x,y)=>x.m.ngay.localeCompare(y.m.ngay)||String(x.m.r.ts||'').localeCompare(String(y.m.r.ts||''))).forEach(({m,v})=>{cong+=v.kg; v.da=tong.get(e); v.vuot=false; v.cho=cong>cap+.0005;
-     const o=pb(v.ten).me.get(m.id); v.xep=o?o.e!==e:false; if(v.sau&&o&&o.e===e){if(o.d<=congNgay(m.ngay,7)||trangThaiSXCua(m.r)==='COMPLETED')v.sau=false; else v.tam=true}})}); /* S135 (khách: "chốt lô này vẫn không mất dấu chấm than"): lô đã chốt = xác nhận tạm tính theo lần mua gần nhất → hết báo */ // trong 7 ngày (hoá đơn xuất sau) = đúng; xa hơn = tạm tính, vẫn nhắc
+     const o=pb(v.ten).me.get(m.id); v.xep=o?o.e!==e:false; if(v.sau&&o&&o.e===e)v.sau=false})}); /* S135 (khách: "chốt lô này vẫn không mất dấu chấm than"): lô đã chốt = xác nhận tạm tính theo lần mua gần nhất → hết báo */ // trong 7 ngày (hoá đơn xuất sau) = đúng; xa hơn = tạm tính, vẫn nhắc
  /* S139 11/11/2026 (khách: "muốn khoá cứng số lot này để các số lot bị trùng khác có thể sửa, tránh bị nhiễu"): lô GIỮ SỐ (r.giuSo) không báo trùng nữa;
     các lô khác cùng số vẫn báo, kèm ghi chú lô kia đã giữ số → cần đổi số lô này. Mỗi số lô chỉ 1 lô giữ số (bấm giữ thì bỏ giữ ở lô kia). */
  /* S140 11/11/2026 (khách: "các lô sản xuất cùng 1 tháng giờ giải quyết thế nào" → chốt: giữ số, không báo đỏ): lô 10 số cũ (SS HH QQ MMYY, trước

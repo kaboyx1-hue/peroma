@@ -502,10 +502,12 @@ const s23=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq=
   mo.clear(); mo.add(0); chuyenTab('ct'); await cho(30);
   const q2=sp[0].dauRa[1]; document.querySelector('.ctsec[data-sec="gt"][data-si="0"] [data-gtq="0|||'+q2+'"]').click(); await cho(30);
   kq.doiQC=document.querySelector('.ctsec[data-sec="gt"][data-si="0"] .gt-to b').textContent===q2;
+  { const t=document.querySelector('.ctsec[data-sec="gt"][data-si="0"] .gt-dau-t'); kq.s142=!!t&&t.offsetParent!==null&&t.querySelector('.gt-sp').textContent.includes(sp[0].ten)&&/mẻ chuẩn/.test(t.textContent); } /* S142: dải đầu khung Giá thành hiện tên mặt hàng · hương · quy cách */
   sp=napSP(JSON.parse(goc.sp)); kho=JSON.parse(goc.kho); nlDM=JSON.parse(goc.nlDM); nguonNguyenLieu=JSON.parse(goc.nl); nguonHuong=JSON.parse(goc.h); huongDangDung=JSON.parse(goc.hd); baoBiQC=JSON.parse(goc.qc);
   for(const k in gtTT)delete gtTT[k]; mo.clear(); await luuNgay(); chuyenTab('tq');
   return kq;});
 ok('S23: mỗi mặt hàng có nhóm "Giá thành" (và ô điều hướng tới nó)', s23.coKhung, JSON.stringify(s23));
+ok('S142: khung Giá thành hiện tên mặt hàng, hương, quy cách, kiểu và mẻ chuẩn', s23.s142, JSON.stringify(s23));
 ok('S23/S77: Giá thành có ô tổng ở đầu + bảng từng thành phần — hương 0,625 g = 318,75 đ · túi 661,76 đ', s23.the);
 ok('S23: tổng giá vốn/gói 3.481 đ · 1.600 gói/mẻ · 5.568.824 đ/mẻ · 6.961 đ/kg', s23.tong);
 ok('S23: hiện tỉ lệ pha 1 : 800 (0,125% hương)', s23.tiLe);
@@ -2816,12 +2818,19 @@ const bh=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.coGia=nut()[1].querySelector('small').textContent===(t1.thieu.includes('giá hương '+ds[1])?'chưa có giá hương':fmtTien(t1.tong)+' đ');
   nut()[1].click(); await cho(30);
   kq.doi=gtCua(p).h===ds[1] && nut()[1].classList.contains('on') && sec().querySelector('.gt-sp').textContent.includes(ds[1]);
+  /* S142: 1 hương vẫn có hàng nút; 0 hương báo chưa chọn; nút Thêm/đổi dẫn tới nhóm Hương liệu */
+  p.tam=[]; p.huongs=[ds[0]]; for(const k in gtTT)delete gtTT[k]; gtVeLai(i); await cho(20);
+  kq.motHuong=nut().length===1 && !!sec().querySelector('.gt-hs-them[data-gtdi="cth"]');
+  p.huongs=[]; for(const k in gtTT)delete gtTT[k]; gtVeLai(i); await cho(20);
+  kq.khongHuong=nut().length===0 && /chưa chọn hương/.test(sec().querySelector('.gt-hs').textContent) && /Chọn hương/.test(sec().querySelector('.gt-hs-them').textContent);
   p.huongs=JSON.parse(g.h); p.tam=JSON.parse(g.t); for(const k in gtTT)delete gtTT[k]; mo.clear(); luuNgay(); chuyenTab('tq');
   return kq;
 });
 ok('BH: Giá thành hiện nút cho cả hương đang chọn chưa lưu', bh.haiNut, JSON.stringify(bh));
 ok('BH: mỗi nút ghi giá vốn/gói của hương đó', bh.coGia);
 ok('BH: bấm nút → bảng đổi sang hương đó', bh.doi);
+ok('S142: mặt hàng 1 hương vẫn thấy hàng hương + nút Thêm/đổi hương', bh.motHuong);
+ok('S142: mặt hàng chưa có hương báo chưa chọn + nút Chọn hương', bh.khongHuong);
 
 /* BI — 30/09/2026: máy đang nối link máy chủ CŨ (phienban đòi mật khẩu) → ngừng đồng bộ + dải đỏ */
 const bi=await E(async()=>{ const fCu=window.fetch, uCu=DONGBO_URL, kq={}; let goi=0;
@@ -4260,7 +4269,7 @@ const el=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nguonHuong[H]=[{ncc:'B',gia:100000,soKg:5,soHD:'H-1',ngay:'15/10/2026',daDungKg:2}];
   nk=[...nk,{id:'EL-1',sp:p.ten,huong:H,lot:'7980000926',sl:1000,soBao:1000,quyCach:'1 kg',mlDung:2000,ngaysx:'2026-09-30',ts:'2026-09-30T03:00:00.000Z',nlLucSX:[]}];
   chuyenTab('chuoi'); await cho(30); cxMoLo('EL-1'); cxBuoc=2; veChuoi(); await cho(20); const M=()=>cxMeList.find(y=>y.id==='EL-1');
-  kq.truoc=M().hg[0].sau===true; const b=document.querySelector('#cxChu [data-cxsuangay]'); kq.nut=!!b&&/Sửa ngày làm lô/.test(document.querySelector('#cxChu .cx-can').textContent); b&&b.click(); await cho(80);
+  kq.truoc=M().hg[0].sau!==true; /* S141: lô đã nối lần mua duy nhất (HĐ về sau) không còn báo — sửa ngày dùng nút ở Bước 4 */ cxBuoc=4; veChuoi(); await cho(20); const b=document.querySelector('#cxChu [data-cxsuangay]'); kq.nut=!!b; b&&b.click(); await cho(80);
   const r=nk.find(x=>x.id==='EL-1'); kq.luu=r.ngaysx==='2026-10-16'&&r.ngaysxGoc==='2026-09-30'&&r.lot==='7980000926'&&trangThaiMe['EL-1'].ngaysx==='2026-10-16';
   kq.hetSau=!M().hg[0].sau; kq.lechThang=cxLy(M(),4).some(t=>/số lô vẫn ghi tháng 09\/26/.test(t));
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); trangThaiMe=JSON.parse(g.tt); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
@@ -4384,11 +4393,11 @@ const eu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nguonHuong[H]=[{ncc:'P',gia:500000,soKg:5,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24}];
   nk=[...nk,{id:'EU-01',sp:p.ten,huong:H,lot:'7960001026',sl:1000,soBao:1000,quyCach:'1 kg',mlDung:2240,ngaysx:'2026-09-30',ts:'2026-09-30T03:00:00.000Z',nlLucSX:[],truIx:0,giaHuongTheoGLucSX:100}];
   chuyenTab('chuoi'); await cho(30); cxMoLo('EU-01'); cxBuoc=2; veChuoi(); await cho(20); const m=()=>cxMeList.find(y=>y.id==='EU-01');
-  kq.truoc=m().hg[0].tam===true&&cxBuocCua(m())[1].s==='vang'&&!document.querySelector('#cxChu [data-cxxephuong]');
+  kq.truoc=!m().hg[0].sau&&!m().hg[0].tam&&cxBuocCua(m())[1].s==='ok'&&!document.querySelector('#cxChu [data-cxxephuong]'); // S141: lô đã nối đúng lần mua (dù HĐ về sau) không còn báo tạm tính
   window.hoi=async t=>/Chốt giúp/.test(t)?'1000':true; const b=document.createElement('button'); b.dataset.chotgiup='EU-01'; document.body.append(b); b.click(); b.remove(); await cho(60); veChuoi(); await cho(20);
   kq.sauChot=trangThaiSXCua(m().r)==='COMPLETED'&&!m().hg[0].sau&&cxBuocCua(m())[1].s==='ok'&&m().tt==='ok';
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); bcNgay=JSON.parse(g.bc); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
-ok('EU: lô làm trước lần mua hương gần nhất (quá 7 ngày) báo vàng "tạm tính"; chốt lô = xác nhận → hết dấu chấm than', Object.values(eu).every(Boolean), JSON.stringify(eu));
+ok('EU (S141): lô làm trước lần mua hương duy nhất (HĐ về sau) đã nối → không báo tạm tính; chốt vẫn ổn', Object.values(eu).every(Boolean), JSON.stringify(eu));
 ok('không có lỗi console', cerr.length===0, cerr.slice(0,2).join(' | '));
 console.log(`\nKẾT QUẢ:  ${dat} đạt · ${hong} hỏng`);
 if(hong) console.log('CẦN SỬA:\n  - '+loi.join('\n  - '));
