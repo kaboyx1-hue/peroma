@@ -4196,6 +4196,28 @@ const s146c=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq
   kq.xoa=!nlDM.includes(A)&&!nguonNguyenLieu[A]&&!tonKhoNguyenLieu[A]&&!(P.congThucNL||[]).length&&nk.find(r=>r.id==='LQ-1').lot==='5555'&&auditEvents.some(a=>a.action==='XOA_NGUYEN_LIEU'&&a.entityId===A);
   window.hoi=th; sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq});
 ok('S146: nguyên liệu có khung Liên quan (mặt hàng trong công thức, lô đã dùng); xoá báo rõ lô bị ảnh hưởng, lô giữ nguyên số, ghi nhật ký', s146c.khung&&s146c.baoLo&&s146c.xoa, JSON.stringify(s146c));
+/* S146d: lỗi mốc S65 — số tồn nhập tay trước 15/10 bị tính từ 15/10, bỏ sót lô giữa ngày đếm và 15/10 → khung xem + trừ, chỉ dời mốc, không đổi số đếm/lô */
+const s146d=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={dm:nlDM.slice(),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),n:sp.length,nk:nk.slice()};
+  const A='NL __BS__', B='NL __BS2__', C='NL __BS3__', D='NL __BS4__'; nlDM=[...nlDM,A,B,C,D];
+  const P=napSP([{ten:'SP __BS__',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:A,kg:100}]}])[0]; sp.push(P);
+  const me=(id,ten,ts,sl)=>({id,sp:P.ten,huong:'',lot:id,sl,mlDung:0,ngaysx:ts.slice(0,10),ts,nlLucSX:[{ten,tl:1}]});
+  nguonNguyenLieu[A]=[{ncc:'Silica',gia:1,soKg:28000,soHD:'109',ngay:'12/10/2026',ts:'2026-10-15T05:00:00.000Z'}]; // khai trước mốc S65 → chưa cộng; sau khi dời mốc vẫn KHÔNG được cộng lại (dcLog)
+  tonKhoNguyenLieu[A]={con:28000,capNhat:'12/10/2026',moc:'2026-10-15T05:55:05.365Z'};
+  tonKhoNguyenLieu[B]={con:500,capNhat:'01/10/2026',moc:'2026-10-15T05:55:05.365Z',dcLog:[{ngay:'01/10/2026'}]}; // đã kiểm kê kiểu mới → không đụng
+  tonKhoNguyenLieu[C]={con:100,capNhat:'20/09/2026'}; // chưa có mốc → mốc = cuối ngày đếm
+  tonKhoNguyenLieu[D]={con:1000,capNhat:'23/09/2026',moc:'2026-10-15T05:55:05.365Z'};
+  nk=[...nk,...[1,2,3].map(k=>me('BS-a'+k,A,'2026-10-12T0'+k+':00:00.000Z',3000)),me('BS-b1',A,'2026-10-28T03:00:00.000Z',3000),...[1,2,3,4].map(k=>me('BS-c'+k,A,'2026-11-05T0'+k+':00:00.000Z',1500)),
+    me('BS-x',B,'2026-10-05T03:00:00.000Z',100),me('BS-y',C,'2026-09-25T03:00:00.000Z',40),me('BS-z',D,'2026-09-23T15:27:00.000Z',100)];
+  kq.truoc=tonNLKg(A)===19000; kq.mocC=tonNLKg(C)===60&&tonKhoNguyenLieu[C].moc<'2026-09-21';
+  const ds=nlBoSot(); kq.tim=ds.map(x=>x.ten).sort().join()===[A,D].sort().join()&&ds.find(x=>x.ten===D).cungNgay&&!ds.find(x=>x.ten===A).cungNgay;
+  chuyenTab('kho'); await cho(80); {const b=document.querySelector('[data-bosotnl]'); kq.khung=!!b&&b.offsetParent!==null} // S147: hiện ngay đầu tab Kho, không nằm trong khối gập
+  window.hoi=async(t,m)=>{$('dlgM').innerHTML=m; return true}; await truBoSotNL();
+  kq.sau=tonNLKg(A)===10000&&tonKhoNguyenLieu[A].con===28000&&tonKhoNguyenLieu[A].dcLog.length===1&&auditEvents.some(a=>a.action==='TRU_LO_BO_SOT'&&a.entityId===A);
+  kq.khongDung=tonKhoNguyenLieu[D].moc==='2026-10-15T05:55:05.365Z'&&tonKhoNguyenLieu[B].moc==='2026-10-15T05:55:05.365Z'&&tonNLKg(B)===500;
+  kq.het=!nlBoSot().some(x=>x.ten===A);
+  window.hoi=th; sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq});
+ok('S146: lỗi mốc S65 — tìm đúng nguyên liệu bị bỏ sót lô (bỏ qua mục đã kiểm kê kiểu mới; lô cùng ngày đếm để trống tích)', s146d.truoc&&s146d.tim&&s146d.khung, JSON.stringify(s146d));
+ok('S146: trừ lô bị bỏ sót: Cát liti 19.000 → 10.000 khớp hoá đơn, giữ số đếm, không cộng lại hoá đơn, có nhật ký; mục chưa có mốc lấy cuối ngày đếm', s146d.sau&&s146d.khongDung&&s146d.het&&s146d.mocC);
 
 const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);

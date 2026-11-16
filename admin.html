@@ -509,6 +509,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 .nh-caidat-t{color:var(--txt-3);font-size:12px;margin:6px 0}.nh-caidat label{display:block;margin:4px 0}
 .nh-lst small{font-weight:500;color:var(--txt-3)}
 .mh-xoa{margin-top:10px;width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--red);font:inherit;font-weight:700;cursor:pointer}.mh-xoa:hover{background:var(--red-dim,rgba(220,38,38,.08))}
+.bs-nl{margin:0 0 12px}
 .cl-t{width:100%;border-collapse:collapse;font-size:13px;text-align:left}.cl-t th,.cl-t td{padding:6px;border-top:1px solid var(--line);vertical-align:top}.cl-t th{position:sticky;top:0;background:var(--card);font-size:12px}.cl-t .so{text-align:right;font-variant-numeric:tabular-nums}
 /* S145 tinh gọn */
 .tab-nhom{display:none}
@@ -2033,9 +2034,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 16/11/2026-S146</span></i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 16/11/2026-S147</span></i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/11/2026-S146</div>
+      <div class="verFoot">BẢN 16/11/2026-S147</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -3435,7 +3436,7 @@ async function keoNhatKyTT(){if(!DONGBO_URL||ntkDangKeo)return; ntkDangKeo=true;
 const NTK_TEN={KIEM_KE:'Kiểm kê hương',KIEM_KE_NL:'Kiểm kê nguyên liệu',THEM_LAN_MUA:'Thêm lần mua',XOA_LAN_MUA:'Xoá lần mua',SUA_SO_LIEU:'Sửa số liệu mẻ',SUA_GAM_HUONG:'Sửa gam hương',
   SUA_HANG_LOAT:'Sửa hàng loạt',EDIT_RECIPE:'Sửa công thức',CANCEL:'Huỷ lô',STOP:'Ngừng sản xuất',DOI_SO_LO:'Đổi số lô',SUA_NGAY_SX:'Sửa ngày sản xuất',GAN_HD_NL:'Gắn hoá đơn vào mẻ',
   GAN_LAN_MUA_HUONG:'Gắn lần mua hương vào mẻ',CHUYEN_LAN_MUA_HUONG:'Chuyển lần mua hương',TRA_NO:'Trả nợ hương',DOI_MA_CHINH_THUC:'Đổi mã theo bảng chính thức',THEM_MAT_HANG:'Thêm mặt hàng',
-  XOA_MAT_HANG:'Xoá mặt hàng',FINALIZE_ACTUAL:'Chốt thực tế',BO_SUNG_HOA_DON:'Bổ sung hoá đơn',SUA_DINH_MUC_TU_KHO:'Sửa định mức',DUNG_SAI_NGAY_HD:'Đổi số ngày ghép hoá đơn',XOA_NGUYEN_LIEU:'Xoá nguyên liệu'};
+  XOA_MAT_HANG:'Xoá mặt hàng',FINALIZE_ACTUAL:'Chốt thực tế',BO_SUNG_HOA_DON:'Bổ sung hoá đơn',SUA_DINH_MUC_TU_KHO:'Sửa định mức',DUNG_SAI_NGAY_HD:'Đổi số ngày ghép hoá đơn',XOA_NGUYEN_LIEU:'Xoá nguyên liệu',TRU_LO_BO_SOT:'Trừ lô bị bỏ sót (lỗi mốc cũ)'};
 const ntkGon=v=>{if(v===null||v===undefined)return '';const t=typeof v==='object'?Object.entries(v).map(([k,x])=>k+': '+(typeof x==='object'?JSON.stringify(x):x)).join(' · '):String(v);return t.length>140?t.slice(0,140)+'…':t};
 function ntkDsHTML(){const q=ntkTim.trim().toLowerCase();
   const ds=auditEvents.filter(a=>!q||[a.actor,a.may,a.entityId,a.action,NTK_TEN[a.action],ntkGon(a.before),ntkGon(a.after)].join(' ').toLowerCase().includes(q)).slice(-300).reverse();
@@ -5705,9 +5706,35 @@ function tinhTonKhoNV(){const h={},nl={}; try{
   (nlDM||[]).forEach(t=>{const x=tonNLKg(t); if(x!==null)nl[t]=x});
   const moiNhat=nk.filter(r=>!r.huy).reduce((a,r)=>String(r.ts||'')>a?String(r.ts||''):a,'');
   return {luc:new Date().toISOString(),moiNhat,h,nl}}catch(e){return {luc:new Date().toISOString(),moiNhat:'',h,nl}}}
+/* S146 16/11/2026 (kỹ sư tìm ra, chủ yêu cầu vá ngay): S65 (15/10) bắt đầu tự trừ kho NL theo mẻ và gán mốc = LÚC MÁY CHẠY BẢN ĐÓ cho mọi số tồn nhập tay
+   trước đó (2026-10-15T05:55Z) → mẻ ghi giữa ngày đếm (capNhat) và 15/10 không bao giờ bị trừ. Hương không dính (đã có truMeCuTuDong).
+   Tìm mục bị: chưa từng kiểm kê kiểu mới (không dcLog), mốc sau đầu ngày đếm, có mẻ ghi trong khoảng đó → chủ xem từng mục rồi bấm trừ.
+   Trừ = dời mốc về ĐẦU ngày đếm + ghi dcLog (dcLog có rồi thì lần mua ghi ngày ≤ ngày đếm không bị cộng lại — nlMuaSauKK). Không đổi số đếm, không đụng lô. */
+function mocNgayKK(ngay,dau){const m=String(ngay||'').match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/); if(!m)return null; return dau?new Date(+m[3],+m[2]-1,+m[1],0,0,0,0):new Date(+m[3],+m[2]-1,+m[1],23,59,59,999)}
+function nlBoSot(){return (nlDM||[]).map(ten=>{const tk=tonKhoNguyenLieu[ten]; if(!tk||tk.con===undefined||tk.con===''||!tk.moc||(Array.isArray(tk.dcLog)&&tk.dcLog.length))return null;
+    const d0=mocNgayKK(tk.capNhat,true); if(!d0)return null; const tu=d0.toISOString(); if(!(tk.moc>tu))return null;
+    const lo=nk.filter(r=>!r.huy&&String(r.ts||'')>tu&&String(r.ts||'')<=tk.moc).map(r=>({r,kg:Math.round(nlDungMe(r,ten)*1000)/1000})).filter(o=>o.kg>0); if(!lo.length)return null;
+    const tong=Math.round(lo.reduce((a,o)=>a+o.kg,0)*1000)/1000, ton=tonNLKg(ten), cuoi=mocNgayKK(tk.capNhat,false).toISOString();
+    /* lô ghi CÙNG ngày đếm: số đếm có thể đã gồm lô → để trống tích. Trừ khi số "đếm" đúng bằng số kg hoá đơn cùng ngày (tức là số trên hoá đơn, không phải đếm sau khi làm lô) */
+    const laSoHD=(nguonNguyenLieu[ten]||[]).some(e=>e.ngay===tk.capNhat&&Math.abs(num(e.soKg)-num(tk.con))<0.001);
+    return {ten,tk,lo,tong,ton,sau:Math.round((ton-tong)*1000)/1000,tu,laSoHD,cungNgay:!laSoHD&&lo.every(o=>String(o.r.ts)<=cuoi)}}).filter(Boolean)}
+function veBoSotNL(){const ds=nlBoSot(); if(!ds.length)return '';
+  return `<div class="nh-dau1 bs-nl"><b>⚠ ${ds.length} nguyên liệu chưa trừ các lô làm trước 15/10/2026</b> (lỗi cũ: số tồn nhập tay trước 15/10 bị tính từ 15/10, bỏ sót lô làm giữa ngày đếm và 15/10).
+    ${ds.map(x=>esc(x.ten)+': '+fmtSo(x.ton)+' → '+fmtSo(x.sau)+' kg').join(' · ')} <button type="button" class="ctsxb on" data-bosotnl="1">Xem và trừ…</button></div>`}
+async function truBoSotNL(){const ds=nlBoSot(); if(!ds.length){bao('Không còn nguyên liệu nào bị bỏ sót');return}
+  const dong=ds.map((x,i)=>`<tr data-bs="${i}"><td><input type="checkbox" class="bs-chon"${x.cungNgay?'':' checked'} aria-label="Trừ ${esc(x.ten)}"></td><td><b>${esc(x.ten)}</b><br><small>${x.laSoHD?'số tồn '+fmtSo(num(x.tk.con))+' kg = đúng số trên hoá đơn ngày '+esc(x.tk.capNhat)+' (không phải số đếm sau khi làm lô)':'đếm '+fmtSo(num(x.tk.con))+' kg ngày '+esc(x.tk.capNhat)}</small>${x.cungNgay?`<br><small style="color:var(--amber)">Lô ghi cùng ngày đếm — có thể số đếm đã gồm lô này. Chỉ tích nếu chắc chưa gồm.</small>`:''}</td>
+    <td><small>${x.lo.map(o=>esc(lotDep(o.r.lot||''))+' · '+esc(vnNgay(o.r.ngaysx))+' · '+fmtSo(o.kg)+' kg').join('<br>')}</small></td><td class="so">${fmtSo(x.ton)} → <b>${fmtSo(x.sau)}</b> kg</td></tr>`).join('');
+  const ok=await hoi('Trừ các lô bị bỏ sót',`<div class="cl-bang"><p style="margin:0 0 8px">Các lô dưới đây làm <b>sau ngày đếm</b> nhưng chưa bị trừ kho. Tích mục cần trừ. Số đếm và các lô giữ nguyên — chỉ tính lại tồn.</p>
+    <div style="max-height:55vh;overflow:auto"><table class="cl-t"><thead><tr><th></th><th>Nguyên liệu</th><th>Lô bị bỏ sót</th><th class="so">Tồn</th></tr></thead><tbody>${dong}</tbody></table></div></div>`,{nutOK:'Trừ các mục đã tích',rong:1});
+  if(!ok)return; const M=$('dlgM'); if(!M.querySelector('.cl-bang'))return; let n=0;
+  M.querySelectorAll('tr[data-bs]').forEach(tr=>{if(!tr.querySelector('.bs-chon').checked)return; const x=ds[+tr.dataset.bs], tk=tonKhoNguyenLieu[x.ten], mocCu=tk.moc;
+    tk.moc=x.tu; tk.dcLog=[{ngay:homNay(),truocKg:x.ton,sauKg:tonNLKg(x.ten),mocCu,lyDo:'Trừ lô làm trước 15/10 bị bỏ sót (lỗi mốc S65): '+x.lo.map(o=>o.r.lot).join(', ')}];
+    ghiAudit('stock',x.ten,'TRU_LO_BO_SOT',{kg:x.ton,moc:mocCu},{kg:tonNLKg(x.ten),moc:tk.moc,lo:x.lo.map(o=>o.r.lot)}); n++});
+  if(!n){bao('Chưa tích mục nào');return} luuNgay(); ve(); bao('Đã trừ lô bị bỏ sót cho '+n+' nguyên liệu')}
+document.addEventListener('click',e=>{if(e.target.closest('[data-bosotnl]')){e.stopPropagation();truBoSotNL()}},true);
 function tonNLKg(ten){
   const tk=tonKhoNguyenLieu[ten]; if(!tk||tk.con===undefined||tk.con==='')return null;
-  if(!tk.moc)tk.moc=new Date().toISOString(); // số nhập tay cũ: tính từ lúc có bản này
+  if(!tk.moc)tk.moc=(mocNgayKK(tk.capNhat,false)||new Date()).toISOString(); // S146: số nhập tay cũ → mốc = cuối NGÀY ĐẾM (như kiểm kê S107), không phải lúc máy chạy bản này (lỗi S65: bỏ sót mẻ giữa ngày đếm và lúc đó)
   const mua=(nguonNguyenLieu[ten]||[]).filter(e=>nlMuaSauKK(e,tk)).reduce((a,e)=>a+num(e.soKg),0);
   const dung=nk.filter(r=>!r.huy&&String(r.ts||'')>tk.moc).reduce((a,r)=>a+nlDungMe(r,ten),0);
   return Math.round((num(tk.con)+mua-dung)*1000)/1000;
@@ -6731,7 +6758,7 @@ function veKho(){
   // Liệt kê các lần mua đang ghi ≤ 1 kg để khách xem lại 1 lần; bấm "Đúng là 1 kg" thì không hỏi lại dòng đó (cờ dung1kg đi theo cấu hình).
   const chen=(html,l)=>html.replace(/<\/div>/,m=>m+canhBaoKho(l)); // ngay dưới tiêu đề khối
   const o=chen(veNguonHuong(),'h')+chen(veNguyenLieuNguon(),'nl')+veBaoBi()+veHoaDonBS(nk);
-  $('viewMA').innerHTML='<div class="bsl-mo"><button type="button" class="bigbtn" data-bslmo="mua">▦ Sửa hàng loạt</button><span>Sửa nhiều lần mua, bao bì cùng lúc như bảng tính</span></div>'+lopHoa('kho',o);
+  $('viewMA').innerHTML='<div class="bsl-mo"><button type="button" class="bigbtn" data-bslmo="mua">▦ Sửa hàng loạt</button><span>Sửa nhiều lần mua, bao bì cùng lúc như bảng tính</span></div>'+veBoSotNL()+lopHoa('kho',o); // S147: cảnh báo lô bị bỏ sót ở ĐẦU tab Kho (khối nguồn mặc định gập)
 }
 /* 02/11/2026 S116 (khách: "bảng khép kín các bước: nguyên liệu → hương → công thức → số lô → truy ngược, nhìn được toàn bộ quy trình, xem sai sót ở đâu"; demo đã duyệt:
    "các bước nên cục bộ dựa trên lot đã chọn"; "bước thiếu báo màu + dấu chấm than, rê chuột nói chi tiết"; "chỉ rõ vấn đề nằm ở đâu"). Tab CHỈ ĐỌC dữ liệu sẵn có và mượn đúng các
