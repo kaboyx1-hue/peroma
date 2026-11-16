@@ -4152,7 +4152,7 @@ ok('DP: Admin "Chốt giúp" lô nhân viên chưa chốt — 1 lô (hỏi số 
 const s146=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={nk:nk.slice(),bc:bcNgay.slice()};
   const me=(id,sl)=>({id,sp:'SP __CL__',huong:'',lot:'88'+id.slice(-2)+'000000',sl,mlDung:0,ngaysx:'2026-11-01',ts:'2026-11-01T03:00:00.000Z'});
   const A=me('CL-01',100),B=me('CL-02',200),C=me('CL-03',300); nk=[...nk,A,B,C]; dsLoTim='SP __CL__';
-  chuyenTab('sx'); await cho(60); kq.nutCC=!!document.querySelector('.cckhac [data-chotgiup="*"]')&&/Chốt hàng loạt/.test(document.querySelector('.dslo-gt[data-chotgiup="*"]').textContent);
+  chuyenTab('sx'); await cho(60); kq.nutCC=(b=>!!b&&b.offsetParent!==null&&/3 lô chờ chốt/.test(b.textContent))(document.querySelector('.cl-dau [data-chotgiup="*"]'))&&/Chốt hàng loạt/.test(document.querySelector('.dslo-gt[data-chotgiup="*"]').textContent);
   let luot=0, loiTB=''; window.hoi=async(t,m)=>{if(/^Chưa chốt/.test(t)){loiTB=m;return true} $('dlgM').innerHTML=m; luot++; const tr=id=>$('dlgM').querySelector(`tr[data-cl="${id}"]`);
     if(luot===1){kq.bang=$('dlgM').querySelectorAll('tr[data-cl]').length===3; tr('CL-02').querySelector('.cl-kg').value='190'; tr('CL-03').querySelector('.cl-chon').checked=false; return true}
     tr('CL-02').querySelector('.cl-kg').value='190'; tr('CL-02').querySelector('.cl-ly').value='rơi vãi'; tr('CL-03').querySelector('.cl-chon').checked=false; return true};
@@ -4160,8 +4160,16 @@ const s146=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq=
   const bc=id=>bcNgay.find(x=>x.recordId===id);
   kq.batLyDo=/ghi lý do/.test(loiTB)&&luot===2;
   kq.chot=bc('CL-01')&&bc('CL-01').kgThucTe===100&&bc('CL-02')&&bc('CL-02').kgThucTe===190&&/rơi vãi/.test(bc('CL-02').lyDo)&&!bc('CL-03')&&trangThaiSXCua(C)==='RECORDED';
+  // S148: tích lô ở danh sách trước → nút đổi chữ, bảng chỉ có lô đã tích
+  bcNgay=g.bc.slice(); chuyenTab('sx'); await cho(60); const ck=[...document.querySelectorAll('.dslo-chon')]; kq.cot=ck.length===3;
+  ['CL-01','CL-03'].forEach(id=>{const c=document.querySelector(`.dslo-chon[data-chonlo="${id}"]`); c.checked=true; c.dispatchEvent(new Event('change',{bubbles:true}))});
+  kq.nutDoi=/Chốt 2 lô đã chọn/.test(document.querySelector('.cl-dau .nut-chotloat').textContent)&&/Chốt 2 lô đã chọn/.test(document.querySelector('.dslo-loc .nut-chotloat').textContent);
+  kq.khongMoThe=(()=>{const tl=traLot; document.querySelector('.dslo-ck').click(); return traLot===tl})();
+  let soDong=0; window.hoi=async(t,m)=>{$('dlgM').innerHTML=m; soDong=$('dlgM').querySelectorAll('tr[data-cl]').length; return true}; document.querySelector('.cl-dau .nut-chotloat').click(); await cho(120);
+  kq.chiLoChon=soDong===2&&!!bcNgay.find(x=>x.recordId==='CL-01')&&!!bcNgay.find(x=>x.recordId==='CL-03')&&!bcNgay.find(x=>x.recordId==='CL-02')&&dsLoChon.size===0;
   window.hoi=th; dsLoTim=''; nk=g.nk; bcNgay=g.bc; luuNgay(); chuyenTab('tq'); return kq});
-ok('S146: Chốt hàng loạt có ở Công cụ khác + thanh danh sách; bảng tích lô, sửa kg từng lô, lệch kế hoạch bắt ghi lý do, lô bỏ tích không chốt', s146.nutCC&&s146.bang&&s146.batLyDo&&s146.chot, JSON.stringify(s146));
+ok('S146/S148: Chốt hàng loạt: nút to đầu trang Sản xuất (ghi số lô chờ chốt) + thanh danh sách; bảng tích lô, sửa kg từng lô, lệch kế hoạch bắt ghi lý do, lô bỏ tích không chốt', s146.nutCC&&s146.bang&&s146.batLyDo&&s146.chot, JSON.stringify(s146));
+ok('S148: tích chọn lô ngay ở danh sách (ô đầu dòng, không mở thẻ lô) → nút đổi thành "Chốt 2 lô đã chọn", bảng chốt chỉ có lô đã tích', s146.cot&&s146.nutDoi&&s146.khongMoThe&&s146.chiLoChon);
 /* S146b: nút xoá mặt hàng luôn hiện ở khung chi tiết; đổi tên đi qua bảng __doiTen (máy khác áp lại); lô cũ gỗ nén nối lại; nhật ký cắt 3.000 dòng */
 const s146b=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={n:sp.length,nk:nk.slice(),tt:JSON.stringify(trangThaiMe),ae:JSON.stringify(auditEvents),ct:ctChon};
   sp.push(napSP([{ten:'SP __XOA__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg']}])[0]); ctChon=sp.length-1; mo.clear(); const gLoc=locCT, gQ=$('q').value; locCT='all'; $('q').value=''; chuyenTab('ct'); await cho(80);
