@@ -107,6 +107,17 @@ console.log('\n── B. CẤU HÌNH NHIỀU MẢNH (vượt 50.000 ký tự/ô)
   ok('Cấu hình lớn: đọc lại ĐÚNG từng ký tự', JSON.stringify(doc) === JSON.stringify(m.ctx.sachCauHinhServer(lon, null)));
   ok('Mảnh có chữ "=", "+", "-" không bị Sheets hiểu thành công thức', doc.sp[5].hstem.congDung === 'a=b; +c; -d' && ![...m.trang.CAUHINH_MANH.o.values()].includes('#ERROR!'));
 
+  { // S144/R57: số tồn cho tab Kho bên nhân viên đi qua whitelist; bản Admin cũ không gửi thì giữ bản đang lưu
+    const t = m.ctx.sachCauHinhServer({ tonKhoNV: { luc: 'L', moiNhat: 'M', h: { 'Hương A': 1.5 }, nl: { 'Cát': 200 }, gia: 999 } }, null).tonKhoNV;
+    const giu = m.ctx.sachCauHinhServer({}, { tonKhoNV: { luc: 'cu', h: {}, nl: {} } }).tonKhoNV;
+    ok('S144: tonKhoNV qua whitelist chỉ giữ luc/moiNhat/h/nl (bỏ trường lạ), Admin cũ không gửi thì giữ bản đang lưu', t.h['Hương A'] === 1.5 && t.nl['Cát'] === 200 && !('gia' in t) && giu.luc === 'cu', JSON.stringify(t)); }
+  { // S145: nhật ký thao tác dùng chung — thêm dòng, chống trùng id, đọc lại đúng
+    const ae = [{ id: 'AE1', entityType: 'stock', entityId: '=SUM(A1)', action: 'KIEM_KE', actor: 'Quản lý', at: '2026-11-16T03:00:00.000Z', before: { con: 5 }, after: { con: 7 }, may: 'Máy tính MABCD' }];
+    const r1 = m.post({ a: 'themNhatKyTT', mk: 'k', ae }), r2 = m.post({ a: 'themNhatKyTT', mk: 'k', ae: [...ae, { id: 'AE2', action: 'X', at: '2026-11-16T03:01:00.000Z' }] });
+    const doc = m.get({ a: 'nhatkytt', mk: 'k' });
+    ok('S145: nhật ký thao tác lên Sheet — chống trùng id, đọc lại đủ người/máy/trước-sau, đối tượng không bị hiểu thành công thức',
+      r1.ok === 1 && r1.them === 1 && r2.them === 1 && r2.idDaNhan.length === 2 && doc.ok === 1 && doc.ae.length === 2 && doc.ae[0].may === 'Máy tính MABCD' && doc.ae[0].after.con === 7 && m.get({ a: 'nhatkytt', mk: 'sai' }).loi,
+      JSON.stringify({ r1, r2, n: doc.ae && doc.ae.length })); }
   const lon2 = cauHinhCo(35, 3000);
   m.post({ a: 'luuCauHinh', mk: 'k', cauhinh: lon2 });
   ok('Lần ghi lớn tiếp theo: ghi sang cột B (luân phiên), đọc đúng bản mới', /^MANH:B:/.test(m.trang.CAUHINH.getRange('B1').getValue()) && m.get({ a: 'cauhinh', mk: 'k' }).cauhinh.sp.length === 35);

@@ -778,6 +778,50 @@ ok('R9: tải lô máy khác qua hệ thống — bỏ mẻ máy này đã có, 
 ok('R9: lô máy khác hiện trong ô chọn (ghi "máy khác") và có nhãn chỉ xem & in', r9ht.trongChon&&r9ht.nhan);
 ok('R9: lô máy khác KHÔNG có nút Huỷ lô, vẫn in được tem', r9ht.khongHuy&&r9ht.coIn&&r9ht.inDuoc);
 ok('R9: lô máy khác KHÔNG gộp vào dữ liệu máy này (chỉ nhớ riêng để xem/in), không thể gửi trùng lên Sheet', r9ht.khongGopNk&&r9ht.khongLuu);
+/* R56 14/11/2026 (khách: "máy tôi 27.000 kg, máy nhân viên vẫn 2.000 — lệch sau khi đã điều chỉnh"): số Admin sửa tay phải áp cả cho lô do MÁY KHÁC ghi */
+const r56=await E(async()=>{const urlCu=DONGBO_URL, mkCu=LEGACY_SHARED_TOKEN, that=window.fetch, cho=ms=>new Promise(z=>setTimeout(z,ms));
+  DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; LEGACY_SHARED_TOKEN='x';
+  const goc={id:'R56-B',sp:sp[0].ten,huong:'Hương X',quyCach:'1 kg',sl:2000,soBao:2000,mlDung:1000,ngaysx:'2026-09-10',ts:'2026-09-10T09:00:00',lot:'3202040926',nv:'Toàn'};
+  const sua={suaLuc:'2026-11-13T08:00:00.000Z',suaLyDo:'Khớp giấy tờ',sl:27000,slGoc:2000,soBao:27000,soBaoGoc:2000,mlDung:13500,mlGoc:1000};
+  window.fetch=async(u,o)=>/a=nhatky/.test(String(u))?new Response(JSON.stringify({ok:1,nk:[goc]}),{headers:{'Content-Type':'application/json'}})
+    :/a=cauhinh/.test(String(u))?new Response(JSON.stringify({ok:1,cauhinh:{trangThaiMe:{'R56-B':sua}}}),{headers:{'Content-Type':'application/json'}}):that(u,o);
+  const kq={}; await taiLoHeThong(1); kq.truoc=nkHT.find(r=>r.id==='R56-B').sl===2000;
+  dbDangKeo=false; await dbKeoCauHinh(); await cho(30); const r=()=>nkHT.find(r=>r.id==='R56-B');
+  kq.sau=r().sl===27000&&r().soBao===27000&&r().mlDung===13500;
+  traLot='3202040926'; ve(); await cho(30); const the=document.body.textContent; kq.hien=/Quản lý đã sửa/.test(the)&&/2\.000 → 27\.000 kg/.test(the);
+  await taiLoHeThong(1); kq.taiLai=r().sl===27000; // tải lại số gốc từ Sheet vẫn giữ số đã sửa
+  await inTem('R56-B'); kq.tem=!/2\.000 kg|2000 kg/.test($('temIn').innerHTML);
+  kq.khongGopNk=!nk.some(x=>x.id==='R56-B');
+  window.fetch=that; DONGBO_URL=urlCu; LEGACY_SHARED_TOKEN=mkCu; nkHT=[]; nkHTLuc=''; traLot=''; ttMeCH=null; try{localStorage.removeItem('peroma_ttMe')}catch(e){} ve(); return kq;});
+ok('R56: lô máy khác nhận số Admin sửa tay (2.000 → 27.000 kg) qua đồng bộ cấu hình', r56.truoc&&r56.sau, JSON.stringify(r56));
+ok('R56: thẻ lô máy khác hiện "Quản lý đã sửa 2.000 → 27.000 kg"', r56.hien);
+ok('R56: tự tải lại lô máy khác (2 phút/lần) vẫn giữ số đã sửa', r56.taiLai);
+ok('R56: in tem lô máy khác theo số đã sửa, vẫn không gộp vào dữ liệu máy này', r56.tem&&r56.khongGopNk);
+/* R57 16/11/2026: tab Kho — tồn (kg) Admin gửi xuống, máy này tự trừ mẻ mới (cả máy khác); tra lô / hương / còn pha được; pha mẻ báo đủ-thiếu */
+const r57=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, p=sp[0];
+  const g={ct:JSON.stringify(p.congThucNL||[]),kg:p.kg,ml:p.ml,hs:JSON.stringify(p.huongs||[]),hm:p.huongMe,sl:p.sl,nk:JSON.stringify(nk),ht:JSON.stringify(nkHT)};
+  p.kg=1000; p.ml=500; p.congThucNL=[{ten:'Cát R57',kg:1000}]; const H=(p.huongs||[]).find(h=>!isUnscented(h))||'Hương R57'; if(!(p.huongs||[]).includes(H))p.huongs=[...(p.huongs||[]),H];
+  tonKhoNV={luc:'2026-11-16T01:00:00.000Z',moiNhat:'2026-11-16T00:00:00.000Z',h:{[H]:2},nl:{'Cát R57':5000}};
+  nkHT=[{id:'R57-K',sp:p.ten,huong:H,sl:1000,mlDung:500,ts:'2026-11-16T02:00:00.000Z',ngaysx:'2026-11-16',lot:'9999990926',nv:'Toàn',_heThong:true},
+        {id:'R57-CU',sp:p.ten,huong:H,sl:1000,mlDung:500,ts:'2026-11-15T02:00:00.000Z',ngaysx:'2026-11-15',lot:'9999980926',nv:'Toàn',_heThong:true}];
+  kq.tru=khoTon('h',H)===1.5&&khoTon('nl','Cát R57')===4000; // chỉ trừ mẻ sau mốc Admin đã tính
+  tab='kho'; khoMan='ton'; ve(); await cho(20); const v=()=>$('view').textContent;
+  kq.ton=/Cát R57/.test(v())&&/4\.000 kg/.test(v())&&/tự trừ thêm 1 mẻ/.test(v())&&!/đ\/kg|Nhà cung cấp|hoá đơn/i.test(v());
+  document.querySelector('[data-khodi="lo|nl|Cát R57"]').click(); await cho(20); kq.loc=/Đang lọc mẻ có dùng/.test(v())&&!!document.getElementById('kh-lo-R57-K');
+  khoMoLo='R57-K'; ve(); await cho(20); kq.moLo=document.getElementById('kh-lo-R57-K').open;
+  document.querySelector('#kh-lo-R57-K [data-khodi^="ton|h|"]').click(); await cho(20); kq.veTon=khoMan==='ton'&&!!document.getElementById('kh-h-'+H);
+  khoMan='cpd'; khoMoCpd=p.ten; ve(); await cho(20); kq.cpd=/tối đa/.test(v())&&/3\.000 kg/.test(v());
+  khoMan='huong'; khoH=H; ve(); await cho(20); kq.huong=/99 99 99 0926/.test(v())&&/99 99 98 0926/.test(v())&&/đúng định mức/.test(v()); kq.huongTxt=v().slice(0,300);
+  tab='me'; moSP=0; p.huongMe=H; p.sl=4000; ve(); await cho(20); const dt=$('duThieu').textContent; kq.pha=/thiếu 0,5 kg/.test(dt)&&/Vẫn ghi mẻ được/.test(dt);
+  p.congThucNL=JSON.parse(g.ct); p.kg=g.kg; p.ml=g.ml; p.huongs=JSON.parse(g.hs); p.huongMe=g.hm; p.sl=g.sl; nk=JSON.parse(g.nk); nkHT=JSON.parse(g.ht);
+  tonKhoNV=null; try{localStorage.removeItem('peroma_tonKhoNV')}catch(e){} khoMan='ton'; moSP=-1; tab='me'; ve(); return kq;});
+ok('R57: tồn = số Admin gửi − mẻ ghi sau mốc (cả mẻ máy khác)', r57.tru, JSON.stringify(r57));
+ok('R57: tab Kho chỉ hiện số kg, không giá/nhà cung cấp/hoá đơn', r57.ton);
+ok('R57: "Các lô ›" lọc sẵn theo nguyên liệu; mở 1 mẻ; bấm tên hương → về đúng dòng tồn kho', r57.loc&&r57.moLo&&r57.veTon);
+ok('R57: còn pha được tính theo thứ hết trước; hương dùng cho mặt hàng nào có đúng/lệch định mức', r57.cpd&&r57.huong);
+ok('R57: pha mẻ báo thiếu theo sổ kho, vẫn cho ghi', r57.pha);
+
+
 /* R13: nhân viên được sửa nội dung tem lần cuối CHỈ cho lần in đó — không có ô lưu, cấu hình quản lý không đổi */
 const r13=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Promise(z=>setTimeout(z,ms));
   const pp=sp[0], goc=JSON.stringify(pp.hstem), inCu=window.print; window.print=()=>{};

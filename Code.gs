@@ -14,7 +14,7 @@
    Lưu ý cũ (P0.3) vẫn đúng: đây là khoá dùng chung đơn giản, không phải xác thực từng người dùng —
    ai có link + chuỗi này đều gọi được API; không có giới hạn tần suất, không phân quyền theo máy. */
 const TEN_THUOC_TINH_MK = 'MATKHAU';
-const PHIEN_BAN_MAYCHU = '2026-10-23-S97';
+const PHIEN_BAN_MAYCHU = '2026-11-16-S145';
 const LOI_CHUA_CAI_MK = 'Máy chủ chưa cài mật khẩu — chủ vào Apps Script → Cài đặt dự án → Thuộc tính tập lệnh, thêm MATKHAU';
 function matKhauMayChu(){
   try{ return String(PropertiesService.getScriptProperties().getProperty(TEN_THUOC_TINH_MK) || '') }
@@ -68,7 +68,7 @@ const COT_HS = ['Số lô','Ngày SX','Mặt hàng','Quy cách','KG',
    không kiểm được đầu kia thì rủi ro hơn là để nguyên. Xem PATCH-REPORT.md — mục này đánh dấu
    BLOCKED FOR SERVER VERIFICATION. Toàn bộ log lỗi vẫn KHÔNG in ra token/mật khẩu. */
 const SCHEMA_VERSION = 1;
-const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo','lenhtiendo','themLenhTienDo','nhip','dsnhip'];
+const HANH_DONG_CHO_PHEP = ['cauhinh','nhatky','tomtat','luuCauHinh','themMe','baocao','themBaoCao','xoaDLMoPhong','backfillHosoLo','lenhtiendo','themLenhTienDo','nhip','dsnhip','nhatkytt','themNhatKyTT'];
 
 /* ── Đọc ── */
 /* 29/08/2026 — bản S6 (khách yêu cầu: mở Admin từ BẤT KỲ máy nào, ở bất kỳ đâu, không cần đã
@@ -102,6 +102,7 @@ function doGet(e){
     if(p.a === 'nhatky')  return ra({ok:1, nk: docNhatKy()});
     if(p.a === 'baocao')  return ra({ok:1, bc: docBaoCao()});
     if(p.a === 'lenhtiendo') return ra({ok:1, lt: docLenhTienDo()});
+    if(p.a === 'nhatkytt') return ra({ok:1, ae: docNhatKyTT()}); // S145: nhật ký thao tác dùng chung
     // 14/09/2026: chạy 1 lần để đưa các lô ghi TRƯỚC bản S32 vào tab HOSOLO (lô ghi từ S32 trở
     // đi đã tự có sẵn qua themMe()). Dán link kèm đúng mk vào trình duyệt 1 lần là xong, chạy
     // lại nhiều lần vẫn an toàn (xem dongBoHoSoLoTuMe — không đụng cột kế toán, không trùng dòng).
@@ -149,6 +150,7 @@ function doPost(e){
       ghiCauHinh(sachCauHinhServer(d.cauhinh, docCauHinh())); ghiNhatKyCH('ĐÃ GHI', d); return ra({ok:1, ts: tsCauHinh()}) }
     if(d.a === 'themMe'){ const r = themMe(d.nk || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'themBaoCao'){ const r = themBaoCao(d.bc || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
+    if(d.a === 'themNhatKyTT'){ const r = themNhatKyTT(d.ae || []); return ra({ok:1, them:r.them, idDaNhan:r.idDaNhan}) } // S145
     if(d.a === 'themLenhTienDo'){ const r = themLenhTienDo(d.lt || []); return ra({ok:1, them:r.them, boQua:r.boQua, idDaNhan:r.idDaNhan}) }
     if(d.a === 'xoaDLMoPhong'){ xoaDLMoPhong(); return ra({ok:1}) }
     return ra({loi:'Không rõ lệnh'});
@@ -241,6 +243,13 @@ function sachCauHinhServer(c, cu){
            : ((cu && cu.trangThaiMe && typeof cu.trangThaiMe === 'object') ? cu.trangThaiMe : undefined),
     // 15/10/2026 — S63: thông báo hương vượt tồn / nợ dữ liệu (Admin tính) để Nhân viên thấy. Bản Admin cũ không gửi → giữ bản đang lưu.
     canhBaoHuong: Array.isArray(c.canhBaoHuong) ? c.canhBaoHuong : ((cu && Array.isArray(cu.canhBaoHuong)) ? cu.canhBaoHuong : []),
+    // 16/11/2026 — S144/R57: số tồn kho (kg) Admin tính sẵn cho tab Kho bên máy nhân viên {luc, moiNhat, h:{tên:kg}, nl:{tên:kg}} — chỉ số kg, không giá.
+    // Không phải trạng thái ghi mẻ dở (không vi phạm H1). Bản Admin cũ không gửi → giữ bản đang lưu.
+    tonKhoNV: (c.tonKhoNV && typeof c.tonKhoNV === 'object' && !Array.isArray(c.tonKhoNV))
+           ? {luc: String(c.tonKhoNV.luc || ''), moiNhat: String(c.tonKhoNV.moiNhat || ''),
+              h: (c.tonKhoNV.h && typeof c.tonKhoNV.h === 'object' && !Array.isArray(c.tonKhoNV.h)) ? c.tonKhoNV.h : {},
+              nl: (c.tonKhoNV.nl && typeof c.tonKhoNV.nl === 'object' && !Array.isArray(c.tonKhoNV.nl)) ? c.tonKhoNV.nl : {}}
+           : ((cu && cu.tonKhoNV && typeof cu.tonKhoNV === 'object') ? cu.tonKhoNV : undefined),
     // 10/11/2026 — S137: mã băm khoá mật mã 6 số {admin, nv} (Admin đặt, mọi máy nhận). Chỉ nhận 2 chuỗi; bản Admin cũ không gửi → giữ bản đang lưu.
     khoaPIN: (c.khoaPIN && typeof c.khoaPIN === 'object') ? {admin: String(c.khoaPIN.admin || ''), nv: String(c.khoaPIN.nv || '')}
            : ((cu && cu.khoaPIN && typeof cu.khoaPIN === 'object') ? cu.khoaPIN : undefined)
@@ -385,6 +394,36 @@ function themBaoCao(ds){
   });
   if(them.length) sh.getRange(sh.getLastRow()+1, 1, them.length, COT_BC.length).setValues(them);
   return { them: them.length, boQua: ds.length - them.length, idDaNhan: idDaNhan };
+}
+
+/* ── S145 16/11/2026 — NHẬT KÝ THAO TÁC DÙNG CHUNG (chủ: "ghi đè giữa 2 máy là bình thường, chỉ cần có lịch sử thao tác như phần mềm lớn").
+   Mỗi máy Admin đẩy auditEvents (ai · máy nào · lúc nào · sửa gì · trước → sau) lên trang NHATKY_TT; mọi máy kéo về xem chung.
+   Chỉ THÊM dòng, chống trùng theo id — cùng mẫu BAOCAO/LENHTIENDO. Không đổi cơ chế ghi cấu hình. ── */
+const S_NHATKYTT = 'NHATKY_TT';
+const COT_NKTT = ['ID','Lúc','Người','Máy','Loại','Đối tượng','Thao tác','Trước','Sau','JSON'];
+function themNhatKyTT(ds){
+  const sh = lay(S_NHATKYTT);
+  if(sh.getLastRow() < 1){ sh.appendRow(COT_NKTT); sh.setFrozenRows(1); sh.getRange(1,1,1,COT_NKTT.length).setFontWeight('bold') }
+  const daCo = {}, n = sh.getLastRow();
+  if(n > 1) sh.getRange(2,1,n-1,1).getValues().forEach(r=>{ if(r[0]) daCo[r[0]] = 1 });
+  const gon = v => { const t = (v === null || v === undefined) ? '' : JSON.stringify(v); return t.length > 1000 ? t.slice(0,1000) + '…' : t };
+  const them = [], idDaNhan = [];
+  (Array.isArray(ds) ? ds : []).slice(0,500).forEach(r=>{
+    if(!r || !r.id) return; idDaNhan.push(r.id); if(daCo[r.id]) return; daCo[r.id] = 1;
+    let j = JSON.stringify({id:r.id, entityType:r.entityType, entityId:r.entityId, action:r.action, actor:r.actor, at:r.at, before:r.before, after:r.after, source:r.source, may:r.may});
+    if(j.length > 40000) j = JSON.stringify({id:r.id, entityType:r.entityType, entityId:r.entityId, action:r.action, actor:r.actor, at:r.at, may:r.may});
+    them.push([r.id, String(r.at||'').replace('T',' ').slice(0,19), r.actor||'', r.may||'', r.entityType||'', "'"+String(r.entityId||''), r.action||'', gon(r.before), gon(r.after), j]);
+  });
+  if(them.length) sh.getRange(sh.getLastRow()+1, 1, them.length, COT_NKTT.length).setValues(them);
+  return { them: them.length, idDaNhan: idDaNhan };
+}
+function docNhatKyTT(){
+  const sh = lay(S_NHATKYTT), n = sh.getLastRow();
+  if(n < 2) return [];
+  const tu = Math.max(2, n - 1999); // 2.000 dòng gần nhất
+  const v = sh.getRange(tu, COT_NKTT.length, n - tu + 1, 1).getValues(), ra_ = [];
+  for(let i=0;i<v.length;i++){ if(!v[i][0]) continue; try{ ra_.push(JSON.parse(v[i][0])) }catch(e){} }
+  return ra_;
 }
 
 /* ── Tiến độ lệnh sản xuất: mỗi lần nhân viên ghi MỘT DÒNG (giống BAOCAO/NHATKY) ── */

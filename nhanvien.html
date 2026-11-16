@@ -436,13 +436,41 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 #dbDen{border-radius:999px;padding:2px 8px}#dbDen[data-tt="ok"].nhay{animation:denNhip 1s ease-out}#dbDen[data-tt="dang"]{animation:denCho 1s ease-in-out infinite}
 .pbi b{display:inline-block}.pbi .tu-tinh{animation:soNay .4s ease}
 @media print{#huyHieu{display:none}}
+/* R57: tab Kho */
+.kh-man{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.kh-man button{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--card,transparent);color:var(--txt);border-radius:999px;padding:7px 13px;cursor:pointer}
+.kh-man button.on{background:var(--acc,#F0A33A);border-color:var(--acc,#F0A33A);color:#fff}
+.kh-luc{font-size:12.5px;border-radius:12px;padding:8px 12px;margin-bottom:10px;background:rgba(142,197,240,.15);color:var(--txt)}
+.kh-h{font-weight:800;margin-bottom:6px}
+.kh-cuon{overflow-x:auto}
+.kh-bang{width:100%;border-collapse:collapse;font-size:13.5px}
+.kh-bang th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);text-align:left;padding:6px;border-bottom:1px solid var(--line)}
+.kh-bang td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}.kh-bang .kh-r{text-align:right;white-space:nowrap}
+.kh-chip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;background:rgba(127,127,127,.15)}
+.kh-chip.ok{background:rgba(111,211,154,.18);color:#1F7A3E}.kh-chip.sap{background:rgba(255,170,90,.2);color:#A04C00}.kh-chip.het{background:rgba(255,122,102,.2);color:#B42318}
+:root.toi .kh-chip.ok{color:#8FE0B0}:root.toi .kh-chip.sap{color:#FFC48A}:root.toi .kh-chip.het{color:#FFA595}
+.kh-den{display:inline-flex;gap:4px;flex-wrap:wrap}
+.kh-den .kh-lk{border:1px solid var(--line);border-radius:999px;padding:3px 10px;border-bottom:1px solid var(--line)}
+.kh-lk{font:inherit;font-size:12.5px;font-weight:700;background:none;border:0;border-bottom:1px dashed currentColor;color:var(--acc,#D9822B);cursor:pointer;padding:0}
+.kh-mono{font-family:var(--mono,ui-monospace,monospace)}
+.kh-lop{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;background:var(--card,transparent);overflow:hidden}
+.kh-lop>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 14px}
+.kh-lop>summary::-webkit-details-marker{display:none}.kh-lop>summary::before{content:"▸";color:var(--txt3);margin-right:6px}.kh-lop[open]>summary::before{content:"▾"}
+.kh-lop>summary>span{flex:1;min-width:0}.kh-lop small{color:var(--txt3)}
+.kh-trong{padding:4px 14px 12px}
+.kh-nho{display:block;font-size:11.5px;color:var(--txt3);font-weight:500}
+.kh-loc{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.kh-can{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 11px;border-radius:11px;background:var(--row,rgba(127,127,127,.08));margin-top:5px;font-size:13.5px}
+.kh-can small{display:block;color:var(--txt3);font-size:11.5px}.kh-can.thieu{background:rgba(255,122,102,.17);color:#B42318}:root.toi .kh-can.thieu{color:#FFA595}
+.kh-nhay{animation:khNhay 1.6s ease-out}@keyframes khNhay{0%,40%{box-shadow:0 0 0 3px var(--acc,#F0A33A)}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.kh-nhay{animation:none}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 11/11/2026-R55</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/11/2026-R57</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -450,6 +478,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
     <div class="tabs">
       <button class="tab on" data-tab="me"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6.2L4.6 18.4A1.8 1.8 0 0 0 6.2 21h11.6a1.8 1.8 0 0 0 1.6-2.6L14 9.2V3"/><path d="M7.2 15h9.6"/></svg><span>Pha mẻ</span></button>
       <button class="tab" data-tab="lo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span>Tra lô</span></button>
+      <button class="tab" data-tab="kho"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v11H3z"/><path d="M7 19v-6h10v6"/><path d="M7 16h10"/></svg><span>Kho</span></button>
       <button class="tab" data-tab="cp"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0C6 9.9 12 3.5 12 3.5z"/></svg><span>Chất phun</span></button>
       <button class="tab" data-tab="bc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 12.3l2.8 2.8L16.2 9"/></svg><span>Chốt thực tế</span></button>
       <button class="tab" data-tab="dl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6"/></svg><span>Dữ liệu</span></button>
@@ -722,7 +751,10 @@ async function dbKeoCauHinh(){
       if(c.nlDangDung&&typeof c.nlDangDung==='object')nlDangDung=c.nlDangDung;
       if(c.khoaPIN&&typeof c.khoaPIN==='object'&&typeof KHOA_PIN!=='undefined'){KHOA_PIN.ghi('peroma_pin_admin',String(c.khoaPIN.admin||''));KHOA_PIN.ghi('peroma_pin_nv',String(c.khoaPIN.nv||''))} // S137/R54
       // 17/10/2026: Admin sửa tay số liệu mẻ (đầu vào kg…) → máy nhân viên hiện + in tem theo số đã sửa
-      if(c.trangThaiMe&&typeof c.trangThaiMe==='object')nk.forEach(r=>{const o=c.trangThaiMe[r.id];if(o&&o.suaLuc)['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX','ngaysx','lot'].forEach(k=>{if(k in o)r[k]=o[k]})});
+      /* R56 14/11/2026 (khách: "máy tôi 27.000 kg, máy nhân viên vẫn 2.000 — lệch sau khi đã điều chỉnh"): trước đây chỉ áp cho mẻ của CHÍNH máy này (nk);
+         lô do máy khác ghi (nkHT, tải nguyên số gốc từ Sheet) bỏ qua → hiện + in tem số cũ. Nay nhớ bảng sửa (peroma_ttMe) và áp cho cả nkHT, kể cả lúc tải lại. */
+      if(c.tonKhoNV&&typeof c.tonKhoNV==='object'){tonKhoNV=c.tonKhoNV;try{localStorage.setItem('peroma_tonKhoNV',JSON.stringify(tonKhoNV))}catch(e){}} // R57
+      if(c.trangThaiMe&&typeof c.trangThaiMe==='object'){ttMeCH=c.trangThaiMe;try{localStorage.setItem('peroma_ttMe',JSON.stringify(ttMeCH))}catch(e){} apSuaMe(nk);apSuaMe(nkHT)}
       if(Array.isArray(c.lenhSX))lenhSX=c.lenhSX;
       if(c.maHuong&&typeof c.maHuong==='object')maHuong=c.maHuong;
       if(c.maQC&&typeof c.maQC==='object')maQC=c.maQC;
@@ -998,7 +1030,7 @@ function ve(){
   if(tab+'|'+moSP!==hvTab){hvTab=tab+'|'+moSP;hieuUngVao(v)} // S23/R16: chỉ khi đổi tab / mở mặt hàng
   if(!sp.length){ v.innerHTML=`<div class="card"><div class="note">Chưa có dữ liệu.<br>Vào tab <b>Dữ liệu</b> → <b>Nạp cấu hình</b>, chọn file <b>.json</b> mà quản lý gửi.</div></div>`;
     if(tab==='dl')v.innerHTML=veDL(); if(tab==='bc')v.innerHTML=veBaoCao(); if(tab==='ho')v.innerHTML=veTuHoSo(); return }
-  v.innerHTML = tab==='me' ? (moSP<0?veDS():veMe()) : tab==='lo' ? veLo() : tab==='cp' ? veCP() : tab==='bc' ? veBaoCao() : tab==='ho' ? veTuHoSo() : veDL();
+  v.innerHTML = tab==='me' ? (moSP<0?veDS():veMe()) : tab==='lo' ? veLo() : tab==='kho' ? veKho() : tab==='cp' ? veCP() : tab==='bc' ? veBaoCao() : tab==='ho' ? veTuHoSo() : veDL();
   if(tab==='me'&&moSP>=0)nlPatch();
 }
 /* 25/08/2026-I: "Báo cáo tiến độ" — ghi chú cuối ngày, KHÔNG gắn với mẻ đã ghi thật (khách
@@ -1154,6 +1186,7 @@ function veMe(){
     <input class="mn" data-f="sl" inputmode="decimal" value="${esc(p.sl??'')}" placeholder="${fmt(chuan)}"></div>
     <div class="log" style="margin:-4px 0 0">Đây là số kg dự kiến trước khi làm. Khi hoàn tất sẽ chốt số thực tế riêng (tab Báo cáo) — không cần sửa lại kế hoạch nếu sản xuất dôi hoặc thiếu.</div>`;
   o+=`<div id="canhKg">${canhKgHTML(p)}</div>`;
+  o+=`<div id="duThieu">${duThieuHTML(p)}</div>`; // R57
 
   o+=`<div class="big"><div class="l">Hương liệu cần đổ</div>
     <div class="v">${kg>0?fmt(Math.round(ml*10)/10):'—'}</div>
@@ -1888,6 +1921,91 @@ function taiFileIn(tenFile,tieuDe,moTa,htmlIn){
    máy (localStorage riêng, vẫn KHÔNG gộp vào nk, KHÔNG gửi ngược lên). Bấm nút = tải ngay. */
 let nkHT=[], nkHTLuc='';
 try{const c=JSON.parse(localStorage.getItem('peroma_nkHT')||'null');if(c&&Array.isArray(c.ds)){nkHT=c.ds;nkHTLuc=c.luc||''}}catch(e){}
+apSuaMe(nkHT); // R56
+/* R57 16/11/2026 (khách: "nhân viên cũng truy xuất được dữ liệu các lô, lượng lưu trữ của các hương liệu, nhằm phụ tôi cân đối lượng đầu vào"):
+   tab Kho — CHỈ số kg (không giá, nhà cung cấp, hoá đơn). Số tồn do Admin tính (tonKhoNV trong cấu hình: {luc, moiNhat, h:{tên:kg}, nl:{tên:kg}});
+   máy này tự trừ thêm các mẻ ghi SAU mẻ mới nhất Admin đã tính (cả mẻ máy khác, nkHT). Chỉ xem — kiểm kê từ máy nhân viên làm ở đợt sau.
+   Bên ngoài chỉ tiêu đề, bấm mở mới thấy chi tiết; mọi tên hương/nguyên liệu/số lô bấm được để tới đúng chỗ chứa dữ liệu. */
+var tonKhoNV; try{tonKhoNV=JSON.parse(localStorage.getItem('peroma_tonKhoNV')||'null')}catch(e){}
+var khoMan='ton', khoH='', khoLoc={sp:'',h:'',nl:'',q:''}, khoMoLo='', khoMoCpd='';
+const khoMe=()=>nk.concat(nkHT).filter(r=>r&&!r.huy);
+const khoMeMoi=()=>{const m=String((tonKhoNV&&tonKhoNV.moiNhat)||'');return khoMe().filter(r=>String(r.ts||'')>m)};
+const khoKgTP=r=>r.ngungSX&&r.slThucTe!==undefined&&r.slThucTe!==''?num(r.slThucTe):num(r.sl);
+const khoNLCua=r=>Array.isArray(r.nlLucSX)?r.nlLucSX.map(x=>x.ten).filter(Boolean):((sp.find(x=>x.ten===r.sp)||{}).congThucNL||[]).filter(x=>x&&x.ten&&num(x.kg)>0).map(x=>x.ten);
+function khoNLDung(r,ten){if(Array.isArray(r.nlLucSX)){const x=r.nlLucSX.find(x=>x.ten===ten);return x?khoKgTP(r)*num(x.tl):0}
+  const p=sp.find(x=>x.ten===r.sp), c=p&&(p.congThucNL||[]).find(x=>x&&x.ten===ten); return c&&num(p.kg)>0?khoKgTP(r)*num(c.kg)/num(p.kg):0}
+const khoHDung=(r,h)=>r.huong===h&&!isUnscented(h)?num(r.mlDung)/1000:0;
+function khoTon(loai,ten){const b=tonKhoNV&&tonKhoNV[loai]; if(!b||b[ten]===undefined||b[ten]===null)return null;
+  return Math.round((num(b[ten])-khoMeMoi().reduce((a,r)=>a+(loai==='h'?khoHDung(r,ten):khoNLDung(r,ten)),0))*1000)/1000}
+const khoDs=loai=>Object.keys((tonKhoNV&&tonKhoNV[loai])||{}).sort((a,b)=>a.localeCompare(b,'vi'));
+function khoCan1Me(loai,ten){let m=0; sp.forEach(p=>{if(!(num(p.kg)>0))return;
+  if(loai==='h'){if((p.huongs||[]).includes(ten))m=Math.max(m,num(p.ml)/1000)} else {const c=(p.congThucNL||[]).find(x=>x&&x.ten===ten); if(c)m=Math.max(m,num(c.kg))}}); return m}
+const khoTT=(loai,ten,kg)=>kg===null?['','—']:kg<=0?['het',kg<0?'⛔ Âm':'⛔ Hết']:kg<khoCan1Me(loai,ten)?['sap','⏳ Không đủ 1 mẻ']:['ok','✅ Còn hàng'];
+const khoKg=x=>x===null?'—':(x<0?'−':'')+fmt(Math.abs(Math.round(x*1000)/1000))+' kg';
+const khoLk=(di,txt,cls)=>`<button type="button" class="kh-lk${cls?' '+cls:''}" data-khodi="${esc(di)}">${txt}</button>`;
+function veKho(){
+  if(!tonKhoNV)return `<div class="card"><div class="note">Chưa có số tồn kho từ máy quản lý. Khi máy Admin bản mới đồng bộ, số tồn sẽ hiện ở đây.</div></div>`;
+  const M=[['ton','Tồn kho'],['huong','Hương dùng cho mặt hàng nào'],['lo','Tra mọi lô'],['cpd','Còn pha được']], n=khoMeMoi().length, luc=new Date(tonKhoNV.luc);
+  return `<div class="kh-man">${M.map(([k,t])=>`<button type="button" data-khoman="${k}" class="${khoMan===k?'on':''}">${t}</button>`).join('')}</div>
+    <div class="kh-luc">Số tồn máy quản lý tính lúc <b>${isNaN(luc)?'—':luc.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})}</b>${n?` · máy này đã tự trừ thêm <b>${n} mẻ</b> ghi sau đó`:''}</div>`
+    +(khoMan==='huong'?veKhoHuong():khoMan==='lo'?veKhoLo():khoMan==='cpd'?veKhoCpd():veKhoTon())}
+function veKhoTon(){const bang=(loai,tieu)=>{const ds=khoDs(loai);return `<div class="card"><div class="kh-h">${tieu}</div>${ds.length?`<div class="kh-cuon"><table class="kh-bang"><thead><tr><th>${loai==='h'?'Hương':'Nguyên liệu'}</th><th class="kh-r">Còn</th><th>Tình trạng</th><th>Đi tới</th></tr></thead><tbody>${ds.map(t=>{const kg=khoTon(loai,t),[c,l]=khoTT(loai,t,kg);
+    return `<tr id="kh-${loai}-${esc(t)}"><td><b>${esc(t)}</b></td><td class="kh-r"><b>${khoKg(kg)}</b></td><td><span class="kh-chip ${c}">${l}</span></td><td><span class="kh-den">${loai==='h'?khoLk('huong|'+t,'Mặt hàng dùng ›'):''}${khoLk('lo|'+loai+'|'+t,'Các lô ›')}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="note">Chưa có số.</div>'}</div>`};
+  return bang('h','Hương liệu')+bang('nl','Nguyên liệu')+`<div class="log">Chỉ xem số kg theo sổ kho. Kho thật lệch thì báo quản lý kiểm kê.</div>`}
+function veKhoHuong(){const ds=khoDs('h'); if(!ds.includes(khoH))khoH=ds[0]||''; if(!khoH)return '<div class="card"><div class="note">Chưa có hương nào.</div></div>';
+  const ms=khoMe().filter(r=>r.huong===khoH), nh=new Map(); ms.forEach(r=>{(nh.get(r.sp)||nh.set(r.sp,[]).get(r.sp)).push(r)});
+  return `<div class="card"><div class="fld"><label>Chọn hương</label><select data-khoh="1">${ds.map(t=>`<option${t===khoH?' selected':''}>${esc(t)}</option>`).join('')}</select></div>
+    <div class="log">Còn ${khoLk('ton|h|'+khoH,khoKg(khoTon('h',khoH)))} · đã dùng ${fmt(Math.round(ms.reduce((a,r)=>a+num(r.mlDung),0))/1000)} kg cho ${ms.length} mẻ</div></div>`
+   +([...nh].map(([t,ls],i)=>{const p=sp.find(x=>x.ten===t), dm=p&&num(p.kg)>0?num(p.ml)/num(p.kg):0;
+    return `<details class="kh-lop"${i?'':' open'}><summary><span><b>${esc(t)}</b> <small>${ls.length} mẻ</small></span><small>${fmt(Math.round(ls.reduce((a,r)=>a+num(r.mlDung),0))/1000)} kg hương</small></summary><div class="kh-trong">${
+      ls.slice().sort((a,b)=>String(a.ngaysx).localeCompare(String(b.ngaysx))).map(r=>{const th=num(r.sl)>0?num(r.mlDung)/num(r.sl):0, l=dm>0?(th-dm)/dm:0;
+       return `<div class="kv"><span>${khoLk('molo|'+r.id,esc(lotDep(r.lot)),'kh-mono')} · ${esc(vnNgay(r.ngaysx))}</span><b>${fmt(num(r.sl))} kg · ${fmt(num(r.mlDung))} g ${dm>0?(Math.abs(l)<=.01?'<span class="kh-chip ok">đúng định mức</span>':`<span class="kh-chip ${Math.abs(l)>.1?'het':'sap'}">${l>0?'+':''}${Math.round(l*100)}% định mức</span>`):''}</b></div>`}).join('')}${dm>0?`<div class="log">Định mức ${fmt(dm)} g hương / kg · bấm số lô để mở mẻ đó</div>`:''}</div></details>`}).join('')||'<div class="card"><div class="note">Chưa có mẻ nào dùng hương này.</div></div>')}
+function veKhoLo(){const ms=khoMe().slice().sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))||String(b.ts||'').localeCompare(String(a.ts||'')));
+  const q=khoLoc.q.replace(/\s/g,''), ds=ms.filter(r=>(!khoLoc.sp||r.sp===khoLoc.sp)&&(!khoLoc.h||r.huong===khoLoc.h)&&(!khoLoc.nl||khoNLDung(r,khoLoc.nl)>0)&&(!q||String(r.lot||'').includes(q)));
+  const opt=(ds,v,dau)=>`<option value="">${dau}</option>`+ds.map(t=>`<option${t===v?' selected':''}>${esc(t)}</option>`).join('');
+  return `<div class="card"><div class="kh-loc"><div class="fld"><label>Mặt hàng</label><select data-kholoc="sp">${opt(sp.map(p=>p.ten),khoLoc.sp,'Mọi mặt hàng')}</select></div>
+    <div class="fld"><label>Hương</label><select data-kholoc="h">${opt([...new Set(ms.map(r=>r.huong).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi')),khoLoc.h,'Mọi hương')}</select></div>
+    <div class="fld"><label>Số lô</label><input data-kholoc="q" value="${esc(khoLoc.q)}" placeholder="gõ vài số, vd 0926" autocomplete="off"></div></div>
+    ${khoLoc.nl?`<div class="log">Đang lọc mẻ có dùng <b>${esc(khoLoc.nl)}</b> · <button type="button" class="kh-lk" data-khoboloc="1">bỏ lọc</button></div>`:''}<div class="log">${ds.length} / ${ms.length} mẻ · bấm 1 mẻ để mở chi tiết${ds.length>200?' · đang hiện 200 mẻ mới nhất, lọc thêm để thu hẹp':''}</div></div>`
+   +ds.slice(0,200).map(r=>{const nl=khoNLCua(r);
+    return `<details class="kh-lop" id="kh-lo-${esc(r.id)}"${khoMoLo===r.id?' open':''}><summary><span><b class="kh-mono">${esc(lotDep(r.lot))}</b> <b>${esc(r.sp)}</b> <small>${esc(r.huong||'')}</small></span><small>${r.suaLuc?'<span class="kh-chip sap">✎ quản lý đã sửa</span> ':''}${r._heThong?'<span class="kh-chip">máy khác</span>':'<span class="kh-chip">máy này</span>'}</small></summary><div class="kh-trong">
+      <div class="kv"><span>Ngày sản xuất</span><b>${esc(vnNgay(r.ngaysx))}</b></div>
+      <div class="kv"><span>Đầu vào</span><b>${fmt(num(r.sl))} kg${r.suaLuc?` · quản lý đã sửa từ ${fmt(num(r.slGoc))} kg`:''}</b></div>
+      ${r.huong&&!isUnscented(r.huong)?`<div class="kv"><span>Hương liệu</span><b>${khoLk('ton|h|'+r.huong,esc(r.huong))} · ${fmt(num(r.mlDung))} g</b></div>`:`<div class="kv"><span>Hương liệu</span><b>Không mùi</b></div>`}
+      ${nl.map((t,i)=>`<div class="kv"><span>${i?'':'Nguyên liệu'}</span><b>${khoLk('ton|nl|'+t,esc(t))} · ${fmt(Math.round(khoNLDung(r,t)*1000)/1000)} kg</b></div>`).join('')}
+      <div class="kv"><span>Mặt hàng</span><b>${khoLk('cpd|'+r.sp,esc(r.sp)+' · còn pha được ›')}</b></div>
+      <div class="kv"><span>Người pha</span><b>${esc(r.nv||'—')}</b></div>
+      <button class="add" type="button" data-khodi="${esc('the|'+r.lot)}" style="margin-top:8px">Mở thẻ lô · in tem ›</button></div></details>`}).join('')}
+function veKhoCpd(){return sp.filter(p=>(p.tt||'ok')!=='dinh'&&num(p.kg)>0).map(p=>{const k=num(p.kg), hs=(p.huongs||[]).filter(h=>h&&String(h).trim());
+  const nlLim=(p.congThucNL||[]).filter(x=>x&&x.ten&&num(x.kg)>0).map(x=>{const t=khoTon('nl',x.ten);return {loai:'nl',ten:x.ten,kg:t===null?null:t/(num(x.kg)/k)}});
+  const dong=(hs.length?hs:['']).map(h=>{const lim=[...nlLim]; if(h&&!isUnscented(h)&&num(p.ml)>0){const t=khoTon('h',h);lim.push({loai:'h',ten:h,kg:t===null?null:t*1000/(num(p.ml)/k)})}
+    const co=lim.filter(x=>x.kg!==null), mn=co.length?co.reduce((a,b)=>b.kg<a.kg?b:a):null; return {h,kg:mn?Math.max(0,Math.floor(mn.kg)):null,tr:mn,thieuSo:lim.filter(x=>x.kg===null).map(x=>x.ten)}});
+  const tot=dong.filter(d=>d.kg!==null).reduce((a,b)=>!a||b.kg>a.kg?b:a,null);
+  return `<details class="kh-lop" id="kh-cpd-${esc(p.ten)}"${khoMoCpd===p.ten?' open':''}><summary><span><b>${esc(p.ten)}</b> <small>${dong.length} hương</small></span>${tot?(tot.kg>0?`<small>tối đa <b>${fmt(tot.kg)} kg</b></small>`:'<span class="kh-chip het">⛔ không pha được</span>'):'<small>chưa đủ số tồn</small>'}</summary>
+   <div class="kh-trong">${dong.map(d=>`<div class="kv"><span>${d.h?esc(d.h):'(không hương)'}</span><b>${d.kg===null?'—':fmt(d.kg)+' kg'}${d.tr?`<small class="kh-nho">${d.kg>0?'hết trước':'đang hết'}: ${khoLk('ton|'+d.tr.loai+'|'+d.tr.ten,esc(d.tr.ten))}</small>`:''}${d.thieuSo.length?`<small class="kh-nho">chưa có số tồn: ${d.thieuSo.map(esc).join(', ')}</small>`:''}</b></div>`).join('')}</div></details>`}).join('')||'<div class="card"><div class="note">Chưa có mặt hàng nào.</div></div>'}
+/* pha mẻ: cần bao nhiêu cho mẻ đang nhập · so với sổ kho (báo đỏ, vẫn cho ghi) */
+function duThieuHTML(p){if(!tonKhoNV||!p)return ''; const kg=num(p.sl); if(!(kg>0))return '';
+  const can=[]; if(p.huongMe&&!isUnscented(p.huongMe))can.push({loai:'h',ten:p.huongMe,kg:lieu(p,kg)/1000});
+  nlDong(p,kg).forEach(x=>{if(x.ten)can.push({loai:'nl',ten:x.ten,kg:x.kg})}); if(!can.length)return '';
+  const ds=can.map(x=>({...x,con:khoTon(x.loai,x.ten)})), th=ds.filter(x=>x.con!==null&&x.kg>x.con+1e-9), r3=x=>fmt(Math.round(x*1000)/1000);
+  return `<div class="fld"><label>Cần cho mẻ này · so với sổ kho</label>${ds.map(x=>{const t=x.con!==null&&x.kg>x.con+1e-9;return `<div class="kh-can${t?' thieu':''}"><span><b>${esc(x.ten)}</b><small>sổ kho còn ${khoKg(x.con)}</small></span><span>cần <b>${r3(x.kg)} kg</b></span><span>${x.con===null?'chưa có số':t?'⛔ thiếu '+r3(x.kg-x.con)+' kg':'✅ đủ'}</span></div>`}).join('')}
+    ${th.length?`<div class="canh" style="margin-top:6px">Không đủ theo sổ kho: ${th.map(x=>'thiếu '+r3(x.kg-x.con)+' kg '+esc(x.ten)).join(' · ')}. Vẫn ghi mẻ được — kiểm tra kho thật, có hàng thì báo quản lý nhập sổ.</div>`:''}</div>`}
+function khoNhay(id){requestAnimationFrame(()=>{const el=document.getElementById(id); if(!el)return; el.scrollIntoView({block:'center'}); el.classList.remove('kh-nhay'); void el.offsetWidth; el.classList.add('kh-nhay')})}
+document.addEventListener('click',e=>{const m=e.target.closest('[data-khoman]'); if(m){khoMan=m.dataset.khoman; ve(); return}
+  if(e.target.closest('[data-khoboloc]')){khoLoc.nl=''; ve(); return}
+  const d=e.target.closest('[data-khodi]'); if(!d)return; e.preventDefault(); const v=d.dataset.khodi, i=v.indexOf('|'), k=v.slice(0,i), x=v.slice(i+1);
+  if(k==='huong'){khoMan='huong'; khoH=x; ve()}
+  else if(k==='lo'){const j=x.indexOf('|'), loai=x.slice(0,j), t=x.slice(j+1); khoMan='lo'; khoLoc={sp:'',h:loai==='h'?t:'',nl:loai==='nl'?t:'',q:''}; khoMoLo=''; ve()}
+  else if(k==='ton'){const j=x.indexOf('|'); khoMan='ton'; ve(); khoNhay('kh-'+x.slice(0,j)+'-'+x.slice(j+1))}
+  else if(k==='molo'){khoMan='lo'; khoLoc={sp:'',h:'',nl:'',q:''}; khoMoLo=x; ve(); khoNhay('kh-lo-'+x)}
+  else if(k==='cpd'){khoMan='cpd'; khoMoCpd=x; ve(); khoNhay('kh-cpd-'+x)}
+  else if(k==='the'){tab='lo'; traLot=x; ve()}});
+document.addEventListener('change',e=>{const t=e.target; if(t.dataset.khoh){khoH=t.value; ve()} else if(t.dataset.kholoc&&t.tagName==='SELECT'){khoLoc[t.dataset.kholoc]=t.value; ve()}});
+document.addEventListener('input',e=>{const t=e.target; if(t.dataset.kholoc!=='q')return; khoLoc.q=t.value; ve(); const n=document.querySelector('[data-kholoc="q"]'); if(n){n.focus(); n.setSelectionRange(n.value.length,n.value.length)}});
+/* R56: số liệu mẻ Admin sửa tay (trangThaiMe trong cấu hình) — áp lên mọi mẻ có trên máy, cả mẻ của máy khác */
+var ttMeCH; try{ttMeCH=JSON.parse(localStorage.getItem('peroma_ttMe')||'null')}catch(e){}
+function apSuaMe(ds){const tt=ttMeCH||(()=>{try{return JSON.parse(localStorage.getItem('peroma_ttMe')||'null')}catch(e){return null}})(); if(!tt||typeof tt!=='object'||!Array.isArray(ds))return;
+  ds.forEach(r=>{const o=r&&tt[r.id];if(o&&o.suaLuc)['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX','ngaysx','lot'].forEach(k=>{if(k in o)r[k]=o[k]})})}
 async function taiLoHeThong(im){
   if(!DONGBO_URL){if(!im)bao('Máy này chưa khai kết nối Google Sheet — vào tab Dữ liệu để khai');return}
   if(!im)bao('Đang tải các lô trên hệ thống…');
@@ -1895,7 +2013,7 @@ async function taiLoHeThong(im){
     const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatky');
     if(!j||!j.ok||!Array.isArray(j.nk))throw new Error((j&&j.loi)||'hệ thống không trả dữ liệu');
     const coSan=new Set(nk.map(r=>r.id));
-    nkHT=j.nk.filter(r=>r&&r.id&&r.lot&&!coSan.has(r.id)).map(r=>Object.assign({},r,{_heThong:true}));
+    nkHT=j.nk.filter(r=>r&&r.id&&r.lot&&!coSan.has(r.id)).map(r=>Object.assign({},r,{_heThong:true})); apSuaMe(nkHT); // R56: số Admin đã sửa
     nkHTLuc=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
     try{localStorage.setItem('peroma_nkHT',JSON.stringify({luc:nkHTLuc,ds:nkHT}))}catch(e){}
     ve();
@@ -2217,6 +2335,7 @@ function capNhat(){
   // 27/08/2026 (phản hồi lần 4): bỏ hẳn khung đỏ "xau" khi gõ số kg lệch xa mẻ chuẩn (khách
   // phản hồi tạo cảm giác đang làm sai) — không còn toggle class này ở đây nữa.
   const ck=$('canhKg'); if(ck)ck.innerHTML=canhKgHTML(p);
+  const dt=$('duThieu'); if(dt)dt.innerHTML=duThieuHTML(p); // R57
   nlPatch();
 }
 /* 26/08/2026-N: hàm lượng nguyên liệu — tách khỏi veMe() (chuỗi HTML tĩnh lúc mở mặt hàng)
