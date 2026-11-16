@@ -2035,9 +2035,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 16/11/2026-S148</span></i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 16/11/2026-S149</span></i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/11/2026-S148</div>
+      <div class="verFoot">BẢN 16/11/2026-S149</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2462,7 +2462,10 @@ function phanBoNL(ten){const N=dungSaiNL(ten), ky=nk.length+'|'+N+'|'+Object.key
   /* S119 (khách: "lô Mitco tôi đã nhập số tờ khai ở Sửa hàng loạt nhưng sang Chuỗi không cập nhật"): lần mua kiểu cũ 1 kg bị bỏ qua hẳn → chứng từ ghi
      vào đó không tới được lô. Nay dòng 1 kg CÓ chứng từ là nguồn dự phòng: chỉ nhận lô khi không còn lần mua đủ số kg nào, và nhận gán tay. Chuỗi báo vàng "chưa ghi số kg". */
   const cu=(nguonNguyenLieu[ten]||[]).map((e,i)=>({e,i,con:0,d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>num(o.e.soKg)<=1&&coChungTu(o.e)).sort((a,b)=>b.d.localeCompare(a.d)||b.i-a.i);
-  nk.filter(r=>!r.huy).sort((a,b)=>String(a.ts||'').localeCompare(String(b.ts||''))).forEach(r=>{const kg=nlDungMe(r,ten); if(!(kg>0))return;
+  /* S149 16/11/2026 (kỹ sư + chủ, ghi bù lô sang chiết): xếp mẻ theo NGÀY SẢN XUẤT (rồi mới tới lúc ghi) — trước đây theo lúc ghi, nên lô GHI BÙ (ngày SX cũ,
+     ghi hôm nay) đứng sau lô làm sau nó và chiếm nhầm hoá đơn mới hơn, còn lô làm sau lại lấy chỗ hoá đơn cũ. Hàng vào trước dùng trước = theo ngày làm. */
+  const ngSX=r=>String(r.ngaysx||r.ts||'').slice(0,10);
+  nk.filter(r=>!r.huy).sort((a,b)=>ngSX(a).localeCompare(ngSX(b))||String(a.ts||'').localeCompare(String(b.ts||''))).forEach(r=>{const kg=nlDungMe(r,ten); if(!(kg>0))return;
     /* S108 (khách: "lô hương tự nhiên đó của hoá đơn cũ hơn, coi như không tính"): lô đã GÁN TAY số HĐ cho nguyên liệu này → không ghép tự động.
        Số đó trùng số HĐ của 1 lần mua → lô thuộc hẳn lần mua đó (trừ chỗ); không trùng (hoá đơn cũ, ngoài app) → bỏ qua, không chiếm chỗ hoá đơn khác. */
     const bs=String(((hoaDonBoSung||{})[r.id]||{})[ten]||'').trim();

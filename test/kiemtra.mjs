@@ -4226,6 +4226,19 @@ const s146d=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq
   window.hoi=th; sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq});
 ok('S146: lỗi mốc S65 — tìm đúng nguyên liệu bị bỏ sót lô (bỏ qua mục đã kiểm kê kiểu mới; lô cùng ngày đếm để trống tích)', s146d.truoc&&s146d.tim&&s146d.khung, JSON.stringify(s146d));
 ok('S146: trừ lô bị bỏ sót: Cát liti 19.000 → 10.000 khớp hoá đơn, giữ số đếm, không cộng lại hoá đơn, có nhật ký; mục chưa có mốc lấy cuối ngày đếm', s146d.sau&&s146d.khongDung&&s146d.het&&s146d.mocC);
+/* S149: ghép hoá đơn nguyên liệu theo NGÀY SX (không theo lúc ghi) — tình huống thật cát liti: Silica HĐ109 28t (12/10) + Phú Hải HĐ63 9t (27/10), HĐ64 14t (04/11); 3 lô ghi bù hôm nay */
+const s149=await E(()=>{const g={dm:nlDM.slice(),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),n:sp.length,nk:nk.slice()}, NL='NL __S149__';
+  nlDM=[...nlDM,NL]; const P=napSP([{ten:'SP __S149__',kg:100,ml:0,huongs:[],tam:[],dauRa:['5 kg','30 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(P);
+  const kq={}, chay=thuTu=>{const M={S:{ncc:'Silica',gia:1,soKg:28000,soHD:'109',ngay:'12/10/2026',ts:'2026-10-15T05:00:00.000Z'},A:{ncc:'Phú Hải',gia:1,soKg:9000,soHD:'63',ngay:'27/10/2026',ts:'2026-11-16T10:00:00.000Z'},B:{ncc:'Phú Hải',gia:1,soKg:14000,soHD:'64',ngay:'04/11/2026',ts:'2026-11-16T10:05:00.000Z'}};
+    nguonNguyenLieu[NL]=thuTu.map(k=>M[k]); tonKhoNguyenLieu[NL]={con:28000,capNhat:'12/10/2026',moc:'2026-10-11T17:00:00.000Z',dcLog:[{ngay:'16/11/2026'}]};
+    const me=(id,ng,ts,sl)=>({id:'S149-'+id,sp:P.ten,huong:'',lot:id,sl,mlDung:0,ngaysx:ng,ts});
+    nk=[...g.nk,me('a1','2026-10-12','2026-10-12T02:00:00Z',3000),me('a2','2026-10-12','2026-10-12T03:00:00Z',3000),me('a3','2026-10-12','2026-10-12T04:00:00Z',3000),me('a4','2026-10-12','2026-10-28T04:00:00Z',3000),
+      me('bu16','2026-10-12','2026-11-16T11:00:00Z',16000),me('bu9','2026-10-28','2026-11-16T11:01:00Z',9000),me('bu8','2026-11-05','2026-11-16T11:02:00Z',8000),...[1,2,3,4].map(k=>me('c'+k,'2026-11-05','2026-11-05T0'+k+':00:00Z',1500))];
+    _pbNL=new Map(); const pb=phanBoNL(NL), hd=id=>(pb.me.get('S149-'+id)||{e:{}}).e.soHD;
+    return ['a1','a4','bu16'].every(x=>hd(x)==='109')&&hd('bu9')==='63'&&['bu8','c1','c4'].every(x=>hd(x)==='64')&&!pb.no.length&&pb.lan.every(o=>Math.abs(o.con)<0.001)&&tonNLKg(NL)===0};
+  kq.dung=chay(['S','A','B']); kq.thuTuKhac=chay(['B','A','S']);
+  sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); _pbNL=new Map(); luuNgay(); return kq});
+ok('S149: lô ghi bù (ngày SX cũ) ghép đúng hoá đơn theo ngày SX: HĐ109 hết 28t, HĐ63 hết 9t, HĐ64 hết 14t, không lô nợ, kho 0 — nhập lần mua theo thứ tự nào cũng vậy', s149.dung&&s149.thuTuKhac, JSON.stringify(s149));
 
 const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
