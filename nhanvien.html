@@ -470,7 +470,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/11/2026-R57</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/11/2026-R58</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -2005,6 +2005,10 @@ document.addEventListener('input',e=>{const t=e.target; if(t.dataset.kholoc!=='q
 /* R56: số liệu mẻ Admin sửa tay (trangThaiMe trong cấu hình) — áp lên mọi mẻ có trên máy, cả mẻ của máy khác */
 var ttMeCH; try{ttMeCH=JSON.parse(localStorage.getItem('peroma_ttMe')||'null')}catch(e){}
 function apSuaMe(ds){const tt=ttMeCH||(()=>{try{return JSON.parse(localStorage.getItem('peroma_ttMe')||'null')}catch(e){return null}})(); if(!tt||typeof tt!=='object'||!Array.isArray(ds))return;
+  /* R58 16/11/2026: Admin đổi tên mặt hàng/hương/quy cách → bảng __doiTen trong trangThaiMe; áp lên lô máy này + lô máy khác (giống Admin apDoiTenMe) */
+  var dt=tt.__doiTen, TR={sp:['sp'],h:['huong','huongList'],q:['quyCach','dauRa'],cp:['pkbChat'],nv:['nv']}, co=function(o,k){return Object.prototype.hasOwnProperty.call(o,k)};
+  if(dt&&typeof dt==='object')Object.keys(TR).forEach(function(l){var t=dt[l]; if(!t||typeof t!=='object')return;
+    ds.forEach(function(r){if(!r)return; TR[l].forEach(function(k){var v=r[k]; if(Array.isArray(v))v.forEach(function(x,j){if(typeof x==='string'&&co(t,x))v[j]=t[x]}); else if(typeof v==='string'&&co(t,v))r[k]=t[v]})})});
   ds.forEach(r=>{const o=r&&tt[r.id];if(o&&o.suaLuc)['sl','mlDung','soBao','kgDu','slGoc','mlGoc','soBaoGoc','suaLuc','suaLyDo','chiPhiHuongLucSX','chiPhiBaoBiLucSX','ngaysx','lot'].forEach(k=>{if(k in o)r[k]=o[k]})})}
 async function taiLoHeThong(im){
   if(!DONGBO_URL){if(!im)bao('Máy này chưa khai kết nối Google Sheet — vào tab Dữ liệu để khai');return}

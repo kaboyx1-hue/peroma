@@ -797,6 +797,13 @@ ok('R56: lô máy khác nhận số Admin sửa tay (2.000 → 27.000 kg) qua đ
 ok('R56: thẻ lô máy khác hiện "Quản lý đã sửa 2.000 → 27.000 kg"', r56.hien);
 ok('R56: tự tải lại lô máy khác (2 phút/lần) vẫn giữ số đã sửa', r56.taiLai);
 ok('R56: in tem lô máy khác theo số đã sửa, vẫn không gộp vào dữ liệu máy này', r56.tem&&r56.khongGopNk);
+/* R58 16/11/2026: Admin đổi tên mặt hàng/hương → bảng __doiTen trong trangThaiMe; lô máy này + lô máy khác về tên mới */
+const r58=await E(()=>{const g={nk:nk.slice(),ht:nkHT.slice(),tt:ttMeCH};
+  const a={id:'R58-A',sp:'SP cũ R58',huong:'H cũ',quyCach:'1 kg',lot:'1',sl:1}, b={id:'R58-B',sp:'SP cũ R58',huong:'H khác',lot:'2',sl:1};
+  nk=[...nk,a]; nkHT=[b]; ttMeCH={__doiTen:{sp:{'SP cũ R58':'SP mới R58'},h:{'H cũ':'H mới'}}}; apSuaMe(nk); apSuaMe(nkHT);
+  const kq={a:a.sp==='SP mới R58'&&a.huong==='H mới', b:b.sp==='SP mới R58'&&b.huong==='H khác'};
+  nk=g.nk; nkHT=g.ht; ttMeCH=g.tt; return kq});
+ok('R58: lô cũ (máy này + máy khác) theo tên mới khi Admin đổi tên mặt hàng/hương', r58.a&&r58.b, JSON.stringify(r58));
 /* R57 16/11/2026: tab Kho — tồn (kg) Admin gửi xuống, máy này tự trừ mẻ mới (cả máy khác); tra lô / hương / còn pha được; pha mẻ báo đủ-thiếu */
 const r57=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, p=sp[0];
   const g={ct:JSON.stringify(p.congThucNL||[]),kg:p.kg,ml:p.ml,hs:JSON.stringify(p.huongs||[]),hm:p.huongMe,sl:p.sl,nk:JSON.stringify(nk),ht:JSON.stringify(nkHT)};

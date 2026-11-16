@@ -1149,7 +1149,7 @@ const vQU=await E(()=>({
   soMa: QU_SP.length
 }));
 ok('QU_SP đã bổ sung mã 61 (từng bị sót so với văn bản quy ước số lô)', vQU.co61);
-ok('QU_SP bản 06 đủ 18 mã (16 của bản 05 + 01 Cát tắm, 10 Sand Hambii đã in tem)', vQU.soMa===18, 'có '+vQU.soMa);
+ok('QU_SP bản 06 đủ 20 mã (16 của bản 05 + 01 Cát tắm, 10 Sand Hambii, 02/03 gỗ nén đã in tem)', vQU.soMa===20, 'có '+vQU.soMa);
 const vCD=await E(()=>{
   const nhom1='Dùng để đổ vào khay vệ sinh, giúp mèo che lấp và xử lý chất thải theo bản năng';
   const nhom4='thấm hút ẩm và chất thải, tạo bề mặt êm cho thú đào hang';
@@ -3947,8 +3947,8 @@ const lmMa=await E(()=>{ const g={h:JSON.stringify(maHuong),q:JSON.stringify(maQ
   const coKem=kho.includes("Hương Kem"); if(!coKem)kho.push("Hương Kem"); maHuong["Hương Kem"]="02"; maQC["10kg"]="02"; if(!dr.includes("10kg"))dr.push("10kg");
   const ds=maLechChinhThuc(), kem=ds.find(x=>x.ten==="Hương Kem"), q=ds.find(x=>x.ten==="10kg");
   maHuong=JSON.parse(g.h); maQC=JSON.parse(g.q); if(!coKem)kho=kho.filter(x=>x!=="Hương Kem");
-  return {kem:kem&&kem.cu+">"+kem.moi, q:q&&q.cu+">"+q.moi, bang:MA_CHINH_THUC.h["Hương Táo"]+"/"+MA_CHINH_THUC.sp["Cát tắm cho hamster"]}});
-ok("LM2: mã khác bảng chính thức bản 06 được liệt kê đúng (Kem 02→18, 10kg 02→08); mã đã in tem (Táo 10, Cát tắm 01) là mã chính thức", lmMa.kem==="02>18"&&lmMa.q==="02>08"&&lmMa.bang==="10/01", JSON.stringify(lmMa));
+  return {kem:kem&&kem.cu+">"+kem.moi, q:q&&q.cu+">"+q.moi, bang:MA_CHINH_THUC.h["Hương Táo"]+"/"+MA_CHINH_THUC.sp["Cát tắm cho hamster"], go:MA_CHINH_THUC.sp["Gỗ nén lót chuồng 8li"]+"/"+MA_CHINH_THUC.sp["Gỗ nén lót chuồng 6li - Hambii"]+"/"+(maSaiChu.toString().includes("keTiep('q',5)")?"05":"")}});
+ok("LM2: mã khác bảng chính thức được liệt kê đúng (Kem 02→18); 10kg giữ 02, gỗ nén giữ 02/03 (chủ chốt 16/11); mã đã in tem (Táo 10, Cát tắm 01) là mã chính thức", lmMa.kem==="02>18"&&!lmMa.q&&lmMa.bang==="10/01"&&lmMa.go==="02/03/05", JSON.stringify(lmMa));
 /* DD — S94: nút 💰 Giá thành ở Danh sách lô → cửa sổ liệt kê nguyên liệu · hương · bao bì, tổng, giá/kg, giá/bao */
 const dd=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),nl:JSON.stringify(nguonNguyenLieu),nd:JSON.stringify(nlDangDung||{})};
   nguonNguyenLieu['Đá __DD__']=[{ncc:'NCC DD',gia:1080000,soKg:1000,vat:8,soHD:'777',ngay:'2026-10-01'}]; nlDangDung['Đá __DD__']='NCC DD';
@@ -4140,7 +4140,7 @@ const dp=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   chuyenTab('sx'); await cho(60); dsLoMo('DP-01'); await cho(200); const n1=document.querySelector('[data-chotgiup="DP-01"]'); kq.nutChot=!!n1;
   window.hoi=async()=>'13950'; n1&&n1.click(); await cho(80);
   const bc=bcNgay.find(x=>x.recordId==='DP-01'); kq.chot=!!bc&&bc.kgThucTe===13950&&/Admin/.test(bc.nv)&&trangThaiSXCua(a1)==='COMPLETED'&&!!bc.choGui;
-  kq.nhieu=document.querySelector('[data-chotgiup="*"]')!==null||true; dsLoTim='SP __DP__'; window.hoi=async()=>true;
+  kq.nhieu=document.querySelector('[data-chotgiup="*"]')!==null||true; dsLoTim='SP __DP__'; window.hoi=async(tt,m)=>{$('dlgM').innerHTML=m||''; return true}; /* S146: bảng chốt hàng loạt đọc ô trong hộp */
   const nb=document.createElement('button'); nb.dataset.chotgiup='*'; document.body.append(nb); nb.click(); await cho(80); nb.remove();
   kq.nhieu=[a2,b1].every(r=>trangThaiSXCua(r)==='COMPLETED')&&[b2,c0].every(r=>trangThaiSXCua(r)==='RECORDED')&&/* S131: lô thiếu HĐ bị bỏ qua khi chốt hàng loạt */bcNgay.find(x=>x.recordId==='DP-02').kgThucTe===14000;
   window.hoi=th; dsLoTim=''; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); bcNgay=g.bc; luuNgay(); chuyenTab('tq'); return kq;
@@ -4148,6 +4148,54 @@ const dp=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
 ok('DP: nguyên liệu ghép mẻ ↔ lần mua theo SỐ KG (cũ trước mới sau, theo ngày trên hoá đơn) — nhập hoá đơn muộn vẫn tự gán đúng 28 tấn đầu → HĐ 1, 28 tấn sau → HĐ 2', dp.no&&dp.ghep, JSON.stringify(dp));
 ok('DP: dùng vượt các lần mua → mẻ "chờ hoá đơn"; mẻ SX trước ngày hoá đơn không lấy hàng hoá đơn đó; dòng kiểu cũ 1 kg ghi rõ, form có ô ngày', dp.vuot&&dp.ngay&&dp.cu&&dp.oNgay);
 ok('DP: Admin "Chốt giúp" lô nhân viên chưa chốt — 1 lô (hỏi số kg) và cả danh sách (= kế hoạch), chờ gửi lên máy chủ', dp.nutChot&&dp.chot&&dp.nhieu);
+/* S146 16/11/2026 (chủ: "thiếu mục chốt hàng loạt"): bảng chốt hàng loạt — tích lô, sửa kg từng lô, lệch phải có lý do */
+const s146=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={nk:nk.slice(),bc:bcNgay.slice()};
+  const me=(id,sl)=>({id,sp:'SP __CL__',huong:'',lot:'88'+id.slice(-2)+'000000',sl,mlDung:0,ngaysx:'2026-11-01',ts:'2026-11-01T03:00:00.000Z'});
+  const A=me('CL-01',100),B=me('CL-02',200),C=me('CL-03',300); nk=[...nk,A,B,C]; dsLoTim='SP __CL__';
+  chuyenTab('sx'); await cho(60); kq.nutCC=!!document.querySelector('.cckhac [data-chotgiup="*"]')&&/Chốt hàng loạt/.test(document.querySelector('.dslo-gt[data-chotgiup="*"]').textContent);
+  let luot=0, loiTB=''; window.hoi=async(t,m)=>{if(/^Chưa chốt/.test(t)){loiTB=m;return true} $('dlgM').innerHTML=m; luot++; const tr=id=>$('dlgM').querySelector(`tr[data-cl="${id}"]`);
+    if(luot===1){kq.bang=$('dlgM').querySelectorAll('tr[data-cl]').length===3; tr('CL-02').querySelector('.cl-kg').value='190'; tr('CL-03').querySelector('.cl-chon').checked=false; return true}
+    tr('CL-02').querySelector('.cl-kg').value='190'; tr('CL-02').querySelector('.cl-ly').value='rơi vãi'; tr('CL-03').querySelector('.cl-chon').checked=false; return true};
+  const nb=document.querySelector('.dslo-gt[data-chotgiup="*"]'); nb.click(); await cho(150);
+  const bc=id=>bcNgay.find(x=>x.recordId===id);
+  kq.batLyDo=/ghi lý do/.test(loiTB)&&luot===2;
+  kq.chot=bc('CL-01')&&bc('CL-01').kgThucTe===100&&bc('CL-02')&&bc('CL-02').kgThucTe===190&&/rơi vãi/.test(bc('CL-02').lyDo)&&!bc('CL-03')&&trangThaiSXCua(C)==='RECORDED';
+  window.hoi=th; dsLoTim=''; nk=g.nk; bcNgay=g.bc; luuNgay(); chuyenTab('tq'); return kq});
+ok('S146: Chốt hàng loạt có ở Công cụ khác + thanh danh sách; bảng tích lô, sửa kg từng lô, lệch kế hoạch bắt ghi lý do, lô bỏ tích không chốt', s146.nutCC&&s146.bang&&s146.batLyDo&&s146.chot, JSON.stringify(s146));
+/* S146b: nút xoá mặt hàng luôn hiện ở khung chi tiết; đổi tên đi qua bảng __doiTen (máy khác áp lại); lô cũ gỗ nén nối lại; nhật ký cắt 3.000 dòng */
+const s146b=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={n:sp.length,nk:nk.slice(),tt:JSON.stringify(trangThaiMe),ae:JSON.stringify(auditEvents),ct:ctChon};
+  sp.push(napSP([{ten:'SP __XOA__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg']}])[0]); ctChon=sp.length-1; mo.clear(); const gLoc=locCT, gQ=$('q').value; locCT='all'; $('q').value=''; chuyenTab('ct'); await cho(80);
+  /* màn rộng: khung chi tiết bên phải; màn hẹp: mở trang mặt hàng — cả 2 đều có nút, không cần Quản lý */
+  let nb=document.querySelector('[data-ctxoa]'); if(!nb||nb.offsetParent===null){mo.add(ctChon); ve(); await cho(60); nb=document.querySelector('.rm[data-d="'+ctChon+'"]')}
+  kq.nut=!!nb&&nb.offsetParent!==null&&/Xoá mặt hàng/.test(nb.textContent)&&!sua;
+  window.hoi=async(t,m)=>/Xoá mặt hàng/.test(t)&&/chưa có lô/.test(m); nb.click(); await cho(80); kq.xoa=!sp.some(p=>p.ten==='SP __XOA__')&&auditEvents.some(a=>a.action==='XOA_MAT_HANG'&&a.entityId==='SP __XOA__');
+  window.hoi=th;
+  // đổi tên: máy khác có lô tên cũ → nhận cấu hình → lô về tên mới; A→B→C gộp
+  const P=sp[0].ten; trangThaiMe={}; doiTen('sp',P,P+' X'); doiTen('sp',P+' X',P+' Y'); const m=trangThaiMe.__doiTen.sp;
+  kq.gop=m[P]===P+' Y'&&m[P+' X']===P+' Y';
+  const loKhac={id:'DT-1',sp:P,huong:'',quyCach:'1 kg',lot:'99',sl:1,ngaysx:'2026-11-01'}; nk=[...nk,loKhac]; apTrangThaiMe(); kq.apLai=loKhac.sp===P+' Y';
+  sp.push(napSP([{ten:'SP Z146',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg']}])[0]); kq.chanDung=doiTen('sp','SP Z146',P+' X')===false&&sp.some(p=>p.ten==='SP Z146')&&!!tenDaDoiDi('sp',P)&&tenDaDoiDi('sp',P,P+' Y')==='';
+  doiTen('sp',P+' Y',P); kq.veLai=!trangThaiMe.__doiTen.sp[P]&&trangThaiMe.__doiTen.sp[P+' X']===P;
+  // lô gỗ nén cũ
+  sp.push(napSP([{ten:'Gỗ nén lót chuồng 8li',maSP:'02',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg']}])[0]); const go={id:'DT-2',sp:'Gỗ nén lót chuồng 8li - Hambii',lot:'0200100926',sl:1,ngaysx:'2026-09-10'}; nk=[...nk,go]; apTrangThaiMe(); kq.goNen=go.sp==='Gỗ nén lót chuồng 8li';
+  // nhật ký: 3.100 dòng đã gửi + 5 chưa gửi → còn 3.000, giữ đủ dòng chưa gửi
+  auditEvents=Array.from({length:3100},(_,i)=>({id:'C'+i,at:'2026-01-01',daGui:1})).concat(Array.from({length:5},(_,i)=>({id:'U'+i,at:'2026-01-02'}))); catNhatKyTT();
+  kq.cat=auditEvents.length===3000&&auditEvents.filter(a=>!a.daGui).length===5&&auditEvents[0].id==='C105';
+  sp.splice(g.n); nk=g.nk; trangThaiMe=JSON.parse(g.tt); auditEvents=JSON.parse(g.ae); ctChon=g.ct; locCT=gLoc; $('q').value=gQ; luuNgay(); chuyenTab('tq'); return kq});
+ok('S146: nút "Xoá mặt hàng này" luôn ở khung chi tiết trang Mặt hàng (không cần Quản lý), xoá có ghi nhật ký', s146b.nut&&s146b.xoa, JSON.stringify(s146b));
+ok('S146: đổi tên mặt hàng → bảng đổi tên đi theo cấu hình, lô ở máy khác về tên mới; đổi nối tiếp/đổi lại gộp đúng; tên đã đổi đi không dùng lại cho mục khác', s146b.gop&&s146b.apLai&&s146b.veLai&&s146b.chanDung);
+ok('S146: lô gỗ nén cũ "… 8li - Hambii" tự nối về "Gỗ nén lót chuồng 8li"; nhật ký giữ 3.000 dòng, không bỏ dòng chưa gửi', s146b.goNen&&s146b.cat);
+/* S146c: nguyên liệu — khung Liên quan (mặt hàng trong công thức → bấm tới; lô đã dùng) + xoá nói rõ ảnh hưởng, ghi nhật ký */
+const s146c=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, g={dm:nlDM.slice(),nn:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),n:sp.length,nk:nk.slice(),ae:auditEvents.length};
+  const A='NL __LQ__'; nlDM=[...nlDM,A]; nguonNguyenLieu[A]=[{ncc:'X',gia:1,soKg:1,ngay:'01/09/2026'}]; tonKhoNguyenLieu[A]={con:10,capNhat:'02/09/2026',moc:'2026-09-02T00:00:00.000Z'};
+  const P=napSP([{ten:'SP __LQ__',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:A,kg:100}]}])[0]; sp.push(P);
+  nk=[...nk,{id:'LQ-1',sp:P.ten,huong:'',lot:'5555',sl:50,mlDung:0,ngaysx:'2026-09-05',ts:'2026-09-05T03:00:00.000Z',nlLucSX:[{ten:A,tl:1}]}];
+  chuyenTab('kho'); await cho(60); moNguonCua('nl',A); await cho(150); const lq=document.querySelector('.nh-lq'); kq.khung=!!lq&&/SP __LQ__/.test(lq.textContent)&&/1 lô/.test(lq.textContent);
+  let hoiM=''; window.hoi=async(t,m)=>{hoiM=m;return true}; document.querySelector('[data-xoanl]').click(); await cho(80);
+  kq.baoLo=/1 lô đã dùng/.test(hoiM)&&/5555/.test(hoiM)&&/giữ nguyên/.test(hoiM);
+  kq.xoa=!nlDM.includes(A)&&!nguonNguyenLieu[A]&&!tonKhoNguyenLieu[A]&&!(P.congThucNL||[]).length&&nk.find(r=>r.id==='LQ-1').lot==='5555'&&auditEvents.some(a=>a.action==='XOA_NGUYEN_LIEU'&&a.entityId===A);
+  window.hoi=th; sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); luuNgay(); chuyenTab('tq'); return kq});
+ok('S146: nguyên liệu có khung Liên quan (mặt hàng trong công thức, lô đã dùng); xoá báo rõ lô bị ảnh hưởng, lô giữ nguyên số, ghi nhật ký', s146c.khung&&s146c.baoLo&&s146c.xoa, JSON.stringify(s146c));
 
 const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
@@ -4445,9 +4493,9 @@ const er=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nk=[...nk,me('ER-01'),me('ER-02')]; hdCuaMe=r=>r.id==='ER-02'?[{ten:'Hương X',soHD:''}]:[{ten:'NL',soHD:'9'}];
   const bam=id=>{const x=document.createElement('button'); x.dataset.chotgiup=id; document.body.append(x); x.click(); x.remove()};
   window.hoi=async(t,h,o)=>{hoiN.push(t+'|'+h); return false}; bam('ER-02'); await cho(40); kq.motHoi=/thiếu hoá đơn/.test(hoiN[0]||'')&&/Hương X/.test(hoiN[0])&&!bcNgay.some(b=>b.recordId==='ER-02');
-  hoiN=[]; window.hoi=async(t,h)=>{hoiN.push(t+'|'+h); return /Chốt giúp/.test(t)?true:false};
+  hoiN=[]; window.hoi=async(t,h)=>{hoiN.push(t+'|'+h); if(/Chốt hàng loạt/.test(t)){$('dlgM').innerHTML=h; return true} return false}; /* S146: bảng — lô thiếu HĐ để trống tích sẵn */
   const loc=window.dsLoLoc; dsLoLoc=()=>nk.filter(r=>/^ER-/.test(r.id)); bam('*'); await cho(40); dsLoLoc=loc;
-  kq.loat=bcNgay.some(b=>b.recordId==='ER-01')&&!bcNgay.some(b=>b.recordId==='ER-02')&&/Bỏ qua <b>1 lô thiếu hoá đơn/.test(hoiN.join(' '));
+  kq.loat=bcNgay.some(b=>b.recordId==='ER-01')&&!bcNgay.some(b=>b.recordId==='ER-02')&&/Thiếu HĐ: Hương X/.test(hoiN.join(' '));
   window.hoi=hoiCu; hdCuaMe=g.hcu; nk=g.nk; bcNgay.splice(0,bcNgay.length,...g.bc); luuNgay(); return kq });
 ok('ER: chốt giúp lô thiếu HĐ — 1 lô báo rõ thiếu HĐ gì (huỷ thì không chốt); chốt hàng loạt bỏ qua lô thiếu HĐ', Object.values(er).every(Boolean), JSON.stringify(er));
 const es=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, NL='NL __ES__', g={sp:sp.length,nl:JSON.stringify(nguonNguyenLieu),dd:JSON.stringify(nlDangDung)};
