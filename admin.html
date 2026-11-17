@@ -2035,9 +2035,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 16/11/2026-S149</span></i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 17/11/2026-S150</span></i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 16/11/2026-S149</div>
+      <div class="verFoot">BẢN 17/11/2026-S150</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -5899,6 +5899,20 @@ function apTraNo(){const tn=(meDaTru&&meDaTru.traNo)||{};
    Sửa hàng loạt xong cũng hỏi trả nợ; chữ cảnh báo phân biệt "đã khai, chỉ cần trả nợ" với "chưa khai". */
 const coMuaCon=h=>(nguonHuong[h]||[]).some(e=>num(e.soKg)>0&&conLaiNguon(e)>0&&!e.chot);
 const loiNo=h=>coMuaCon(h)?`Đã có lần mua — không cần khai lại, chỉ cần bấm <b>Trả nợ</b> để gắn các mẻ này vào lần mua đó.`:`Chưa có lần mua còn hàng: khai lần mua (hoặc sửa số kg lần mua đã khai) rồi <b>trả nợ</b>.`;
+/* S150 17/11/2026 (chủ: "không muốn sau này vẫn bị tiếp tục vấn đề như vậy"): Hương Táo — lô 30/09 làm TRƯỚC ngày hoá đơn 15/10 (lô "nợ", chưa trả nợ),
+   09/11 chốt lần mua → app ghi CẢ phần lô nợ (2,24 kg) thành hao hụt −2,76 dù hộp chốt chỉ báo còn 0,52. Nay: chốt lần mua hương = gắn (trả nợ) các lô nợ
+   thuộc lần mua này TRƯỚC, phần còn dư mới là hao hụt. Mở khoá trả lại đúng số hao hụt lúc chốt. */
+/* "Chưa trừ kho" ≠ "nợ giá": lô CHƯA nằm trong sổ meDaTru (chưa từng trừ vào lần mua nào) — gồm lô nợ (làm khi chưa có lần mua) và lô cũ mà S77
+   bỏ qua vì làm trước ngày lần mua đầu tiên (coi như dùng hàng cũ ngoài hệ thống). Không tự đoán: hộp chốt liệt kê, chủ tích lô nào thật sự dùng lần mua này. */
+const loChuaTruHuong=(h,e)=>{const tn=(meDaTru&&meDaTru.traNo)||{}; if(!h||isUnscented(h)||huongKemNL(h))return [];
+  return nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0&&!daTruHuongMe(r)&&!(tn[r.id]&&!tn[r.id].boQua)&&(!e||dongTruCua(r)===e))};
+const daApSoTonLucKhai=e=>(Array.isArray(e&&e.dcLog)?e.dcLog:[]).some(d=>/^Áp số tồn đã điền lúc khai/.test(d.lyDo||''));
+function ganVaoLanMua(h,ix,ds){const e=(nguonHuong[h]||[])[ix]; if(!e||!ds.length)return 0; const tn=soTraNo(), ngay=homNay(), giaG=num(e.soKg)>0?num(e.gia)/(num(e.soKg)*1000):0;
+  ds.forEach(r=>{if(!daTruHuongMe(r)){e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000; meDaTru.ids.push(r.id)}
+    tn[r.id]={gia:r.giaHuongTheoGLucSX===null||r.giaHuongTheoGLucSX===undefined?giaG:num(r.giaHuongTheoGLucSX),ngay,ncc:e.ncc,ix,chuyen:1};
+    if(e.soHD)hoaDonBoSung[r.id]={...(hoaDonBoSung[r.id]||{}),[h]:e.soHD};
+    ghiAudit('batch',r.id,'TRA_NO',null,{huong:h,ncc:e.ncc,giaG,luc:'gắn khi chốt lần mua'})});
+  apTraNo(); return ds.length}
 async function traNoHuong(h,ixMoi){
   const no=noMeHuong(h); if(!no.length){bao('Hương này không có mẻ nợ');return false}
   const ds=(nguonHuong[h]||[]).map((e,ix)=>({e,ix})).filter(o=>num(o.e.soKg)>0);
@@ -6709,9 +6723,14 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-chot
   const mo=!!b.dataset.mokhoamua, [loai,...r]=(b.dataset.chotmua||b.dataset.mokhoamua).split(':'), ix=+r.pop(), ten=r.join(':'), x=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!x)return;
   const mo_=`<b>${esc(ten)}</b> · ${esc(x.ncc||'')} · ${esc(x.ngay||'')} · ${fmtSo(num(x.soKg))} kg${x.soHD?' · HĐ '+esc(x.soHD):''}`;
   // S122: nút Chốt ở Chuỗi bấm được cả khi lần mua chưa dùng hết → nói rõ phần còn lại sẽ bị coi là hết
-  const con=mo?0:loai==='h'?conLaiNguon(x)-noMeHuong(ten).filter(r=>dongTruCua(r)===x).reduce((t,r)=>t+num(r.mlDung)/1000,0):(num(x.soKg)>1?num(x.soKg)-(phanBoNL(ten).dung.get(x)||0):0), conTxt=con>0.0005?`<div style="margin-top:8px;color:var(--badTx)"><b>Lần mua này còn ${fmtSo(Math.round(con*1000)/1000)} kg chưa dùng.</b> Chốt là coi như đã hết${loai==='h'?', tồn của lần mua về 0':''}.</div>`:'';
-  if(!await hoi(mo?'Mở khoá lần mua':'Xác nhận chốt lần mua',mo?`Mở khoá ${mo_}? Mở xong sửa được số kg / giá / ngày; lô ghi sau lại có thể nhận vào lần mua này.`
-      :`Chốt ${mo_}${conTxt?'':': đã dùng hết'}.${conTxt} Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.<div style="margin-top:12px"><button type="button" class="ctsxb" data-suatudlg="${esc(loai+':'+ten+':'+ix)}">✏️ Mở lần mua này để sửa</button></div>`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
+  const noL=!mo&&loai==='h'?loChuaTruHuong(ten,x):[], apTon=daApSoTonLucKhai(x), chacNo=r=>!apTon&&r.giaHuongTheoGLucSX===null, // nợ giá = chắc chắn chưa trừ → tích sẵn
+    noTxt=noL.length?`<div class="cl-bang" style="margin-top:8px"><b>${noL.length} lô dùng ${esc(ten)} chưa trừ vào lần mua nào</b> (thường là lô làm trước ngày trên hoá đơn). Tích lô <b>thật sự dùng hương của lần mua này</b> (số "còn" bên dưới đã tính các lô đang tích sẵn) — lô tích sẽ được trừ vào đây trước khi tính hao hụt; bỏ tích = lô dùng hàng cũ ngoài hệ thống.${apTon?' <b style="color:var(--amber)">Lần mua này đã được chỉnh theo số tồn điền lúc khai — lô cũ có thể đã được tính trong đó, chỉ tích khi chắc chắn.</b>':''}
+      ${noL.map(r=>`<label style="display:flex;gap:8px;align-items:center;margin-top:4px;width:max-content"><input type="checkbox" class="chot-gan" data-ganid="${esc(r.id)}" style="width:auto"${chacNo(r)?' checked':''}> ${esc(lotDep(r.lot||''))} · ${esc(vnNgay(r.ngaysx))} · ${esc(r.sp||'')} · ${fmtSo(num(r.mlDung)/1000)} kg${chacNo(r)?'':' <small style="color:var(--amber)">(làm trước khi app tự trừ kho — có thể đã được tính theo cách cũ)</small>'}</label>`).join('')}
+      <small>Ngày hoá đơn sai thì bấm "Mở lần mua này để sửa".</small></div>`:'';
+  const con=mo?0:loai==='h'?conLaiNguon(x)-noL.filter(chacNo).reduce((t,r)=>t+num(r.mlDung)/1000,0):(num(x.soKg)>1?num(x.soKg)-(phanBoNL(ten).dung.get(x)||0):0), conTxt=con>0.0005?`<div style="margin-top:8px;color:var(--badTx)"><b>Lần mua này còn ${fmtSo(Math.round(con*1000)/1000)} kg chưa dùng.</b> Chốt là coi như đã hết${loai==='h'?', tồn của lần mua về 0':''}.</div>`:'';
+  if(!await hoi(mo?'Mở khoá lần mua':'Xác nhận chốt lần mua',mo?`Mở khoá ${mo_}? Mở xong sửa được số kg / giá / ngày; lô ghi sau lại có thể nhận vào lần mua này.${loai==='h'&&(x.chot&&x.chot.haoHut||(x.dcLog||[]).some(d=>/^Chốt lần mua/.test(d.lyDo||'')))?' Số kg đã tính hao hụt lúc chốt được <b>trả lại</b> — chốt lại sẽ tính đúng.':''}`
+      :`Chốt ${mo_}${conTxt?'':': đã dùng hết'}.${noTxt}${conTxt} Chốt = <b>khoá</b> số kg, giá, ngày (muốn sửa phải mở khoá), lô ghi sau không nhận vào lần mua này nữa.<div style="margin-top:12px"><button type="button" class="ctsxb" data-suatudlg="${esc(loai+':'+ten+':'+ix)}">✏️ Mở lần mua này để sửa</button></div>`,{nutOK:mo?'Mở khoá':'Chốt & khoá'}))return;
+  if(noL.length){const chon=new Set([...$('dlgM').querySelectorAll('.chot-gan:checked')].map(c=>c.dataset.ganid)); ganVaoLanMua(ten,ix,noL.filter(r=>chon.has(r.id)))} // S150
   chotLanMua(loai,ten,ix,mo); luuNgay(); ve(); bao(mo?'Đã mở khoá lần mua':'🔒 Đã chốt & khoá lần mua')},true);
 
 // S114 (khách: "tôi cũng có thể đi thẳng vào location để sửa nếu muốn, cần thêm button"): từ hộp xác nhận chốt mở thẳng khung Sửa của đúng lần mua, không chốt
@@ -8087,6 +8106,9 @@ $('viewMA').addEventListener('click',async e=>{
     // S107: ngày trên hoá đơn (trước luôn lấy ngày nhập app) — nguyên liệu ghép mẻ theo ngày này
     const nm=String(gv('ngay')||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/), ngayHD=nm?nm[1].padStart(2,'0')+'/'+nm[2].padStart(2,'0')+'/'+nm[3]:String(gv('ngay')||'').trim()?null:homNay();
     if(!ngayHD||(nm&&(+nm[2]>12||+nm[1]>31))){bao('Ngày trên hoá đơn ghi dạng ngày/tháng/năm, VD 05/10/2026');return}
+    /* S150: cùng số hoá đơn + cùng NCC mà khác ngày (HĐ 4750 Peroma ở 3 ngày khác nhau) → nhiều khả năng gõ nhầm số/ngày: hỏi lại */
+    if(soHD){const dang=ix!==undefined?(nguonMapCua(loai)[ten]||[])[ix]:null, trung=[['h',nguonHuong],['nl',nguonNguyenLieu]].flatMap(([l,M])=>Object.entries(M||{}).flatMap(([t,ds])=>(ds||[]).filter(e=>e!==dang&&String(e.soHD||'').trim()===soHD&&String(e.ncc||'').trim().toLowerCase()===ncc.toLowerCase()&&e.ngay&&e.ngay!==ngayHD).map(e=>esc(t)+' · ngày '+esc(e.ngay))));
+      if(trung.length&&!await hoi('Cùng số hoá đơn, khác ngày',`Hoá đơn <b>${esc(soHD)}</b> của <b>${esc(ncc)}</b> đã có với ngày khác:<br><small>${trung.join('<br>')}</small><br>Một hoá đơn chỉ có một ngày — kiểm lại giấy: số hoá đơn hoặc ngày đang gõ có đúng không?`,{nutOK:'Đúng, vẫn lưu',nutHuy:'Để sửa lại'}))return}
     const coGan=ix===undefined&&!!box.querySelector('[data-nfme]'), ganIds=!coGan?[]:box.dataset.ganTay?JSON.parse(box.dataset.ganTay):[...ganGoiY(loai,ten,ganSapXep(ganUngVien(loai,ten)),soKg,ngayHD)]; // S144: chưa tự chọn → gợi ý theo số kg/ngày cuối cùng
     const nguonM=nguonMapCua(loai), dungM=dangDungMapCua(loai), anhH=loai==='h'?chupHuong(ten):null;
     nguonM[ten]=nguonM[ten]||[];
@@ -8286,11 +8308,14 @@ function moSuaNhanh(ten,chiThieuHD){bslMo('mua'); bslLoai='tatca'; bslChiThieuHD
   bslDang={r,c:ci}; bslVe(); bslO(); if(rs.length)setTimeout(()=>bslMoSua(),40)}
 function bslMuaNap(loai){const m=nguonMapCua(loai),ds=[];Object.entries(m||{}).forEach(([t,a])=>(a||[]).forEach((e,ix)=>{const d={ten:t,ncc:e.ncc||'',ngay:e.ngay||'',soHD:e.soHD||'',soHopDong:e.soHopDong||'',soToKhai:e.soToKhai||'',soKg:String(num(e.soKg)),donGia:num(e.soKg)>0?String(Math.round(num(e.gia)/num(e.soKg))):'',vat:e.vat===null||e.vat===undefined?'':String(e.vat),chot:!!e.chot};ds.push({id:loai+':'+t+':'+ix,ref:e,goc:{...d},moi:{...d}})}));return ds}
 function bslApChot(r){const e=r.ref,m=r.moi; if(!!m.chot===!!e.chot)return; const laH=String(r.id).startsWith('h:'), ten=r.goc.ten;
-  if(m.chot){e.chot={luc:new Date().toISOString(),ngay:homNay()};
-    if(laH){const con=conLaiNguon(e); if(Math.abs(con)>0.0005){e.dieuChinhKg=Math.round((num(e.dieuChinhKg||0)-con)*1000)/1000; e.dcLog=[...(Array.isArray(e.dcLog)?e.dcLog:[]),{ngay:homNay(),truocKg:con,sauKg:0,lyDo:'Chốt lần mua — đã dùng hết'}].slice(-30)}}
+  if(m.chot){e.chot={luc:new Date().toISOString(),ngay:homNay(),...(laH?{haoHut:0}:{})};
+    if(laH){const con=conLaiNguon(e); if(Math.abs(con)>0.0005){e.dieuChinhKg=Math.round((num(e.dieuChinhKg||0)-con)*1000)/1000; e.chot.haoHut=con; e.dcLog=[...(Array.isArray(e.dcLog)?e.dcLog:[]),{ngay:homNay(),truocKg:con,sauKg:0,lyDo:'Chốt lần mua — đã dùng hết'}].slice(-30)}}
     else if(!(nguonNguyenLieu[ten]||[]).some(x=>x!==e&&!x.chot&&num(x.soKg)>0)){const t=tonNLKg(ten); if(t!==null&&Math.abs(t)>0.0005)tonKhoNguyenLieu[ten]={...tonKhoNguyenLieu[ten],con:0,capNhat:homNay(),moc:new Date().toISOString()}}
     ghiAudit('stock',ten,'CHOT_LAN_MUA',null,{loai:laH?'h':'nl',ncc:e.ncc,ngay:e.ngay,soHD:e.soHD||''})}
-  else{delete e.chot; ghiAudit('stock',ten,'MO_CHOT_LAN_MUA',null,{loai:laH?'h':'nl',ncc:e.ncc,ngay:e.ngay})}}
+  else{/* S150: mở khoá → trả lại số đã ghi hao hụt lúc chốt (chốt cũ trước S150 không lưu haoHut: lấy dòng dcLog "Chốt lần mua" cuối) để chốt lại tính đúng */
+    let hh=null; if(laH){if(e.chot&&e.chot.haoHut!==undefined)hh=num(e.chot.haoHut); else{const d=(Array.isArray(e.dcLog)?e.dcLog:[]).filter(x=>/^Chốt lần mua/.test(x.lyDo||'')).pop(); if(d)hh=num(d.truocKg)}
+      if(hh){e.dieuChinhKg=Math.round((num(e.dieuChinhKg||0)+hh)*1000)/1000; e.dcLog=[...(Array.isArray(e.dcLog)?e.dcLog:[]),{ngay:homNay(),truocKg:conLaiNguon(e)-hh,sauKg:conLaiNguon(e),lyDo:'Mở khoá lần mua — trả lại số đã tính hao hụt lúc chốt'}].slice(-30)}}
+    delete e.chot; ghiAudit('stock',ten,'MO_CHOT_LAN_MUA',null,{loai:laH?'h':'nl',ncc:e.ncc,ngay:e.ngay,traLaiHaoHut:hh})}}
 function bslMuaAp(r){const anhH=String(r.id).startsWith('h:')?chupHuong(r.goc.ten):null; bslMuaAp0(r); if(anhH)khopTruHuong(r.goc.ten,anhH)}
 function bslMuaAp0(r){const e=r.ref,m=r.moi;e.ncc=String(m.ncc).trim();e.ngay=String(m.ngay).trim();e.soHD=String(m.soHD).trim();e.soHopDong=String(m.soHopDong).trim();e.soToKhai=String(m.soToKhai||'').trim();
   if(String(r.id).startsWith('h:'))doiSoKgGiuTon(e,bslSo(m.soKg));e.soKg=bslSo(m.soKg);e.gia=Math.round(bslSo(m.soKg)*bslSo(m.donGia));e.vat=m.vat===''?null:num(m.vat);bslApChot(r)}

@@ -4239,6 +4239,30 @@ const s149=await E(()=>{const g={dm:nlDM.slice(),nn:JSON.stringify(nguonNguyenLi
   kq.dung=chay(['S','A','B']); kq.thuTuKhac=chay(['B','A','S']);
   sp.splice(g.n); nk=g.nk; nlDM=g.dm; nguonNguyenLieu=JSON.parse(g.nn); tonKhoNguyenLieu=JSON.parse(g.tk); _pbNL=new Map(); luuNgay(); return kq});
 ok('S149: lô ghi bù (ngày SX cũ) ghép đúng hoá đơn theo ngày SX: HĐ109 hết 28t, HĐ63 hết 9t, HĐ64 hết 14t, không lô nợ, kho 0 — nhập lần mua theo thứ tự nào cũng vậy', s149.dung&&s149.thuTuKhac, JSON.stringify(s149));
+/* S150: Hương Táo — lô làm trước ngày HĐ (nợ) + chốt lần mua: gắn lô nợ trước, hao hụt chỉ phần dư; mở khoá trả lại hao hụt (cả chốt kiểu cũ) */
+const s150=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), th=window.hoi, g={nh:JSON.stringify(nguonHuong),nk:nk.slice(),md:JSON.stringify(meDaTru),hb:JSON.stringify(hoaDonBoSung)}, H=kho.filter(h=>!isUnscented(h)&&!huongKemNL(h))[0], kq={};
+  const bam=v=>{const b=document.createElement('button'); b.dataset.chotmua=v; document.body.append(b); b.click(); b.remove()};
+  window.hoi=async(t,m)=>{$('dlgM').innerHTML=m; return true};
+  nguonHuong[H]=[{ncc:'Peroma',gia:2592000,soKg:5,vat:8,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24}];
+  // như dữ liệu thật: lô 30/09 chưa trừ (không trong sổ), lô 29/10 ĐÃ trừ (trong sổ) nhưng chưa có giá (nợ giá)
+  const A={id:'S150-A',sp:sp[0].ten,huong:H,lot:'0110040926',sl:100,mlDung:2240,ngaysx:'2026-09-30',ts:'2026-09-30T03:00:00.000Z',giaHuongTheoGLucSX:null},
+        B={id:'S150-B',sp:sp[0].ten,huong:H,lot:'0110041026',sl:100,mlDung:2240,ngaysx:'2026-10-29',ts:'2026-10-29T03:00:00.000Z',giaHuongTheoGLucSX:null};
+  nk=[...nk,A,B]; if(!meDaTru)meDaTru={tu:'',ids:[]}; meDaTru.ids=[...(meDaTru.ids||[]),'S150-B']; if(meDaTru.traNo){delete meDaTru.traNo['S150-A'];delete meDaTru.traNo['S150-B']}
+  kq.chiA=loChuaTruHuong(H,nguonHuong[H][0]).map(r=>r.id).join()==='S150-A';
+  bam('h:'+H+':0'); await cho(80); const e=nguonHuong[H][0];
+  kq.chot=!!e.chot&&Math.abs(num(e.daDungKg)-4.48)<1e-6&&Math.abs(num(e.dieuChinhKg)+0.52)<1e-6&&!!soTraNo()['S150-A']&&conLaiNguon(e)===0&&!loChuaTruHuong(H,e).length;
+  window.hoi=async()=>true; bam('h:'+H+':0'); await cho(60); // nút đang là chốt → bấm lại qua data-mokhoamua
+  const mk=document.createElement('button'); mk.dataset.mokhoamua='h:'+H+':0'; document.body.append(mk); mk.click(); mk.remove(); await cho(60);
+  kq.mo=Math.abs(num(e.dieuChinhKg))<1e-6&&!e.chot&&Math.abs(conLaiNguon(e)-0.52)<1e-6;
+  // chốt kiểu cũ (trước S150): ghi -2,76, không haoHut → mở khoá trả lại 2,76
+  nguonHuong[H]=[{ncc:'Peroma',gia:2592000,soKg:5,vat:8,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24,dieuChinhKg:-2.76,chot:{luc:'2026-11-09T03:00:00.000Z',ngay:'09/11/2026'},dcLog:[{ngay:'09/11/2026',truocKg:2.76,sauKg:0,lyDo:'Chốt lần mua — đã dùng hết'}]}];
+  chotLanMua('h',H,0,true); const e2=nguonHuong[H][0]; kq.moCu=Math.abs(num(e2.dieuChinhKg))<1e-6&&Math.abs(conLaiNguon(e2)-2.76)<1e-6;
+  // bỏ tích = lô dùng hàng cũ → không trừ, hao hụt cả phần dư
+  window.hoi=async(t,m)=>{$('dlgM').innerHTML=m; $('dlgM').querySelectorAll('.chot-gan').forEach(c=>c.checked=false); return true}; delete soTraNo()['S150-A']; meDaTru.ids=meDaTru.ids.filter(x=>x!=='S150-A');
+  nguonHuong[H]=[{ncc:'Peroma',gia:2592000,soKg:5,vat:8,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24}]; bam('h:'+H+':0'); await cho(80); kq.boTich=Math.abs(num(nguonHuong[H][0].daDungKg)-2.24)<1e-6&&Math.abs(num(nguonHuong[H][0].dieuChinhKg)+2.76)<1e-6;
+  window.hoi=th; nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); hoaDonBoSung=JSON.parse(g.hb); luuNgay(); return kq});
+ok('S150: chốt lần mua hương: lô CHƯA trừ kho (làm trước ngày HĐ) được liệt kê để tích; lô đã trừ không cộng lại — Táo: dùng 4,48, hao hụt 0,52 (không phải 2,76 hay −1,72)', s150.chiA&&s150.chot&&s150.boTich, JSON.stringify(s150));
+ok('S150: mở khoá lần mua trả lại đúng số đã tính hao hụt lúc chốt (cả chốt kiểu cũ) để chốt lại cho đúng', s150.mo&&s150.moCu);
 
 const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
