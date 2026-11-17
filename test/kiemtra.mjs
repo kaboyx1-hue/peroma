@@ -4263,6 +4263,27 @@ const s150=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), th=
   window.hoi=th; nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); hoaDonBoSung=JSON.parse(g.hb); luuNgay(); return kq});
 ok('S150: chốt lần mua hương: lô CHƯA trừ kho (làm trước ngày HĐ) được liệt kê để tích; lô đã trừ không cộng lại — Táo: dùng 4,48, hao hụt 0,52 (không phải 2,76 hay −1,72)', s150.chiA&&s150.chot&&s150.boTich, JSON.stringify(s150));
 ok('S150: mở khoá lần mua trả lại đúng số đã tính hao hụt lúc chốt (cả chốt kiểu cũ) để chốt lại cho đúng', s150.mo&&s150.moCu);
+/* S151: không lô hương nào im lặng không trừ — khung đầu Kho; sửa ngày HĐ về đúng thì lô tự gợi ý gắn (dung sai 7 ngày); lô đã trừ không cộng lại; hàng cũ; hương chưa có lần mua */
+const s151=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), th=window.hoi, g={nh:JSON.stringify(nguonHuong),nk:nk.slice(),md:JSON.stringify(meDaTru),hb:JSON.stringify(hoaDonBoSung),kho:kho.slice()}, kq={};
+  const [H1,H2]=kho.filter(h=>!isUnscented(h)&&!huongKemNL(h)), H3='Hương __S151 Citycat__'; kho=[...kho,H3];
+  nguonHuong[H1]=[{ncc:'Peroma',gia:2268000,soKg:5,vat:8,soHD:'4750',ngay:'12/10/2026',daDungKg:2.24}];
+  nguonHuong[H2]=[{ncc:'Peroma',gia:2150000,soKg:5,vat:8,soHD:'4863',ngay:'12/10/2026',daDungKg:0}]; nguonHuong[H3]=[];
+  const me=(id,h,ng,gia)=>({id:'S151-'+id,sp:sp[0].ten,huong:h,lot:id,sl:100,mlDung:2240,ngaysx:ng,ts:ng+'T03:00:00.000Z',giaHuongTheoGLucSX:gia});
+  const A=me('a01',H1,'2026-10-01',420), B=me('b29',H1,'2026-10-29',420), C=me('c01',H2,'2026-10-01',398), D=me('d19',H3,'2026-10-19',null);
+  nk=[...nk,A,B,C,D]; if(!meDaTru)meDaTru={tu:'',ids:[]}; meDaTru.ids=[...(meDaTru.ids||[]),'S151-b29'];
+  const ds=loHuongChuaTru(), tim=id=>ds.find(x=>x.r.id==='S151-'+id);
+  kq.du=!!tim('a01')&&!!tim('c01')&&!!tim('d19')&&!tim('b29')&&/trước ngày hoá đơn/.test(tim('a01').lyDo)&&!tim('a01').goiY&&!tim('d19').ds.length;
+  chuyenTab('kho'); await cho(80); kq.khung=(b=>!!b&&b.offsetParent!==null)(document.querySelector('[data-huongchuatru]'));
+  // chủ sửa ngày HĐ 4750 về 01/10 → lô 01/10 gợi ý gắn; trà xanh: chọn hàng cũ
+  nguonHuong[H1][0].ngay='01/10/2026'; kq.goiY=loHuongChuaTru().find(x=>x.r.id==='S151-a01').goiY;
+  window.hoi=async(t,m)=>{$('dlgM').innerHTML=m; const tr=[...$('dlgM').querySelectorAll('tr[data-hct]')]; tr.forEach(x=>{if(/c 01|c01/.test(x.textContent.replace(/\s/g,' ')))x.querySelector('.hct-chon').value='cu'}); kq.nutNhap=!!$('dlgM').querySelector(`[data-themnguon="h:${H3}"]`); return true};
+  await xuLyHuongChuaTru();
+  kq.gan=Math.abs(num(nguonHuong[H1][0].daDungKg)-4.48)<1e-6&&daTruHuongMe(A)&&!loChuaTruHuong(H1).length;
+  kq.cu=!!(meDaTru.hangCu||{})['S151-c01']&&num(nguonHuong[H2][0].daDungKg)===0&&auditEvents.some(a=>a.action==='HUONG_HANG_CU');
+  kq.conCitycat=loHuongChuaTru().some(x=>x.r.id==='S151-d19');
+  window.hoi=th; nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); hoaDonBoSung=JSON.parse(g.hb); kho=g.kho; luuNgay(); chuyenTab('tq'); return kq});
+ok('S151: lô hương chưa trừ kho hiện ở đầu tab Kho với lý do (trước ngày HĐ / nợ / hương chưa có lần mua) — không lô nào im lặng', s151.du&&s151.khung&&s151.nutNhap&&s151.conCitycat, JSON.stringify(s151));
+ok('S151: sửa ngày HĐ về đúng → lô tự gợi ý gắn (dung sai 7 ngày), gắn chỉ cộng lô chưa trừ (4,48 không 6,72); "dùng hàng cũ" ghi sổ + nhật ký, không trừ', s151.goiY&&s151.gan&&s151.cu);
 
 const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, th=window.hoi, NL='NL __DQ__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DQ__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
