@@ -2035,9 +2035,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 17/11/2026-S151</span></i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 17/11/2026-S152</span></i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 17/11/2026-S151</div>
+      <div class="verFoot">BẢN 17/11/2026-S152</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2241,15 +2241,31 @@ function sachCauHinh(mang){
     baoBiRieng:(p.baoBiRieng&&typeof p.baoBiRieng==='object'&&!Array.isArray(p.baoBiRieng))?p.baoBiRieng:{}
   }));
 }
+/* S152 17/11/2026 (kỹ sư: Sheet bị "bão ghi" — 2 máy Admin cùng mở, 224 lần ghi trong 50 phút, người dùng không bấm gì; lần mua vừa nhập bị mất vì xung đột):
+   CẦU DAO — máy tự đẩy cấu hình quá 6 lần trong 2 phút mà người dùng không chạm phím/chuột/màn hình → NGỪNG tự đẩy, báo rõ. Thao tác lại là mở lại. */
+let dbLanTuDay=[], dbNguoiLuc=Date.now(), dbCauDao=false;
+['pointerdown','keydown','input'].forEach(t=>document.addEventListener(t,()=>{dbNguoiLuc=Date.now(); if(dbCauDao){dbCauDao=false; const x=document.getElementById('cauDao'); if(x)x.remove()}},true));
+function dbCauDaoNgat(){const nay=Date.now(); dbLanTuDay=dbLanTuDay.filter(t=>nay-t<120000); if(nay-dbNguoiLuc<120000)return false; dbLanTuDay.push(nay);
+  if(dbLanTuDay.length<=6)return false; if(!dbCauDao){dbCauDao=true; ghiAudit('config','cấu hình','CAU_DAO_DONG_BO',null,{lan:dbLanTuDay.length,may:TEN_MAY()});
+    const d=document.createElement('div'); d.id='cauDao'; d.setAttribute('role','alert'); d.style.cssText='position:fixed;left:50%;bottom:80px;transform:translateX(-50%);z-index:9999;max-width:560px;background:#7a2e0e;color:#fff;padding:10px 14px;border-radius:12px;font:500 14px/1.4 system-ui';
+    d.innerHTML='<b>Đã tạm ngừng tự lưu lên Google Sheet</b> — máy này tự ghi liên tục mà bạn không thao tác (có thể đang mở Admin ở 2 nơi). Đóng bớt các cửa sổ Admin khác; bấm bất kỳ đâu để bật lại.'; document.body.append(d)}
+  return true}
+/* S152 (kỹ sư: giữa MỌI 2 lần ghi liên tiếp luôn khác tonKhoNV.luc — giờ tính, không phải dữ liệu): không đẩy khi cấu hình y hệt lần đã khớp với Sheet
+   (lần đẩy thành công / lần vừa kéo về), bỏ qua tonKhoNV.luc. Chặn "ghi cho có" — chất xúc tác của vòng ghi qua ghi lại giữa 2 máy. */
+let dbKhoaCuoi='';
+const cauHinhGoi=()=>({sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong(),tonKhoNV:tinhTonKhoNV(),khoaPIN:{admin:KHOA_PIN.doc('peroma_pin_admin'),nv:KHOA_PIN.doc('peroma_pin_nv')}});
+const khoaCauHinh=ch=>JSON.stringify({...ch,tonKhoNV:ch.tonKhoNV?{...ch.tonKhoNV,luc:''}:ch.tonKhoNV});
 async function dbDayCauHinh(){
   if(!DONGBO_URL){dbChoDay=false;return}
+  const ch=cauHinhGoi(), khoa=khoaCauHinh(ch); if(khoa===dbKhoaCuoi&&dongBoCauHinhTs){dbChoDay=false;return}
+  if(dbCauDaoNgat()){dbChoDay=false;return}
   dbVeTT('dang');
   try{
     /* 27/08/2026 — bản S2: trước đây thiếu nguonHuong/huongDangDung/tonKhoHuong trong gói gửi
        lên Sheet — nghĩa là nhà cung cấp/giá/tồn kho hương liệu KHÔNG được sao lưu lên máy chủ,
        y hệt lỗi đã sửa ở "Bản sao đầy đủ" .json cùng đợt. Sửa ở đây để cấu hình đồng bộ lên
        Sheet là ĐẦY ĐỦ, dùng lại được khi mở bản phần mềm mới (xem dbKeoCauHinhNeuMoiHon()). */
-    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong(),tonKhoNV:tinhTonKhoNV(),khoaPIN:{admin:KHOA_PIN.doc('peroma_pin_admin'),nv:KHOA_PIN.doc('peroma_pin_nv')}},ban:BAN_HIEN_TAI,may:('phiếu:'+phieuTT+' | '+String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'')).slice(0,118)})}); // S97: bản + máy → trang NHATKY_CAUHINH
+    const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'luuCauHinh',tsCu:dongBoCauHinhTs,cauhinh:ch,ban:BAN_HIEN_TAI,may:('phiếu:'+phieuTT+' | '+String(navigator.userAgent||'').replace(/^Mozilla\/5\.0 /,'')).slice(0,118)})}); // S97: bản + máy → trang NHATKY_CAUHINH
     dbChoDay=false;
     if(j&&j.xungDot){
       /* 12/10/2026 — S53: máy Admin khác (PC/điện thoại) vừa ghi trước → máy chủ không cho đè. Tải bản mới nhất về
@@ -2260,7 +2276,7 @@ async function dbDayCauHinh(){
       baoXungDot(apLai,auditEvents.filter(a=>a.may===TEN_MAY()&&!a.tuMayChu&&String(a.at||'')>dbLanDayOk)); // S145
       return;
     }
-    if(j&&j.ts){dongBoCauHinhTs=j.ts; dbLanDayOk=new Date().toISOString(); if(bslChoGui)huyHieu('☁️','Đã lưu lên Google Sheet',new Date().toLocaleTimeString('vi-VN')); bslChoGui=null}
+    if(j&&j.ts){dongBoCauHinhTs=j.ts; dbKhoaCuoi=khoa; dbLanDayOk=new Date().toISOString(); if(bslChoGui)huyHieu('☁️','Đã lưu lên Google Sheet',new Date().toLocaleTimeString('vi-VN')); bslChoGui=null}
     dbVeTT('ok');
   }catch(e){ dbChoDay=false; dbVeTT('loi', e.message);
     /* S97: phần Sửa hàng loạt vừa lưu mà KHÔNG gửi được lên Sheet → báo to, không chỉ đổi chấm trạng thái (khách không thấy → tưởng đã lưu) */
@@ -2368,14 +2384,14 @@ async function dbKeoCauHinhNeuMoiHon(epBuoc){
     if(!dongBoCauHinhTs||j.ts>dongBoCauHinhTs){
       if(!epBuoc&&(dbCoDangGoTiepXuc()||dbChoDay))return; // vừa gõ/sửa giữa lúc chờ mạng trả về — vẫn phải chặn ở đây
       apDungCauHinhTuServer(j.cauhinh);
-      dongBoCauHinhTs=j.ts;
+      dongBoCauHinhTs=j.ts; try{dbKhoaCuoi=khoaCauHinh(cauHinhGoi())}catch(e){dbKhoaCuoi=''} // S152: vừa khớp Sheet — không đẩy ngược lại y nguyên
       // S53: bản server có thể chưa trừ tồn kho mẻ máy này đã nhận → trừ phần còn thiếu (mỗi mẻ 1 lần) và đẩy lại;
       // không có gì để trừ thì chỉ lưu cục bộ, KHÔNG đẩy ngược bản vừa nhận lên máy chủ
       if(truTonKhoConThieu())luuNgay(); else{ luuNgay(); clearTimeout(dbHen2); dbChoDay=false; }
       ve();docao();
       bao('🟢 Đã tự động lấy cấu hình mới nhất từ Google Sheet');
     }else{
-      dongBoCauHinhTs=j.ts;
+      dongBoCauHinhTs=j.ts; if(!dbKhoaCuoi)try{dbKhoaCuoi=khoaCauHinh(j.cauhinh)}catch(e){} // S152: bản trên Sheet = bản máy đã có → lần lưu đầu sau khi mở trang không đẩy lại y nguyên
     }
     dbVeTT('ok');
   }catch(e){ /* mất mạng hoặc chưa triển khai Sheet — im lặng, không chặn mở app */ }
@@ -2524,7 +2540,9 @@ function truTonKhoMe(r){
 function truTonKhoConThieu(){let n=0;nk.forEach(r=>{if(truTonKhoMe(r))n++});return n+truMeCuTuDong()}
 /* S77: mẻ ghi TRƯỚC mốc sổ trừ kho (meDaTru.tu) mà đã có trong nhật ký (đã ra số lô = đã sản xuất thật) → tự trừ vào kho hương theo
    thứ tự lần mua (cũ trước, hết mới sang lần sau; hết cả thì dồn vào lần mua mới nhất → kho âm, kiểm kê để khớp). Mỗi mẻ 1 lần (sổ chung). */
-function truMeCuTuDong(){let n=0; if(!meDaTru)return 0; const ids=new Set(meDaTru.ids);
+function truMeCuTuDong(){/* S152: TẮT — S77 tự trừ / tự đánh dấu "đã trừ 0 kg" lô cũ lúc mở trang, im lặng (trái luật S151 "không lô nào im lặng").
+     Lô cũ chưa trừ nay hiện ở khung "lô dùng hương chưa trừ kho" để chủ chọn. Giữ thân hàm bên dưới để tra soát. */ return 0;
+  let n=0; if(!meDaTru)return 0; const ids=new Set(meDaTru.ids);
   /* đối chiếu theo từng hương (an toàn khi máy mới tải lịch sử về): đã trừ trên các lần mua D = trừ theo sổ mới N + trừ theo cách cũ O.
      Mẻ cũ (trước mốc) tổng P; phần CHƯA trừ thật sự = P − O (cách cũ đã trừ O rồi). Chỉ trừ phần chênh đó, rồi ghi các mẻ cũ vào sổ. */
   const cho={}; nk.forEach(r=>{if(r&&r.id&&!r.huy&&r.huong&&!isUnscented(r.huong)&&num(r.mlDung)>0&&r.giaHuongTheoGLucSX!==null&&!ids.has(r.id)&&!(String(r.ts||'')>meDaTru.tu)&&(nguonHuong[r.huong]||[]).some(e=>num(e.soKg)>0))(cho[r.huong]=cho[r.huong]||[]).push(r)});
@@ -3431,16 +3449,16 @@ let ntkDangDay=false, ntkDangKeo=false, ntkTim='', dbLanDayOk=new Date().toISOSt
 function catNhatKyTT(){const du=auditEvents.length-3000; if(du<=0)return; let bo=du; auditEvents=auditEvents.filter(a=>{if(bo>0&&a&&(a.daGui||a.tuMayChu)){bo--;return false}return true})}
 async function dayNhatKyTT(){if(!DONGBO_URL||ntkDangDay)return; const ds=auditEvents.filter(a=>a&&a.id&&!a.daGui&&!a.tuMayChu).slice(0,200); if(!ds.length)return; ntkDangDay=true;
   try{const j=await dbGoi(DONGBO_URL,{method:'POST',body:JSON.stringify({mk:LEGACY_SHARED_TOKEN,a:'themNhatKyTT',ae:ds.map(({daGui,tuMayChu,...x})=>x)})});
-    if(j&&j.ok&&Array.isArray(j.idDaNhan)){const da=new Set(j.idDaNhan); auditEvents.forEach(a=>{if(da.has(a.id))a.daGui=1}); catNhatKyTT(); luu()}}catch(e){} ntkDangDay=false}
+    if(j&&j.ok&&Array.isArray(j.idDaNhan)){const da=new Set(j.idDaNhan); auditEvents.forEach(a=>{if(da.has(a.id))a.daGui=1}); catNhatKyTT(); luuCucBo()}}catch(e){} ntkDangDay=false}
 async function keoNhatKyTT(){if(!DONGBO_URL||ntkDangKeo)return; ntkDangKeo=true;
   try{const j=await dbGoi(DONGBO_URL+'?mk='+encodeURIComponent(LEGACY_SHARED_TOKEN)+'&a=nhatkytt');
     if(j&&j.ok&&Array.isArray(j.ae)){const co=new Set(auditEvents.map(a=>a.id)); let them=0;
       j.ae.forEach(a=>{if(a&&a.id&&!co.has(a.id)){auditEvents.push({...a,daGui:1,tuMayChu:1}); co.add(a.id); them++}});
-      if(them){auditEvents.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||''))); catNhatKyTT(); luu(); if(tab==='sl'){const k=document.getElementById('ntkDs'); if(k)k.innerHTML=ntkDsHTML()}}}}catch(e){} ntkDangKeo=false}
+      if(them){auditEvents.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||''))); catNhatKyTT(); luuCucBo(); if(tab==='sl'){const k=document.getElementById('ntkDs'); if(k)k.innerHTML=ntkDsHTML()}}}}catch(e){} ntkDangKeo=false}
 const NTK_TEN={KIEM_KE:'Kiểm kê hương',KIEM_KE_NL:'Kiểm kê nguyên liệu',THEM_LAN_MUA:'Thêm lần mua',XOA_LAN_MUA:'Xoá lần mua',SUA_SO_LIEU:'Sửa số liệu mẻ',SUA_GAM_HUONG:'Sửa gam hương',
   SUA_HANG_LOAT:'Sửa hàng loạt',EDIT_RECIPE:'Sửa công thức',CANCEL:'Huỷ lô',STOP:'Ngừng sản xuất',DOI_SO_LO:'Đổi số lô',SUA_NGAY_SX:'Sửa ngày sản xuất',GAN_HD_NL:'Gắn hoá đơn vào mẻ',
   GAN_LAN_MUA_HUONG:'Gắn lần mua hương vào mẻ',CHUYEN_LAN_MUA_HUONG:'Chuyển lần mua hương',TRA_NO:'Trả nợ hương',DOI_MA_CHINH_THUC:'Đổi mã theo bảng chính thức',THEM_MAT_HANG:'Thêm mặt hàng',
-  XOA_MAT_HANG:'Xoá mặt hàng',FINALIZE_ACTUAL:'Chốt thực tế',BO_SUNG_HOA_DON:'Bổ sung hoá đơn',SUA_DINH_MUC_TU_KHO:'Sửa định mức',DUNG_SAI_NGAY_HD:'Đổi số ngày ghép hoá đơn',XOA_NGUYEN_LIEU:'Xoá nguyên liệu',TRU_LO_BO_SOT:'Trừ lô bị bỏ sót (lỗi mốc cũ)',HUONG_HANG_CU:'Lô dùng hương hàng cũ (ngoài hệ thống)',TRA_NO:'Gắn lô vào lần mua hương'};
+  XOA_MAT_HANG:'Xoá mặt hàng',FINALIZE_ACTUAL:'Chốt thực tế',BO_SUNG_HOA_DON:'Bổ sung hoá đơn',SUA_DINH_MUC_TU_KHO:'Sửa định mức',DUNG_SAI_NGAY_HD:'Đổi số ngày ghép hoá đơn',XOA_NGUYEN_LIEU:'Xoá nguyên liệu',TRU_LO_BO_SOT:'Trừ lô bị bỏ sót (lỗi mốc cũ)',HUONG_HANG_CU:'Lô dùng hương hàng cũ (ngoài hệ thống)',TRA_NO:'Gắn lô vào lần mua hương',CAU_DAO_DONG_BO:'Tạm ngừng tự lưu (ghi liên tục)'};
 const ntkGon=v=>{if(v===null||v===undefined)return '';const t=typeof v==='object'?Object.entries(v).map(([k,x])=>k+': '+(typeof x==='object'?JSON.stringify(x):x)).join(' · '):String(v);return t.length>140?t.slice(0,140)+'…':t};
 function ntkDsHTML(){const q=ntkTim.trim().toLowerCase();
   const ds=auditEvents.filter(a=>!q||[a.actor,a.may,a.entityId,a.action,NTK_TEN[a.action],ntkGon(a.before),ntkGon(a.after)].join(' ').toLowerCase().includes(q)).slice(-300).reverse();
@@ -3601,6 +3619,7 @@ function dongDlg(v){
 
 let hen=null;
 const luu=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung,trangThaiMe});dbDayChoDL()},320)};
+const luuCucBo=()=>{clearTimeout(hen);hen=setTimeout(()=>{store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung,trangThaiMe});},320)}; // S152: chỉ lưu máy này (nhật ký thao tác…), không đẩy cấu hình lên Sheet — chống "bão ghi" 2 máy
 /* Ghi NGAY, không chờ. Dùng cho thao tác lớn: đổi tên, thêm/xoá danh mục, ghi mẻ.
    Gõ số lẻ tẻ thì vẫn dùng luu() để khỏi ghi đĩa liên tục. */
 const luuNgay=()=>{clearTimeout(hen);dbDayChoDL();return store.set({sp,kho,cp,dr,nk,nvCuoi,maHuong,maQC,kgQC,nvDS,nlDM,temCot,temHang,temMau,temKieu,temKho,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nguongCanhBaoNgay,ngayNhacInTem,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,lenhTienDo,bcNgay,nhanNhatKy,dataUnitVersion,auditEvents,dongBoCauHinhTs,meDaTru,hoaDonBoSung,trangThaiMe})};
@@ -3772,8 +3791,10 @@ function dongTruCua(r){
   if(!nk.includes(r)){const p=sp.find(x=>x.ten===r.sp), n=p?nguonDangDungCuaMatHang(p,r.huong):null; if(n)return n.e;
     const dung=huongDangDung[r.huong]; return [...ds].reverse().find(e=>e.ncc===dung)||ds[ds.length-1]}
   const co=ds.map((e,ix)=>({e,ix,d:iso(e.ngay)})).filter(o=>num(o.e.soKg)>0); if(!co.length)return ds[ds.length-1];
-  co.sort((a,b)=>a.d.localeCompare(b.d)||a.ix-b.ix); const han=congNgay(r.ngaysx||r.ts||'',7);
-  return (co.filter(o=>o.d<=han).pop()||co[0]).e;
+  co.sort((a,b)=>a.d.localeCompare(b.d)||a.ix-b.ix); const sx=String(r.ngaysx||r.ts||'').slice(0,10), han=congNgay(sx,7);
+  /* S152 (kỹ sư, nhập HĐ 03/11 trên dữ liệu thật): trước đây lấy lần mua mới nhất ≤ SX+7 → khai lần mua 03/11 làm lô 29/10 NHẢY khỏi lần mua 01/10 đang còn hàng.
+     Nay: lần mua mới nhất có ngày ≤ ngày SX; dung sai +7 ngày CHỈ khi không có lần mua nào trước/đúng ngày SX (hoá đơn xuất sau khi hàng về). */
+  return (co.filter(o=>o.d<=sx).pop()||co.filter(o=>o.d<=han).pop()||co[0]).e;
 }
 /* S127: lô ĐÃ TRỪ KHO đổi lần mua (vì khai thêm lần mua có ngày sớm hơn, sửa ngày lần mua…) → chuyển luôn số đã dùng sang lần mua mới,
    để "còn lại" của từng lần mua khớp với các lô đang nối vào nó. Chụp trước khi sửa, khớp sau khi sửa (theo chỉ số dòng). */
@@ -5904,9 +5925,13 @@ const loiNo=h=>coMuaCon(h)?`Đã có lần mua — không cần khai lại, ch�
    thuộc lần mua này TRƯỚC, phần còn dư mới là hao hụt. Mở khoá trả lại đúng số hao hụt lúc chốt. */
 /* "Chưa trừ kho" ≠ "nợ giá": lô CHƯA nằm trong sổ meDaTru (chưa từng trừ vào lần mua nào) — gồm lô nợ (làm khi chưa có lần mua) và lô cũ mà S77
    bỏ qua vì làm trước ngày lần mua đầu tiên (coi như dùng hàng cũ ngoài hệ thống). Không tự đoán: hộp chốt liệt kê, chủ tích lô nào thật sự dùng lần mua này. */
+/* S152: S77 đã ghi vào sổ (0 kg) các lô làm TRƯỚC ngày lần mua đầu tiên của hương — chưa từng trừ thật. Coi là CHƯA TRỪ để chủ chọn. */
+const s77BoQua=r=>{if(!meDaTru||!(String(r.ts||'')<=String(meDaTru.tu||''))||!daTruHuongMe(r)||(meDaTru.traNo||{})[r.id])return false;
+  const d=(nguonHuong[r.huong]||[]).filter(e=>num(e.soKg)>0).map(e=>iso(e.ngay)).filter(Boolean).sort()[0]; return !!d&&String(r.ngaysx||'').slice(0,10)<d};
+const chuaTruThat=r=>!daTruHuongMe(r)||s77BoQua(r);
 const loChuaTruHuong=(h,e)=>{const tn=(meDaTru&&meDaTru.traNo)||{}; if(!h||isUnscented(h)||huongKemNL(h))return [];
   const cu=(meDaTru&&meDaTru.hangCu)||{};
-  return nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0&&!daTruHuongMe(r)&&!(tn[r.id]&&!tn[r.id].boQua)&&!cu[r.id]&&(!e||dongTruCua(r)===e))};
+  return nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0&&chuaTruThat(r)&&!(tn[r.id]&&!tn[r.id].boQua)&&!cu[r.id]&&(!e||dongTruCua(r)===e))};
 /* S151 17/11/2026 (kỹ sư phân loại dữ liệu thật; chủ: "không muốn lô cái trừ cái không"): KHÔNG lô hương nào được im lặng không trừ kho.
    Đầu tab Kho: "N lô dùng hương chưa trừ kho" — mỗi lô ghi lý do + chọn xử lý: gắn vào lần mua (chỉ cộng kg nếu chưa trừ), "dùng hàng cũ ngoài hệ thống"
    (chủ xác nhận, ghi sổ meDaTru.hangCu + nhật ký), hoặc để sau. Hương chưa có lần mua nào → phải nhập hàng trước. Bỏ giả định ngầm của S77. */
@@ -5915,7 +5940,7 @@ function loHuongChuaTru(){const ra=[]; (kho||[]).forEach(h=>{const ls=loChuaTruH
     ls.forEach(r=>{const sx=String(r.ngaysx||'').slice(0,10), e=ds.length?dongTruCua(r):null, ix=e?(nguonHuong[h]||[]).indexOf(e):-1;
       const lyDo=!ds.length?'chưa có lần mua nào':r.giaHuongTheoGLucSX===null?'làm khi chưa có lần mua (nợ)':congNgay(sx,7)<ds[0].d?'làm trước ngày hoá đơn đầu tiên ('+vnNgay(ds[0].d)+') — ngày hoá đơn có đúng không?':'chưa trừ vào lần mua nào';
       const apTon=e?daApSoTonLucKhai(e):false; // gợi ý sẵn "gắn" khi chắc: nợ giá, hoặc có lần mua ngày ≤ ngày SX + 7 (dung sai như nguyên liệu); lần mua đã áp số tồn lúc khai thì để chủ chọn
-      ra.push({h,r,ds,ix,lyDo,apTon,goiY:!!e&&!apTon&&(r.giaHuongTheoGLucSX===null||congNgay(sx,7)>=ds[0].d)})})}); return ra}
+      ra.push({h,r,ds,ix,lyDo,apTon,goiY:!!e&&!apTon&&(r.giaHuongTheoGLucSX===null||(congNgay(sx,7)>=ds[0].d&&!(meDaTru&&String(r.ts||'')<=String(meDaTru.tu||'')&&!s77BoQua(r))))}) /* S152: lô ghi trước khi có sổ trừ kho (có thể đã trừ cách cũ) không gợi ý sẵn */})}); return ra}
 function veHuongChuaTru(){const ds=loHuongChuaTru(); if(!ds.length)return '';
   return `<div class="nh-dau1 bs-nl"><b>⚠ ${ds.length} lô dùng hương chưa trừ kho</b> — ${[...new Set(ds.map(x=>x.h))].map(esc).join(', ')}. Mỗi lô cần chọn: gắn vào lần mua, hay là dùng hàng cũ ngoài hệ thống. <button type="button" class="ctsxb on" data-huongchuatru="1">Xem và xử lý…</button></div>`}
 async function xuLyHuongChuaTru(){const ds=loHuongChuaTru(); if(!ds.length){bao('Không còn lô hương nào chưa trừ kho');return}
@@ -5934,7 +5959,7 @@ async function xuLyHuongChuaTru(){const ds=loHuongChuaTru(); if(!ds.length){bao(
 document.addEventListener('click',e=>{if(e.target.closest('[data-huongchuatru]')){e.stopPropagation();xuLyHuongChuaTru()}},true);
 const daApSoTonLucKhai=e=>(Array.isArray(e&&e.dcLog)?e.dcLog:[]).some(d=>/^Áp số tồn đã điền lúc khai/.test(d.lyDo||''));
 function ganVaoLanMua(h,ix,ds){const e=(nguonHuong[h]||[])[ix]; if(!e||!ds.length)return 0; const tn=soTraNo(), ngay=homNay(), giaG=num(e.soKg)>0?num(e.gia)/(num(e.soKg)*1000):0;
-  ds.forEach(r=>{if(!daTruHuongMe(r)){e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000; meDaTru.ids.push(r.id)}
+  ds.forEach(r=>{if(chuaTruThat(r)){e.daDungKg=Math.round((num(e.daDungKg||0)+num(r.mlDung)/1000)*1000)/1000; if(!meDaTru.ids.includes(r.id))meDaTru.ids.push(r.id)}
     tn[r.id]={gia:r.giaHuongTheoGLucSX===null||r.giaHuongTheoGLucSX===undefined?giaG:num(r.giaHuongTheoGLucSX),ngay,ncc:e.ncc,ix,chuyen:1};
     if(e.soHD)hoaDonBoSung[r.id]={...(hoaDonBoSung[r.id]||{}),[h]:e.soHD};
     ghiAudit('batch',r.id,'TRA_NO',null,{huong:h,ncc:e.ncc,giaG,luc:'gắn khi chốt lần mua'})});
@@ -5966,7 +5991,7 @@ async function traNoHuong(h,ixMoi){
 function ganUngVien(loai,ten){
   if(loai==='nl')return phanBoNL(ten).no.map(o=>({r:o.r,kg:o.kg}));
   if(isUnscented(ten)||huongKemNL(ten))return [];
-  const m=new Map(); noMeHuong(ten).forEach(r=>m.set(r.id,r)); phanBoHuong(ten).cho.forEach(r=>m.set(r.id,r));
+  const m=new Map(); noMeHuong(ten).forEach(r=>m.set(r.id,r)); loChuaTruHuong(ten).forEach(r=>m.set(r.id,r)); phanBoHuong(ten).cho.forEach(r=>m.set(r.id,r));
   return [...m.values()].map(r=>({r,kg:num(r.mlDung)/1000}))}
 const ganSapXep=ds=>ds.sort((a,b)=>String(a.r.ngaysx||'').localeCompare(String(b.r.ngaysx||''))||String(a.r.ts||'').localeCompare(String(b.r.ts||'')));
 const ganTre=(loai,ten,r,ngayHD)=>{const d=iso(ngayHD||'');return /^\d{4}-\d{2}-\d{2}$/.test(d)&&d>congNgay(r.ngaysx||r.ts||'',loai==='nl'?dungSaiNL(ten):7)};
