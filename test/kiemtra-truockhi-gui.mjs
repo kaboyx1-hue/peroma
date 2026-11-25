@@ -97,7 +97,7 @@ console.log(`ℹ️  Phiên bản đang gửi — Admin: ${verAdmin||'?'} · Nh�
   const thieu=kc.filter(k=>!ks.includes(k));
   ok('Mọi trường mặt hàng Admin đồng bộ đều có trong Code.gs (không bị server cắt mất)', kc.length>10&&ks.length>10&&!thieu.length, thieu.length?'thiếu: '+thieu.join(', '):'không đọc được danh sách trường');
   /* S21: cả các trường CẤP TRÊN CÙNG Admin gửi lên (luuCauHinh) cũng phải được sachCauHinhServer() giữ lại */
-  const goi=(admin.match(/a:'luuCauHinh',(?:tsCu:[^,]*,)?cauhinh:\{([^}]*)\}[,}]/)||admin.match(/const cauHinhGoi=\(\)=>\(\{([^}]*)\}/)||[])[1]||''; // S152: gói cấu hình tách ra cauHinhGoi()
+  const goi=(admin.match(/a:'luuCauHinh',(?:tsCu:[^,]*,)?cauhinh:\{([^}]*)\}[,}]/)||admin.match(/const cauHinhGoi=\(\)=>\((?:[A-Za-z]\w*\(\),)?\{([^}]*)\}/)||[])[1]||''; // S152: gói cấu hình tách ra cauHinhGoi() · S153: có thể gọi 1 hàm trước gói, vd (dongBoDaDungHuong(),{…})
   const kc2=goi.split(',').map(x=>(x.match(/^\s*([A-Za-z_]\w*)/)||[])[1]).filter(Boolean);
   const vs=khoang(gs,'sp: sp,','\n  };'), ks2=['sp',...new Set([...vs.matchAll(/(?:^|[{,])\s*([A-Za-z_]\w*)\s*:/gm)].map(m=>m[1]))];
   const thieu2=kc2.filter(k=>!ks2.includes(k));

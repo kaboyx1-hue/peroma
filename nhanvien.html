@@ -201,12 +201,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 /* ══HẾT-TEM-CSS══ */
 @media print{
   @page{size:A4;margin:6mm}
-  @page nhiet{size:65mm 65mm;margin:2mm}
-  @page nhiet5070{size:50mm 70mm;margin:2mm}
-  @page nhiet7050{size:70mm 50mm;margin:2mm}
-  #temIn .to-nhiet{page:nhiet}
-  #temIn .to-nhiet5070{page:nhiet5070}
-  #temIn .to-nhiet7050{page:nhiet7050}
+  /* S154 25/11/2026: khổ nhiệt KHÔNG dùng trang đặt tên nữa — trangTem() chèn @page không tên đúng khổ (xem đó) */
   /* S16/R10: bỏ lề trong của trang app khi in (khoảng chừa thanh trạng thái / thanh menu trái trên máy tính)
      — không bỏ thì tờ tem 284 mm bị đẩy xuống + lệch phải, tràn sang trang 2 */
   html,body{background:#fff!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
@@ -470,7 +465,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 16/11/2026-R58</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 25/11/2026-R59</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -1730,8 +1725,11 @@ function moDanTem(r,p,quaFile){
 function trangTem(r,p){ const temKho=khoTemCua(p); // S138: sang chiết luôn khổ vuông
   const mot=temHTML(r,p);
   if(laKhoNhiet(temKho)){ // 1 tem/trang, khớp @page cùng tên khổ (xem CSS)
-    const vua=coChuVua(mot,1,1,temKho);
-    return `<div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">${mot}</div>`;
+    /* S154 25/11/2026 (chủ: "in thẳng khổ 65×65 không ra đúng, phải dán ảnh vào Word khổ 65×65 mới in trơn"): trang đặt tên (@page nhiet) bị
+       Chrome/máy in nhiệt bỏ qua → in theo khổ A4/khổ máy, lệch và thu nhỏ. Nay chèn @page KHÔNG tên đúng khổ, lề 0 (giống file Word của chủ);
+       lề chuyển vào padding của tờ → vùng chữ vẫn w−2·le, coChuVua không đổi. Style đi kèm nội dung #temIn nên file in (taiFileIn) cũng có. */
+    const vua=coChuVua(mot,1,1,temKho), k=nhietTT(temKho);
+    return `<style>@media print{@page{size:${k.w}mm ${k.h}mm;margin:0}}</style><div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="width:${k.w}mm;height:${k.h}mm;padding:${k.le}mm;--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">${mot}</div>`;
   }
   const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
   const moiTo=cot*hang;

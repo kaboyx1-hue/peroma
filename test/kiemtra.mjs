@@ -563,9 +563,9 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
 
   // 2) CSS: @page nhiet đúng 65×65mm, gắn đúng phần tử qua page:nhiet — có trong cả trang lẫn file export mang máy khác
   const cssTrang=[...document.styleSheets].flatMap(ss=>{try{return [...ss.cssRules].map(x=>x.cssText)}catch(e){return []}}).join('\n');
-  kq.cssPageNhiet=/@page nhiet\s*\{[^}]*size:\s*65mm 65mm/.test(cssTrang)&&/\.to-nhiet\s*\{[^}]*page:\s*nhiet/i.test(cssTrang.replace(/\s+/g,' '));
+  kq.cssPageNhiet=htmlNhiet.startsWith('<style>@media print{@page{size:65mm 65mm;margin:0}}</style>')&&htmlNhiet.includes('width:65mm;height:65mm;padding:2mm')&&!/@page nhiet/.test(cssTrang); // S154: @page KHÔNG tên
   kq.cssToNhietKichThuoc=/\.to\.to-nhiet\{[^}]*width:61mm;height:61mm/.test(cssBanIn().replace(/\s+/g,''))||/\.to\.to-nhiet\{width:61mm;height:61mm\}/.test(cssBanIn());
-  kq.fileInCoKhoNhiet=cssBanIn().includes('@page nhiet')&&cssBanIn().includes('size:65mm 65mm');
+  kq.fileInCoKhoNhiet=htmlNhiet.includes('@page{size:65mm 65mm;margin:0}'); // S154: style đi trong nội dung #temIn → file in cũng có
 
   // 3) coChuVua(mot,1,1,true) đo đúng khung to-nhiet (61×61mm), khác cache với A4 1×1
   const kqNhiet=coChuVua(mot,1,1,true), kqA4_1x1=coChuVua(mot,1,1);
@@ -611,7 +611,7 @@ const s26=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
 ok('S26: mặc định vẫn khổ A4 (chưa đổi gì cho máy chưa từng chọn)', s26.macDinhA4, JSON.stringify(s26));
 ok('S26: trangTem() khổ nhiệt = 1 tem/trang (class to-nhiet, không lưới cột×hàng), không đổi nội dung tem', s26.trangTemNhiet);
 ok('S26: trangTem() khổ A4 không đổi hành vi cũ', s26.trangTemA4KhongDoi);
-ok('S26: CSS @page nhiet đúng 65×65mm, gắn đúng vào phần tử qua thuộc tính page', s26.cssPageNhiet);
+ok('S26/S154: in khổ nhiệt dùng @page KHÔNG tên đúng 65×65mm lề 0, tờ 65×65 lề trong 2mm', s26.cssPageNhiet);
 ok('S26: khối TEM-CSS có kích thước .to-nhiet (61×61mm, lề 2mm) — dùng chung đo & in', s26.cssToNhietKichThuoc);
 ok('S26: file in mang máy khác (taiFileIn) mang theo đúng khổ nhiệt', s26.fileInCoKhoNhiet);
 ok('S26: coChuVua() đo khung nhiệt riêng, không lẫn cache với khung A4 1×1', s26.doKhungRieng);
@@ -640,9 +640,9 @@ const s28=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
 
   // 2) CSS: @page nhiet5070 đúng 50×70mm, .to.to-nhiet5070 đúng vùng in 46×66mm (lề 2mm)
   const cssTrang=[...document.styleSheets].flatMap(ss=>{try{return [...ss.cssRules].map(x=>x.cssText)}catch(e){return []}}).join('\n');
-  kq.cssPage5070=/@page nhiet5070\s*\{[^}]*size:\s*50mm 70mm/.test(cssTrang)&&/\.to-nhiet5070\s*\{[^}]*page:\s*nhiet5070/i.test(cssTrang.replace(/\s+/g,' '));
+  kq.cssPage5070=html5070.startsWith('<style>@media print{@page{size:50mm 70mm;margin:0}}</style>')&&html5070.includes('width:50mm;height:70mm;padding:2mm')&&!/@page nhiet5070/.test(cssTrang); // S154
   kq.cssSize5070=/\.to\.to-nhiet5070\{width:46mm;height:66mm\}/.test(cssBanIn().replace(/\s+/g,''));
-  kq.fileInCoKho5070=cssBanIn().includes('@page nhiet5070')&&cssBanIn().includes('size:50mm 70mm');
+  kq.fileInCoKho5070=html5070.includes('@page{size:50mm 70mm;margin:0}'); // S154
 
   // 3) coChuVua đo đúng khung riêng cho từng khổ nhiệt — 3 khung (a4 1×1, nhiệt 65, nhiệt 50×70) không lẫn cache nhau
   const k5070=coChuVua(mot,1,1,'nhiet5070'), k65=coChuVua(mot,1,1,'nhiet'), kA4=coChuVua(mot,1,1);
@@ -681,7 +681,7 @@ const s28=await E(async()=>{ window.__tatTuDongKhoTem=true; const cho=ms=>new Pr
   return kq;});
 ok('S28: trangTem() khổ 50×70mm = 1 tem/trang, không lưới cột×hàng, không đổi nội dung tem', s28.trangTem5070);
 ok('S28: thêm khổ 50×70mm KHÔNG đụng hành vi khổ 65×65mm cũ (S26)', s28.trangTem65KhongDoi);
-ok('S28: CSS @page nhiet5070 đúng 50×70mm, gắn đúng vào phần tử qua thuộc tính page', s28.cssPage5070);
+ok('S28/S154: in khổ 50×70 dùng @page KHÔNG tên đúng 50×70mm lề 0', s28.cssPage5070);
 ok('S28: khối TEM-CSS có kích thước .to-nhiet5070 (46×66mm vùng in, lề 2mm)', s28.cssSize5070);
 ok('S28: file in mang máy khác (taiFileIn) mang theo đúng khổ 50×70mm', s28.fileInCoKho5070);
 ok('S28: coChuVua() đo riêng từng khung — A4 / nhiệt 65×65 / nhiệt 50×70 không lẫn cache nhau', s28.doKhungRieng);
@@ -4295,6 +4295,31 @@ const s152=await E(()=>{const g={nh:JSON.stringify(nguonHuong),nk:nk.slice(),md:
   ganVaoLanMua(H,0,[A]); kq.gan=Math.abs(num(nguonHuong[H][0].daDungKg)-4.48)<1e-6&&!loChuaTruHuong(H).length&&meDaTru.ids.filter(x=>x==='S152-A').length===1;
   nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); luuNgay(); return kq});
 ok('S152: lô S77 đã ngầm đánh dấu 0 kg (trà xanh 01/10) hiện lại ở khung; S77 không chạy ngầm nữa; gắn cộng đúng 2,24 kg 1 lần', s152.hien&&s152.khongTuTru&&s152.gan, JSON.stringify(s152));
+/* S153: hương gộp FIFO dồn kg (chủ: "gộp chung, sài cho hết lô nhập") — tình huống thật Lavender + Hoa hồng */
+const s153=await E(()=>{const g={nh:JSON.stringify(nguonHuong),nk:nk.slice(),md:JSON.stringify(meDaTru)}, [L,HH]=kho.filter(h=>!isUnscented(h)&&!huongKemNL(h)), kq={};
+  const me=(id,h,ng,ml)=>({id:'S153-'+id,sp:sp[0].ten,huong:h,lot:id,sl:100,mlDung:ml,ngaysx:ng,ts:ng+'T03:00:00.000Z',giaHuongTheoGLucSX:500});
+  nguonHuong[L]=[{ncc:'Việt Đức',gia:2862000,soKg:5,soHD:'2426',ngay:'12/10/2026',daDungKg:2.25},{ncc:'Việt Đức',gia:2600000,soKg:5,soHD:'2743',ngay:'17/11/2026',daDungKg:0.5}];
+  nguonHuong[HH]=[{ncc:'Peroma',gia:2268000,soKg:5,soHD:'4750',ngay:'01/10/2026',daDungKg:5.98},{ncc:'Peroma',gia:2268000,soKg:5,soHD:'5260',ngay:'03/11/2026',daDungKg:3.49}];
+  const ls=[me('l1',L,'2026-10-12',2250),me('l2',L,'2026-11-17',500),me('h1',HH,'2026-10-01',2240),me('h2',HH,'2026-10-12',1500),me('h3',HH,'2026-10-29',2240),me('h4',HH,'2026-11-05',750),me('h5',HH,'2026-11-17',2240),me('h6',HH,'2026-11-17',500)];
+  nk=[...g.nk,...ls]; meDaTru={tu:'2026-10-12T07:02:00.000Z',ids:ls.map(r=>r.id),traNo:{}};
+  dongBoDaDungHuong(); const r=id=>nk.find(x=>x.id==='S153-'+id);
+  kq.lav=dongTruCua(r('l2'))===nguonHuong[L][0]&&Math.abs(nguonHuong[L][0].daDungKg-2.75)<1e-6&&Math.abs(nguonHuong[L][1].daDungKg)<1e-6;
+  kq.hh=Math.abs(nguonHuong[HH][0].daDungKg-5)<1e-6&&Math.abs(nguonHuong[HH][1].daDungKg-4.47)<1e-6&&Math.abs(tonHuongKg(HH)-0.53)<1e-6;
+  nguonHuong=JSON.parse(g.nh); nk=g.nk; meDaTru=JSON.parse(g.md); luuNgay(); return kq});
+ok('S153: hương gộp FIFO — Lavender lô 17/11 dùng HĐ 2426 còn hàng (2743 chưa dùng); Hoa hồng HĐ 4750 dùng hết 5 kg, phần vượt tràn sang 5260; tổng tồn không đổi', s153.lav&&s153.hh, JSON.stringify(s153));
+/* S158: xoá hẳn hương (chủ: "Hương tự nhiên là demo — bạn xoá, có lưu lại việc đã làm") — huỷ lô, xoá lần mua/tồn/NCC/chọn nguồn, nhật ký có bản gốc, giữ mã hương */
+const s158=await E(async()=>{const H='Hương __S158__', th=window.hoi, g={kho:kho.slice(),sp:JSON.stringify(sp),nk:nk.slice(),nh:JSON.stringify(nguonHuong),ma:JSON.stringify(maHuong),ae:auditEvents.length}, kq={};
+  kho.push(H); maHuong[H]='98'; sp[0].huongs=[...(sp[0].huongs||[]),H]; sp[0].nguonHuongChon={...(sp[0].nguonHuongChon||{}),[H]:0};
+  nguonHuong[H]=[{ncc:'NCC demo',gia:1000,soKg:2,ngay:'01/09/2026',daDungKg:0}]; tonKhoHuong[H]={con:2000}; huongDangDung[H]='NCC demo';
+  nk=[...nk,{id:'S158-a',sp:sp[0].ten,huong:H,lot:'0198010926',sl:100,mlDung:400,ngaysx:'2026-09-14',ts:'2026-09-14T03:00:00.000Z'},{id:'S158-b',sp:sp[0].ten,huong:kho.find(h=>h!==H&&!isUnscented(h)),lot:'0101010926',sl:100,mlDung:400,ngaysx:'2026-09-14',ts:'2026-09-14T04:00:00.000Z'}];
+  let hien=''; window.hoi=async(t,h)=>{hien=h;return true}; await xoaHuongHan(H); window.hoi=th;
+  kq.hoiDu=/0198010926|01 98 01 0926/.test(hien.replace(/<[^>]+>/g,''))&&/NCC demo/.test(hien);
+  kq.xoa=!kho.includes(H)&&!(H in nguonHuong)&&!(H in tonKhoHuong)&&!(H in huongDangDung)&&!sp[0].huongs.includes(H)&&!(H in (sp[0].nguonHuongChon||{}));
+  kq.huyDung=nk.find(r=>r.id==='S158-a').huy===true&&!nk.find(r=>r.id==='S158-b').huy&&!!trangThaiMe['S158-a']&&trangThaiMe['S158-a'].huy;
+  const a=auditEvents.slice(g.ae).find(x=>x.action==='XOA_HUONG'); kq.nhatKy=!!a&&a.before.nguon[0].ncc==='NCC demo'&&a.after.loHuy[0].lot==='0198010926';
+  kq.giuMa=maHuong[H]==='98';
+  kho=g.kho; sp=JSON.parse(g.sp); nk=g.nk; nguonHuong=JSON.parse(g.nh); maHuong=JSON.parse(g.ma); delete trangThaiMe['S158-a']; auditEvents=auditEvents.slice(0,g.ae); luuNgay(); return kq});
+ok('S158: xoá hẳn hương — hỏi kèm danh sách lô/lần mua; huỷ lô pha hương đó (lô hương khác không đụng); xoá lần mua, tồn, NCC, chọn nguồn; nhật ký XOA_HUONG giữ bản gốc; mã hương giữ lại', Object.values(s158).every(Boolean), JSON.stringify(s158));
 /* S152b: chống "bão ghi" 2 máy — nhật ký thao tác chỉ lưu máy này (không đẩy cấu hình); cầu dao khi tự đẩy liên tục mà người dùng không thao tác */
 const s152b=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={url:DONGBO_URL,mk:LEGACY_SHARED_TOKEN,f:window.fetch,ts:dongBoCauHinhTs,ng:dbNguoiLuc}; let soGhi=0;
   DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; LEGACY_SHARED_TOKEN='x';
@@ -4573,10 +4598,10 @@ const eo=await E(async()=>{ const H='Hương __EO__', g={nh:JSON.stringify(nguon
   const a=me('EO-1','2026-10-01'), b=me('EO-2','2026-10-29'); nk=[...nk,a,b]; const e0=nguonHuong[H][0];
   nguonHuong[H].push({ncc:'B',gia:200000,soKg:2,soHD:'',ngay:'30/10/2026',daDungKg:0});
   kq.cuGiu=dongTruCua(a)===e0&&dongTruCua(b)===e0; // S152: lô 29/10 GIỮ lần mua 12/10 (≤ ngày SX), không nhảy sang lần 30/10 dù trong 7 ngày
-  nguonHuong[H][1].ngay='25/10/2026'; kq.xaNgay=dongTruCua(b)===nguonHuong[H][1]; nguonHuong[H][1].ngay='30/10/2026';
-  meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('EO-1','EO-2'); const anh=chupHuong(H); nguonHuong[H][1].ngay='25/10/2026'; khopTruHuong(H,anh); kq.khop=Math.abs(e0.daDungKg-3.74)<1e-6&&Math.abs(nguonHuong[H][1].daDungKg-2.24)<1e-6;
+  nguonHuong[H][1].ngay='25/10/2026'; kq.xaNgay=dongTruCua(b)===e0; nguonHuong[H][1].ngay='30/10/2026'; // S153 FIFO: lần cũ còn hàng thì lô vẫn ở lần cũ
+  meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('EO-1','EO-2'); const anh=chupHuong(H); nguonHuong[H][1].ngay='25/10/2026'; khopTruHuong(H,anh); dongBoDaDungHuong(); kq.khop=Math.abs(e0.daDungKg-5)<1e-6&&Math.abs(nguonHuong[H][1].daDungKg-0.98)<1e-6; // S153: dùng hết lần cũ (5), phần vượt 0,98 tràn sang lần mới
   nguonHuong=JSON.parse(g.nh); nk=g.nk; return kq });
-ok('EO/S152: khai thêm lần mua hương mới không kéo lô cũ sang — lô lấy lần mua mới nhất ≤ ngày SX (dung sai +7 chỉ khi không có)', Object.values(eo).every(Boolean), JSON.stringify(eo));
+ok('EO/S153: khai thêm lần mua hương mới không kéo lô cũ sang khi lần cũ còn hàng; dùng hết lần cũ, phần vượt tràn sang lần mới', Object.values(eo).every(Boolean), JSON.stringify(eo));
 const ep=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={nk:nk.slice(),sp:sp.length,tt:JSON.stringify(trangThaiMe)}, hoiCu=window.hoi; let tl=[], tieuDe=[]; window.hoi=async(t)=>{tieuDe.push(t);return tl.shift()};
   const p=napSP([{ten:'SP __EP__',maSP:'01',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
   const me=(id,d)=>({id,sp:p.ten,huong:'',lot:'0108041026',sl:100,soBao:100,quyCach:'1 kg',mlDung:0,ngaysx:d,ts:d+'T03:00:00.000Z',nlLucSX:[],daInTem:true});
@@ -4647,20 +4672,20 @@ const et=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   nguonHuong[H]=[{ncc:'A',gia:500000,soKg:5,soHD:'HA',ngay:'01/10/2026',daDungKg:0},{ncc:'B',gia:500000,soKg:5,soHD:'HB',ngay:'20/10/2026',daDungKg:9}];
   const me=(id,ml,d)=>({id,sp:p.ten,huong:H,lot:'79500'+id.slice(-2)+'1026',sl:1000,soBao:1000,quyCach:'1 kg',mlDung:ml,ngaysx:d,ts:d+'T03:00:00.000Z',nlLucSX:[],truIx:1,giaHuongTheoGLucSX:100});
   nk=[...nk,me('ET-01',3000,'2026-10-05'),me('ET-02',2000,'2026-10-06'),me('ET-03',4000,'2026-10-25')]; meDaTru=meDaTru||{tu:'2026-01-01T00:00:00.000Z',ids:[]}; meDaTru.ids.push('ET-01','ET-02','ET-03');
-  const pb=phanBoHuong(H); kq.xep=pb.me.get('ET-01').ix===0&&pb.me.get('ET-02').ix===0&&pb.me.get('ET-03').ix===1&&!pb.cho.length&&xepLaiHuong(H).length===2;
+  const pb=phanBoHuong(H); dongBoDaDungHuong(); kq.xep=pb.me.get('ET-01').ix===0&&pb.me.get('ET-02').ix===0&&pb.me.get('ET-03').ix===1&&!pb.cho.length&&!xepLaiHuong(H).length&&nguonHuong[H][0].daDungKg===5&&nguonHuong[H][1].daDungKg===4; // S153: tự ghép FIFO, không cần Xếp lại
   chuyenTab('chuoi'); await cho(30); cxMoLo('ET-01'); cxBuoc=2; veChuoi(); await cho(20); const v=id=>cxMeList.find(y=>y.id===id).hg[0];
-  kq.baoDung=v('ET-01').xep===true&&!v('ET-01').cho&&v('ET-03').cho===true&&!!document.querySelector('#cxChu [data-cxxephuong]');
+  kq.baoDung=!v('ET-01').xep&&!v('ET-01').cho&&!v('ET-03').cho&&!document.querySelector('#cxChu [data-cxxephuong]');
   kq.xoaRieng=!!document.querySelector('#cxChu .cx-xoa [data-cxxoalo]')&&!!document.querySelector('#cxChu .cx-xoa [data-cxxoasp]');
   window.hoi=async t=>/Chốt giúp/.test(t)?'1000':true; const b=document.createElement('button'); b.dataset.chotgiup='ET-03'; document.body.append(b); b.click(); b.remove(); await cho(60);
   const A=nguonHuong[H][0], B=nguonHuong[H][1]; kq.chot=bcNgay.some(x=>x.recordId==='ET-03')&&dongTruCua(nk.find(r=>r.id==='ET-01'))===A&&dongTruCua(nk.find(r=>r.id==='ET-02'))===A&&dongTruCua(nk.find(r=>r.id==='ET-03'))===B&&Math.abs(A.daDungKg-5)<1e-6&&Math.abs(B.daDungKg-4)<1e-6;
   veChuoi(); await cho(20); kq.hetBao=!v('ET-01').cho&&!v('ET-01').xep&&!v('ET-03').cho&&!xepLaiHuong(H).length;
   kq.nutSuaLo=!!document.querySelector('#cxChu .cx-tacvu [data-cxsualo]')&&!document.querySelector('#cxChu [data-cxxephuong]'); // S135
-  nk.push(me('ET-04',3000,'2026-11-01')); meDaTru.ids.push('ET-04'); veChuoi(); await cho(20); kq.choMoi=v('ET-04').cho===true&&!document.querySelector('#cxChu [data-cxxephuong]');
+  nk.push(me('ET-04',3000,'2026-11-01')); meDaTru.ids.push('ET-04'); nguonHuong[H][1].daDungKg=num(nguonHuong[H][1].daDungKg)+3; // như truTonKhoMe: lô đã trừ thì cộng vào số đã dùng veChuoi(); await cho(20); kq.choMoi=v('ET-04').cho===true&&!document.querySelector('#cxChu [data-cxxephuong]');
   moThemNguon.add('h:'+H); chuyenTab('kho'); await cho(40); const f=document.querySelector(`[data-nguonform="${CSS.escape('h:'+H)}"]`); const sv=(k,x)=>{const el=f.querySelector(`[data-nf="${k}"]`); if(el)el.value=x};
   sv('ncc','C'); sv('soKg','5'); sv('donGia','100000'); sv('soHD','HC'); sv('ngay','02/11/2026'); f.querySelector('[data-luunguon]').click(); await cho(120);
-  const C=nguonHuong[H][2]; kq.tuNoiCT=JSON.stringify({C:C&&C.daDungKg,n:nguonHuong[H].length,t:(dongTruCua(nk.find(r=>r.id==='ET-04'))||{}).ncc}); kq.tuNoi=!!C&&dongTruCua(nk.find(r=>r.id==='ET-04'))===C&&Math.abs(num(C.daDungKg)-3)<1e-6&&dongTruCua(nk.find(r=>r.id==='ET-03'))===nguonHuong[H][1]; chuyenTab('chuoi');
+  const C=nguonHuong[H][2]; dongBoDaDungHuong(); kq.tuNoiCT=JSON.stringify({D:nguonHuong[H].map(e=>[e.ncc,e.ngay,e.daDungKg,e.soKg,e.dieuChinhKg,!!e.chot]),chon:sp.filter(p=>p.nguonHuongChon&&p.nguonHuongChon[H]!==undefined).length,C:C&&C.daDungKg,n:nguonHuong[H].length,t:(dongTruCua(nk.find(r=>r.id==='ET-04'))||{}).ncc}); dongBoDaDungHuong(); kq.tuNoi=!!C&&Math.abs(num(nguonHuong[H][1].daDungKg)-5)<1e-6&&Math.abs(num(C.daDungKg)-2)<1e-6&&dongTruCua(nk.find(r=>r.id==='ET-03'))===nguonHuong[H][1]; // S153: lần B vượt 2 kg → tràn sang lần mới C chuyenTab('chuoi');
   window.hoi=hoiCu; nguonHuong=JSON.parse(g.nh); kho.splice(0,kho.length,...g.kho); nk=g.nk; sp.splice(g.sp); meDaTru=JSON.parse(g.md); bcNgay=JSON.parse(g.bc); cxChon=''; luuNgay(); chuyenTab('tq'); return kq });
-ok('ET: hương xếp theo thời gian — lô làm trước lấy lần mua trước, chỉ lô sau cùng vượt mới "chờ nhập kho"; chốt lô tự xếp lại cho khớp (chuyển tồn theo); nút Xoá tách riêng', Object.values(et).every(Boolean), JSON.stringify(et));
+ok('ET/S153: hương ghép FIFO tự động — lô làm trước lấy lần mua trước, phần vượt tràn sang lần mua sau; chốt lô tự xếp lại cho khớp (chuyển tồn theo); nút Xoá tách riêng', Object.values(et).every(Boolean), JSON.stringify(et));
 const eu=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, H='Hương __EU__', g={nh:JSON.stringify(nguonHuong),kho:kho.slice(),nk:nk.slice(),sp:sp.length,bc:JSON.stringify(bcNgay)}, hoiCu=window.hoi;
   kho.push(H); const p=napSP([{ten:'SP __EU__',maSP:'',kg:100,ml:100,huongs:[H],tam:[],dauRa:['1 kg'],congThucNL:[]}])[0]; sp.push(p);
   nguonHuong[H]=[{ncc:'P',gia:500000,soKg:5,soHD:'4750',ngay:'15/10/2026',daDungKg:2.24}];

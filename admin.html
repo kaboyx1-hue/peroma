@@ -327,12 +327,7 @@ body{font-family:var(--sans);color:var(--txt);font-size:15px;line-height:1.4;
 /* ══HẾT-TEM-CSS══ */
 @media print{
   @page{size:A4;margin:6mm}
-  @page nhiet{size:65mm 65mm;margin:2mm}
-  @page nhiet5070{size:50mm 70mm;margin:2mm}
-  @page nhiet7050{size:70mm 50mm;margin:1mm}
-  #temIn .to-nhiet{page:nhiet}
-  #temIn .to-nhiet5070{page:nhiet5070}
-  #temIn .to-nhiet7050{page:nhiet7050}
+  /* S154 25/11/2026: khổ nhiệt KHÔNG dùng trang đặt tên nữa — trangTem() chèn @page không tên đúng khổ (xem đó) */
   /* S16/R10: bỏ lề trong của trang app khi in (khoảng chừa thanh trạng thái / thanh menu trái trên máy tính)
      — không bỏ thì tờ tem 284 mm bị đẩy xuống + lệch phải, tràn sang trang 2 */
   html,body{background:#fff!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
@@ -2035,9 +2030,9 @@ html.hv-tat #huyHieu{transition:none}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 17/11/2026-S152</span></i></h1>
+      <h1>Pha hương liệu <em class="adm">ADMIN</em><i>ĐỊNH MỨC &amp; CÔNG THỨC<span class="ban-an"> · BẢN 25/11/2026-S158</span></i></h1>
       <button class="tbtn" id="btnSangToi" type="button">☀</button>
-      <div class="verFoot">BẢN 17/11/2026-S152</div>
+      <div class="verFoot">BẢN 25/11/2026-S158</div>
       <a class="tbtn" href="nhanvien.html" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block" title="Mở app Nhân viên ở tab mới — xem nhanh không cần thoát Admin">👷 Nhân viên</a>
       <button class="tbtn" id="editBtn">Quản lý</button>
     </div>
@@ -2253,7 +2248,7 @@ function dbCauDaoNgat(){const nay=Date.now(); dbLanTuDay=dbLanTuDay.filter(t=>na
 /* S152 (kỹ sư: giữa MỌI 2 lần ghi liên tiếp luôn khác tonKhoNV.luc — giờ tính, không phải dữ liệu): không đẩy khi cấu hình y hệt lần đã khớp với Sheet
    (lần đẩy thành công / lần vừa kéo về), bỏ qua tonKhoNV.luc. Chặn "ghi cho có" — chất xúc tác của vòng ghi qua ghi lại giữa 2 máy. */
 let dbKhoaCuoi='';
-const cauHinhGoi=()=>({sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong(),tonKhoNV:tinhTonKhoNV(),khoaPIN:{admin:KHOA_PIN.doc('peroma_pin_admin'),nv:KHOA_PIN.doc('peroma_pin_nv')}});
+const cauHinhGoi=()=>(dongBoDaDungHuong(),{sp:sachCauHinh(sp),kho,cp,dr,maHuong,maQC,kgQC,nvDS,nlDM,nguonHuong,huongDangDung,tonKhoHuong,nguonNguyenLieu,nlDangDung,tonKhoNguyenLieu,nlTong,nlNgayKhai,nlGhiChu,baoBi,baoBiQC,tuHoSo,lenhSX,meDaTru,hoaDonBoSung,trangThaiMe,canhBaoHuong:tinhCanhBaoHuong(),tonKhoNV:tinhTonKhoNV(),khoaPIN:{admin:KHOA_PIN.doc('peroma_pin_admin'),nv:KHOA_PIN.doc('peroma_pin_nv')}});
 const khoaCauHinh=ch=>JSON.stringify({...ch,tonKhoNV:ch.tonKhoNV?{...ch.tonKhoNV,luc:''}:ch.tonKhoNV});
 async function dbDayCauHinh(){
   if(!DONGBO_URL){dbChoDay=false;return}
@@ -3784,7 +3779,7 @@ const daTruHuongMe=r=>!!(r&&meDaTru&&Array.isArray(meDaTru.ids)&&meDaTru.ids.inc
 function dongTruCua(r){
   const ds=nguonHuong[r.huong]||[]; if(!ds.length)return null;
   const tn=meDaTru&&meDaTru.traNo&&meDaTru.traNo[r.id]; if(tn&&!tn.boQua&&ds[tn.ix])return ds[tn.ix];
-  if(r.truIx!==undefined&&ds[r.truIx])return ds[r.truIx];
+  if(nk.includes(r)){const o=fifoHuong(r.huong).me.get(r.id); if(o)return o.e} // S153: lô đã ghi → ghép theo FIFO dồn kg (dùng hết lần nhập cũ rồi mới sang lần mới)
   /* S127 (demo khách: khai thêm 1 lần mua hương thì MỌI lô cũ tự nhảy sang lần mua mới — vì trước đây lô chưa ghim chạy theo "lần mua đang còn hàng").
      Lô ĐÃ GHI: cố định theo NGÀY — lần mua mới nhất có ngày mua ≤ ngày SX + 7 ngày (như nguyên liệu); không có thì lần mua sớm nhất.
      Chỉ mẻ ĐANG GHI (chưa vào nhật ký) mới theo lần mua đang dùng/còn hàng của mặt hàng. */
@@ -3812,16 +3807,43 @@ function khopTruHuong(h,anh){const ds=nguonHuong[h]||[], q=x=>Math.round(x*1000)
    lô ĐÃ CHỐT (COMPLETED) hoặc đã chuyển tay là GHIM vào lần mua đang nối — không bị chốt lô khác hay nút Xếp lại kéo đi; đổi nối chỉ khi người dùng
    tự chuyển, xoá hoặc sửa lô. Lô chưa chốt vẫn được xếp theo thời gian lúc chốt (yêu cầu S134). Lô đã nối đúng lần mua thì KHÔNG còn báo "tạm tính"
    dù lần mua ghi ngày sau ngày làm lô (hoá đơn về sau) — hương đã dùng là đã dùng. */
-function phanBoHuong(h){const kq={me:new Map(),cho:[],ghim:new Set()}; if(!h||isUnscented(h)||huongKemNL(h))return kq;
-  const ds=nguonHuong[h]||[], tn=(meDaTru&&meDaTru.traNo)||{};
-  const lan=ds.map((e,ix)=>({e,ix,con:num(e.soKg)+num(e.dieuChinhKg||0),d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>num(o.e.soKg)>0).sort((a,b)=>a.d.localeCompare(b.d)||a.ix-b.ix);
-  const los=nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0).sort((a,b)=>String(a.ngaysx||'').localeCompare(String(b.ngaysx||''))||String(a.ts||'').localeCompare(String(b.ts||'')));
-  const tay=r=>{const t=tn[r.id], ix=t&&t.chuyen?t.ix:trangThaiSXCua(r)==='COMPLETED'?ds.indexOf(dongTruCua(r)):-1; return ix>=0?lan.find(o=>o.ix===ix):null};
-  los.forEach(r=>{const o=tay(r); if(o){o.con-=num(r.mlDung)/1000; kq.me.set(r.id,o); kq.ghim.add(r.id)}});
-  los.filter(r=>!tay(r)).forEach(r=>{const kg=num(r.mlDung)/1000, han=congNgay(r.ngaysx||r.ts||'',7), ts=String(r.ts||''),
-    co=lan.filter(o=>o.con>=kg-.0005&&!(o.e.chot&&ts>String(o.e.chot.luc||''))), o=co.filter(o=>o.d<=han)[0]||co[0];
-    if(o){o.con-=kg; kq.me.set(r.id,o)} else kq.cho.push(r)});
+/* S153 18/11/2026 (chủ: "đối với hương liệu có thể gộp chung được, không cần tách, để sài cho hết lô nhập"): ghép lô hương vào lần mua theo FIFO DỒN KG
+   như nguyên liệu (phanBoNL): lô xếp theo ngày SX (rồi lúc ghi); mỗi lô vào lần mua SỚM NHẤT còn hàng (> 0) có ngày ≤ ngày SX + 7, lần mua đã chốt không nhận
+   lô ghi sau lúc chốt. Lô gắn tay (sổ traNo: chuyển / trả nợ / gắn khi chốt) giữ nguyên. Chỉ lô ĐÃ TRỪ KHO chiếm chỗ; lô chưa trừ (nợ, làm trước HĐ) chỉ
+   được chỉ ra lần mua sẽ nhận nếu gắn. daDungKg mỗi lần mua = tổng lô ghép vào (dongBoDaDungHuong) — không còn cộng/trừ tay rời rạc lệch nhau.
+   ponytail: lô không chia đôi — lô vắt qua 2 lần mua vào trọn lần trước (lần đó có thể âm, lần sau dư tương ứng; tổng tồn vẫn đúng). */
+function fifoHuong(h){const kq={me:new Map(),cho:[],ghim:new Set(),lan:[]}; if(!h||isUnscented(h)||huongKemNL(h))return kq;
+  const ds=nguonHuong[h]||[], tn=(meDaTru&&meDaTru.traNo)||{}, cu=(meDaTru&&meDaTru.hangCu)||{};
+  const lan=ds.map((e,ix)=>({e,ix,con:num(e.soKg)+num(e.dieuChinhKg||0),dung:0,d:iso(e.ngay)||String(e.ts||'').slice(0,10)})).filter(o=>num(o.e.soKg)>0).sort((a,b)=>a.d.localeCompare(b.d)||a.ix-b.ix); kq.lan=lan;
+  const ngSX=r=>String(r.ngaysx||r.ts||'').slice(0,10);
+  const los=nk.filter(r=>!r.huy&&r.huong===h&&num(r.mlDung)>0&&!cu[r.id]).sort((a,b)=>ngSX(a).localeCompare(ngSX(b))||String(a.ts||'').localeCompare(String(b.ts||'')));
+  const daTru=r=>daTruHuongMe(r)&&!s77BoQua(r), tay=r=>{const t=tn[r.id]; return t&&!t.boQua?lan.find(o=>o.ix===t.ix):null};
+  const lay=(o,r,ghim)=>{const kg=num(r.mlDung)/1000; o.con-=kg; o.dung+=kg; kq.me.set(r.id,o); if(ghim)kq.ghim.add(r.id)};
+  los.forEach(r=>{const o=tay(r); if(o&&daTru(r))lay(o,r,1)});
+  /* mặt hàng đã CHỌN nhà cung cấp riêng cho hương này (S73, p.nguonHuongChon) → chỉ dồn trong các lần mua của NCC đó; không chọn → gộp chung mọi lần mua */
+  const nccChon={}; sp.forEach(p=>{const c=p.nguonHuongChon&&p.nguonHuongChon[h]; if(c!==undefined&&c!==null&&ds[c])nccChon[p.ten]=ds[c].ncc});
+  los.forEach(r=>{if(kq.me.has(r.id)||tay(r))return; const han=congNgay(ngSX(r),7), ts=String(r.ts||''), ncc=nccChon[r.sp], duoc=lan.filter(o=>o.d<=han&&!(o.e.chot&&ts>String(o.e.chot.luc||''))&&(ncc===undefined||o.e.ncc===ncc));
+    /* không có lần mua hợp ngày còn hàng → lần mua còn hàng bất kỳ của nhóm (hoá đơn về sau — S141: đã nối thì không báo tạm tính); hết sạch → "chờ nhập kho" */
+    const sau=lan.filter(o=>o.con>0.0005&&!(o.e.chot&&ts>String(o.e.chot.luc||''))&&(ncc===undefined||o.e.ncc===ncc)), o=duoc.find(o=>o.con>0.0005)||sau[0];
+    if(daTru(r)){if(o)lay(o,r); else kq.cho.push(r)} else if(o)kq.me.set(r.id,o)}); // lô chưa trừ: chỉ chỉ ra lần mua sẽ nhận, không chiếm chỗ
+  los.forEach(r=>{const o=tay(r); if(o&&!daTru(r)){kq.me.set(r.id,o); kq.ghim.add(r.id)}});
   return kq}
+/* Số đã dùng từng lần mua hương: GỘP mọi lần mua của hương rồi rót lại theo FIFO — tổng đã dùng (Σ daDungKg) đổ đầy lần mua cũ nhất trước (tới số kg mua +
+   điều chỉnh), dư mới sang lần sau, phần vượt nằm ở lần mới nhất. Tổng KHÔNG đổi (tồn kho giữ nguyên), chỉ chia lại cho khớp cách ghép lô (fifoHuong).
+   Lần mua đã chốt giữ nguyên. Hương có mặt hàng đã CHỌN nhà cung cấp riêng (S73) thì không gộp (giữ trừ theo NCC đã chọn). Gọi trước khi vẽ / gửi cấu hình. */
+function dongBoDaDungHuong(){let doi=0; Object.entries(nguonHuong||{}).forEach(([h,ds])=>{if(!Array.isArray(ds)||ds.length<2||isUnscented(h)||huongKemNL(h))return;
+  if(sp.some(p=>p.nguonHuongChon&&p.nguonHuongChon[h]!==undefined&&p.nguonHuongChon[h]!==null))return;
+  const g=ds.filter(e=>num(e.soKg)>0&&!e.chot).sort((a,b)=>(iso(a.ngay)||'').localeCompare(iso(b.ngay)||'')||ds.indexOf(a)-ds.indexOf(b)); if(g.length<2)return;
+  /* mỗi lần mua = các lô đã trừ ghép vào nó (fifoHuong, kể cả lô gắn tay); phần đã dùng KHÔNG gắn với lô nào (số cũ trước sổ trừ kho…) rót FIFO vào chỗ còn trống */
+  const pb=fifoHuong(h), A=new Map(g.map(e=>[e,0])); pb.lan.forEach(o=>{if(A.has(o.e))A.set(o.e,o.dung)});
+  let R=g.reduce((a,e)=>a+num(e.daDungKg||0),0)-[...A.values()].reduce((a,x)=>a+x,0);
+  const v=new Map(g.map(e=>[e,A.get(e)]));
+  if(R>0)g.forEach((e,k)=>{const cho=k===g.length-1?R:Math.min(R,Math.max(0,num(e.soKg)+num(e.dieuChinhKg||0)-v.get(e))); v.set(e,v.get(e)+cho); R-=cho});
+  else for(let k=g.length-1;k>=0&&R<-0.0005;k--){const e=g[k], bot=Math.min(-R,v.get(e)); v.set(e,v.get(e)-bot); R+=bot}
+  /* lần mua nào vượt số kg mua thì phần vượt TRÀN sang lần sau (chủ: "dùng hết lần nhập cũ rồi mới sang lần mới"); lần cuối giữ phần vượt còn lại */
+  g.forEach((e,k)=>{if(k===g.length-1)return; const du=v.get(e)-Math.max(0,num(e.soKg)+num(e.dieuChinhKg||0)); if(du>0.0005){v.set(e,v.get(e)-du); v.set(g[k+1],v.get(g[k+1])+du)}});
+  g.forEach(e=>{const x=Math.round(v.get(e)*1000)/1000; if(Math.abs(num(e.daDungKg||0)-x)>0.0005){e.daDungKg=x; doi++}})}); return doi}
+function phanBoHuong(h){const f=fifoHuong(h); return {me:f.me,cho:f.cho,ghim:f.ghim}}
 // các lô đang nối lần mua KHÁC với cách xếp theo thời gian → [[lô, lần mua đích]]
 const xepLaiHuong=h=>{const pb=phanBoHuong(h), ds=[]; pb.me.forEach((o,id)=>{const r=nk.find(x=>x.id===id); if(r&&dongTruCua(r)!==o.e)ds.push([r,o])}); return ds};
 const apXepHuong=ds=>{ds.forEach(([r,o])=>chuyenLoHuong(r,o.ix)); return ds.length};
@@ -3876,6 +3898,27 @@ function apSuaMe(r,x,ly){
 }
 /* S121 (khách: "tôi muốn xoá hẳn sản phẩm và số lot"): xoá mặt hàng khỏi danh mục + huỷ mọi lô của nó (lô huỷ không còn ở báo cáo, kho, chuỗi, tem).
    ponytail: lô chỉ HUỶ chứ không xoá khỏi nk — xoá cứng sẽ bị Sheet/máy nhân viên đồng bộ trả lại; muốn khôi phục thì bỏ huỷ ở Sản xuất. */
+/* S158 25/11/2026 (chủ: "bạn nên là người xoá để tránh nhầm lẫn, có lưu trữ lại các việc đã làm để dễ kiểm tra nếu phát sinh lỗi; các sản phẩm dính tới Hương tự nhiên
+   đều là demo, không có thực"): xoá hương = xoá HẲN. Trước đây chỉ bỏ khỏi danh mục, còn sót lần mua ở Kho, tồn, NCC đang dùng, chọn nguồn riêng, và các lô
+   vẫn chạy trong báo cáo/kho/chuỗi. Nay: liệt kê đủ, xác nhận 1 lần → huỷ các lô pha hương này (huỷ, không xoá cứng — giữ nhật ký, bỏ huỷ được), xoá lần
+   mua/tồn/NCC/chọn nguồn, bỏ khỏi mặt hàng. Nhật ký XOA_HUONG lưu nguyên bản mọi thứ đã xoá (lần mua, tồn, mặt hàng, số lô) để tra soát/khôi phục.
+   Mã hương (maHuong) GIỮ để mã cũ không bị cấp lại cho hương khác (số lô đã in). Mặt hàng không bị xoá. */
+async function xoaHuongHan(h){const lo=nk.filter(r=>!r.huy&&r.huong===h), mh=sp.filter(p=>(p.huongs||[]).includes(h)||(p.tam||[]).includes(h)),
+    mua=(nguonHuong[h]||[]).filter(Boolean), dong=(a,b)=>`<tr><td>${a}</td><td>${b}</td></tr>`;
+  const ok=await hoi('Xoá hẳn hương',`<div class="cl-bang"><p style="margin:0 0 8px">Xoá hẳn <b>${esc(h)}</b>. Mọi thứ dưới đây được lưu vào Nhật ký (XOA_HUONG) để tra soát sau này.</p>
+    <table class="cl-t"><tbody>${dong('Mặt hàng bỏ chọn hương',mh.length?mh.map(p=>esc(p.ten)).join(', '):'—')}
+    ${dong('Lô sẽ HUỶ ('+lo.length+')',lo.length?lo.map(r=>esc(lotDep(r.lot||''))+' · '+esc(vnNgay(String(r.ngaysx||'').slice(0,10)))+' · '+esc(r.sp)+' · '+fmtSo(num(r.sl))+' kg').join('<br>'):'—')}
+    ${dong('Lần mua sẽ xoá ('+mua.length+')',mua.length?mua.map(e=>esc(e.ncc||'')+' · '+esc(e.ngay||'')+' · '+fmtSo(num(e.soKg))+' kg'+(e.soHD?' · HĐ '+esc(e.soHD):'')).join('<br>'):'—')}</tbody></table>
+    <small style="display:block;margin-top:8px">Lô chỉ bị huỷ (không còn ở báo cáo, kho, chuỗi, tem; nguyên liệu các lô được trả lại kho), vẫn bỏ huỷ được ở tab Sản xuất. Mặt hàng giữ nguyên. Mã hương giữ lại, không cấp cho hương khác.</small></div>`,{nutOK:'Xoá hẳn',nguyHiem:true,rong:1});
+  if(!ok)return false;
+  const ts=new Date().toISOString(), ly='Xoá hương '+h+' (dữ liệu demo, chủ yêu cầu)';
+  ghiAudit('stock',h,'XOA_HUONG',{kho:kho.includes(h),matHang:mh.map(p=>p.ten),nguon:JSON.parse(JSON.stringify(nguonHuong[h]||[])),ton:tonKhoHuong[h]||null,dangDung:huongDangDung[h]||null,
+    chonNguon:mh.filter(p=>p.nguonHuongChon&&p.nguonHuongChon[h]!==undefined).map(p=>({sp:p.ten,ix:p.nguonHuongChon[h]}))},{loHuy:lo.map(r=>({id:r.id,lot:r.lot,sp:r.sp,ngaysx:r.ngaysx}))});
+  lo.forEach(r=>{r.huy=true;r.huyLuc=ts;r.huyLyDo=ly;chinhTonHuongMe(r,-num(r.mlDung));ghiTrangThaiMe(r);ghiAudit('batch',r.id,'CANCEL',{huy:false},{huy:true,lyDo:ly})});
+  kho=kho.filter(v=>v!==h);
+  sp.forEach(p=>{p.huongs=(p.huongs||[]).filter(v=>v!==h);p.tam=(p.tam||[]).filter(v=>v!==h);if(p.nguonHuongChon&&h in p.nguonHuongChon)delete p.nguonHuongChon[h]});
+  delete nguonHuong[h]; delete tonKhoHuong[h]; delete huongDangDung[h];
+  luuNgay(); ve(); bao(`Đã xoá hẳn ${h}: huỷ ${lo.length} lô, xoá ${mua.length} lần mua — xem lại ở Nhật ký`); return true}
 async function xoaSPVaLo(ten){const i=sp.findIndex(p=>p.ten===ten), lo=nk.filter(r=>!r.huy&&r.sp===ten);
   if(!lo.length){if(!await hoi('Xoá mặt hàng',`Xoá <b>${esc(ten)}</b> khỏi danh mục?<br><small>Mặt hàng này chưa có lô nào.</small>`,{nutOK:'Xoá',nguyHiem:true}))return}
   else if(!await hoi('Xoá mặt hàng và mọi lô',`Xoá <b>${esc(ten)}</b> khỏi danh mục và huỷ <b>${lo.length} lô</b> của nó.<br>Các lô này không còn ở báo cáo, kho, chuỗi và không in tem được. Tồn hương của các lô được trả lại kho.<br><small>Dữ liệu lô vẫn giữ trong nhật ký để tra soát, bỏ huỷ được ở tab Sản xuất.</small>`,{nutOK:'Xoá hẳn',nguyHiem:true,nutHuy:'Giữ lại'}))return;
@@ -4715,8 +4758,11 @@ function moDanTem(r,p,quaFile){
 function trangTem(r,p){ const temKho=khoTemCua(p); // S138: sang chiết luôn khổ vuông
   const mot=temHTML(r,p);
   if(laKhoNhiet(temKho)){ // 1 tem/trang, khớp @page cùng tên khổ (xem CSS)
-    const vua=coChuVua(mot,1,1,temKho);
-    return `<div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">${mot}</div>`;
+    /* S154 25/11/2026 (chủ: "in thẳng khổ 65×65 không ra đúng, phải dán ảnh vào Word khổ 65×65 mới in trơn"): trang đặt tên (@page nhiet) bị
+       Chrome/máy in nhiệt bỏ qua → in theo khổ A4/khổ máy, lệch và thu nhỏ. Nay chèn @page KHÔNG tên đúng khổ, lề 0 (giống file Word của chủ);
+       lề chuyển vào padding của tờ → vùng chữ vẫn w−2·le, coChuVua không đổi. Style đi kèm nội dung #temIn nên file in (taiFileIn) cũng có. */
+    const vua=coChuVua(mot,1,1,temKho), k=nhietTT(temKho);
+    return `<style>@media print{@page{size:${k.w}mm ${k.h}mm;margin:0}}</style><div class="to to-${temKho}" data-co="${vua.co}"${vua.tran?' data-tran="1"':''} style="width:${k.w}mm;height:${k.h}mm;padding:${k.le}mm;--co:${vua.co}pt;${temMauCSS()};${temKieuCSS()}">${mot}</div>`;
   }
   const cot=Math.max(1,Math.min(10,+temCot||5)), hang=Math.max(1,Math.min(10,+temHang||4));
   const moiTo=cot*hang;
@@ -5278,6 +5324,7 @@ function moTrinhChieu(){
     if(t.id==='tcDong')dong();
     else if(t.id==='tcIn'){let p=document.getElementById('tcInTrang');if(!p){p=document.createElement('div');p.id='tcInTrang';document.body.appendChild(p)}
       p.innerHTML=`<div class="tc-giay">${tr.map((h,i)=>`<section class="tc-muc${i?'':' tc-dau-bc'}">${h}</section>`).join('')}</div>`;
+      $('temIn').querySelectorAll('style').forEach(x=>x.remove()); // S154: bỏ @page khổ nhiệt còn sót từ lần in tem trước
       document.documentElement.classList.add('in-tc'); const bo=()=>{document.documentElement.classList.remove('in-tc');window.removeEventListener('afterprint',bo)};
       window.addEventListener('afterprint',bo); window.print(); setTimeout(bo,1500)}});
   document.addEventListener('keydown',phim);
@@ -6771,7 +6818,7 @@ function lanMuaDayChuaChot(){const ra=[];
 function chotLanMua(loai,ten,ix,mo){const e=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!e)return false;
   bslApChot({ref:e,moi:{chot:!mo},goc:{ten},id:(loai==='h'?'h:':'nl:')+ten+':'+ix}); return true}
 document.addEventListener('click',async e=>{const b=e.target.closest('[data-chotmua],[data-mokhoamua]'); if(!b)return; e.stopPropagation();
-  const mo=!!b.dataset.mokhoamua, [loai,...r]=(b.dataset.chotmua||b.dataset.mokhoamua).split(':'), ix=+r.pop(), ten=r.join(':'), x=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!x)return;
+  dongBoDaDungHuong(); const mo=!!b.dataset.mokhoamua, [loai,...r]=(b.dataset.chotmua||b.dataset.mokhoamua).split(':'), ix=+r.pop(), ten=r.join(':'), x=(loai==='h'?nguonHuong:nguonNguyenLieu)[ten]?.[ix]; if(!x)return;
   const mo_=`<b>${esc(ten)}</b> · ${esc(x.ncc||'')} · ${esc(x.ngay||'')} · ${fmtSo(num(x.soKg))} kg${x.soHD?' · HĐ '+esc(x.soHD):''}`;
   // S122: nút Chốt ở Chuỗi bấm được cả khi lần mua chưa dùng hết → nói rõ phần còn lại sẽ bị coi là hết
   const noL=!mo&&loai==='h'?loChuaTruHuong(ten,x):[], apTon=daApSoTonLucKhai(x), chacNo=r=>!apTon&&r.giaHuongTheoGLucSX===null, // nợ giá = chắc chắn chưa trừ → tích sẵn
@@ -7907,7 +7954,7 @@ function chuyenTab(t){
 }
 
 const TD_TRANG={tq:'Tổng quan',sx:'Sản xuất',ct:'Mặt hàng',kho:'Kho',chuoi:'Chuỗi truy xuất',ma:'Danh mục',bc:'Báo cáo',gv:'Giá vốn',sl:'Hệ thống',ho:'Tủ hồ sơ'};
-function ve(){
+function ve(){dongBoDaDungHuong(); // S153
   requestAnimationFrame(docao);
   {const t=$('tdTrang'); if(t)t.innerHTML='<i>/</i>'+esc(TD_TRANG[tab]||'')+(tab==='bc'&&(tuNgay||denNgay)?'<small>'+esc((tuNgay?vnNgay(tuNgay):'đầu')+' → '+(denNgay?vnNgay(denNgay):'nay'))+'</small>':'');}
   $('viewTQ').style.display = tab==='tq'?'':'none';
@@ -9233,14 +9280,7 @@ $('rows').addEventListener('click',async e=>{
     sp[i].congThucNL.splice(j,1);dongBoMeChuan(sp[i]);bumpRecipeVersion(sp[i]);dongBoThanhPhanTuNL(sp[i]);luu();ve();return}
   const xh=e.target.closest('[data-xh]');
   if(xh){e.stopPropagation();const h=xh.dataset.xh;
-    const dung=sp.filter(p=>(p.huongs||[]).includes(h)).length;
-    const c=await hoi('Xoá hương khỏi danh mục',
-      `Xoá <b>${esc(h)}</b> khỏi danh mục?`+(dung?`<br>Có <b>${dung}</b> mặt hàng đang dùng, sẽ bị bỏ chọn.`:''),
-      {nutOK:'Xoá',nguyHiem:true});
-    if(!c)return;
-    kho=kho.filter(v=>v!==h);
-    sp.forEach(p=>{p.huongs=(p.huongs||[]).filter(v=>v!==h);p.tam=(p.tam||[]).filter(v=>v!==h)});
-    luu();ve();return}
+    await xoaHuongHan(h);return}
   const ad=e.target.closest('[data-addh]');
   if(ad){e.stopPropagation();
     const g=await hoi('Thêm hương vào danh mục','Hương thêm vào đây sẽ dùng được cho mọi mặt hàng.',
