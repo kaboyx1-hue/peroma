@@ -4212,7 +4212,7 @@ const s146d=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq
   const P=napSP([{ten:'SP __BS__',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:A,kg:100}]}])[0]; sp.push(P);
   const me=(id,ten,ts,sl)=>({id,sp:P.ten,huong:'',lot:id,sl,mlDung:0,ngaysx:ts.slice(0,10),ts,nlLucSX:[{ten,tl:1}]});
   nguonNguyenLieu[A]=[{ncc:'Silica',gia:1,soKg:28000,soHD:'109',ngay:'12/10/2026',ts:'2026-10-15T05:00:00.000Z'}]; // khai trước mốc S65 → chưa cộng; sau khi dời mốc vẫn KHÔNG được cộng lại (dcLog)
-  tonKhoNguyenLieu[A]={con:28000,capNhat:'12/10/2026',moc:'2026-10-15T05:55:05.365Z'};
+  tonKhoNguyenLieu[A]={con:28000,capNhat:'12/10/2026',moc:'2026-10-15T05:55:05.365Z',tuKhop:false}; // S159: giữ tự khớp sổ HĐ để thử riêng nút trừ lô bỏ sót
   tonKhoNguyenLieu[B]={con:500,capNhat:'01/10/2026',moc:'2026-10-15T05:55:05.365Z',dcLog:[{ngay:'01/10/2026'}]}; // đã kiểm kê kiểu mới → không đụng
   tonKhoNguyenLieu[C]={con:100,capNhat:'20/09/2026'}; // chưa có mốc → mốc = cuối ngày đếm
   tonKhoNguyenLieu[D]={con:1000,capNhat:'23/09/2026',moc:'2026-10-15T05:55:05.365Z'};
@@ -4320,6 +4320,23 @@ const s158=await E(async()=>{const H='Hương __S158__', th=window.hoi, g={kho:k
   kq.giuMa=maHuong[H]==='98';
   kho=g.kho; sp=JSON.parse(g.sp); nk=g.nk; nguonHuong=JSON.parse(g.nh); maHuong=JSON.parse(g.ma); delete trangThaiMe['S158-a']; auditEvents=auditEvents.slice(0,g.ae); luuNgay(); return kq});
 ok('S158: xoá hẳn hương — hỏi kèm danh sách lô/lần mua; huỷ lô pha hương đó (lô hương khác không đụng); xoá lần mua, tồn, NCC, chọn nguồn; nhật ký XOA_HUONG giữ bản gốc; mã hương giữ lại', Object.values(s158).every(Boolean), JSON.stringify(s158));
+/* S159: lần mua NL ghép đủ → tự khoá "Đã dùng hết"; tồn lớn hơn phần còn sổ hoá đơn → tự hạ + nhật ký; Cát liti chờ chủ; mở khoá tay thì không tự khoá lại */
+const s159=await E(async()=>{const M='Mùn tơi __S159__', C='Cát liti __S159__', g={dm:nlDM.slice(),sp:sp.length,nk:nk.slice(),nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),ae:auditEvents.length}, kq={};
+  nlDM=[...nlDM,M,C]; const p={...sp[0],ten:'SP __S159M__',kg:400,me:400,congThucNL:[{ten:M,kg:400}]}, q={...sp[0],ten:'SP __S159C__',kg:100,me:100,congThucNL:[{ten:C,kg:100}]}; sp.push(p,q);
+  nguonNguyenLieu[M]=[{ncc:'A',gia:1200*8100,soKg:1200,ngay:'14/09/2026',ts:'2026-09-14T03:00:00.000Z',soHD:'63',vat:8},{ncc:'A',gia:1206*8100,soKg:1206,ngay:'07/10/2026',ts:'2026-10-07T03:00:00.000Z',soHD:'78',vat:8}];
+  tonKhoNguyenLieu[M]={con:2406,capNhat:'07/10/2026',moc:'2026-10-15T05:00:00.000Z'};
+  nguonNguyenLieu[C]=[{ncc:'B',gia:1,soKg:28000,ngay:'12/10/2026',ts:'2026-10-12T01:00:00.000Z',soHD:'109',vat:8}]; tonKhoNguyenLieu[C]={con:15000,capNhat:'26/11/2026',moc:'2026-11-26T00:00:00.000Z'};
+  nk=[...nk,{id:'S159-M',sp:p.ten,huong:'',lot:'3304030926',sl:1200,mlDung:0,ngaysx:'2026-09-16',ts:'2026-09-16T06:00:00.000Z'},{id:'S159-C',sp:q.ten,huong:'',lot:'0400071126',sl:22000,mlDung:0,ngaysx:'2026-10-20',ts:'2026-10-20T03:00:00.000Z'}];
+  kq.truoc=tonNLKg(M)===2406; const goi=cauHinhGoi(); const e63=nguonNguyenLieu[M][0];
+  kq.tuKhoa=!!(e63.chot&&e63.chot.tuDong)&&!nguonNguyenLieu[M][1].chot; kq.ton=tonNLKg(M)===1206&&goi.tonKhoNguyenLieu[M].con===1206;
+  const a=auditEvents.slice(g.ae); kq.nhatKy=a.some(x=>x.action==='TU_KHOP_SO_HD'&&x.entityId===M&&x.after.kg===1206)&&a.some(x=>x.action==='CHOT_LAN_MUA'&&x.after.tuDong);
+  kq.catLitiCho=tonNLKg(C)===15000&&doiChieuNL(C).cho===true; kq.canXuLy=ttNguon('nl',C).can&&ttNguon('nl',C).xn&&!ttNguon('nl',M).xn;
+  chuyenTab('tq'); await new Promise(z=>setTimeout(z,80)); kq.tongQuan=!!document.querySelector('#viewTQ [data-khophd], [data-khophd]')&&/chờ bạn xác nhận/.test(document.body.innerText);
+  delete e63.chot; e63.moKhoaTay=true; ve(); kq.moTay=!e63.chot;
+  nguonNguyenLieu[M].push({ncc:'A',gia:1,soKg:500,ngay:homNay(),ts:new Date().toISOString(),soHD:'99',vat:8}); kq.muaSau=tonNLKg(M)===1706;
+  moNguonCua('nl',M); await new Promise(z=>setTimeout(z,300)); const tx=document.body.innerText; kq.nhan=/Khớp sổ hoá đơn/i.test(tx)&&!/kiểm kê 1[.,]206/i.test(tx);
+  nlDM=g.dm; sp.length=g.sp; nk=g.nk; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); auditEvents=auditEvents.slice(0,g.ae); luuNgay(); ve(); return kq});
+ok('S159: lần mua NL ghép đủ tự khoá; tồn 2.406 > sổ hoá đơn 1.206 → tự hạ, ghi nhật ký, có trong cấu hình gửi đi; Cát liti chờ chủ (không trừ); mở khoá tay không tự khoá lại; lần mua nhập sau vẫn cộng', Object.values(s159).every(Boolean), JSON.stringify(s159));
 /* S152b: chống "bão ghi" 2 máy — nhật ký thao tác chỉ lưu máy này (không đẩy cấu hình); cầu dao khi tự đẩy liên tục mà người dùng không thao tác */
 const s152b=await E(async()=>{const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={}, g={url:DONGBO_URL,mk:LEGACY_SHARED_TOKEN,f:window.fetch,ts:dongBoCauHinhTs,ng:dbNguoiLuc}; let soGhi=0;
   DONGBO_URL='http://127.0.0.1:8777/gia-lap-exec'; LEGACY_SHARED_TOKEN='x';
@@ -4344,16 +4361,16 @@ const dq=await E(async()=>{ const cho=ms=>new Promise(z=>setTimeout(z,ms)), kq={
   kq.ngay=tonNLKg(NL)===100&&tonKhoNguyenLieu[NL].capNhat==='10/10/2026'&&/10\/10\/2026/.test(tonKhoNguyenLieu[NL].dcLog.slice(-1)[0].lyDo);
   const tl2=['5',' 01/01/2099']; window.hoi=async()=>tl2.shift(); kq.tuongLai=(await kiemKeNL(NL))===false;
   // lần mua đã ghép đủ 1000 kg → Tổng quan nhắc chốt; bấm → khoá; Sửa bị chặn; Mở khoá
-  kq.nhac=lanMuaDayChuaChot().some(x=>x.ten===NL); chuyenTab('tq'); await cho(60);
-  const b=document.querySelector(`[data-chotmua="nl:${CSS.escape(NL)}:0"]`); kq.nut=!!b; window.hoi=async()=>true; b&&b.click(); await cho(80);
-  kq.khoa=!!nguonNguyenLieu[NL][0].chot&&!lanMuaDayChuaChot().some(x=>x.ten===NL);
+  chuyenTab('tq'); await cho(60); kq.nhac=!lanMuaDayChuaChot().some(x=>x.ten===NL); // S159: NL ghép đủ thì tự khoá, không cần nhắc
+  kq.nut=!document.querySelector(`[data-chotmua="nl:${CSS.escape(NL)}:0"]`); window.hoi=async()=>true;
+  kq.khoa=!!(nguonNguyenLieu[NL][0].chot&&nguonNguyenLieu[NL][0].chot.tuDong);
   chuyenTab('kho'); moTra.add('ncc-nl-'+NL); ve(); await cho(60); document.querySelector(`[data-suanguon="nl:${CSS.escape(NL)}:0"]`).click(); await cho(60);
   kq.chanSua=!document.querySelector(`[data-nguonform="nl:${CSS.escape(NL)}:0"]`);
   const mk=document.querySelector(`[data-mokhoamua="nl:${CSS.escape(NL)}:0"]`); mk&&mk.click(); await cho(80); kq.mo=!!mk&&!nguonNguyenLieu[NL][0].chot;
   window.hoi=th; nguonNguyenLieu=JSON.parse(g.nl); tonKhoNguyenLieu=JSON.parse(g.tk); nlDM=g.dm; nk=g.nk; sp.splice(g.sp); luuNgay(); chuyenTab('tq'); return kq;
 });
 ok('DQ: kiểm kê có NGÀY ĐẾM — tồn đếm ngày 10/10, mẻ làm sau ngày đó vẫn trừ tiếp; không cho ngày tương lai', dq.ngay&&dq.tuongLai, JSON.stringify(dq));
-ok('DQ: lần mua dùng hết → Tổng quan nhắc "xác nhận chốt"; bấm chốt = khoá (Sửa bị chặn); "Mở khoá" ngay tại dòng lần mua', dq.nhac&&dq.nut&&dq.khoa&&dq.chanSua&&dq.mo);
+ok('DQ: lần mua NL dùng hết → tự khoá (S159, không còn nhắc chốt); khoá (Sửa bị chặn); "Mở khoá" ngay tại dòng lần mua', dq.nhac&&dq.nut&&dq.khoa&&dq.chanSua&&dq.mo);
 
 const dr=await E(async()=>{ const kq={}, NL='NL __DR__', g={nl:JSON.stringify(nguonNguyenLieu),tk:JSON.stringify(tonKhoNguyenLieu),dm:nlDM.slice(),nk:nk.slice(),sp:sp.length};
   nlDM.push(NL); const p=napSP([{ten:'SP __DR__',maSP:'',kg:100,ml:0,huongs:[],tam:[],dauRa:['1 kg'],congThucNL:[{ten:NL,kg:100}]}])[0]; sp.push(p);
