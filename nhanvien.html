@@ -104,10 +104,10 @@ body{font-family:var(--sans);color:var(--txt);font-size:16px;line-height:1.45;
 .fld{margin-bottom:13px}
 .fld label{display:block;font-size:10.5px;font-weight:800;letter-spacing:.1em;color:var(--txt3);
   text-transform:uppercase;margin-bottom:6px}
-.fld input,.fld select{width:100%;font:inherit;font-size:17px;background:var(--bg);color:var(--txt);
+.fld input,.fld select,.fld textarea{width:100%;font:inherit;font-size:17px;background:var(--bg);color:var(--txt);
   border:1px solid var(--line2);border-radius:9px;padding:13px 12px}
 .fld input.mn{font-family:var(--mono);font-weight:700;font-size:21px;text-align:right}
-.fld input:focus,.fld select:focus{outline:none;border-color:var(--am)}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--am)}
 .fld input.xau{border-color:var(--red)}
 .big{background:var(--cyd);border:1px solid var(--infoLine);border-radius:10px;padding:14px;margin-bottom:13px;text-align:center}
 .big .l{font-size:10.5px;font-weight:800;letter-spacing:.11em;color:var(--cy);text-transform:uppercase}
@@ -256,7 +256,7 @@ html,body{background:var(--bg);min-height:100%}
   border-color:transparent;box-shadow:var(--btnGlow)}
 .oke:disabled{box-shadow:none}
 .card{border-radius:20px;border-color:var(--line);box-shadow:var(--shadowSm)}
-.fld input,.fld select{border-radius:14px}
+.fld input,.fld select,.fld textarea{border-radius:14px}
 .pb select,.pb input,.chips button,.pb .x{border-radius:12px}
 .big{border-radius:18px}
 .add,.pair button,.canh,.note{border-radius:14px}
@@ -442,8 +442,8 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 .kh-bang th{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);text-align:left;padding:6px;border-bottom:1px solid var(--line)}
 .kh-bang td{padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:middle}.kh-bang .kh-r{text-align:right;white-space:nowrap}
 .kh-chip{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;background:rgba(127,127,127,.15)}
-.kh-chip.ok{background:rgba(111,211,154,.18);color:#1F7A3E}.kh-chip.sap{background:rgba(255,170,90,.2);color:#A04C00}.kh-chip.het{background:rgba(255,122,102,.2);color:#B42318}
-:root.toi .kh-chip.ok{color:#8FE0B0}:root.toi .kh-chip.sap{color:#FFC48A}:root.toi .kh-chip.het{color:#FFA595}
+.kh-chip.ok{background:rgba(111,211,154,.18);color:#1F7A3E}.kh-chip.sap{background:rgba(255,170,90,.2);color:#A04C00}.kh-dat{color:#C2410C}.kh-chip.het{background:rgba(255,122,102,.2);color:#B42318}
+:root.toi .kh-chip.ok{color:#8FE0B0}:root.toi .kh-chip.sap{color:#FFC48A}:root.toi .kh-dat{color:#FF9F5A}:root.toi .kh-chip.het{color:#FFA595}
 .kh-den{display:inline-flex;gap:4px;flex-wrap:wrap}
 .kh-den .kh-lk{border:1px solid var(--line);border-radius:999px;padding:3px 10px;border-bottom:1px solid var(--line)}
 .kh-lk{font:inherit;font-size:12.5px;font-weight:700;background:none;border:0;border-bottom:1px dashed currentColor;color:var(--acc,#D9822B);cursor:pointer;padding:0}
@@ -465,7 +465,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
 <div class="app">
   <div class="stick">
     <div class="bar">
-      <h1>PEROMA<i>BẢN NHÂN VIÊN · 25/11/2026-R59</i></h1>
+      <h1>PEROMA<i>BẢN NHÂN VIÊN · 26/11/2026-R60</i></h1>
       <span id="dbDen" style="font-size:12px;color:var(--brandTx);cursor:pointer;white-space:nowrap" title="Bấm để đồng bộ ngay">⚪ Đồng bộ</span>
       <button class="who" id="btnSangToi" type="button">☀</button>
       <button class="who" id="whoBtn">—</button>
@@ -475,7 +475,7 @@ body{font-family:var(--sans);font-feature-settings:"lnum" 1}
       <button class="tab" data-tab="lo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span>Tra lô</span></button>
       <button class="tab" data-tab="kho"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5v11H3z"/><path d="M7 19v-6h10v6"/><path d="M7 16h10"/></svg><span>Kho</span></button>
       <button class="tab" data-tab="cp"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.8a6 6 0 0 1-12 0C6 9.9 12 3.5 12 3.5z"/></svg><span>Chất phun</span></button>
-      <button class="tab" data-tab="bc"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 12.3l2.8 2.8L16.2 9"/></svg><span>Chốt thực tế</span></button>
+      <button class="tab" data-tab="bc" style="display:none"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M8 12.3l2.8 2.8L16.2 9"/></svg><span>Chốt thực tế</span></button>
       <button class="tab" data-tab="dl"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6M4.5 11.5v6c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-6"/></svg><span>Dữ liệu</span></button>
       <button class="tab" data-tab="ho"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h9l3 3h4v13H4z"/><path d="M4 9h16"/></svg><span>Hồ sơ</span></button>
     </div>
@@ -1073,7 +1073,7 @@ function veLenhSXNv(){
   const mo=lenhDangMo();
   let o=`<div class="card">
     <div class="fld"><label>Ghi tiến độ vào lệnh sản xuất</label>
-    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Chỉ hiện lệnh Quản lý đã tạo và đang mở — chọn đúng lệnh, nhập số kg vừa làm xong, có thể ghi nhiều lần trong ngày cho tới khi đủ. Bất kỳ ai cũng ghi được vào cùng 1 lệnh.</div>`;
+    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Chọn lệnh quản lý đã mở, gõ số kg vừa làm xong. Một ngày ghi nhiều lần được.</div>`;
   if(mo.length){
     o+=`<select id="lsxChonIn"><option value="">— chọn lệnh sản xuất đang mở —</option>
       ${mo.map(l=>{const tt=thucTeLenh(l.id),kh=num(l.keHoach);return `<option value="${esc(l.id)}">${esc(l.sp)} — còn thiếu ${fmt(kh-tt)} / ${fmt(kh)} kg</option>`}).join('')}
@@ -1100,20 +1100,20 @@ function veBaoCao(){
   const dsLo=nk.filter(r=>!r.huy&&r.ngaysx===hn);
   let o=`<div class="card">
     <div class="fld"><label>Chốt thực tế sản xuất</label>
-    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Dùng khi không kịp đúng số đã dự kiến — kể cả khi mẻ CHƯA ghi được (trục trặc giữa chừng). Có lô đã ghi hôm nay thì chọn lô; chưa có lô nào thì chọn thẳng mặt hàng và tự nhập kế hoạch.</div>`;
+    <div class="log" style="margin:0 0 8px;font-size:12.5px;color:var(--txt3)">Làm xong thì ghi số kg thật ở đây. Chọn lô đã ghi hôm nay. Chưa ghi được lô nào thì chọn mặt hàng.</div>`;
   if(dsLo.length){
     o+=`<select id="bcLotIn"><option value="">— chọn lô đã ghi hôm nay —</option>
       ${dsLo.map(r=>`<option value="${esc(r.id)}">${esc(r.sp)} · ${esc(r.quyCach)} · ${esc(lotDep(r.lot))} · kế hoạch ${fmt(num(r.sl))} kg</option>`).join('')}
     </select>
     <div class="log" style="margin:6px 0;font-size:12.5px;color:var(--txt3)">— hoặc, nếu mẻ hôm nay CHƯA ghi được lô nào —</div>`;
   }
-  o+=`<select id="bcSpIn"><option value="">— chọn mặt hàng (khi chưa ghi được lô nào) —</option>
+  o+=`<select id="bcSpIn"><option value="">— chọn mặt hàng —</option>
       ${bcSpOptions()}
     </select>
-    <input id="bcKeHoachIn" type="text" inputmode="decimal" placeholder="Kế hoạch (dự kiến) kg — chỉ cần khi chọn mặt hàng ở trên" style="margin-top:8px">
-    <input id="bcKgIn" type="text" inputmode="decimal" placeholder="Số kg thực tế đã hoàn thành" style="margin-top:8px">
-    <textarea id="bcLyDoIn" placeholder="Lý do nếu chênh lệch nhiều (không bắt buộc) — VD: thiếu người, hư máy, hết nguyên liệu, dôi thành phẩm..." style="margin-top:8px;min-height:64px"></textarea>
-    <div class="log" style="margin:6px 0 0;font-size:12.5px;color:var(--txt3)">Chênh lệch trong khoảng ±${NGUONG_VARIANCE_PCT}% là bình thường, không bắt buộc ghi lý do. Chênh lệch nhiều hơn thì nên ghi rõ lý do để quản lý dễ đối chiếu.</div>
+    <input id="bcKeHoachIn" type="text" inputmode="decimal" placeholder="Định làm bao nhiêu kg (chỉ khi chọn mặt hàng)" style="margin-top:8px">
+    <input id="bcKgIn" type="text" inputmode="decimal" placeholder="Số kg làm ra thật" style="margin-top:8px">
+    <textarea id="bcLyDoIn" placeholder="Lý do nếu ra lệch nhiều, vd: hư máy, hết nguyên liệu (không bắt buộc)" style="margin-top:8px;min-height:64px"></textarea>
+    <div class="log" style="margin:6px 0 0;font-size:12.5px;color:var(--txt3)">Lệch ít hơn ${NGUONG_VARIANCE_PCT}% thì không cần ghi lý do.</div>
     <button class="add" id="bcGuiBtn" style="margin-top:8px">Xác nhận số thực tế</button>
   </div></div>`;
   o+=veLenhSXNv();
@@ -1134,10 +1134,10 @@ function veBaoCao(){
   return o;
 }
 // 15/10/2026: thông báo hương vượt tồn thực tế (Admin tính, gửi qua cấu hình) — nhắc báo quản lý điều chỉnh
-const cbHuongTxt=x=>(x.vuotKg?'vượt tồn '+fmt(x.vuotKg)+' kg':'')+(x.vuotKg&&x.noMe?' · ':'')+(x.noMe?'chưa khai lần mua ('+x.noMe+' mẻ)':'');
+const cbHuongTxt=x=>(x.vuotKg?'quá '+fmt(x.vuotKg)+' kg':'')+(x.vuotKg&&x.noMe?' · ':'')+(x.noMe?'chưa khai lần mua ('+x.noMe+' mẻ)':'');
 function veCanhBaoHuongNV(){
   if(!canhBaoHuong.length)return '';
-  return `<div class="canh" role="alert" style="margin-bottom:12px"><b>⚠ Thông báo kho hương:</b> ${canhBaoHuong.map(x=>'<b>'+esc(x.h)+'</b> '+esc(cbHuongTxt(x))).join(' · ')}.<br>Hương đang dùng nhiều hơn tồn ghi nhận — vẫn pha được, nhưng <b>báo quản lý</b> kiểm kê / nhập thêm hàng.</div>`;
+  return `<div class="canh" role="alert" style="margin-bottom:12px"><b>⚠ Hương dùng nhiều hơn số trong kho:</b> ${canhBaoHuong.map(x=>'<b>'+esc(x.h)+'</b> '+esc(cbHuongTxt(x))).join(' · ')}.<br>Vẫn pha được. Nhắn <b>quản lý</b> đếm lại kho hoặc nhập thêm hàng.</div>`;
 }
 function veDS(){
   let o=veCanhBaoHuongNV()+`<div class="sec">Chọn mặt hàng cần pha</div>`;
@@ -1177,9 +1177,9 @@ function veMe(){
 
   o+=`<div class="fld"><label>Ngày sản xuất</label>
     <input type="date" data-f="ngaysx" value="${esc(p.ngaysx||isoNay())}"></div>`;
-  o+=`<div class="fld"><label>Đầu vào dự kiến / kế hoạch sản xuất (kg)</label>
+  o+=`<div class="fld"><label>Định làm bao nhiêu kg</label>
     <input class="mn" data-f="sl" inputmode="decimal" value="${esc(p.sl??'')}" placeholder="${fmt(chuan)}"></div>
-    <div class="log" style="margin:-4px 0 0">Đây là số kg dự kiến trước khi làm. Khi hoàn tất sẽ chốt số thực tế riêng (tab Báo cáo) — không cần sửa lại kế hoạch nếu sản xuất dôi hoặc thiếu.</div>`;
+    <div class="log" style="margin:-4px 0 0">Làm ra nhiều hay ít hơn cũng không cần sửa số này.</div>`;
   o+=`<div id="canhKg">${canhKgHTML(p)}</div>`;
   o+=`<div id="duThieu">${duThieuHTML(p)}</div>`; // R57
 
@@ -1188,7 +1188,7 @@ function veMe(){
     <div class="s">${isUnscented(p.huongMe)?'Không mùi · không dùng hương liệu':(kg>0?`g · cho ${fmt(kg)} kg`:'Nhập số kg ở trên')}</div></div>`;
 
   if((p.congThucNL||[]).length){
-    o+=`<div class="fld"><label>Hàm lượng nguyên liệu (chỉ xem — quản lý chỉnh)</label>
+    o+=`<div class="fld"><label>Nguyên liệu cho mẻ này (quản lý đặt sẵn)</label>
       <div class="nlbox lot" style="margin:0;border:none;padding:0;background:transparent"></div>
       <div class="nllog log" style="margin-top:2px"></div></div>`;
   }
@@ -1939,16 +1939,23 @@ const khoDs=loai=>Object.keys((tonKhoNV&&tonKhoNV[loai])||{}).sort((a,b)=>a.loca
 function khoCan1Me(loai,ten){let m=0; sp.forEach(p=>{if(!(num(p.kg)>0))return;
   if(loai==='h'){if((p.huongs||[]).includes(ten))m=Math.max(m,num(p.ml)/1000)} else {const c=(p.congThucNL||[]).find(x=>x&&x.ten===ten); if(c)m=Math.max(m,num(c.kg))}}); return m}
 const khoTT=(loai,ten,kg)=>kg===null?['','—']:kg<=0?['het',kg<0?'⛔ Âm':'⛔ Hết']:kg<khoCan1Me(loai,ten)?['sap','⏳ Không đủ 1 mẻ']:['ok','✅ Còn hàng'];
+/* mức nên đặt hàng = dùng 28 ngày gần nhất / 28 × (ngày chờ hàng + 7 ngày dự phòng); chủ: chỉ đổi màu số còn.
+   ponytail: một số ngày chờ chung KHO_CHO_HANG, chờ chủ cho số thật; cần riêng từng món thì Admin gửi xuống qua cấu hình */
+const KHO_CHO_HANG=14;
+function khoMucDat(loai,ten){const tu=new Date(Date.now()-28*864e5).toISOString().slice(0,10);
+  const d=khoMe().filter(r=>String(r.ngaysx||'')>=tu).reduce((a,r)=>a+(loai==='h'?khoHDung(r,ten):khoNLDung(r,ten)),0);
+  return d>0?d/28*(KHO_CHO_HANG+7):0}
+const khoThang=r=>{const m=/^(\d{4})-(\d{2})/.exec(String(r&&r.ngaysx||''));return m?'Tháng '+(+m[2]):''};
 const khoKg=x=>x===null?'—':(x<0?'−':'')+fmt(Math.abs(Math.round(x*1000)/1000))+' kg';
 const khoLk=(di,txt,cls)=>`<button type="button" class="kh-lk${cls?' '+cls:''}" data-khodi="${esc(di)}">${txt}</button>`;
 function veKho(){
   if(!tonKhoNV)return `<div class="card"><div class="note">Chưa có số tồn kho từ máy quản lý. Khi máy Admin bản mới đồng bộ, số tồn sẽ hiện ở đây.</div></div>`;
   const M=[['ton','Tồn kho'],['huong','Hương dùng cho mặt hàng nào'],['lo','Tra mọi lô'],['cpd','Còn pha được']], n=khoMeMoi().length, luc=new Date(tonKhoNV.luc);
   return `<div class="kh-man">${M.map(([k,t])=>`<button type="button" data-khoman="${k}" class="${khoMan===k?'on':''}">${t}</button>`).join('')}</div>
-    <div class="kh-luc">Số tồn máy quản lý tính lúc <b>${isNaN(luc)?'—':luc.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})}</b>${n?` · máy này đã tự trừ thêm <b>${n} mẻ</b> ghi sau đó`:''}</div>`
+    <div class="kh-luc">Số kg cập nhật lúc <b>${isNaN(luc)?'—':luc.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'})}</b>${n?` · đã trừ thêm <b>${n} mẻ</b> làm sau giờ đó`:''}</div>`
     +(khoMan==='huong'?veKhoHuong():khoMan==='lo'?veKhoLo():khoMan==='cpd'?veKhoCpd():veKhoTon())}
 function veKhoTon(){const bang=(loai,tieu)=>{const ds=khoDs(loai);return `<div class="card"><div class="kh-h">${tieu}</div>${ds.length?`<div class="kh-cuon"><table class="kh-bang"><thead><tr><th>${loai==='h'?'Hương':'Nguyên liệu'}</th><th class="kh-r">Còn</th><th>Tình trạng</th><th>Đi tới</th></tr></thead><tbody>${ds.map(t=>{const kg=khoTon(loai,t),[c,l]=khoTT(loai,t,kg);
-    return `<tr id="kh-${loai}-${esc(t)}"><td><b>${esc(t)}</b></td><td class="kh-r"><b>${khoKg(kg)}</b></td><td><span class="kh-chip ${c}">${l}</span></td><td><span class="kh-den">${loai==='h'?khoLk('huong|'+t,'Mặt hàng dùng ›'):''}${khoLk('lo|'+loai+'|'+t,'Các lô ›')}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="note">Chưa có số.</div>'}</div>`};
+    return `<tr id="kh-${loai}-${esc(t)}"><td><b>${esc(t)}</b></td><td class="kh-r">${(()=>{const md=kg>0?khoMucDat(loai,t):0;return md&&kg<=md?`<b class="kh-dat" title="Sắp hết, nên đặt thêm hàng (dưới ${khoKg(Math.round(md*100)/100)})">${khoKg(kg)}</b>`:`<b>${khoKg(kg)}</b>`})()}</td><td><span class="kh-chip ${c}">${l}</span></td><td><span class="kh-den">${loai==='h'?khoLk('huong|'+t,'Mặt hàng dùng ›'):''}${khoLk('lo|'+loai+'|'+t,'Các lô ›')}</span></td></tr>`}).join('')}</tbody></table></div>`:'<div class="note">Chưa có số.</div>'}</div>`};
   return bang('h','Hương liệu')+bang('nl','Nguyên liệu')+`<div class="log">Chỉ xem số kg theo sổ kho. Kho thật lệch thì báo quản lý kiểm kê.</div>`}
 function veKhoHuong(){const ds=khoDs('h'); if(!ds.includes(khoH))khoH=ds[0]||''; if(!khoH)return '<div class="card"><div class="note">Chưa có hương nào.</div></div>';
   const ms=khoMe().filter(r=>r.huong===khoH), nh=new Map(); ms.forEach(r=>{(nh.get(r.sp)||nh.set(r.sp,[]).get(r.sp)).push(r)});
@@ -1958,6 +1965,8 @@ function veKhoHuong(){const ds=khoDs('h'); if(!ds.includes(khoH))khoH=ds[0]||'';
     return `<details class="kh-lop"${i?'':' open'}><summary><span><b>${esc(t)}</b> <small>${ls.length} mẻ</small></span><small>${fmt(Math.round(ls.reduce((a,r)=>a+num(r.mlDung),0))/1000)} kg hương</small></summary><div class="kh-trong">${
       ls.slice().sort((a,b)=>String(a.ngaysx).localeCompare(String(b.ngaysx))).map(r=>{const th=num(r.sl)>0?num(r.mlDung)/num(r.sl):0, l=dm>0?(th-dm)/dm:0;
        return `<div class="kv"><span>${khoLk('molo|'+r.id,esc(lotDep(r.lot)),'kh-mono')} · ${esc(vnNgay(r.ngaysx))}</span><b>${fmt(num(r.sl))} kg · ${fmt(num(r.mlDung))} g ${dm>0?(Math.abs(l)<=.01?'<span class="kh-chip ok">đúng định mức</span>':`<span class="kh-chip ${Math.abs(l)>.1?'het':'sap'}">${l>0?'+':''}${Math.round(l*100)}% định mức</span>`):''}</b></div>`}).join('')}${dm>0?`<div class="log">Định mức ${fmt(dm)} g hương / kg · bấm số lô để mở mẻ đó</div>`:''}</div></details>`}).join('')||'<div class="card"><div class="note">Chưa có mẻ nào dùng hương này.</div></div>')}
+/* giờ ghi mẻ (r.ts, giờ máy) — chủ: Tra mọi lô thiếu thời gian */
+const khoGio=r=>{const d=new Date(r&&r.ts||'');return isNaN(d)?'':d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit',hour12:false})};
 function veKhoLo(){const ms=khoMe().slice().sort((a,b)=>String(b.ngaysx||'').localeCompare(String(a.ngaysx||''))||String(b.ts||'').localeCompare(String(a.ts||'')));
   const q=khoLoc.q.replace(/\s/g,''), ds=ms.filter(r=>(!khoLoc.sp||r.sp===khoLoc.sp)&&(!khoLoc.h||r.huong===khoLoc.h)&&(!khoLoc.nl||khoNLDung(r,khoLoc.nl)>0)&&(!q||String(r.lot||'').includes(q)));
   const opt=(ds,v,dau)=>`<option value="">${dau}</option>`+ds.map(t=>`<option${t===v?' selected':''}>${esc(t)}</option>`).join('');
@@ -1966,8 +1975,8 @@ function veKhoLo(){const ms=khoMe().slice().sort((a,b)=>String(b.ngaysx||'').loc
     <div class="fld"><label>Số lô</label><input data-kholoc="q" value="${esc(khoLoc.q)}" placeholder="gõ vài số, vd 0926" autocomplete="off"></div></div>
     ${khoLoc.nl?`<div class="log">Đang lọc mẻ có dùng <b>${esc(khoLoc.nl)}</b> · <button type="button" class="kh-lk" data-khoboloc="1">bỏ lọc</button></div>`:''}<div class="log">${ds.length} / ${ms.length} mẻ · bấm 1 mẻ để mở chi tiết${ds.length>200?' · đang hiện 200 mẻ mới nhất, lọc thêm để thu hẹp':''}</div></div>`
    +ds.slice(0,200).map(r=>{const nl=khoNLCua(r);
-    return `<details class="kh-lop" id="kh-lo-${esc(r.id)}"${khoMoLo===r.id?' open':''}><summary><span><b class="kh-mono">${esc(lotDep(r.lot))}</b> <b>${esc(r.sp)}</b> <small>${esc(r.huong||'')}</small></span><small>${r.suaLuc?'<span class="kh-chip sap">✎ quản lý đã sửa</span> ':''}${r._heThong?'<span class="kh-chip">máy khác</span>':'<span class="kh-chip">máy này</span>'}</small></summary><div class="kh-trong">
-      <div class="kv"><span>Ngày sản xuất</span><b>${esc(vnNgay(r.ngaysx))}</b></div>
+    return `<details class="kh-lop" id="kh-lo-${esc(r.id)}"${khoMoLo===r.id?' open':''}><summary><span>${khoThang(r)?'<span class="kh-chip">'+khoThang(r)+'</span> ':''}<b class="kh-mono">${esc(lotDep(r.lot))}</b> <b>${esc(r.sp)}</b> <small>${esc(r.huong||'')}</small></span><small>${r.suaLuc?'<span class="kh-chip sap">✎ quản lý đã sửa</span> ':''}${r._heThong?'<span class="kh-chip">máy khác</span>':'<span class="kh-chip">máy này</span>'}</small></summary><div class="kh-trong">
+      <div class="kv"><span>Ngày sản xuất</span><b>${esc(vnNgay(r.ngaysx))}${khoGio(r)?' · ghi lúc '+khoGio(r):''}</b></div>
       <div class="kv"><span>Đầu vào</span><b>${fmt(num(r.sl))} kg${r.suaLuc?` · quản lý đã sửa từ ${fmt(num(r.slGoc))} kg`:''}</b></div>
       ${r.huong&&!isUnscented(r.huong)?`<div class="kv"><span>Hương liệu</span><b>${khoLk('ton|h|'+r.huong,esc(r.huong))} · ${fmt(num(r.mlDung))} g</b></div>`:`<div class="kv"><span>Hương liệu</span><b>Không mùi</b></div>`}
       ${nl.map((t,i)=>`<div class="kv"><span>${i?'':'Nguyên liệu'}</span><b>${khoLk('ton|nl|'+t,esc(t))} · ${fmt(Math.round(khoNLDung(r,t)*1000)/1000)} kg</b></div>`).join('')}
@@ -1987,7 +1996,7 @@ function duThieuHTML(p){if(!tonKhoNV||!p)return ''; const kg=num(p.sl); if(!(kg>
   nlDong(p,kg).forEach(x=>{if(x.ten)can.push({loai:'nl',ten:x.ten,kg:x.kg})}); if(!can.length)return '';
   const ds=can.map(x=>({...x,con:khoTon(x.loai,x.ten)})), th=ds.filter(x=>x.con!==null&&x.kg>x.con+1e-9), r3=x=>fmt(Math.round(x*1000)/1000);
   return `<div class="fld"><label>Cần cho mẻ này · so với sổ kho</label>${ds.map(x=>{const t=x.con!==null&&x.kg>x.con+1e-9;return `<div class="kh-can${t?' thieu':''}"><span><b>${esc(x.ten)}</b><small>sổ kho còn ${khoKg(x.con)}</small></span><span>cần <b>${r3(x.kg)} kg</b></span><span>${x.con===null?'chưa có số':t?'⛔ thiếu '+r3(x.kg-x.con)+' kg':'✅ đủ'}</span></div>`}).join('')}
-    ${th.length?`<div class="canh" style="margin-top:6px">Không đủ theo sổ kho: ${th.map(x=>'thiếu '+r3(x.kg-x.con)+' kg '+esc(x.ten)).join(' · ')}. Vẫn ghi mẻ được — kiểm tra kho thật, có hàng thì báo quản lý nhập sổ.</div>`:''}</div>`}
+    ${th.length?`<div class="canh" style="margin-top:6px">${th.map(x=>'<b>'+esc(x.ten)+'</b>: cần '+r3(x.kg)+' kg − kho còn '+khoKg(x.con)+' = <b>thiếu '+r3(x.kg-x.con)+' kg</b>').join('<br>')}<br>Vẫn ghi mẻ được. Nếu kho thật còn hàng thì nhắn quản lý nhập thêm vào app.</div>`:''}</div>`}
 function khoNhay(id){requestAnimationFrame(()=>{const el=document.getElementById(id); if(!el)return; el.scrollIntoView({block:'center'}); el.classList.remove('kh-nhay'); void el.offsetWidth; el.classList.add('kh-nhay')})}
 document.addEventListener('click',e=>{const m=e.target.closest('[data-khoman]'); if(m){khoMan=m.dataset.khoman; ve(); return}
   if(e.target.closest('[data-khoboloc]')){khoLoc.nl=''; ve(); return}

@@ -64,7 +64,7 @@ await N.click('[data-kiem]'); await N.waitForTimeout(600); // 27/08/2026-lần4:
 ok('nhân viên ghi được mẻ', (await N.evaluate(()=>nk.length))===1, await N.evaluate(()=>nk[0]?.lot||'—'));
 
 // ── 2b. NHÂN VIÊN: gửi thêm 1 "Báo cáo tiến độ" cuối ngày, gắn với ĐÚNG LÔ vừa ghi (25/08/2026-J)
-await N.click('[data-tab="bc"]'); await N.waitForTimeout(300);
+await N.evaluate(()=>{tab='bc';ve()}); /* R60: tab Chốt thực tế đã ẩn, form vẫn còn trong code */ await N.waitForTimeout(300);
 const locIdBC=await N.evaluate(()=>nk[0].id);
 await N.selectOption('#bcLotIn', locIdBC);
 await N.fill('#bcKgIn','80');
